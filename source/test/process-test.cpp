@@ -1,0 +1,122 @@
+#include "crow/process.hpp"
+#include "crow/channel.hpp"
+#include "crow/string.hpp"
+#include "crow/unit-test.hpp"
+#include <algorithm>
+#include <chrono>
+#include <memory>
+#include <string>
+
+using namespace Crow;
+using namespace std::chrono;
+using namespace std::literals;
+
+namespace {
+
+    #ifdef _XOPEN_SOURCE
+        const std::string list_command = "ls /";
+        const std::string file1 = "bin";
+        const std::string file2 = "usr";
+    #else
+        const std::string list_command = "dir /b \"c:\\\"";
+        const std::string file1 = "Program Files";
+        const std::string file2 = "Windows";
+    #endif
+
+    template <typename C, typename T>
+    bool range_contains(const C& c, const T& t) {
+        return std::find(c.begin(), c.end(), t) != c.end();
+    }
+
+}
+
+void test_crow_process_stream() {
+
+    std::unique_ptr<StreamProcess> chan;
+    std::string s;
+    std::vector<std::string> vec;
+    int st = -1;
+    size_t n = 0;
+
+    TRY(chan = std::make_unique<StreamProcess>(list_command));
+    TEST(chan->wait_for(100ms));
+    TEST(! chan->is_closed());
+    TRY(n = chan->append(s));
+    TEST(n > 0u);
+    TEST_MATCH(s, "[\\r\\n A-Za-z0-9._-]+");
+
+    TRY(vec = split(s, "\r\n"));
+    TEST(! vec.empty());
+    TEST(range_contains(vec, file1));
+    TEST(range_contains(vec, file2));
+
+    TEST(chan->wait_for(10ms));
+    TEST(! chan->is_closed());
+    TRY(n = chan->append(s));
+    TEST_EQUAL(n, 0u);
+    TEST(chan->wait_for(10ms));
+    TEST(chan->is_closed());
+    TRY(st = chan->status());
+    TEST_EQUAL(st, 0);
+
+    chan.reset();
+    TRY(chan = std::make_unique<StreamProcess>(list_command));
+    TRY(s = chan->read_all());
+    TRY(vec = split(s, "\r\n"));
+    TEST(! vec.empty());
+    TEST(range_contains(vec, file1));
+    TEST(range_contains(vec, file2));
+
+}
+
+void test_crow_process_text() {
+
+    std::unique_ptr<TextProcess> chan;
+    std::string s;
+    std::vector<std::string> vec;
+    int st = -1;
+    bool rc = false;
+
+    TRY(chan = std::make_unique<TextProcess>(list_command));
+
+    for (int i = 1; i <= 1000; ++i) {
+        TRY(rc = bool(chan->wait_for(10ms)));
+        if (chan->is_closed())
+            break;
+        if (rc) {
+            TEST(chan->read(s));
+            vec.push_back(s);
+        }
+    }
+
+    TEST(! vec.empty());
+    TEST(range_contains(vec, file1));
+    TEST(range_contains(vec, file2));
+
+    TRY(chan->close());
+    TRY(st = chan->status());
+    TEST_EQUAL(st, 0);
+
+    chan.reset();
+    TRY(chan = std::make_unique<TextProcess>(list_command));
+    TRY(s = chan->read_all());
+    TRY(vec = split(s, "\r\n"));
+    TEST(! vec.empty());
+    TEST(range_contains(vec, file1));
+    TEST(range_contains(vec, file2));
+
+}
+
+void test_crow_process_shell_command() {
+
+    std::string s;
+    std::vector<std::string> vec;
+
+    TRY(s = shell(list_command));
+    TEST(! s.empty());
+    TRY(vec = split(s, "\r\n"));
+    TEST(! vec.empty());
+    TEST(range_contains(vec, file1));
+    TEST(range_contains(vec, file2));
+
+}
