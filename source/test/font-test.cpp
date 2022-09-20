@@ -181,10 +181,10 @@ void test_crow_font_text_wrapping() {
     TRY(s_serif = ScaledFont(serif, 100));
 
     TRY(lines = s_mono.text_wrap("", result, 1000));
-    TEST_EQUAL(lines, 0);
+    TEST_EQUAL(lines, 0u);
 
     TRY(lines = s_mono.text_wrap(lorem, result, 1000));
-    TEST_EQUAL(lines, 32);
+    TEST_EQUAL(lines, 32u);
     TEST_EQUAL(result,
         "Lorem ipsum dolor\n"
         "sit amet,\n"
@@ -221,7 +221,7 @@ void test_crow_font_text_wrapping() {
     );
 
     TRY(lines = s_mono.text_wrap(lorem, result, 5000));
-    TEST_EQUAL(lines, 8);
+    TEST_EQUAL(lines, 8u);
     TEST_EQUAL(result,
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor\n"
         "incididunt ut labore et dolore magna aliqua.\n"
@@ -234,10 +234,10 @@ void test_crow_font_text_wrapping() {
     );
 
     TRY(lines = s_serif.text_wrap("", result, 1000));
-    TEST_EQUAL(lines, 0);
+    TEST_EQUAL(lines, 0u);
 
     TRY(lines = s_serif.text_wrap(lorem, result, 1000));
-    TEST_EQUAL(lines, 28);
+    TEST_EQUAL(lines, 28u);
     TEST_EQUAL(result,
         "Lorem ipsum dolor\n"
         "sit amet,\n"
@@ -270,7 +270,7 @@ void test_crow_font_text_wrapping() {
     );
 
     TRY(lines = s_serif.text_wrap(lorem, result, 5000));
-    TEST_EQUAL(lines, 7);
+    TEST_EQUAL(lines, 7u);
     TEST_EQUAL(result,
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut\n"
         "labore et dolore magna aliqua.\n"
