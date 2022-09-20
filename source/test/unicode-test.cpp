@@ -39,19 +39,19 @@ void test_crow_unicode_character_encoding() {
     char32_t c = 0;
     size_t pos = 0;
 
-    s = "";                    pos = 0;  TRY(c = decode_char(s, pos));        TEST_EQUAL(pos, 0u);  TEST_EQUAL(c, ~ char32_t(0));
-    s = "\x4d\n";              pos = 0;  TRY(c = decode_char(s, pos));        TEST_EQUAL(pos, 1u);  TEST_EQUAL(c, 0x4du);
-    s = "\xd0\xb0\n";          pos = 0;  TRY(c = decode_char(s, pos));        TEST_EQUAL(pos, 2u);  TEST_EQUAL(c, 0x430u);
-    s = "\xe4\xba\x8c\n";      pos = 0;  TRY(c = decode_char(s, pos));        TEST_EQUAL(pos, 3u);  TEST_EQUAL(c, 0x4e8cu);
-    s = "\xf0\x90\x8c\x82\n";  pos = 0;  TRY(c = decode_char(s, pos));        TEST_EQUAL(pos, 4u);  TEST_EQUAL(c, 0x10302u);
-    s = "\xf4\x8f\xbf\xbd\n";  pos = 0;  TRY(c = decode_char(s, pos));        TEST_EQUAL(pos, 4u);  TEST_EQUAL(c, 0x10fffdu);
-    s = "\xc0\n";              pos = 0;  TRY(c = decode_char(s, pos));        TEST_EQUAL(pos, 1u);  TEST_EQUAL(c, ~ char32_t(0));
-    s = "\xf5\n";              pos = 0;  TRY(c = decode_char(s, pos));        TEST_EQUAL(pos, 1u);  TEST_EQUAL(c, ~ char32_t(0));
-    s = "\x4d\n";              pos = 0;  TRY(c = check_decode_char(s, pos));  TEST_EQUAL(pos, 1u);  TEST_EQUAL(c, 0x4du);
-    s = "\xd0\xb0\n";          pos = 0;  TRY(c = check_decode_char(s, pos));  TEST_EQUAL(pos, 2u);  TEST_EQUAL(c, 0x430u);
-    s = "\xe4\xba\x8c\n";      pos = 0;  TRY(c = check_decode_char(s, pos));  TEST_EQUAL(pos, 3u);  TEST_EQUAL(c, 0x4e8cu);
-    s = "\xf0\x90\x8c\x82\n";  pos = 0;  TRY(c = check_decode_char(s, pos));  TEST_EQUAL(pos, 4u);  TEST_EQUAL(c, 0x10302u);
-    s = "\xf4\x8f\xbf\xbd\n";  pos = 0;  TRY(c = check_decode_char(s, pos));  TEST_EQUAL(pos, 4u);  TEST_EQUAL(c, 0x10fffdu);
+    s = "";                    pos = 0;  TRY(c = decode_char(s, pos));        TEST_EQUAL(pos, 0u);  TEST(c == ~ char32_t(0));
+    s = "\x4d\n";              pos = 0;  TRY(c = decode_char(s, pos));        TEST_EQUAL(pos, 1u);  TEST(c == 0x4du);
+    s = "\xd0\xb0\n";          pos = 0;  TRY(c = decode_char(s, pos));        TEST_EQUAL(pos, 2u);  TEST(c == 0x430u);
+    s = "\xe4\xba\x8c\n";      pos = 0;  TRY(c = decode_char(s, pos));        TEST_EQUAL(pos, 3u);  TEST(c == 0x4e8cu);
+    s = "\xf0\x90\x8c\x82\n";  pos = 0;  TRY(c = decode_char(s, pos));        TEST_EQUAL(pos, 4u);  TEST(c == 0x10302u);
+    s = "\xf4\x8f\xbf\xbd\n";  pos = 0;  TRY(c = decode_char(s, pos));        TEST_EQUAL(pos, 4u);  TEST(c == 0x10fffdu);
+    s = "\xc0\n";              pos = 0;  TRY(c = decode_char(s, pos));        TEST_EQUAL(pos, 1u);  TEST(c == ~ char32_t(0));
+    s = "\xf5\n";              pos = 0;  TRY(c = decode_char(s, pos));        TEST_EQUAL(pos, 1u);  TEST(c == ~ char32_t(0));
+    s = "\x4d\n";              pos = 0;  TRY(c = check_decode_char(s, pos));  TEST_EQUAL(pos, 1u);  TEST(c == 0x4du);
+    s = "\xd0\xb0\n";          pos = 0;  TRY(c = check_decode_char(s, pos));  TEST_EQUAL(pos, 2u);  TEST(c == 0x430u);
+    s = "\xe4\xba\x8c\n";      pos = 0;  TRY(c = check_decode_char(s, pos));  TEST_EQUAL(pos, 3u);  TEST(c == 0x4e8cu);
+    s = "\xf0\x90\x8c\x82\n";  pos = 0;  TRY(c = check_decode_char(s, pos));  TEST_EQUAL(pos, 4u);  TEST(c == 0x10302u);
+    s = "\xf4\x8f\xbf\xbd\n";  pos = 0;  TRY(c = check_decode_char(s, pos));  TEST_EQUAL(pos, 4u);  TEST(c == 0x10fffdu);
 
     s = "";        pos = 0;  TEST_THROW(check_decode_char(s, pos), std::out_of_range);      TEST_EQUAL(pos, 0u);
     s = "\xc0\n";  pos = 0;  TEST_THROW(check_decode_char(s, pos), std::invalid_argument);  TEST_EQUAL(pos, 0u);
@@ -75,10 +75,10 @@ void test_crow_unicode_character_encoding() {
     TEST_THROW(check_encode_char(0xd800, s), std::invalid_argument);
     TEST_THROW(check_encode_char(0x110000, s), std::invalid_argument);
 
-    u = u"";    pos = 0;  TRY(c = decode_char(u, pos));  TEST_EQUAL(pos, 0u);  TEST_EQUAL(c, ~ char32_t(0));
-    u = u"A";   pos = 0;  TRY(c = decode_char(u, pos));  TEST_EQUAL(pos, 1u);  TEST_EQUAL(c, U'A');
-    u = u"€";   pos = 0;  TRY(c = decode_char(u, pos));  TEST_EQUAL(pos, 1u);  TEST_EQUAL(c, U'€');
-    u = u"😀";  pos = 0;  TRY(c = decode_char(u, pos));  TEST_EQUAL(pos, 2u);  TEST_EQUAL(c, U'😀');
+    u = u"";    pos = 0;  TRY(c = decode_char(u, pos));  TEST_EQUAL(pos, 0u);  TEST(c == ~ char32_t(0));
+    u = u"A";   pos = 0;  TRY(c = decode_char(u, pos));  TEST_EQUAL(pos, 1u);  TEST(c == U'A');
+    u = u"€";   pos = 0;  TRY(c = decode_char(u, pos));  TEST_EQUAL(pos, 1u);  TEST(c == U'€');
+    u = u"😀";  pos = 0;  TRY(c = decode_char(u, pos));  TEST_EQUAL(pos, 2u);  TEST(c == U'😀');
 
     u = u"";       pos = 0;  TEST_THROW(check_decode_char(u, pos), std::out_of_range);      TEST_EQUAL(pos, 0u);
     u = {0xd800};  pos = 0;  TEST_THROW(check_decode_char(u, pos), std::invalid_argument);  TEST_EQUAL(pos, 0u);

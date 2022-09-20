@@ -264,6 +264,12 @@ target_link_libraries(${unittest}
     PRIVATE Threads::Threads
 )
 
+if("${CMAKE_SYSTEM}" MATCHES "Linux")
+    target_link_libraries(${unittest}
+        PRIVATE crypto
+    )
+endif()
+
 install(FILES ${library}.hpp DESTINATION include)
 install(DIRECTORY ${library} DESTINATION include PATTERN "*.cpp" EXCLUDE)
 install(TARGETS ${library} LIBRARY DESTINATION lib)
