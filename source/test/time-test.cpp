@@ -266,34 +266,34 @@ void test_crow_time_point_formatting() {
 
 void test_crow_time_point_conversion() {
 
-    using sys_time = system_clock::time_point;
-    using hrc_time = high_resolution_clock::time_point;
+    using Htime = high_resolution_clock::time_point;
+    using Stime = system_clock::time_point;
 
-    sys_time sys1, sys2, sys3;
-    hrc_time hrc1, hrc2, hrc3;
+    Htime h1, h2, h3;
+    Stime s1, s2, s3;
     milliseconds ms;
 
-    sys1 = system_clock::now();
-    hrc1 = high_resolution_clock::now();
-    sys2 = sys1 + 1min;
-    hrc2 = hrc1 + 1min;
+    h1 = high_resolution_clock::now();
+    h2 = h1 + 1min;
+    s1 = system_clock::now();
+    s2 = s1 + 1min;
 
-    TRY(convert_time_point(sys2, sys3));  ms = duration_cast<milliseconds>(sys3 - sys1);  TEST_EQUAL(ms.count(), 60'000);
-    TRY(convert_time_point(hrc2, hrc3));  ms = duration_cast<milliseconds>(hrc3 - hrc1);  TEST_EQUAL(ms.count(), 60'000);
-    TRY(convert_time_point(hrc2, sys3));  ms = duration_cast<milliseconds>(sys3 - sys1);  TEST_NEAR(ms.count(), 60'000, 50);
-    TRY(convert_time_point(sys2, hrc3));  ms = duration_cast<milliseconds>(hrc3 - hrc1);  TEST_NEAR(ms.count(), 60'000, 50);
+    TRY(convert_time_point(h2, h3));  ms = duration_cast<milliseconds>(h3 - h1);  TEST_EQUAL(ms.count(), 60'000);
+    TRY(convert_time_point(s2, s3));  ms = duration_cast<milliseconds>(s3 - s1);  TEST_EQUAL(ms.count(), 60'000);
+    TRY(convert_time_point(s2, h3));  ms = duration_cast<milliseconds>(h3 - h1);  TEST_NEAR(ms.count(), 60'000, 50);
+    TRY(convert_time_point(h2, s3));  ms = duration_cast<milliseconds>(s3 - s1);  TEST_NEAR(ms.count(), 60'000, 50);
 
 }
 
 void test_crow_time_system_specific_conversions() {
 
-    using fsec = duration<double>;
-    using days = duration<int64_t, std::ratio<86400>>;
+    using Dsec = duration<double>;
+    using Days = duration<int64_t, std::ratio<86400>>;
 
     milliseconds ms = {};
     seconds s = {};
-    days d = {};
-    fsec fs = {};
+    Days d = {};
+    Dsec fs = {};
     timespec ts = {};
     timeval tv = {};
 
@@ -330,29 +330,29 @@ void test_crow_time_system_specific_conversions() {
     tv = {86'400, 125'000};      TRY(timeval_to_duration(tv, ms));   TEST_EQUAL(ms.count(), 86'400'125);
     tv = {86'400, 125'000};      TRY(timeval_to_duration(tv, s));    TEST_EQUAL(s.count(), 86'400);
 
-    fs = fsec(0);                   TRY(duration_to_timespec(fs, ts));  TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 0);
-    d = days(0);                    TRY(duration_to_timespec(d, ts));   TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 0);
+    fs = Dsec(0);                   TRY(duration_to_timespec(fs, ts));  TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 0);
+    d = Days(0);                    TRY(duration_to_timespec(d, ts));   TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 0);
     ms = milliseconds(0);           TRY(duration_to_timespec(ms, ts));  TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 0);
     s = seconds(0);                 TRY(duration_to_timespec(s, ts));   TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 0);
-    fs = fsec(0.125);               TRY(duration_to_timespec(fs, ts));  TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 125'000'000);
+    fs = Dsec(0.125);               TRY(duration_to_timespec(fs, ts));  TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 125'000'000);
     ms = milliseconds(125);         TRY(duration_to_timespec(ms, ts));  TEST_EQUAL(ts.tv_sec, 0);       TEST_EQUAL(ts.tv_nsec, 125'000'000);
-    fs = fsec(86'400);              TRY(duration_to_timespec(fs, ts));  TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 0);
-    d = days(1);                    TRY(duration_to_timespec(d, ts));   TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 0);
+    fs = Dsec(86'400);              TRY(duration_to_timespec(fs, ts));  TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 0);
+    d = Days(1);                    TRY(duration_to_timespec(d, ts));   TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 0);
     ms = milliseconds(86'400'000);  TRY(duration_to_timespec(ms, ts));  TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 0);
     s = seconds(86'400);            TRY(duration_to_timespec(s, ts));   TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 0);
-    fs = fsec(86'400.125);          TRY(duration_to_timespec(fs, ts));  TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 125'000'000);
+    fs = Dsec(86'400.125);          TRY(duration_to_timespec(fs, ts));  TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 125'000'000);
     ms = milliseconds(86'400'125);  TRY(duration_to_timespec(ms, ts));  TEST_EQUAL(ts.tv_sec, 86'400);  TEST_EQUAL(ts.tv_nsec, 125'000'000);
-    fs = fsec(0);                   TRY(duration_to_timeval(fs, tv));   TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 0);
-    d = days(0);                    TRY(duration_to_timeval(d, tv));    TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 0);
+    fs = Dsec(0);                   TRY(duration_to_timeval(fs, tv));   TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 0);
+    d = Days(0);                    TRY(duration_to_timeval(d, tv));    TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 0);
     ms = milliseconds(0);           TRY(duration_to_timeval(ms, tv));   TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 0);
     s = seconds(0);                 TRY(duration_to_timeval(s, tv));    TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 0);
-    fs = fsec(0.125);               TRY(duration_to_timeval(fs, tv));   TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 125'000);
+    fs = Dsec(0.125);               TRY(duration_to_timeval(fs, tv));   TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 125'000);
     ms = milliseconds(125);         TRY(duration_to_timeval(ms, tv));   TEST_EQUAL(tv.tv_sec, 0);       TEST_EQUAL(tv.tv_usec, 125'000);
-    fs = fsec(86'400);              TRY(duration_to_timeval(fs, tv));   TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 0);
-    d = days(1);                    TRY(duration_to_timeval(d, tv));    TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 0);
+    fs = Dsec(86'400);              TRY(duration_to_timeval(fs, tv));   TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 0);
+    d = Days(1);                    TRY(duration_to_timeval(d, tv));    TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 0);
     ms = milliseconds(86'400'000);  TRY(duration_to_timeval(ms, tv));   TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 0);
     s = seconds(86'400);            TRY(duration_to_timeval(s, tv));    TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 0);
-    fs = fsec(86'400.125);          TRY(duration_to_timeval(fs, tv));   TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 125'000);
+    fs = Dsec(86'400.125);          TRY(duration_to_timeval(fs, tv));   TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 125'000);
     ms = milliseconds(86'400'125);  TRY(duration_to_timeval(ms, tv));   TEST_EQUAL(tv.tv_sec, 86'400);  TEST_EQUAL(tv.tv_usec, 125'000);
 
     #ifdef _WIN32

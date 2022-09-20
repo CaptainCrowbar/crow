@@ -418,7 +418,7 @@ namespace Crow {
                 continue;
             digit = get_digit(*ptr);
             if (digit >= base)
-                throw std::invalid_argument(format("Invalid base {0} integer: {1:q}", base, s));
+                throw std::invalid_argument(Crow::format("Invalid base {0} integer: {1:q}", base, s));
             *this *= nbase;
             *this += digit;
         }

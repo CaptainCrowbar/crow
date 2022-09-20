@@ -227,28 +227,28 @@ void test_crow_function() {
 
     std::vector<int> v = {123,456,789};
 
-    TEST_EQUAL(format(""),                    /**/           "");
-    TEST_EQUAL(format("Hello world!"),        /**/           "Hello world!");
-    TEST_EQUAL(format("Hello {0}!",           "world"),      "Hello world!");
-    TEST_EQUAL(format("Hello {0}!",           42),           "Hello 42!");
-    TEST_EQUAL(format("Hello \\{0\\}!",       42),           "Hello {0}!");
-    TEST_EQUAL(format("Hello \\{{0}\\}!",     42),           "Hello {42}!");
-    TEST_EQUAL(format("Hello {0} {1}!",       "world", 42),  "Hello world 42!");
-    TEST_EQUAL(format("Hello {1} {0}!",       "world", 42),  "Hello 42 world!");
-    TEST_EQUAL(format("({0})",                0.0),          "(0)");
-    TEST_EQUAL(format("({0}) ({1})",          42.0, 86.99),  "(42) (86.99)");
-    TEST_EQUAL(format("({0})",                42.0, 86.99),  "(42)");
-    TEST_EQUAL(format("({1})",                42.0, 86.99),  "(86.99)");
-    TEST_EQUAL(format("({0:e4}) ({1:e4})",    42.0, 86.99),  "(4.200e1) (8.699e1)");
-    TEST_EQUAL(format("({0:f4}) ({1:f4})",    42.0, 86.99),  "(42.0000) (86.9900)");
-    TEST_EQUAL(format("({0:g4}) ({1:g4})",    42.0, 86.99),  "(42.00) (86.99)");
-    TEST_EQUAL(format("({0:gz4}) ({1:gz4})",  42.0, 86.99),  "(42) (86.99)");
-    TEST_EQUAL(format("{0:T} = {0}",          1234.5),       "double = 1234.5");
-    TEST_MATCH(format("{0}",                  Argh()),       "::Argh:<0x[[:xdigit:]]+>$");
-    TEST_MATCH(format("{0}",                  v),            "[123,456,789]");
-    TEST_MATCH(format("{0:x4}",               v),            "[007b,01c8,0315]");
-    TEST_MATCH(format("{0:f2}",               v),            "[123.00,456.00,789.00]");
-    TEST_THROW(format("{0} {1} {2}",          86, 99),       std::out_of_range);
+    TEST_EQUAL(Crow::format(""),                    /**/           "");
+    TEST_EQUAL(Crow::format("Hello world!"),        /**/           "Hello world!");
+    TEST_EQUAL(Crow::format("Hello {0}!",           "world"),      "Hello world!");
+    TEST_EQUAL(Crow::format("Hello {0}!",           42),           "Hello 42!");
+    TEST_EQUAL(Crow::format("Hello \\{0\\}!",       42),           "Hello {0}!");
+    TEST_EQUAL(Crow::format("Hello \\{{0}\\}!",     42),           "Hello {42}!");
+    TEST_EQUAL(Crow::format("Hello {0} {1}!",       "world", 42),  "Hello world 42!");
+    TEST_EQUAL(Crow::format("Hello {1} {0}!",       "world", 42),  "Hello 42 world!");
+    TEST_EQUAL(Crow::format("({0})",                0.0),          "(0)");
+    TEST_EQUAL(Crow::format("({0}) ({1})",          42.0, 86.99),  "(42) (86.99)");
+    TEST_EQUAL(Crow::format("({0})",                42.0, 86.99),  "(42)");
+    TEST_EQUAL(Crow::format("({1})",                42.0, 86.99),  "(86.99)");
+    TEST_EQUAL(Crow::format("({0:e4}) ({1:e4})",    42.0, 86.99),  "(4.200e1) (8.699e1)");
+    TEST_EQUAL(Crow::format("({0:f4}) ({1:f4})",    42.0, 86.99),  "(42.0000) (86.9900)");
+    TEST_EQUAL(Crow::format("({0:g4}) ({1:g4})",    42.0, 86.99),  "(42.00) (86.99)");
+    TEST_EQUAL(Crow::format("({0:gz4}) ({1:gz4})",  42.0, 86.99),  "(42) (86.99)");
+    TEST_EQUAL(Crow::format("{0:T} = {0}",          1234.5),       "double = 1234.5");
+    TEST_MATCH(Crow::format("{0}",                  Argh()),       "::Argh:<0x[[:xdigit:]]+>$");
+    TEST_MATCH(Crow::format("{0}",                  v),            "[123,456,789]");
+    TEST_MATCH(Crow::format("{0:x4}",               v),            "[007b,01c8,0315]");
+    TEST_MATCH(Crow::format("{0:f2}",               v),            "[123.00,456.00,789.00]");
+    TEST_THROW(Crow::format("{0} {1} {2}",          86, 99),       std::out_of_range);
 
 }
 

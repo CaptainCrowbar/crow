@@ -56,7 +56,7 @@ void test_crow_image_io_load() {
     Image<Rgbaf> hdr;
     Image<Rgba8> rgb;
 
-    TEST_THROW_MATCH(hdr.load(no_such_file), ImageIoError, no_such_file);
+    TEST_THROW_MATCH(hdr.load(no_such_file), ImageIoError, "no-such-file.png");
 
     TRY(hdr.load(png_file));
     TEST_EQUAL(hdr.width(), 20);

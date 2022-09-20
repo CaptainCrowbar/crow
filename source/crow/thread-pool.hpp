@@ -76,6 +76,7 @@ namespace Crow {
         void ThreadPool::each(int start, int delta, int stop, F&& f) {
             using function_type = std::function<void(int)>;
             const auto do_insert = [this,f] (int i) {
+                (void)i; // MSVC brain damage
                 if constexpr (std::is_convertible_v<F, function_type>)
                     insert([f,i] { f(i); });
                 else
@@ -95,6 +96,7 @@ namespace Crow {
             using value_type = RangeValue<Range>;
             using function_type = std::function<void(value_type&)>;
             for (auto& x: range) {
+                (void)x; // MSVC brain damage
                 if constexpr (std::is_convertible_v<F, function_type>)
                     insert([f,&x] { f(x); });
                 else

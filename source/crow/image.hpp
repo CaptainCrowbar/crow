@@ -285,7 +285,7 @@ namespace Crow {
 
             Img2 result(in.shape());
             int dy, y1, y2;
-            if (Img1::is_top_down == Img2::is_top_down) {
+            if constexpr (Img1::is_top_down == Img2::is_top_down) {
                 dy = 1;
                 y1 = 0;
                 y2 = in.height();

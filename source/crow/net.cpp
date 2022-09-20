@@ -703,11 +703,11 @@ namespace Crow {
             *index = std::string::npos;
         fd_set rfds;
         FD_ZERO(&rfds);
-        int last = -1;
+        int last_socket = -1;
         for (size_t i = 0; i < n; ++i) {
             if (sockets[i] != no_socket) {
                 FD_SET(sockets[i], &rfds);
-                last = std::max(last, int(sockets[i]));
+                last_socket = std::max(last_socket, int(sockets[i]));
             }
         }
         fd_set efds = rfds;
@@ -715,7 +715,7 @@ namespace Crow {
         if (t > duration())
             duration_to_timeval(t, tv);
         clear_error();
-        auto rc = net_call(::select(last + 1, &rfds, nullptr, &efds, &tv));
+        auto rc = net_call(::select(last_socket + 1, &rfds, nullptr, &efds, &tv));
         if (rc.res == 0)
             return 0;
         else if (rc.res == -1 && rc.err == e_badf)

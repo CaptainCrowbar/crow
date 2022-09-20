@@ -95,8 +95,8 @@ void test_crow_image_premultiplied_alpha() {
 
     static const Rgba8 bc1 = {50,100,150,200};
     static const Rgba8 bc2 = {39,78,118,200};
-    static const Rgbaf fc1 = {0.2,0.4,0.6,0.8};
-    static const Rgbaf fc2 = {0.16,0.32,0.48,0.8};
+    static const Rgbaf fc1 = {0.2f,0.4f,0.6f,0.8f};
+    static const Rgbaf fc2 = {0.16f,0.32f,0.48f,0.8f};
 
     Image8 rgb1, rgb2;
     HdrImage hdr1, hdr2;
@@ -136,8 +136,8 @@ void test_crow_image_conversion() {
 
     static const Rgba8 bc1 = {50,100,150,200};
     static const Rgba8 bc2 = {39,78,118,200};
-    static const Rgbaf fc1 = {0.2,0.4,0.6,0.8};
-    static const Rgbaf fc2 = {0.16,0.32,0.48,0.8};
+    static const Rgbaf fc1 = {0.2f,0.4f,0.6f,0.8f};
+    static const Rgbaf fc2 = {0.16f,0.32f,0.48f,0.8f};
 
     Image8 rgb1, rgb2;
     HdrImage hdr1, hdr2;

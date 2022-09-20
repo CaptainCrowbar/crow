@@ -101,7 +101,7 @@ namespace Crow {
                 return "0";
             else if (t == 1)
                 return pc ? "100" : "1";
-            T k = pc ? 100 : 1;
+            T k = T(pc ? 100 : 1);
             if (t < T(0.9))
                 return format_float_d(k * t, spec);
             auto result = format_float_d(k * (1 - t), spec);
@@ -109,7 +109,7 @@ namespace Crow {
             int b = a - 1;
             for (auto i = int(result.find_last_not_of('0')); i >= 0; --i, a = b)
                 if (ascii_isdigit(result[i]))
-                    result[i] = a - result[i];
+                    result[i] = char(a - result[i]);
             if (pc)
                 result.insert(0, 1, '9');
             else

@@ -110,20 +110,20 @@ namespace Crow::Detail {
         template <typename C>
         constexpr C ImageMask<T>::blend(C fg, C bg, T alpha, Pma pma) noexcept {
 
-            using value_type = typename C::value_type;
-            using alpha_type = std::conditional_t<(sizeof(value_type) < sizeof(double)), float, double>;
+            using V = typename C::value_type;
+            using A = std::conditional_t<(sizeof(V) < sizeof(double)), float, double>;
 
-            alpha_type a = alpha_type(alpha) / alpha_type(scale);
+            A a = A(alpha) / A(scale);
 
             if constexpr (C::has_alpha) {
 
-                alpha_type fga1 = a * alpha_type(fg.alpha());
-                value_type fga2;
+                A fga1 = a * A(fg.alpha());
+                V fga2;
 
-                if constexpr (std::is_floating_point_v<value_type>)
-                    fga2 = value_type(fga1);
+                if constexpr (std::is_floating_point_v<V>)
+                    fga2 = V(fga1);
                 else
-                    fga2 = value_type(alpha_type(C::scale) * fga1 + alpha_type(0.5));
+                    fga2 = V(A(C::scale) * fga1 + A(0.5));
 
                 C modified_fg = fg;
                 modified_fg.alpha() = fga2;

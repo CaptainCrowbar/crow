@@ -270,6 +270,12 @@ if("${CMAKE_SYSTEM}" MATCHES "Linux")
     )
 endif()
 
+if(WIN32)
+    target_link_libraries(${unittest}
+        PRIVATE ws2_32
+    )
+endif()
+
 install(FILES ${library}.hpp DESTINATION include)
 install(DIRECTORY ${library} DESTINATION include PATTERN "*.cpp" EXCLUDE)
 install(TARGETS ${library} LIBRARY DESTINATION lib)

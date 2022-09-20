@@ -173,7 +173,7 @@ void test_crow_font_text_wrapping() {
     Font mono, serif;
     ScaledFont s_mono, s_serif;
     std::string result;
-    int lines = 0;
+    size_t lines = 0;
 
     TRY(mono = Font(mono_file));
     TRY(serif = Font(serif_file));

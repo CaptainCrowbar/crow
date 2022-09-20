@@ -230,7 +230,7 @@ namespace Crow {
         }
 
         bool init_font(FontCoreInfo& font, const unsigned char* data, size_t offset) {
-            if (! stbtt_InitFont(&font.info, data, offset))
+            if (! stbtt_InitFont(&font.info, data, int(offset)))
                 return false;
             init_font_names(font);
             init_font_metrics(font);
@@ -306,21 +306,19 @@ namespace Crow {
         #ifdef _WIN32
 
             Path get_windows_dir() {
-                std::u16string u16dir;
-                UINT size = 100;
+                std::wstring wdir;
+                unsigned size = 100;
                 for (;;) {
-                    u16dir.resize(size);
-                    size = GetWindowsDirectoryW(reinterpret_cast<wchar_t*>(u16dir.data()), size);
-                    if (size < u16dir.size())
+                    wdir.resize(size);
+                    size = GetWindowsDirectoryW(reinterpret_cast<wchar_t*>(wdir.data()), size);
+                    if (size < wdir.size())
                         break;
                 }
-                u16dir.resize(size);
-                Path path;
-                if (u16dir.empty())
-                    path = "C:\\Windows";
+                wdir.resize(size);
+                if (wdir.empty())
+                    return "C:\\Windows";
                 else
-                    path = u16dir;
-                return path;
+                    return wdir;
             }
 
         #else
@@ -817,7 +815,8 @@ namespace Crow {
 
         #ifdef _WIN32
 
-            search(merge_paths(get_windows_dir(), "Fonts"), Path::flag::recurse);
+            auto font_dir = Path::join(get_windows_dir(), "Fonts");
+            search(font_dir, Path::flag::recurse);
 
         #else
 
