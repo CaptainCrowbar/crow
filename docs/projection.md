@@ -71,7 +71,7 @@ currently supported.
 
 ### Class hierarchy
 
-![Map projection class hierarchy](images/projection-classes.drawio.png)
+![Map projection class hierarchy](images/projection-classes.png)
 
 ### Map projection base class
 
