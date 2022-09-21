@@ -424,7 +424,7 @@ namespace Crow {
         std::string Colour<VT, CS, CL>::hex() const {
             static_assert(cs_is_rgb<CS>);
             using namespace Literals;
-            static const auto format = has_alpha ? "{0:x2}{1:x2}{2:x2}{3:x2}"_fmt : "{0:x2}{1:x2}{2:x2}"_fmt;
+            static const auto form = has_alpha ? "{0:x2}{1:x2}{2:x2}{3:x2}"_fmt : "{0:x2}{1:x2}{2:x2}"_fmt;
             Vector<VT, 4> vts = {R(), G(), B(), alpha()};
             Byte4 bytes;
             if constexpr (std::is_same_v<VT, uint8_t>) {
@@ -434,7 +434,7 @@ namespace Crow {
                 for (int i = 0; i < channels; ++i)
                     bytes[i] = const_round<uint8_t>(k * double(vts[i]));
             }
-            return format(bytes[0], bytes[1], bytes[2], bytes[3]);
+            return form(bytes[0], bytes[1], bytes[2], bytes[3]);
         }
 
         template <typename VT, typename CS, ColourLayout CL>

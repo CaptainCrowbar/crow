@@ -69,32 +69,32 @@ static constexpr size_t IoBase::default_length = 65'536;
 Default maximum length for reads.
 
 ```c++
-virtual ~IoBase() noexcept;
+virtual IoBase::~IoBase() noexcept;
 ```
 
 Virtual destructor.
 
 ```c++
-virtual void close() = 0;
+virtual void IoBase::close() = 0;
 ```
 
 Close the file. This is only needed if you want to check for an error
 afterwards; any open file is closed by the destructor.
 
 ```c++
-virtual void flush() = 0;
+virtual void IoBase::flush() = 0;
 ```
 
 Flush the stream. The exact behaviour depends on the derived class. Flushing
 an input stream usually does nothing.
 
 ```c++
-virtual int getc();
-virtual size_t read(void* ptr, size_t maxlen) = 0;
-virtual std::string read_line();
-std::string read_all();
-size_t read_some(std::string& buf, size_t maxlen = default_length);
-std::string reads(size_t maxlen = default_length);
+virtual int IoBase::getc();
+virtual size_t IoBase::read(void* ptr, size_t maxlen) = 0;
+virtual std::string IoBase::read_line();
+std::string IoBase::read_all();
+size_t IoBase::read_some(std::string& buf, size_t maxlen = default_length);
+std::string IoBase::reads(size_t maxlen = default_length);
 ```
 
 Input functions. The `getc()` function reads one byte, returning the byte
@@ -113,17 +113,17 @@ All of the `read*()` functions indicate end of file by returning an empty
 string or a zero byte count.
 
 ```c++
-virtual bool is_open() const = 0;
+virtual bool IoBase::is_open() const = 0;
 ```
 
 True if the file is open.
 
 ```c++
-virtual void putc(char c);
-virtual size_t write(const void* ptr, size_t len) = 0;
-void write_chars(size_t n, char c);
-void write_line(const std::string& str = {});
-size_t writes(const std::string& str);
+virtual void IoBase::putc(char c);
+virtual size_t IoBase::write(const void* ptr, size_t len) = 0;
+void IoBase::write_chars(size_t n, char c);
+void IoBase::write_line(const std::string& str = {});
+size_t IoBase::writes(const std::string& str);
 ```
 
 Output functions. The `putc()` function writes one byte.
@@ -140,8 +140,8 @@ the call if an incomplete write occurs but is not reported as an error;
 not already end with one.
 
 ```c++
-virtual void seek(ptrdiff_t offset, int which = SEEK_CUR) = 0;
-virtual ptrdiff_t tell() = 0;
+virtual void IoBase::seek(ptrdiff_t offset, int which = SEEK_CUR) = 0;
+virtual ptrdiff_t IoBase::tell() = 0;
 ```
 
 Set or query the current position in the file. The `which` argument takes the
@@ -150,15 +150,15 @@ all streams.
 
 ```c++
 template <typename... Args>
-    void format(const std::string& pattern, Args&&... args);
-template <typename... Args> void print(Args&&... args);
+    void IoBase::format(const std::string& pattern, Args&&... args);
+template <typename... Args> void IoBase::print(Args&&... args);
 ```
 
 Formatted output functions. These call `Format::format()` or
 `Format::prints()` and write the resulting string to the output stream.
 
 ```c++
-Irange<LineIterator> lines();
+Irange<LineIterator> IoBase::lines();
 ```
 
 Return iterators over the lines in a file. These are obtained by calling
@@ -174,77 +174,77 @@ This class implements standard buffered I/O, using the `FILE*` based system
 API in `<cstdio>` or `<stdio.h>`
 
 ```c++
-using handle_type = FILE*;
+using Cstdio::handle_type = FILE*;
 ```
 
 The underlying native file handle type.
 
 ```c++
-Cstdio() noexcept;
+Cstdio::Cstdio() noexcept;
 ```
 
 Sets the file handle to null.
 
 ```c++
-explicit Cstdio(FILE* f) noexcept;
+explicit Cstdio::Cstdio(FILE* f) noexcept;
 ```
 
 Wraps a `Cstdio` object around an existing file pointer. This may be one of
 the standard I/O streams.
 
 ```c++
-explicit Cstdio(const Path& f, IoMode m = IoMode::read);
+explicit Cstdio::Cstdio(const Path& f, IoMode m = IoMode::read);
 ```
 
 Opens the file using one of the standard `IO::mode` values, defaulting to read
 only.
 
 ```c++
-Cstdio(const Path& f, const std::string& iomode);
+Cstdio::Cstdio(const Path& f, const std::string& iomode);
 ```
 
 Opens the file using the same kind of mode string as `fopen()`.
 
 ```c++
-~Cstdio() noexcept;
+Cstdio::~Cstdio() noexcept;
 ```
 
 The destructor closes the file, if it was still open and was not one of the
 standard IO streams.
 
 ```c++
-Cstdio(Cstdio&& obj);
-Cstdio& operator=(Cstdio&& obj);
+Cstdio::Cstdio(Cstdio&& obj);
+Cstdio& Cstdio::operator=(Cstdio&& obj);
 ```
 
 Other life cycle functions. This class is movable but not copyable.
 
 ```c++
-int fd() const;
+int Cstdio::fd() const;
 ```
 
 Returns the underlying file descriptor.
 
 ```c++
-FILE* get() const noexcept;
-FILE* release() noexcept;
+FILE* Cstdio::get() const noexcept;
+FILE* Cstdio::release() noexcept;
 ```
 
 Return the native file handle. The `release()` function sets the internal
 handle to null and abandons ownership of the stream.
 
 ```c++
-void ungetc(char c);
+void Cstdio::ungetc(char c);
 ```
 
 Calls the native `ungetc()` function to push one byte back into the stream
 buffer.
 
 ```c++
-static Cstdio null();
-static Cstdio std_input();
-static Cstdio std_output();
-static Cstdio std_error();
+static Cstdio Cstdio::null();
+static Cstdio Cstdio::std_input();
+static Cstdio Cstdio::std_output();
+static Cstdio Cstdio::std_error();
 ```
 
 Standard streams.
@@ -259,33 +259,33 @@ This class implements standard Posix unbuffered I/O, using the file descriptor
 based system API.
 
 ```c++
-using handle_type = int;
+using Fdio::handle_type = int;
 ```
 
 The underlying native file handle type.
 
 ```c++
-Fdio() noexcept;
+Fdio::Fdio() noexcept;
 ```
 
 Sets the file handle to -1.
 
 ```c++
-explicit Fdio(int f) noexcept;
+explicit Fdio::Fdio(int f) noexcept;
 ```
 
 Wraps an `Fdio` object around an existing file descriptor. This may be one of
 the standard I/O streams.
 
 ```c++
-explicit Fdio(const Path& f, IoMode m = IoMode::read);
+explicit Fdio::Fdio(const Path& f, IoMode m = IoMode::read);
 ```
 
 Opens the file using one of the standard `IO::mode` values, defaulting to read
 only.
 
 ```c++
-Fdio(const Path& f, int iomode, int perm = 0666);
+Fdio::Fdio(const Path& f, int iomode, int perm = 0666);
 ```
 
 Opens the file using the same flags used in the Posix `open()` function.
@@ -337,46 +337,46 @@ Opens the file using the same flags used in the Posix `open()` function.
 | `O_WTEXT`           | Open in UTF-16 text mode, check for BOM        | &mdash;  | &mdash;  | &mdash;  | Yes      |
 
 ```c++
-~Fdio() noexcept;
+Fdio::~Fdio() noexcept;
 ```
 
 The destructor closes the file, if it was still open and was not one of the
 standard IO streams.
 
 ```c++
-Fdio(Fdio&& obj);
-Fdio& operator=(Fdio&& obj);
+Fdio::Fdio(Fdio&& obj);
+Fdio& Fdio::operator=(Fdio&& obj);
 ```
 
 Other life cycle functions. This class is movable but not copyable.
 
 ```c++
-Fdio dup();
-Fdio dup(int f);
+Fdio Fdio::dup();
+Fdio Fdio::dup(int f);
 ```
 
 These call the native `dup()` or `dup2()` functions to duplicate a file
 descriptor.
 
 ```c++
-int get() const noexcept;
-int release() noexcept;
+int Fdio::get() const noexcept;
+int Fdio::release() noexcept;
 ```
 
 Return the native file handle. The `release()` function sets the internal
 handle to -1 and abandons ownership of the stream.
 
 ```c++
-static Fdio null();
-static Fdio std_input();
-static Fdio std_output();
-static Fdio std_error();
+static Fdio Fdio::null();
+static Fdio Fdio::std_input();
+static Fdio Fdio::std_output();
+static Fdio Fdio::std_error();
 ```
 
 Standard streams.
 
 ```c++
-static std::pair<Fdio, Fdio> pipe(size_t winmem = default_length);
+static std::pair<Fdio, Fdio> Fdio::pipe(size_t winmem = default_length);
 ```
 
 Opens a pipe (by calling the native `pipe()` function or the equivalent),
@@ -392,33 +392,33 @@ class Winio: public IoBase;
 This class implements I/O using the Win32 system API.
 
 ```c++
-using handle_type = HANDLE;
+using Winio::handle_type = HANDLE;
 ```
 
 The underlying native file handle type.
 
 ```c++
-Winio() noexcept;
+Winio::Winio() noexcept;
 ```
 
 Sets the file handle to null.
 
 ```c++
-explicit Winio(HANDLE f) noexcept;
+explicit Winio::Winio(HANDLE f) noexcept;
 ```
 
 Wraps a `Winio` object around an existing file handle. This may be one of the
 standard I/O streams.
 
 ```c++
-explicit Winio(const Path& f, IoMode m = IoMode::read);
+explicit Winio::Winio(const Path& f, IoMode m = IoMode::read);
 ```
 
 Opens the file using one of the standard `IO::mode` values, defaulting to read
 only.
 
 ```c++
-Winio(const Path& f, DWORD desired_access, DWORD share_mode,
+Winio::Winio(const Path& f, DWORD desired_access, DWORD share_mode,
     LPSECURITY_ATTRIBUTES security_attributes, DWORD creation_disposition,
     DWORD flags_and_attributes = 0, HANDLE template_file = nullptr);
 ```
@@ -426,32 +426,32 @@ Winio(const Path& f, DWORD desired_access, DWORD share_mode,
 Opens the file using the same arguments used in `CreateFile()`.
 
 ```c++
-~Winio() noexcept;
+Winio::~Winio() noexcept;
 ```
 
 The destructor closes the file, if it was still open and was not one of the
 standard IO streams.
 
 ```c++
-Winio(Winio&& obj);
-Winio& operator=(Winio&& obj);
+Winio::Winio(Winio&& obj);
+Winio& Winio::operator=(Winio&& obj);
 ```
 
 Other life cycle functions. This class is movable but not copyable.
 
 ```c++
-HANDLE get() const noexcept;
-HANDLE release() noexcept;
+HANDLE Winio::get() const noexcept;
+HANDLE Winio::release() noexcept;
 ```
 
 Return the native file handle. The `release()` function sets the internal
 handle to null and abandons ownership of the stream.
 
 ```c++
-static Winio null();
-static Winio std_input();
-static Winio std_output();
-static Winio std_error();
+static Winio Winio::null();
+static Winio Winio::std_input();
+static Winio Winio::std_output();
+static Winio Winio::std_error();
 ```
 
 Standard streams.
@@ -470,29 +470,29 @@ If such a file exists, it may be left behind if the process terminates
 without properly destroying the `TempFile` object.
 
 ```c++
-TempFile();
+TempFile::TempFile();
 ```
 
 The default constructor creates a file in the system's standard location by
 calling `std::tmpfile()`.
 
 ```c++
-TempFile(const Path& dir, const std::string& prefix);
+TempFile::TempFile(const Path& dir, const std::string& prefix);
 ```
 
 Creates a file in the specified directory, with a leaf name starting with the
 specified prefix (which may be empty).
 
 ```c++
-~TempFile() noexcept;
-TempFile(TempFile&& obj);
-TempFile& operator=(TempFile&& obj);
+TempFile::~TempFile() noexcept;
+TempFile::TempFile(TempFile&& obj);
+TempFile& TempFile::operator=(TempFile&& obj);
 ```
 
 Other life cycle functions. This class is movable but not copyable.
 
 ```c++
-Path where() const;
+Path TempFile::where() const;
 ```
 
 Returns the actual location of the file. This may be empty if the object was

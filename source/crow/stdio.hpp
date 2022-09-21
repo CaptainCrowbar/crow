@@ -78,7 +78,7 @@ namespace Crow {
         size_t writes(const std::string& str);
 
         template <typename... Args> void format(const std::string& pattern, Args&&... args) {
-            writes(Crow::format(pattern, std::forward<Args>(args)...));
+            writes(fmt(pattern, std::forward<Args>(args)...));
         }
 
         template <typename... Args> void print(Args&&... args) {

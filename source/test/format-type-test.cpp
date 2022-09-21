@@ -227,55 +227,55 @@ void test_crow_function() {
 
     std::vector<int> v = {123,456,789};
 
-    TEST_EQUAL(Crow::format(""),                    /**/           "");
-    TEST_EQUAL(Crow::format("Hello world!"),        /**/           "Hello world!");
-    TEST_EQUAL(Crow::format("Hello {0}!",           "world"),      "Hello world!");
-    TEST_EQUAL(Crow::format("Hello {0}!",           42),           "Hello 42!");
-    TEST_EQUAL(Crow::format("Hello \\{0\\}!",       42),           "Hello {0}!");
-    TEST_EQUAL(Crow::format("Hello \\{{0}\\}!",     42),           "Hello {42}!");
-    TEST_EQUAL(Crow::format("Hello {0} {1}!",       "world", 42),  "Hello world 42!");
-    TEST_EQUAL(Crow::format("Hello {1} {0}!",       "world", 42),  "Hello 42 world!");
-    TEST_EQUAL(Crow::format("({0})",                0.0),          "(0)");
-    TEST_EQUAL(Crow::format("({0}) ({1})",          42.0, 86.99),  "(42) (86.99)");
-    TEST_EQUAL(Crow::format("({0})",                42.0, 86.99),  "(42)");
-    TEST_EQUAL(Crow::format("({1})",                42.0, 86.99),  "(86.99)");
-    TEST_EQUAL(Crow::format("({0:e4}) ({1:e4})",    42.0, 86.99),  "(4.200e1) (8.699e1)");
-    TEST_EQUAL(Crow::format("({0:f4}) ({1:f4})",    42.0, 86.99),  "(42.0000) (86.9900)");
-    TEST_EQUAL(Crow::format("({0:g4}) ({1:g4})",    42.0, 86.99),  "(42.00) (86.99)");
-    TEST_EQUAL(Crow::format("({0:gz4}) ({1:gz4})",  42.0, 86.99),  "(42) (86.99)");
-    TEST_EQUAL(Crow::format("{0:T} = {0}",          1234.5),       "double = 1234.5");
-    TEST_MATCH(Crow::format("{0}",                  Argh()),       "::Argh:<0x[[:xdigit:]]+>$");
-    TEST_MATCH(Crow::format("{0}",                  v),            "[123,456,789]");
-    TEST_MATCH(Crow::format("{0:x4}",               v),            "[007b,01c8,0315]");
-    TEST_MATCH(Crow::format("{0:f2}",               v),            "[123.00,456.00,789.00]");
-    TEST_THROW(Crow::format("{0} {1} {2}",          86, 99),       std::out_of_range);
+    TEST_EQUAL(fmt(""),                    /**/           "");
+    TEST_EQUAL(fmt("Hello world!"),        /**/           "Hello world!");
+    TEST_EQUAL(fmt("Hello {0}!",           "world"),      "Hello world!");
+    TEST_EQUAL(fmt("Hello {0}!",           42),           "Hello 42!");
+    TEST_EQUAL(fmt("Hello \\{0\\}!",       42),           "Hello {0}!");
+    TEST_EQUAL(fmt("Hello \\{{0}\\}!",     42),           "Hello {42}!");
+    TEST_EQUAL(fmt("Hello {0} {1}!",       "world", 42),  "Hello world 42!");
+    TEST_EQUAL(fmt("Hello {1} {0}!",       "world", 42),  "Hello 42 world!");
+    TEST_EQUAL(fmt("({0})",                0.0),          "(0)");
+    TEST_EQUAL(fmt("({0}) ({1})",          42.0, 86.99),  "(42) (86.99)");
+    TEST_EQUAL(fmt("({0})",                42.0, 86.99),  "(42)");
+    TEST_EQUAL(fmt("({1})",                42.0, 86.99),  "(86.99)");
+    TEST_EQUAL(fmt("({0:e4}) ({1:e4})",    42.0, 86.99),  "(4.200e1) (8.699e1)");
+    TEST_EQUAL(fmt("({0:f4}) ({1:f4})",    42.0, 86.99),  "(42.0000) (86.9900)");
+    TEST_EQUAL(fmt("({0:g4}) ({1:g4})",    42.0, 86.99),  "(42.00) (86.99)");
+    TEST_EQUAL(fmt("({0:gz4}) ({1:gz4})",  42.0, 86.99),  "(42) (86.99)");
+    TEST_EQUAL(fmt("{0:T} = {0}",          1234.5),       "double = 1234.5");
+    TEST_MATCH(fmt("{0}",                  Argh()),       "::Argh:<0x[[:xdigit:]]+>$");
+    TEST_MATCH(fmt("{0}",                  v),            "[123,456,789]");
+    TEST_MATCH(fmt("{0:x4}",               v),            "[007b,01c8,0315]");
+    TEST_MATCH(fmt("{0:f2}",               v),            "[123.00,456.00,789.00]");
+    TEST_THROW(fmt("{0} {1} {2}",          86, 99),       std::out_of_range);
 
 }
 
 void test_crow_literal() {
 
-    Formatter fmt;
+    Formatter f;
     std::vector<int> v = {123,456,789};
 
-    TRY(fmt = ""_fmt);                     TEST_EQUAL(fmt(),             "");
-    TRY(fmt = "Hello world!"_fmt);         TEST_EQUAL(fmt(),             "Hello world!");
-    TRY(fmt = "Hello {0}!"_fmt);           TEST_EQUAL(fmt("world"),      "Hello world!");
-    TRY(fmt = "Hello {0}!"_fmt);           TEST_EQUAL(fmt(42),           "Hello 42!");
-    TRY(fmt = "Hello \\{0\\}!"_fmt);       TEST_EQUAL(fmt(42),           "Hello {0}!");
-    TRY(fmt = "Hello \\{{0}\\}!"_fmt);     TEST_EQUAL(fmt(42),           "Hello {42}!");
-    TRY(fmt = "Hello {0} {1}!"_fmt);       TEST_EQUAL(fmt("world", 42),  "Hello world 42!");
-    TRY(fmt = "Hello {1} {0}!"_fmt);       TEST_EQUAL(fmt("world", 42),  "Hello 42 world!");
-    TRY(fmt = "({0})"_fmt);                TEST_EQUAL(fmt(0.0),          "(0)");
-    TRY(fmt = "({0}) ({1})"_fmt);          TEST_EQUAL(fmt(42.0, 86.99),  "(42) (86.99)");
-    TRY(fmt = "({0})"_fmt);                TEST_EQUAL(fmt(42.0, 86.99),  "(42)");
-    TRY(fmt = "({1})"_fmt);                TEST_EQUAL(fmt(42.0, 86.99),  "(86.99)");
-    TRY(fmt = "({0:e4}) ({1:e4})"_fmt);    TEST_EQUAL(fmt(42.0, 86.99),  "(4.200e1) (8.699e1)");
-    TRY(fmt = "({0:f4}) ({1:f4})"_fmt);    TEST_EQUAL(fmt(42.0, 86.99),  "(42.0000) (86.9900)");
-    TRY(fmt = "({0:g4}) ({1:g4})"_fmt);    TEST_EQUAL(fmt(42.0, 86.99),  "(42.00) (86.99)");
-    TRY(fmt = "({0:gz4}) ({1:gz4})"_fmt);  TEST_EQUAL(fmt(42.0, 86.99),  "(42) (86.99)");
-    TRY(fmt = "{0}"_fmt);                  TEST_EQUAL(fmt(v),            "[123,456,789]");
-    TRY(fmt = "{0:x4}"_fmt);               TEST_EQUAL(fmt(v),            "[007b,01c8,0315]");
-    TRY(fmt = "{0:f2}"_fmt);               TEST_EQUAL(fmt(v),            "[123.00,456.00,789.00]");
-    TRY(fmt = "{0} {1} {2}"_fmt);          TEST_THROW(fmt(86, 99),       std::out_of_range);
+    TRY(f = ""_fmt);                     TEST_EQUAL(f(),             "");
+    TRY(f = "Hello world!"_fmt);         TEST_EQUAL(f(),             "Hello world!");
+    TRY(f = "Hello {0}!"_fmt);           TEST_EQUAL(f("world"),      "Hello world!");
+    TRY(f = "Hello {0}!"_fmt);           TEST_EQUAL(f(42),           "Hello 42!");
+    TRY(f = "Hello \\{0\\}!"_fmt);       TEST_EQUAL(f(42),           "Hello {0}!");
+    TRY(f = "Hello \\{{0}\\}!"_fmt);     TEST_EQUAL(f(42),           "Hello {42}!");
+    TRY(f = "Hello {0} {1}!"_fmt);       TEST_EQUAL(f("world", 42),  "Hello world 42!");
+    TRY(f = "Hello {1} {0}!"_fmt);       TEST_EQUAL(f("world", 42),  "Hello 42 world!");
+    TRY(f = "({0})"_fmt);                TEST_EQUAL(f(0.0),          "(0)");
+    TRY(f = "({0}) ({1})"_fmt);          TEST_EQUAL(f(42.0, 86.99),  "(42) (86.99)");
+    TRY(f = "({0})"_fmt);                TEST_EQUAL(f(42.0, 86.99),  "(42)");
+    TRY(f = "({1})"_fmt);                TEST_EQUAL(f(42.0, 86.99),  "(86.99)");
+    TRY(f = "({0:e4}) ({1:e4})"_fmt);    TEST_EQUAL(f(42.0, 86.99),  "(4.200e1) (8.699e1)");
+    TRY(f = "({0:f4}) ({1:f4})"_fmt);    TEST_EQUAL(f(42.0, 86.99),  "(42.0000) (86.9900)");
+    TRY(f = "({0:g4}) ({1:g4})"_fmt);    TEST_EQUAL(f(42.0, 86.99),  "(42.00) (86.99)");
+    TRY(f = "({0:gz4}) ({1:gz4})"_fmt);  TEST_EQUAL(f(42.0, 86.99),  "(42) (86.99)");
+    TRY(f = "{0}"_fmt);                  TEST_EQUAL(f(v),            "[123,456,789]");
+    TRY(f = "{0:x4}"_fmt);               TEST_EQUAL(f(v),            "[007b,01c8,0315]");
+    TRY(f = "{0:f2}"_fmt);               TEST_EQUAL(f(v),            "[123.00,456.00,789.00]");
+    TRY(f = "{0} {1} {2}"_fmt);          TEST_THROW(f(86, 99),       std::out_of_range);
 
 }

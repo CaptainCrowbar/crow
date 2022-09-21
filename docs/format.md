@@ -460,7 +460,7 @@ class Formatter {
         std::string operator()(const Args&... args) const;
 };
 template <typename... Args>
-    std::string format(const std::string& pattern, const Args&... args);
+    std::string fmt(const std::string& pattern, const Args&... args);
 ```
 
 This class parses a format string, and then inserts a set of arguments into
@@ -476,12 +476,12 @@ malformed(mismatched braces or an invalid format spec). The function call
 operator will throw `std::invalid_argument` if there are not enough arguments
 to match the fields in the format string.
 
-The `format()` function simply calls `Formatter(pattern)(args...)`.
+The `fmt()` function simply calls `Formatter(pattern)(args...)`.
 
 Example:
 
 ```
-format("Hello {2} {0} {1:f3}", 123, 456, "world");
+fmt("Hello {2} {0} {1:f3}", 123, 456, "world");
     => "Hello world 123 456.000"
 ```
 

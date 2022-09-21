@@ -372,7 +372,7 @@ namespace Crow {
         if (new_shape == Point(0, 0)) {
             clear();
         } else if (new_shape.x() <= 0 || new_shape.y() <= 0) {
-            throw std::invalid_argument(format("Invalid image dimensions: {0}", new_shape));
+            throw std::invalid_argument(fmt("Invalid image dimensions: {0}", new_shape));
         } else {
             size_t n_bytes = size_t(new_shape.x()) * size_t(new_shape.y()) * sizeof(colour_type);
             auto ptr = std::malloc(n_bytes);
@@ -415,7 +415,7 @@ namespace Crow {
         bool use_wrap = !! (rflags & ImageResize::wrap);
 
         auto fail = [new_shape] {
-            throw std::invalid_argument(format("Invalid image dimensions: {0}", new_shape));
+            throw std::invalid_argument(fmt("Invalid image dimensions: {0}", new_shape));
         };
 
         if (new_shape.x() < 0 || new_shape.y() < 0)
@@ -476,7 +476,7 @@ namespace Crow {
     Image<Colour<T, CS, CL>, Flags>
     Image<Colour<T, CS, CL>, Flags>::resized(double scale, ImageResize rflags) const {
         if (scale <= 0)
-            throw std::invalid_argument(format("Invalid image scale factor: {0}", scale));
+            throw std::invalid_argument(fmt("Invalid image scale factor: {0}", scale));
         int w = int(std::lround(scale * width()));
         int h = int(std::lround(scale * height()));
         return resized(Point{w, h}, rflags | ImageResize::unlock);

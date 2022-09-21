@@ -173,7 +173,7 @@ namespace Crow {
         }
 
     template <typename... Args>
-    std::string format(const std::string& pattern, const Args&... args) {
+    std::string fmt(const std::string& pattern, const Args&... args) {
         return Formatter(pattern)(args...);
     }
 
