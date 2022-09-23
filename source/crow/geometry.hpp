@@ -6,6 +6,7 @@
 #include "crow/vector.hpp"
 #include <cmath>
 #include <cstdlib>
+#include <numbers>
 #include <ostream>
 #include <string>
 #include <type_traits>
@@ -176,16 +177,17 @@ namespace Crow {
 
         template <typename T, int N>
         typename Sphere<T, N>::real_type Sphere<T, N>::volume() const noexcept {
+            using namespace std::numbers;
             using R = real_type;
             if constexpr (N == 1) {
                 return R(2) * R(radius_);
             } else if constexpr (N == 2) {
-                return pi_c<R> * radius_ * radius_;
+                return pi_v<R> * radius_ * radius_;
             } else if constexpr (N == 3) {
-                static const R c = pi_c<R> * R(4) / R(3);
+                static const R c = pi_v<R> * R(4) / R(3);
                 return c * radius_ * radius_ * radius_;
             } else {
-                static const R log_pi = std::log(pi_c<R>);
+                static const R log_pi = std::log(pi_v<R>);
                 static const R a = R(N) / R(2);
                 static const R b = a * log_pi - std::lgamma(a + R(1));
                 static const R c = std::exp(b);
@@ -195,15 +197,16 @@ namespace Crow {
 
         template <typename T, int N>
         typename Sphere<T, N>::real_type Sphere<T, N>::surface() const noexcept {
+            using namespace std::numbers;
             using R = real_type;
             if constexpr (N == 1) {
                 return R(2);
             } else if constexpr (N == 2) {
-                return R(2) * pi_c<R> * radius_;
+                return R(2) * pi_v<R> * radius_;
             } else if constexpr (N == 3) {
-                return R(4) * pi_c<R> * radius_ * radius_;
+                return R(4) * pi_v<R> * radius_ * radius_;
             } else {
-                static const R log_pi = std::log(pi_c<R>);
+                static const R log_pi = std::log(pi_v<R>);
                 static const R a = R(N) / R(2);
                 static const R b = a * log_pi - std::lgamma(a);
                 static const R c = R(2) * std::exp(b);

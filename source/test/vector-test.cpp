@@ -2,12 +2,14 @@
 #include "crow/format.hpp"
 #include "crow/unit-test.hpp"
 #include "test/vector-test.hpp"
+#include <numbers>
 #include <set>
 #include <tuple>
 #include <unordered_set>
 
 using namespace Crow;
 using namespace Crow::Literals;
+using namespace std::numbers;
 
 void test_crow_integer_vector_construction() {
 
@@ -278,7 +280,7 @@ void test_crow_floating_vector_arithmetic() {
 
     TRY((v2 = {0,0,0}));     TRY(x = v1.angle(v2));  TEST_EQUAL(x, 0);
     TRY((v2 = {2,4,6}));     TRY(x = v1.angle(v2));  TEST_EQUAL(x, 0);
-    TRY((v2 = {-2,-4,-6}));  TRY(x = v1.angle(v2));  TEST_NEAR(x, pi_d, 1e-6);
+    TRY((v2 = {-2,-4,-6}));  TRY(x = v1.angle(v2));  TEST_NEAR(x, pi, 1e-6);
     TRY((v2 = {3,2,1}));     TRY(x = v1.angle(v2));  TEST_NEAR(x, 0.775193, 1e-6);
     TRY((v2 = {-3,-2,-1}));  TRY(x = v1.angle(v2));  TEST_NEAR(x, 2.366399, 1e-6);
 

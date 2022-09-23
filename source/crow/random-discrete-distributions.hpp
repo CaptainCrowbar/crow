@@ -8,6 +8,7 @@
 #include "crow/types.hpp"
 #include <cmath>
 #include <limits>
+#include <numbers>
 #include <type_traits>
 
 namespace Crow {
@@ -193,6 +194,8 @@ namespace Crow {
 
             // https://www.johndcook.com/blog/2010/06/14/generating-poisson-random-values/
 
+            using namespace std::numbers;
+
             T n = 0;
             UniformReal<double> unit;
 
@@ -217,7 +220,7 @@ namespace Crow {
                 // Atkinson algorithm
 
                 double c = 0.767 - 3.36 / lambda_;
-                double beta = pi_d / std::sqrt(3 * lambda_);
+                double beta = pi / std::sqrt(3 * lambda_);
                 double alpha = beta * lambda_;
                 double k = std::log(c) - lambda_ - std::log(beta);
                 double a = 1;

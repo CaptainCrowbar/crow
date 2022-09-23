@@ -7,62 +7,27 @@ _[Crow Library by Ross Smith](index.html)_
 namespace Crow;
 ```
 
-The values quoted here for the constants are approximate; the values actually
-supplied are accurate to the precision of the type (for mathematical
-constants) or to the best available precision (for physical constants).
+All of the constants defined here follow the conventions of the standard
+`<numbers>` header. Each constant is defined in two forms:
+
+```c++
+constexpr double name = value_as_double;
+template <typename T> constexpr T name_v = value_as_T;
+```
+
+For the physical and astronomical constants, long and short versions of the
+constant names are provided. The short symbol-named constants (but not the
+full-named equivalents) are in the `Constants` sub-namespace to avoid name
+collisions.
+
+The values quoted here are approximate; the values actually supplied are
+accurate to the precision of the type or to the best known precision,
+whichever is appropriate.
 
 ## Contents
 
 * TOC
 {:toc}
-
-## Mathematical constants
-
-```c++
-#define CROW_MATHS_CONSTANT(name, value) \
-    constexpr float name ## _f = value ## f; \
-    constexpr double name ## _d = value; \
-    constexpr long double name ## _ld = value ## l; \
-    template <typename T> constexpr T name ## _c = T(name ## _ld);
-#define CROW_MATHS_CONSTANT_2(name, symbol, value) \
-    constexpr float name ## _f = value ## f; \
-    constexpr float symbol ## _f = name ## _f; \
-    constexpr double name ## _d = value; \
-    constexpr double symbol ## _d = name ## _d; \
-    constexpr long double name ## _ld = value ## l; \
-    constexpr long double symbol ## _ld = name ## _ld; \
-    template <typename T> constexpr T name ## _c = T(name ## _ld); \
-    template <typename T> constexpr T symbol ## _c = name ## _c<T>;
-```
-
-Define a floating point constant, in several forms. This generates a set of
-three named constants for the standard floating point types (or six if both a
-name and symbol are used), and a variable template.
-
-The list of mathematical constants is the union of the Posix and C++20 lists;
-spelling is mostly taken from C++, except that I have used a different suffix
-convention to avoid collisions.
-
-| Constant           | Definition          | Value     |
-| --------           | ----------          | -----     |
-| `e`                | e                   | 2.718282  |
-| `ln2`              | log<sub>e</sub> 2   | 0.693147  |
-| `ln10`             | log<sub>e</sub> 10  | 2.302585  |
-| `log2e`            | log<sub>2</sub> e   | 1.442695  |
-| `log10e`           | log<sub>10</sub> e  | 0.434294  |
-| `pi`               | π                   | 3.141593  |
-| `pi_over_2`        | π/2                 | 1.570796  |
-| `pi_over_4`        | π/4                 | 0.785398  |
-| `inv_pi`           | 1/π                 | 0.318310  |
-| `inv_sqrtpi`       | 1/√π                | 0.564190  |
-| `two_over_pi`      | 2/π                 | 0.636620  |
-| `two_over_sqrtpi`  | 2/√π                | 1.128379  |
-| `sqrt2`            | √2                  | 1.414214  |
-| `sqrt3`            | √3                  | 1.732051  |
-| `inv_sqrt2`        | 1/√2                | 0.707107  |
-| `inv_sqrt3`        | 1/√3                | 0.577350  |
-| `egamma`           | γ (Euler constant)  | 0.577216  |
-| `phi`              | φ (golden ratio)    | 1.618034  |
 
 ## Conversion factors
 
@@ -149,8 +114,8 @@ Sources:
 | `lunar_mass`                      | `M_moon`    | 7.34581×10<sup>22</sup> kg  |
 | `lunar_radius`                    | `R_moon`    | 1.7381×10<sup>6</sup> m     |
 | `lunar_distance`                  | `a_moon`    | 3.84399×10<sup>8</sup> m    |
-| `sidereal_month`                  | `mon_sid`   | 2.36059×10<sup>6</sup> s    |
-| `synodic_month`                   | `mon_syn`   | 2.55144×10<sup>6</sup> s    |
+| `sidereal_month`                  | `sid_mon`   | 2.36059×10<sup>6</sup> s    |
+| `synodic_month`                   | `syn_mon`   | 2.55144×10<sup>6</sup> s    |
 | `jupiter_mass`                    | `M_jup`     | 1.89852×10<sup>27</sup> kg  |
 | `jupiter_radius`                  | `R_jup`     | 7.1492×10<sup>7</sup> m     |
 | `solar_mass`                      | `M_sun`     | 1.98842×10<sup>30</sup> kg  |

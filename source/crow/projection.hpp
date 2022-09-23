@@ -14,6 +14,7 @@
 #include <iterator>
 #include <map>
 #include <memory>
+#include <numbers>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -145,12 +146,12 @@ namespace Crow {
         public:
             PolarReduce() = default;
             explicit PolarReduce(V2 ref_point) noexcept {
-                ref_[0] = euclidean_remainder(ref_point[0], 2 * pi_c<T>);
-                ref_[1] = std::clamp(ref_point[1], T(0), pi_c<T>);
+                ref_[0] = euclidean_remainder(ref_point[0], 2 * SN::pi_v<T>);
+                ref_[1] = std::clamp(ref_point[1], T(0), SN::pi_v<T>);
                 M3 to_meridian = rotate3(- ref_[0], 2);
-                M3 to_equator = rotate3(pi_c<T> / 2 - ref_[1], 1);
+                M3 to_equator = rotate3(SN::pi_v<T> / 2 - ref_[1], 1);
                 mat_ = to_equator * to_meridian;
-                M3 from_equator = rotate3(ref_[1] - pi_c<T> / 2, 1);
+                M3 from_equator = rotate3(ref_[1] - SN::pi_v<T> / 2, 1);
                 M3 from_meridian = rotate3(ref_[0], 2);
                 inv_ = from_meridian * from_equator;
             }
@@ -176,7 +177,7 @@ namespace Crow {
         private:
             M3 mat_ = M3::identity();
             M3 inv_ = M3::identity();
-            V2 ref_ = {0, pi_c<T> / 2};
+            V2 ref_ = {0, SN::pi_v<T> / 2};
             V3 reduce_to_xyz(V2 polar) const noexcept {
                 V3 sph = {T(1), polar[0], polar[1]};
                 V3 xyz = spherical_to_cartesian(sph);
@@ -214,7 +215,7 @@ namespace Crow {
         static_assert(std::is_floating_point_v<T>);
         using scalar_type = T;
         using vector_type = Vector<T, 2>;
-        static constexpr vector_type default_origin = {0, pi_c<T> / 2};
+        static constexpr vector_type default_origin = {0, std::numbers::pi_v<T> / 2};
         virtual std::shared_ptr<BasicMapProjection> clone() const = 0;
         virtual bool has_min_x() const noexcept { return has_max_x(); }
         virtual bool has_max_x() const noexcept { return ! (properties() & Maps::plane); }
@@ -266,10 +267,11 @@ namespace Crow {
 
     template <typename T>
     bool BasicMapProjection<T>::canonical_on_globe(Vector<T, 2> polar) const noexcept{
+        using namespace std::numbers;
         switch (cover()) {
-            case Maps::sub_hemisphere:  return angle_from_origin(polar) < pi_c<T>;
-            case Maps::hemisphere:      return angle_from_origin(polar) <= pi_c<T>;
-            case Maps::sub_sphere:      return angle_from_origin(polar) < 2 * pi_c<T>;
+            case Maps::sub_hemisphere:  return angle_from_origin(polar) < pi_v<T>;
+            case Maps::hemisphere:      return angle_from_origin(polar) <= pi_v<T>;
+            case Maps::sub_sphere:      return angle_from_origin(polar) < 2 * pi_v<T>;
             default:                   return true;
         }
     }
@@ -335,36 +337,44 @@ namespace Crow {
         explicit AzimuthalEquidistantProjection(Vector<T, 2> origin) noexcept: AzimuthalProjection<T>(origin) {}
         virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
             { return std::make_shared<AzimuthalEquidistantProjection>(*this); }
-        virtual T max_x() const noexcept override { return pi_c<T>; }
-        virtual T max_y() const noexcept override { return pi_c<T>; }
+        virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
+        virtual T max_y() const noexcept override { return std::numbers::pi_v<T>; }
         virtual std::string name() const override { return "azimuthal equidistant projection"; }
         virtual Maps properties() const noexcept override { return map_properties; }
     protected:
         virtual bool canonical_on_globe(Vector<T, 2> /*polar*/) const noexcept override { return true; }
-        virtual bool canonical_on_map(Vector<T, 2> xy) const noexcept override
-            { return pow(xy.x(), T(2)) + pow(xy.y(), T(2)) <= pi_c<T> * pi_c<T>; }
+        virtual bool canonical_on_map(Vector<T, 2> xy) const noexcept override;
         virtual Vector<T, 2> canonical_to_globe(Vector<T, 2> xy) const noexcept override;
         virtual Vector<T, 2> canonical_to_map(Vector<T, 2> polar) const noexcept override;
     };
 
+
+    template <typename T>
+    bool AzimuthalEquidistantProjection<T>::canonical_on_map(Vector<T, 2> xy) const noexcept {
+        using namespace std::numbers;
+        return pow(xy.x(), T(2)) + pow(xy.y(), T(2)) <= pi_v<T> * pi_v<T>;
+    }
+
     template <typename T>
     Vector<T, 2> AzimuthalEquidistantProjection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
+        using namespace std::numbers;
         T x = xy.x();
         T y = xy.y();
         if (x == 0 && y == 0)
             return this->default_origin;
-        T c = std::clamp(std::hypot(x, y), T(0), pi_c<T>);
+        T c = std::clamp(std::hypot(x, y), T(0), pi_v<T>);
         T sin_c = std::sin(c);
         T cos_c = std::cos(c);
         T theta = std::acos(y * sin_c / c);
         T phi = std::atan2(x * sin_c, c * cos_c);
-        return {euclidean_remainder(phi, 2 * pi_c<T>), theta};
+        return {euclidean_remainder(phi, 2 * pi_v<T>), theta};
     }
 
     template <typename T>
     Vector<T, 2> AzimuthalEquidistantProjection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
+        using namespace std::numbers;
         T phi = polar[0];
-        T theta = std::clamp(polar[1], T(0), pi_c<T>);
+        T theta = std::clamp(polar[1], T(0), pi_v<T>);
         T sin_phi = std::sin(phi);
         T cos_phi = std::cos(phi);
         T sin_theta = std::sin(theta);
@@ -390,14 +400,21 @@ namespace Crow {
         virtual std::string name() const override { return "gnomonic projection"; }
         virtual Maps properties() const noexcept override { return map_properties; }
     protected:
-        virtual bool canonical_on_globe(Vector<T, 2> polar) const noexcept override { return this->angle_from_origin(polar) < pi_c<T>; }
+        virtual bool canonical_on_globe(Vector<T, 2> polar) const noexcept override;
         virtual bool canonical_on_map(Vector<T, 2> /*xy*/) const noexcept override { return true; }
         virtual Vector<T, 2> canonical_to_globe(Vector<T, 2> xy) const noexcept override;
         virtual Vector<T, 2> canonical_to_map(Vector<T, 2> polar) const noexcept override;
     };
 
     template <typename T>
+    bool GnomonicProjection<T>::canonical_on_globe(Vector<T, 2> polar) const noexcept {
+        using namespace std::numbers;
+        return this->angle_from_origin(polar) < pi_v<T>;
+    }
+
+    template <typename T>
     Vector<T, 2> GnomonicProjection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
+        using namespace std::numbers;
         T x = xy.x();
         T y = xy.y();
         if (x == 0 && y == 0)
@@ -408,13 +425,14 @@ namespace Crow {
         T sin_c = std::sin(c);
         T theta = std::acos(y * sin_c / rho);
         T phi = std::atan2(x * sin_c, rho * cos_c);
-        return {euclidean_remainder(phi, 2 * pi_c<T>), theta};
+        return {euclidean_remainder(phi, 2 * pi_v<T>), theta};
     }
 
     template <typename T>
     Vector<T, 2> GnomonicProjection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
+        using namespace std::numbers;
         T phi = polar[0];
-        T theta = std::clamp(polar[1], T(0), pi_c<T>);
+        T theta = std::clamp(polar[1], T(0), pi_v<T>);
         T sin_phi = std::sin(phi);
         T cos_phi = std::cos(phi);
         T sin_theta = std::sin(theta);
@@ -447,6 +465,7 @@ namespace Crow {
 
     template <typename T>
     Vector<T, 2> LambertAzimuthalProjection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
+        using namespace std::numbers;
         T x = xy.x();
         T y = xy.y();
         if (x == 0 && y == 0)
@@ -457,13 +476,14 @@ namespace Crow {
         T cos_c = std::cos(c);
         T theta = std::acos(y * sin_c / rho);
         T phi = std::atan2(x * sin_c, rho * cos_c);
-        return {euclidean_remainder(phi, 2 * pi_c<T>), theta};
+        return {euclidean_remainder(phi, 2 * pi_v<T>), theta};
     }
 
     template <typename T>
     Vector<T, 2> LambertAzimuthalProjection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
+        using namespace std::numbers;
         T phi = polar[0];
-        T theta = std::clamp(polar[1], T(0), pi_c<T>);
+        T theta = std::clamp(polar[1], T(0), pi_v<T>);
         T sin_phi = std::sin(phi);
         T cos_phi = std::cos(phi);
         T sin_theta = std::sin(theta);
@@ -491,26 +511,34 @@ namespace Crow {
         virtual std::string name() const override { return "orthographic projection"; }
         virtual Maps properties() const noexcept override { return map_properties; }
     protected:
-        virtual bool canonical_on_globe(Vector<T, 2> polar) const noexcept override { return this->angle_from_origin(polar) <= pi_c<T>; }
+        virtual bool canonical_on_globe(Vector<T, 2> polar) const noexcept override;
         virtual bool canonical_on_map(Vector<T, 2> xy) const noexcept override { return pow(xy.x(), T(2)) + pow(xy.y(), T(2)) <= 1; }
         virtual Vector<T, 2> canonical_to_globe(Vector<T, 2> xy) const noexcept override;
         virtual Vector<T, 2> canonical_to_map(Vector<T, 2> polar) const noexcept override;
     };
 
     template <typename T>
+    bool OrthographicProjection<T>::canonical_on_globe(Vector<T, 2> polar) const noexcept {
+        using namespace std::numbers;
+        return this->angle_from_origin(polar) <= pi_v<T>;
+    }
+
+    template <typename T>
     Vector<T, 2> OrthographicProjection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
+        using namespace std::numbers;
         T x = xy.x();
         T y = xy.y();
         T cos_c = std::sqrt(std::clamp(1 - x * x - y * y, T(0), T(1)));
         T theta = std::acos(y);
         T phi = std::atan2(x, cos_c);
-        return {euclidean_remainder(phi, 2 * pi_c<T>), theta};
+        return {euclidean_remainder(phi, 2 * pi_v<T>), theta};
     }
 
     template <typename T>
     Vector<T, 2> OrthographicProjection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
+        using namespace std::numbers;
         T phi = polar[0];
-        T theta = std::clamp(polar[1], T(0), pi_c<T>);
+        T theta = std::clamp(polar[1], T(0), pi_v<T>);
         T sin_phi = std::sin(phi);
         T sin_theta = std::sin(theta);
         T cos_theta = std::cos(theta);
@@ -531,14 +559,21 @@ namespace Crow {
         virtual std::string name() const override { return "stereographic projection"; }
         virtual Maps properties() const noexcept override { return map_properties; }
     protected:
-        virtual bool canonical_on_globe(Vector<T, 2> polar) const noexcept override { return this->angle_from_origin(polar) < 2 * pi_c<T>; }
+        virtual bool canonical_on_globe(Vector<T, 2> polar) const noexcept override;
         virtual bool canonical_on_map(Vector<T, 2> /*xy*/) const noexcept override { return true; }
         virtual Vector<T, 2> canonical_to_globe(Vector<T, 2> xy) const noexcept override;
         virtual Vector<T, 2> canonical_to_map(Vector<T, 2> polar) const noexcept override;
     };
 
     template <typename T>
+    bool StereographicProjection<T>::canonical_on_globe(Vector<T, 2> polar) const noexcept {
+        using namespace std::numbers;
+        return this->angle_from_origin(polar) < 2 * pi_v<T>;
+    }
+
+    template <typename T>
     Vector<T, 2> StereographicProjection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
+        using namespace std::numbers;
         T x = xy.x();
         T y = xy.y();
         if (x == 0 && y == 0)
@@ -549,13 +584,14 @@ namespace Crow {
         T sin_c = std::sin(c);
         T theta = std::acos(y * sin_c / rho);
         T phi = std::atan2(x * sin_c, rho * cos_c);
-        return {euclidean_remainder(phi, 2 * pi_c<T>), theta};
+        return {euclidean_remainder(phi, 2 * pi_v<T>), theta};
     }
 
     template <typename T>
     Vector<T, 2> StereographicProjection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
+        using namespace std::numbers;
         T phi = polar[0];
-        T theta = std::clamp(polar[1], T(0), pi_c<T>);
+        T theta = std::clamp(polar[1], T(0), pi_v<T>);
         T sin_phi = std::sin(phi);
         T cos_phi = std::cos(phi);
         T sin_theta = std::sin(theta);
@@ -577,8 +613,8 @@ namespace Crow {
         explicit CylindricalEquidistantProjection(Vector<T, 2> origin) noexcept: CylindricalProjection<T>(origin) {}
         virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
             { return std::make_shared<CylindricalEquidistantProjection>(*this); }
-        virtual T max_x() const noexcept override { return pi_c<T>; }
-        virtual T max_y() const noexcept override { return pi_c<T> / 2; }
+        virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
+        virtual T max_y() const noexcept override { return std::numbers::pi_v<T> / 2; }
         virtual std::string name() const override { return "cylindrical equidistant projection"; }
         virtual Maps properties() const noexcept override { return map_properties; }
     protected:
@@ -590,19 +626,21 @@ namespace Crow {
 
     template <typename T>
     Vector<T, 2> CylindricalEquidistantProjection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
+        using namespace std::numbers;
         T x = xy.x();
-        T y = std::clamp(xy.y(), - pi_c<T> / 2, pi_c<T> / 2);
-        T phi = euclidean_remainder(x, 2 * pi_c<T>);
-        T theta = pi_c<T> / 2 - y;
+        T y = std::clamp(xy.y(), - pi_v<T> / 2, pi_v<T> / 2);
+        T phi = euclidean_remainder(x, 2 * pi_v<T>);
+        T theta = pi_v<T> / 2 - y;
         return {phi, theta};
     }
 
     template <typename T>
     Vector<T, 2> CylindricalEquidistantProjection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
+        using namespace std::numbers;
         T phi = polar[0];
-        T theta = std::clamp(polar[1], T(0), pi_c<T>);
-        T x = symmetric_remainder(phi, 2 * pi_c<T>);
-        T y = pi_c<T> / 2 - theta;
+        T theta = std::clamp(polar[1], T(0), pi_v<T>);
+        T x = symmetric_remainder(phi, 2 * pi_v<T>);
+        T y = pi_v<T> / 2 - theta;
         return {x, y};
     }
 
@@ -615,7 +653,7 @@ namespace Crow {
         explicit LambertCylindricalProjection(Vector<T, 2> origin) noexcept: CylindricalProjection<T>(origin) {}
         virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
             { return std::make_shared<LambertCylindricalProjection>(*this); }
-        virtual T max_x() const noexcept override { return pi_c<T>; }
+        virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
         virtual T max_y() const noexcept override { return T(1); }
         virtual std::string name() const override { return "Lambert cylindrical projection"; }
         virtual Maps properties() const noexcept override { return map_properties; }
@@ -629,18 +667,20 @@ namespace Crow {
 
     template <typename T>
     Vector<T, 2> LambertCylindricalProjection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
+        using namespace std::numbers;
         T x = xy.x();
         T y = std::clamp(xy.y(), T(-1), T(1));
-        T phi = euclidean_remainder(x, 2 * pi_c<T>);
+        T phi = euclidean_remainder(x, 2 * pi_v<T>);
         T theta = std::acos(y);
         return {phi, theta};
     }
 
     template <typename T>
     Vector<T, 2> LambertCylindricalProjection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
+        using namespace std::numbers;
         T phi = polar[0];
-        T theta = std::clamp(polar[1], T(0), pi_c<T>);
-        T x = symmetric_remainder(phi, 2 * pi_c<T>);
+        T theta = std::clamp(polar[1], T(0), pi_v<T>);
+        T x = symmetric_remainder(phi, 2 * pi_v<T>);
         T y = std::cos(theta);
         return {x, y};
     }
@@ -654,7 +694,7 @@ namespace Crow {
         explicit GallPetersProjection(Vector<T, 2> origin) noexcept: CylindricalProjection<T>(origin), lambert_(origin) {}
         virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
             { return std::make_shared<GallPetersProjection>(*this); }
-        virtual T max_x() const noexcept override { return pi_c<T>; }
+        virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
         virtual T max_y() const noexcept override { return T(2); }
         virtual std::string name() const override { return "Gall-Peters projection"; }
         virtual Maps properties() const noexcept override { return map_properties; }
@@ -690,31 +730,39 @@ namespace Crow {
             { return std::make_shared<MercatorProjection>(*this); }
         virtual bool has_max_x() const noexcept override { return true; }
         virtual bool has_max_y() const noexcept override { return false; }
-        virtual T max_x() const noexcept override { return pi_c<T>; }
+        virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
         virtual std::string name() const override { return "Mercator projection"; }
         virtual Maps properties() const noexcept override { return map_properties; }
     protected:
-        virtual bool canonical_on_globe(Vector<T, 2> polar) const noexcept override { return polar[1] > 0 && polar[1] < pi_c<T>; }
+        virtual bool canonical_on_globe(Vector<T, 2> polar) const noexcept override;
         virtual bool canonical_on_map(Vector<T, 2> xy) const noexcept override { return abs(xy.x()) <= max_x(); }
         virtual Vector<T, 2> canonical_to_globe(Vector<T, 2> xy) const noexcept override;
         virtual Vector<T, 2> canonical_to_map(Vector<T, 2> polar) const noexcept override;
     };
 
     template <typename T>
+    bool MercatorProjection<T>::canonical_on_globe(Vector<T, 2> polar) const noexcept {
+        using namespace std::numbers;
+        return polar[1] > 0 && polar[1] < pi_v<T>;
+    }
+
+    template <typename T>
     Vector<T, 2> MercatorProjection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
+        using namespace std::numbers;
         T x = xy.x();
         T y = xy.y();
-        T phi = euclidean_remainder(x, 2 * pi_c<T>);
-        T theta = pi_c<T> - 2 * std::atan(std::exp(y));
+        T phi = euclidean_remainder(x, 2 * pi_v<T>);
+        T theta = pi_v<T> - 2 * std::atan(std::exp(y));
         return {phi, theta};
     }
 
     template <typename T>
     Vector<T, 2> MercatorProjection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
+        using namespace std::numbers;
         T phi = polar[0];
-        T theta = std::clamp(polar[1], T(0), pi_c<T>);
-        T x = symmetric_remainder(phi, 2 * pi_c<T>);
-        T y = std::log(std::tan((pi_c<T> - theta) / 2));
+        T theta = std::clamp(polar[1], T(0), pi_v<T>);
+        T x = symmetric_remainder(phi, 2 * pi_v<T>);
+        T y = std::log(std::tan((pi_v<T> - theta) / 2));
         return {x, y};
     }
 
@@ -729,8 +777,8 @@ namespace Crow {
         explicit Eckert4Projection(Vector<T, 2> origin) noexcept: PseudocylindricalProjection<T>(origin) {}
         virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
             { return std::make_shared<Eckert4Projection>(*this); }
-        virtual T max_x() const noexcept override { return pi_c<T>; }
-        virtual T max_y() const noexcept override { return pi_c<T> / 2; }
+        virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
+        virtual T max_y() const noexcept override { return std::numbers::pi_v<T> / 2; }
         virtual std::string name() const override { return "Eckert IV projection"; }
         virtual Maps properties() const noexcept override { return map_properties; }
     protected:
@@ -742,38 +790,41 @@ namespace Crow {
 
     template <typename T>
     bool Eckert4Projection<T>::canonical_on_map(Vector<T, 2> xy) const noexcept {
+        using namespace std::numbers;
         auto abs_x = std::abs(xy.x());
-        if (abs_x <= pi_c<T> / 2)
-            return std::abs(xy.y()) <= pi_c<T> / 2;
-        else if (abs_x <= pi_c<T>)
-            return std::pow(2 * abs_x / pi_c<T> - 1, T(2)) + std::pow(2 * xy.y() / pi_c<T>, T(2)) <= 1;
+        if (abs_x <= pi_v<T> / 2)
+            return std::abs(xy.y()) <= pi_v<T> / 2;
+        else if (abs_x <= pi_v<T>)
+            return std::pow(2 * abs_x / pi_v<T> - 1, T(2)) + std::pow(2 * xy.y() / pi_v<T>, T(2)) <= 1;
         else
             return false;
     }
 
     template <typename T>
     Vector<T, 2> Eckert4Projection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
+        using namespace std::numbers;
         T x = xy.x();
-        T y = std::clamp(xy.y(), - pi_c<T> / 2, pi_c<T> / 2);
-        T sin_t = - 2 * y / pi_c<T>;
+        T y = std::clamp(xy.y(), - pi_v<T> / 2, pi_v<T> / 2);
+        T sin_t = - 2 * y / pi_v<T>;
         T t = std::asin(sin_t);
         T cos_t = std::sqrt(1 - sin_t * sin_t);
-        T theta = std::acos(- (t + sin_t * cos_t + 2 * sin_t) / (pi_c<T> / 2 + 2));
+        T theta = std::acos(- (t + sin_t * cos_t + 2 * sin_t) / (pi_v<T> / 2 + 2));
         T phi = 2 * x / (1 + cos_t);
-        return {euclidean_remainder(phi, 2 * pi_c<T>), theta};
+        return {euclidean_remainder(phi, 2 * pi_v<T>), theta};
     }
 
     template <typename T>
     Vector<T, 2> Eckert4Projection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
+        using namespace std::numbers;
         T phi = polar[0];
-        T theta = std::clamp(polar[1], T(0), pi_c<T>);
-        T c = (2 + pi_c<T> / 2) * std::cos(theta);
+        T theta = std::clamp(polar[1], T(0), pi_v<T>);
+        T c = (2 + pi_v<T> / 2) * std::cos(theta);
         T t = newton_raphson<T>(
             [c] (T x) { return x + std::sin(x) * (2 + std::cos(x)) - c; },
             [] (T x) { return 2 * std::cos(x) * (1 + std::cos(x));
         })->solve();
-        T x = symmetric_remainder(phi, 2 * pi_c<T>) * (1 + std::cos(t)) / 2;
-        T y = pi_c<T> * std::sin(t) / 2;
+        T x = symmetric_remainder(phi, 2 * pi_v<T>) * (1 + std::cos(t)) / 2;
+        T y = pi_v<T> * std::sin(t) / 2;
         return {x, y};
     }
 
@@ -787,8 +838,8 @@ namespace Crow {
         explicit MollweideProjection(Vector<T, 2> origin) noexcept: PseudocylindricalProjection<T>(origin) {}
         virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
             { return std::make_shared<MollweideProjection>(*this); }
-        virtual T max_x() const noexcept override { return pi_c<T>; }
-        virtual T max_y() const noexcept override { return pi_c<T> / 2; }
+        virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
+        virtual T max_y() const noexcept override { return std::numbers::pi_v<T> / 2; }
         virtual std::string name() const override { return "Mollweide projection"; }
         virtual Maps properties() const noexcept override { return map_properties; }
     protected:
@@ -800,35 +851,38 @@ namespace Crow {
 
     template <typename T>
     bool MollweideProjection<T>::canonical_on_map(Vector<T, 2> xy) const noexcept {
+        using namespace std::numbers;
         T x = xy.x();
         T y = xy.y();
-        return x * x + 4 * y * y <= pi_c<T> * pi_c<T>;
+        return x * x + 4 * y * y <= pi_v<T> * pi_v<T>;
     }
 
     template <typename T>
     Vector<T, 2> MollweideProjection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
+        using namespace std::numbers;
         T x = xy.x();
         T y = xy.y();
         if (x == 0 && y == 0)
             return this->default_origin;
-        y = std::clamp(y, - pi_c<T> / 2, pi_c<T> / 2);
-        T t = - std::asin(2 * y / pi_c<T>);
-        T theta = std::acos(- (2 * t + std::sin(2 * t)) / pi_c<T>);
+        y = std::clamp(y, - pi_v<T> / 2, pi_v<T> / 2);
+        T t = - std::asin(2 * y / pi_v<T>);
+        T theta = std::acos(- (2 * t + std::sin(2 * t)) / pi_v<T>);
         T phi = x / std::cos(t);
-        return {euclidean_remainder(phi, 2 * pi_c<T>), theta};
+        return {euclidean_remainder(phi, 2 * pi_v<T>), theta};
     }
 
     template <typename T>
     Vector<T, 2> MollweideProjection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
+        using namespace std::numbers;
         T phi = polar[0];
-        T theta = std::clamp(polar[1], T(0), pi_c<T>);
+        T theta = std::clamp(polar[1], T(0), pi_v<T>);
         T cos_theta = std::cos(theta);
         T t = newton_raphson<T>(
-            [cos_theta] (T x) { return 2 * x + std::sin(2 * x) - pi_c<T> * cos_theta; },
+            [cos_theta] (T x) { return 2 * x + std::sin(2 * x) - pi_v<T> * cos_theta; },
             [] (T x) { return 2 + 2 * std::cos(2 * x);
         })->solve();
-        T x = symmetric_remainder(phi, 2 * pi_c<T>) * std::cos(t);
-        T y = pi_c<T> * std::sin(t) / 2;
+        T x = symmetric_remainder(phi, 2 * pi_v<T>) * std::cos(t);
+        T y = pi_v<T> * std::sin(t) / 2;
         return {x, y};
     }
 
@@ -841,35 +895,43 @@ namespace Crow {
         explicit SinusoidalProjection(Vector<T, 2> origin) noexcept: PseudocylindricalProjection<T>(origin) {}
         virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
             { return std::make_shared<SinusoidalProjection>(*this); }
-        virtual T max_x() const noexcept override { return pi_c<T>; }
-        virtual T max_y() const noexcept override { return pi_c<T> / 2; }
+        virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
+        virtual T max_y() const noexcept override { return std::numbers::pi_v<T> / 2; }
         virtual std::string name() const override { return "sinusoidal projection"; }
         virtual Maps properties() const noexcept override { return map_properties; }
     protected:
         virtual bool canonical_on_globe(Vector<T, 2> /*polar*/) const noexcept override { return true; }
-        virtual bool canonical_on_map(Vector<T, 2> xy) const noexcept override { return std::abs(xy.x()) <= pi_c<T> * std::cos(xy.y()); }
+        virtual bool canonical_on_map(Vector<T, 2> xy) const noexcept override;
         virtual Vector<T, 2> canonical_to_globe(Vector<T, 2> xy) const noexcept override;
         virtual Vector<T, 2> canonical_to_map(Vector<T, 2> polar) const noexcept override;
     };
 
     template <typename T>
+    bool SinusoidalProjection<T>::canonical_on_map(Vector<T, 2> xy) const noexcept {
+        using namespace std::numbers;
+        return std::abs(xy.x()) <= pi_v<T> * std::cos(xy.y());
+    }
+
+    template <typename T>
     Vector<T, 2> SinusoidalProjection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
+        using namespace std::numbers;
         T x = xy.x();
         T y = xy.y();
         if (x == 0 && y == 0)
             return this->default_origin;
-        y = std::clamp(y, - pi_c<T> / 2, pi_c<T> / 2);
-        T theta = pi_c<T> / 2 - y;
+        y = std::clamp(y, - pi_v<T> / 2, pi_v<T> / 2);
+        T theta = pi_v<T> / 2 - y;
         T phi = x / std::cos(y);
-        return {euclidean_remainder(phi, 2 * pi_c<T>), theta};
+        return {euclidean_remainder(phi, 2 * pi_v<T>), theta};
     }
 
     template <typename T>
     Vector<T, 2> SinusoidalProjection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
+        using namespace std::numbers;
         T phi = polar[0];
-        T theta = std::clamp(polar[1], T(0), pi_c<T>);
-        T x = symmetric_remainder(phi * std::sin(theta), 2 * pi_c<T>);
-        T y = pi_c<T> / 2 - theta;
+        T theta = std::clamp(polar[1], T(0), pi_v<T>);
+        T x = symmetric_remainder(phi * std::sin(theta), 2 * pi_v<T>);
+        T y = pi_v<T> / 2 - theta;
         return {x, y};
     }
 
@@ -895,17 +957,18 @@ namespace Crow {
     template <typename T>
     template <typename Range>
     void InterruptedProjectionBase<T>::interrupt(const Range& inter_north, const Range& inter_south) {
+        using namespace std::numbers;
         const Range* ptrs[] = {&inter_north, &inter_south};
         segment_map new_segments[2];
         for (int i = 0; i < 2; ++i) {
             new_segments[i].clear();
             coord_list inter(begin(*ptrs[i]), end(*ptrs[i]));
             for (auto& t: inter)
-                t = symmetric_remainder(t, 2 * pi_c<T>);
+                t = symmetric_remainder(t, 2 * pi_v<T>);
             sort_unique_in(inter);
-            remove_in_if(inter, [] (T t) { return t <= - pi_c<T> || t >= pi_c<T>; });
-            inter.insert(inter.begin(), - pi_c<T>);
-            inter.push_back(pi_c<T>);
+            remove_in_if(inter, [] (T t) { return t <= - pi_v<T> || t >= pi_v<T>; });
+            inter.insert(inter.begin(), - pi_v<T>);
+            inter.push_back(pi_v<T>);
             auto second = std::next(inter.begin());
             auto last = std::prev(inter.end());
             for (auto j = inter.begin(), k = second; j != last; ++j, ++k)
@@ -963,46 +1026,46 @@ namespace Crow {
 
     template <typename Projection>
     bool InterruptedProjection<Projection>::canonical_on_map(vector_type xy) const noexcept {
-        static constexpr auto t_pi = pi_c<T>;
+        using namespace std::numbers;
         if (std::abs(xy.x()) > proj_.max_x() || std::abs(xy.y()) > proj_.max_y())
             return false;
         T x = xy.x();
-        T y = std::clamp(xy.y(), - t_pi / 2, t_pi / 2);
+        T y = std::clamp(xy.y(), - pi_v<T> / 2, pi_v<T> / 2);
         auto& seg = this->find_segment(x, y < 0);
         vector_type pxy = {x - seg.centre, y};
         if (! pscyl().canonical_on_map(pxy))
             return false;
         vector_type polar = pscyl().canonical_to_globe(pxy);
-        T seg_phi = symmetric_remainder(polar[0], 2 * t_pi);
+        T seg_phi = symmetric_remainder(polar[0], 2 * pi_v<T>);
         return std::abs(seg_phi) <= seg.delta;
     }
 
     template <typename Projection>
     typename InterruptedProjection<Projection>::vector_type
     InterruptedProjection<Projection>::canonical_to_globe(vector_type xy) const noexcept {
-        static constexpr auto t_pi = pi_c<T>;
+        using namespace std::numbers;
         T x = xy.x();
-        T y = std::clamp(xy.y(), - t_pi / 2, t_pi / 2);
+        T y = std::clamp(xy.y(), - pi_v<T> / 2, pi_v<T> / 2);
         auto& seg = this->find_segment(x, y < 0);
-        T seg_x = symmetric_remainder(x - seg.centre, 2 * t_pi);
+        T seg_x = symmetric_remainder(x - seg.centre, 2 * pi_v<T>);
         vector_type seg_xy = {seg_x, y};
         auto polar = pscyl().canonical_to_globe(seg_xy);
-        polar[0] = euclidean_remainder(polar[0] + seg.centre, 2 * t_pi);
+        polar[0] = euclidean_remainder(polar[0] + seg.centre, 2 * pi_v<T>);
         return polar;
     }
 
     template <typename Projection>
     typename InterruptedProjection<Projection>::vector_type
     InterruptedProjection<Projection>::canonical_to_map(vector_type polar) const noexcept {
-        static constexpr auto t_pi = pi_c<T>;
+        using namespace std::numbers;
         T phi = polar[0];
-        T theta = std::clamp(polar[1], T(0), t_pi);
-        T map_phi = symmetric_remainder(phi, 2 * t_pi);
-        auto& seg = this->find_segment(map_phi, theta > t_pi / 2);
-        T seg_phi = symmetric_remainder(map_phi - seg.centre, 2 * t_pi);
+        T theta = std::clamp(polar[1], T(0), pi_v<T>);
+        T map_phi = symmetric_remainder(phi, 2 * pi_v<T>);
+        auto& seg = this->find_segment(map_phi, theta > pi_v<T> / 2);
+        T seg_phi = symmetric_remainder(map_phi - seg.centre, 2 * pi_v<T>);
         vector_type seg_polar = {seg_phi, theta};
         auto xy = pscyl().canonical_to_map(seg_polar);
-        xy.x() = symmetric_remainder(xy.x() + seg.centre, 2 * t_pi);
+        xy.x() = symmetric_remainder(xy.x() + seg.centre, 2 * pi_v<T>);
         return xy;
     }
 

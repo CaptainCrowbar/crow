@@ -9,6 +9,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <limits>
+#include <numbers>
 #include <type_traits>
 
 namespace Crow {
@@ -91,10 +92,11 @@ namespace Crow {
 
         template <typename RNG>
         T operator()(RNG& rng) const noexcept {
+            using namespace std::numbers;
             T u = 1 - unit_(rng); // to ensure log(u) doesn't fail
             T v = unit_(rng);
             T a = std::sqrt(-2 * std::log(u));
-            T b = std::cos(2 * pi_c<T> * v);
+            T b = std::cos(2 * pi_v<T> * v);
             return a * b * sd_ + mean_;
         }
 
@@ -113,13 +115,27 @@ namespace Crow {
         T mean_ = 0;
         T sd_ = 1;
 
-        T pdf_z(T z) const noexcept { return inv_sqrt2_c<T> * inv_sqrtpi_c<T> * std::exp(- z * z / 2); }
-        T cdf_z(T z) const noexcept { return std::erfc(- inv_sqrt2_c<T> * z) / 2; }
-        T q_z(T p) const noexcept { return - sqrt2_c<T> * inverse_erfc(2 * p); }
+        T pdf_z(T z) const noexcept {
+            using namespace std::numbers;
+            static constexpr T c = inv_sqrtpi_v<T> / sqrt2_v<T>;
+            return c * std::exp(- z * z / 2);
+        }
+
+        T cdf_z(T z) const noexcept {
+            using namespace std::numbers;
+            static constexpr T c = 1 / sqrt2_v<T>;
+            return std::erfc(- c * z) / 2;
+        }
+
+        T q_z(T p) const noexcept {
+            using namespace std::numbers;
+            return - sqrt2_v<T> * inverse_erfc(2 * p);
+        }
 
         static T inverse_erfc(T y) noexcept {
+            using namespace std::numbers;
             static constexpr T epsilon = 2 * std::numeric_limits<T>::epsilon();
-            static constexpr T sqrtpi_over_2 = 1 / two_over_sqrtpi_c<T>;
+            static constexpr T sqrtpi_over_2 = 1 / (2 * inv_sqrtpi_v<T>);
             static const auto inv_deriv = [] (T x) { return - sqrtpi_over_2 * std::exp(x * x); };
             if (y > 1)
                 return - inverse_erfc(2 - y);
@@ -149,9 +165,10 @@ namespace Crow {
         LogNormal() noexcept {} // Defaults to (0,1)
 
         LogNormal(T m, T s, LogMode mode = LogMode::natural) noexcept {
+            using namespace std::numbers;
             if (mode == LogMode::common) {
-                m *= ln10_c<T>;
-                s *= ln10_c<T>;
+                m *= ln10_v<T>;
+                s *= ln10_v<T>;
             }
             norm_ = NormalDistribution<T>(m, s);
         }

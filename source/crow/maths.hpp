@@ -4,6 +4,7 @@
 #include "crow/types.hpp"
 #include <cstdint>
 #include <limits>
+#include <numbers>
 #include <type_traits>
 #include <utility>
 
@@ -113,13 +114,15 @@ namespace Crow {
     template <typename T>
     constexpr T to_degrees(T rad) noexcept {
         static_assert(std::is_floating_point_v<T>);
-        return rad * (T(180) / pi_c<T>);
+        using namespace std::numbers;
+        return rad * (T(180) / pi_v<T>);
     }
 
     template <typename T>
     constexpr T to_radians(T deg) noexcept {
         static_assert(std::is_floating_point_v<T>);
-        return deg * (pi_c<T> / T(180));
+        using namespace std::numbers;
+        return deg * (pi_v<T> / T(180));
     }
 
     // Literals

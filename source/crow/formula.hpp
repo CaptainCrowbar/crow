@@ -5,15 +5,16 @@
 #include "crow/types.hpp"
 #include <array>
 #include <cmath>
+#include <numbers>
 #include <type_traits>
 
 namespace Crow {
 
     namespace Detail {
 
-        template <typename T> constexpr T period_factor = G_c<T> / (4 * pi_c<T> * pi_c<T>);
-        template <typename T> constexpr T luminosity_factor = 4 * pi_c<T> * sigma_c<T>;
-        template <typename T> constexpr T sphere_volume_factor = pi_c<T> * 4 / 3;
+        template <typename T> constexpr T period_factor = CC::G_v<T> / (4 * SN::pi_v<T> * SN::pi_v<T>);
+        template <typename T> constexpr T luminosity_factor = 4 * SN::pi_v<T> * CC::sigma_v<T>;
+        template <typename T> constexpr T sphere_volume_factor = SN::pi_v<T> * 4 / 3;
 
     }
 
@@ -22,13 +23,15 @@ namespace Crow {
     template <typename T>
     constexpr T sphere_area_from_radius(T radius) noexcept {
         static_assert(std::is_floating_point_v<T>);
-        return 4 * pi_c<T> * radius * radius;
+        using namespace std::numbers;
+        return 4 * pi_v<T> * radius * radius;
     }
 
     template <typename T>
     T sphere_radius_from_area(T area) noexcept {
         static_assert(std::is_floating_point_v<T>);
-        return std::sqrt(area / (4 * pi_c<T>));
+        using namespace std::numbers;
+        return std::sqrt(area / (4 * pi_v<T>));
     }
 
     template <typename T>
@@ -68,7 +71,8 @@ namespace Crow {
     template <typename T>
     constexpr T gravity_from_mass_radius(T mass, T radius) noexcept {
         static_assert(std::is_floating_point_v<T>);
-        return G_c<T> * mass / (radius * radius);
+        using namespace Constants;
+        return G_v<T> * mass / (radius * radius);
     }
 
     // Orbital period
@@ -118,7 +122,8 @@ namespace Crow {
     template <typename T>
     constexpr T main_sequence_lifetime(T mass, T luminosity) noexcept {
         static_assert(std::is_floating_point_v<T>);
-        return (T(1e10) * jy_c<T> * L_sun_c<T> / M_sun_c<T>) * (mass / luminosity);
+        using namespace Constants;
+        return (T(1e10) * jy_v<T> * L_sun_v<T> / M_sun_v<T>) * (mass / luminosity);
     }
 
     // Schwarzschild radius
@@ -126,7 +131,8 @@ namespace Crow {
     template <typename T>
     constexpr T schwarzschild_radius(T mass) noexcept {
         static_assert(std::is_floating_point_v<T>);
-        return 2 * G_c<T> * mass / (c_c<T> * c_c<T>);
+        using namespace Constants;
+        return 2 * G_v<T> * mass / (c_v<T> * c_v<T>);
     }
 
     // Magnitude and luminosity
@@ -146,13 +152,15 @@ namespace Crow {
     template <typename T>
     T bolometric_magitude_to_luminosity(T mag) noexcept {
         static_assert(std::is_floating_point_v<T>);
-        return L_sun_c<T> * std::pow(T(10), T(0.4) * (Mbol_sun_c<T> - mag));
+        using namespace Constants;
+        return L_sun_v<T> * std::pow(T(10), T(0.4) * (Mbol_sun_v<T> - mag));
     }
 
     template <typename T>
     T bolometric_luminosity_to_magnitude(T luminosity) noexcept {
         static_assert(std::is_floating_point_v<T>);
-        return Mbol_sun_c<T> - T(2.5) * std::log10(luminosity / L_sun_c<T>);
+        using namespace Constants;
+        return Mbol_sun_v<T> - T(2.5) * std::log10(luminosity / L_sun_v<T>);
     }
 
     // Bolometric correction
@@ -231,7 +239,8 @@ namespace Crow {
     template <typename T>
     T planet_illumination_to_temperature(T illumination) noexcept {
         static_assert(std::is_floating_point_v<T>);
-        return std::pow(illumination / (4 * sigma_c<T>), T(0.25));
+        using namespace Constants;
+        return std::pow(illumination / (4 * sigma_v<T>), T(0.25));
     }
 
 }

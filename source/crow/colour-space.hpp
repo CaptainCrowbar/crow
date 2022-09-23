@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <numbers>
 #include <type_traits>
 
 namespace Crow {
@@ -239,16 +240,18 @@ namespace Crow {
         template <typename Base>
         template <typename T>
         Vector<T, 3> HCLSpace<Base>::from_base(Vector<T, 3> colour) noexcept {
+            using namespace std::numbers;
             Vector<T, 3> abl = {colour[1], colour[2], colour[0]};
             auto chl = cartesian_to_cylindrical(abl);
-            auto h = fraction(chl[1] / (2 * pi_c<T>));
+            auto h = fraction(chl[1] / (2 * pi_v<T>));
             return {h, chl[0], chl[2]};
         }
 
         template <typename Base>
         template <typename T>
         Vector<T, 3> HCLSpace<Base>::to_base(Vector<T, 3> colour) noexcept {
-            Vector<T, 3> chl = {colour[1], 2 * pi_c<T> * colour[0], colour[2]};
+            using namespace std::numbers;
+            Vector<T, 3> chl = {colour[1], 2 * pi_v<T> * colour[0], colour[2]};
             auto abl = cylindrical_to_cartesian(chl);
             return {abl[2], abl[0], abl[1]};
         }

@@ -10,20 +10,22 @@
 #include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <numbers>
 #include <string>
 #include <vector>
 
 using namespace Crow;
 using namespace Crow::Literals;
+using namespace std::numbers;
 
 namespace {
 
     constexpr double epsilon = 1e-10;
     constexpr Double2 zero = {0, 0};
-    constexpr Double2 equator = {0, pi_d / 2};
-    constexpr Double2 pcentre = {pi_d / 2, pi_d / 2};
-    constexpr Double2 pt_north = {pi_d / 8, pi_d / 4};
-    constexpr Double2 pt_south = {pi_d / 8, 3 * pi_d / 4};
+    constexpr Double2 equator = {0, pi / 2};
+    constexpr Double2 pcentre = {pi / 2, pi / 2};
+    constexpr Double2 pt_north = {pi / 8, pi / 4};
+    constexpr Double2 pt_south = {pi / 8, 3 * pi / 4};
     constexpr Double2 xy_north = {0.1, 0.1};
     constexpr Double2 xy_south = {0.1, -0.1};
 
@@ -79,10 +81,10 @@ void test_crow_projection_azimuthal_equidistant() {
     TEST(proj.has_max_x());
     TEST(proj.has_min_y());
     TEST(proj.has_max_y());
-    TEST_NEAR(proj.min_x(), - pi_d, epsilon);
-    TEST_NEAR(proj.max_x(), pi_d, epsilon);
-    TEST_NEAR(proj.min_y(), - pi_d, epsilon);
-    TEST_NEAR(proj.max_y(), pi_d, epsilon);
+    TEST_NEAR(proj.min_x(), - pi, epsilon);
+    TEST_NEAR(proj.max_x(), pi, epsilon);
+    TEST_NEAR(proj.min_y(), - pi, epsilon);
+    TEST_NEAR(proj.max_y(), pi, epsilon);
     TEST(proj.is_on_globe(pcentre));
     TEST(proj.is_on_map(zero));
     TEST_NEAR(proj.origin().x(), pcentre.x(), epsilon);
@@ -229,10 +231,10 @@ void test_crow_projection_cylindrical_equidistant() {
     TEST(proj.has_max_x());
     TEST(proj.has_min_y());
     TEST(proj.has_max_y());
-    TEST_NEAR(proj.min_x(), - pi_d, epsilon);
-    TEST_NEAR(proj.max_x(), pi_d, epsilon);
-    TEST_NEAR(proj.min_y(), - pi_d / 2, epsilon);
-    TEST_NEAR(proj.max_y(), pi_d / 2, epsilon);
+    TEST_NEAR(proj.min_x(), - pi, epsilon);
+    TEST_NEAR(proj.max_x(), pi, epsilon);
+    TEST_NEAR(proj.min_y(), - pi / 2, epsilon);
+    TEST_NEAR(proj.max_y(), pi / 2, epsilon);
     TEST(proj.is_on_globe(pcentre));
     TEST(proj.is_on_map(zero));
     TEST_NEAR(proj.origin().x(), pcentre.x(), epsilon);
@@ -259,8 +261,8 @@ void test_crow_projection_gall_peters() {
     TEST(proj.has_max_x());
     TEST(proj.has_min_y());
     TEST(proj.has_max_y());
-    TEST_NEAR(proj.min_x(), - pi_d, epsilon);
-    TEST_NEAR(proj.max_x(), pi_d, epsilon);
+    TEST_NEAR(proj.min_x(), - pi, epsilon);
+    TEST_NEAR(proj.max_x(), pi, epsilon);
     TEST_NEAR(proj.min_y(), -2, epsilon);
     TEST_NEAR(proj.max_y(), 2, epsilon);
     TEST(proj.is_on_globe(pcentre));
@@ -289,8 +291,8 @@ void test_crow_projection_lambert_cylindrical() {
     TEST(proj.has_max_x());
     TEST(proj.has_min_y());
     TEST(proj.has_max_y());
-    TEST_NEAR(proj.min_x(), - pi_d, epsilon);
-    TEST_NEAR(proj.max_x(), pi_d, epsilon);
+    TEST_NEAR(proj.min_x(), - pi, epsilon);
+    TEST_NEAR(proj.max_x(), pi, epsilon);
     TEST_NEAR(proj.min_y(), -1, epsilon);
     TEST_NEAR(proj.max_y(), 1, epsilon);
     TEST(proj.is_on_globe(pcentre));
@@ -319,8 +321,8 @@ void test_crow_projection_mercator() {
     TEST(proj.has_max_x());
     TEST(! proj.has_min_y());
     TEST(! proj.has_max_y());
-    TEST_NEAR(proj.min_x(), - pi_d, epsilon);
-    TEST_NEAR(proj.max_x(), pi_d, epsilon);
+    TEST_NEAR(proj.min_x(), - pi, epsilon);
+    TEST_NEAR(proj.max_x(), pi, epsilon);
     TEST_EQUAL(proj.min_y(), 0);
     TEST_EQUAL(proj.max_y(), 0);
     TEST(proj.is_on_globe(pcentre));
@@ -349,10 +351,10 @@ void test_crow_projection_eckert_iv() {
     TEST(proj.has_max_x());
     TEST(proj.has_min_y());
     TEST(proj.has_max_y());
-    TEST_NEAR(proj.min_x(), - pi_d, epsilon);
-    TEST_NEAR(proj.max_x(), pi_d, epsilon);
-    TEST_NEAR(proj.min_y(), - pi_d / 2, epsilon);
-    TEST_NEAR(proj.max_y(), pi_d / 2, epsilon);
+    TEST_NEAR(proj.min_x(), - pi, epsilon);
+    TEST_NEAR(proj.max_x(), pi, epsilon);
+    TEST_NEAR(proj.min_y(), - pi / 2, epsilon);
+    TEST_NEAR(proj.max_y(), pi / 2, epsilon);
     TEST(proj.is_on_globe(pcentre));
     TEST(proj.is_on_map(zero));
     TEST_NEAR(proj.origin().x(), pcentre.x(), epsilon);
@@ -379,10 +381,10 @@ void test_crow_projection_mollweide() {
     TEST(proj.has_max_x());
     TEST(proj.has_min_y());
     TEST(proj.has_max_y());
-    TEST_NEAR(proj.min_x(), - pi_d, epsilon);
-    TEST_NEAR(proj.max_x(), pi_d, epsilon);
-    TEST_NEAR(proj.min_y(), - pi_d / 2, epsilon);
-    TEST_NEAR(proj.max_y(), pi_d / 2, epsilon);
+    TEST_NEAR(proj.min_x(), - pi, epsilon);
+    TEST_NEAR(proj.max_x(), pi, epsilon);
+    TEST_NEAR(proj.min_y(), - pi / 2, epsilon);
+    TEST_NEAR(proj.max_y(), pi / 2, epsilon);
     TEST(proj.is_on_globe(pcentre));
     TEST(proj.is_on_map(zero));
     TEST_NEAR(proj.origin().x(), pcentre.x(), epsilon);
@@ -409,10 +411,10 @@ void test_crow_projection_sinusoidal() {
     TEST(proj.has_max_x());
     TEST(proj.has_min_y());
     TEST(proj.has_max_y());
-    TEST_NEAR(proj.min_x(), - pi_d, epsilon);
-    TEST_NEAR(proj.max_x(), pi_d, epsilon);
-    TEST_NEAR(proj.min_y(), - pi_d / 2, epsilon);
-    TEST_NEAR(proj.max_y(), pi_d / 2, epsilon);
+    TEST_NEAR(proj.min_x(), - pi, epsilon);
+    TEST_NEAR(proj.max_x(), pi, epsilon);
+    TEST_NEAR(proj.min_y(), - pi / 2, epsilon);
+    TEST_NEAR(proj.max_y(), pi / 2, epsilon);
     TEST(proj.is_on_globe(pcentre));
     TEST(proj.is_on_map(zero));
     TEST_NEAR(proj.origin().x(), pcentre.x(), epsilon);
@@ -439,10 +441,10 @@ void test_crow_projection_interrupted_eckert_iv() {
     TEST(proj.has_max_x());
     TEST(proj.has_min_y());
     TEST(proj.has_max_y());
-    TEST_NEAR(proj.min_x(), - pi_d, epsilon);
-    TEST_NEAR(proj.max_x(), pi_d, epsilon);
-    TEST_NEAR(proj.min_y(), - pi_d / 2, epsilon);
-    TEST_NEAR(proj.max_y(), pi_d / 2, epsilon);
+    TEST_NEAR(proj.min_x(), - pi, epsilon);
+    TEST_NEAR(proj.max_x(), pi, epsilon);
+    TEST_NEAR(proj.min_y(), - pi / 2, epsilon);
+    TEST_NEAR(proj.max_y(), pi / 2, epsilon);
     TEST(proj.is_on_globe(equator));
     TEST(proj.is_on_map(zero));
     TEST_NEAR(proj.origin().x(), equator.x(), epsilon);
@@ -469,10 +471,10 @@ void test_crow_projection_interrupted_mollweide() {
     TEST(proj.has_max_x());
     TEST(proj.has_min_y());
     TEST(proj.has_max_y());
-    TEST_NEAR(proj.min_x(), - pi_d, epsilon);
-    TEST_NEAR(proj.max_x(), pi_d, epsilon);
-    TEST_NEAR(proj.min_y(), - pi_d / 2, epsilon);
-    TEST_NEAR(proj.max_y(), pi_d / 2, epsilon);
+    TEST_NEAR(proj.min_x(), - pi, epsilon);
+    TEST_NEAR(proj.max_x(), pi, epsilon);
+    TEST_NEAR(proj.min_y(), - pi / 2, epsilon);
+    TEST_NEAR(proj.max_y(), pi / 2, epsilon);
     TEST(proj.is_on_globe(equator));
     TEST(proj.is_on_map(zero));
     TEST_NEAR(proj.origin().x(), equator.x(), epsilon);
@@ -499,10 +501,10 @@ void test_crow_projection_interrupted_sinusoidal() {
     TEST(proj.has_max_x());
     TEST(proj.has_min_y());
     TEST(proj.has_max_y());
-    TEST_NEAR(proj.min_x(), - pi_d, epsilon);
-    TEST_NEAR(proj.max_x(), pi_d, epsilon);
-    TEST_NEAR(proj.min_y(), - pi_d / 2, epsilon);
-    TEST_NEAR(proj.max_y(), pi_d / 2, epsilon);
+    TEST_NEAR(proj.min_x(), - pi, epsilon);
+    TEST_NEAR(proj.max_x(), pi, epsilon);
+    TEST_NEAR(proj.min_y(), - pi / 2, epsilon);
+    TEST_NEAR(proj.max_y(), pi / 2, epsilon);
     TEST(proj.is_on_globe(equator));
     TEST(proj.is_on_map(zero));
     TEST_NEAR(proj.origin().x(), equator.x(), epsilon);
@@ -526,12 +528,12 @@ namespace {
     public:
         Globe(): image_(), x_scale_(), y_scale_() {
             image_.load(earth_map);
-            x_scale_ = image_.width() / (2 * pi_d);
-            y_scale_ = image_.height() / pi_d;
+            x_scale_ = image_.width() / (2 * pi);
+            y_scale_ = image_.height() / pi;
         }
         Rgba8 operator()(const Double2& polar) const {
-            double x = euclidean_remainder(polar[0] + pi_d, 2 * pi_d);
-            double y = std::clamp(pi_d - polar[1], 0.0, pi_d);
+            double x = euclidean_remainder(polar[0] + pi, 2 * pi);
+            double y = std::clamp(pi - polar[1], 0.0, pi);
             auto i = int(std::floor(x * x_scale_));
             auto j = image_.height() - 1 - int(std::floor(y * y_scale_));
             return image_[{i, j}];
@@ -556,7 +558,7 @@ namespace {
         double max_x = proj->has_max_x() ? proj->max_x() : 0;
         double max_y = proj->has_max_y() ? proj->max_y() : 0;
         if (max_x == 0 && max_y == 0)
-            max_x = max_y = pi_d;
+            max_x = max_y = pi;
         else if (max_x == 0)
             max_x = max_y;
         else if (max_y == 0)

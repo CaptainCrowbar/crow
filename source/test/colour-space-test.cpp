@@ -6,10 +6,12 @@
 #include "test/vector-test.hpp"
 #include <cmath>
 #include <map>
+#include <numbers>
 #include <vector>
 
 using namespace Crow;
 using namespace Crow::Test;
+using namespace std::numbers;
 
 using Grey = Vector<double, 1>;
 
@@ -63,7 +65,7 @@ void test_crow_colour_space_hclab() {
         cie1 = sample.CIELab;
         TRY(colour = HCLab::from_base(cie1));
         TEST(is_colour_in_gamut<HCLab>(colour));
-        TEST_NEAR(colour[0], fraction(std::atan2(cie1[2], cie1[1]) / (2 * pi_d)), 1e-6);
+        TEST_NEAR(colour[0], fraction(std::atan2(cie1[2], cie1[1]) / (2 * pi)), 1e-6);
         TEST_NEAR(colour[1], std::hypot(cie1[1], cie1[2]), 1e-6);
         TEST_NEAR(colour[2], cie1[0], 1e-6);
         TRY(cie2 = HCLab::to_base(colour));
@@ -80,7 +82,7 @@ void test_crow_colour_space_hcluv() {
         cie1 = sample.CIELuv;
         TRY(colour = HCLuv::from_base(cie1));
         TEST(is_colour_in_gamut<HCLuv>(colour));
-        TEST_NEAR(colour[0], fraction(std::atan2(cie1[2], cie1[1]) / (2 * pi_d)), 1e-6);
+        TEST_NEAR(colour[0], fraction(std::atan2(cie1[2], cie1[1]) / (2 * pi)), 1e-6);
         TEST_NEAR(colour[1], std::hypot(cie1[1], cie1[2]), 1e-6);
         TEST_NEAR(colour[2], cie1[0], 1e-6);
         TRY(cie2 = HCLuv::to_base(colour));

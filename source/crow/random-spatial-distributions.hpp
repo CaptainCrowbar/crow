@@ -8,6 +8,7 @@
 #include "crow/types.hpp"
 #include "crow/vector.hpp"
 #include <cmath>
+#include <numbers>
 #include <type_traits>
 
 namespace Crow {
@@ -97,6 +98,8 @@ namespace Crow {
         template <typename RNG>
         result_type operator()(RNG& rng) const {
 
+            using namespace std::numbers;
+
             result_type v;
 
             if constexpr (N == 1) {
@@ -116,7 +119,7 @@ namespace Crow {
 
                 for (int i = 0; i < N; i += 2) {
                     T a = std::sqrt(-2 * std::log(UniformReal<T>()(rng)));
-                    T b = 2 * pi_c<T> * UniformReal<T>()(rng);
+                    T b = 2 * pi_v<T> * UniformReal<T>()(rng);
                     v[i] = a * std::cos(b);
                     if (i + 1 < N)
                         v[i + 1] = a * std::sin(b);
@@ -156,6 +159,8 @@ namespace Crow {
         template <typename RNG>
         result_type operator()(RNG& rng) const {
 
+            using namespace std::numbers;
+
             result_type v;
 
             if constexpr (N == 1) {
@@ -164,13 +169,13 @@ namespace Crow {
 
             } else if constexpr (N == 2) {
 
-                T phi = UniformReal<T>(0, 2 * pi_c<T>)(rng);
+                T phi = UniformReal<T>(0, 2 * pi_v<T>)(rng);
                 v[0] = std::cos(phi);
                 v[1] = std::sin(phi);
 
             } else if constexpr (N == 3) {
 
-                T phi = UniformReal<T>(0, 2 * pi_c<T>)(rng);
+                T phi = UniformReal<T>(0, 2 * pi_v<T>)(rng);
                 v[2] = UniformReal<T>(-1, 1)(rng);
                 T r = std::sqrt(1 - v[2] * v[2]);
                 v[0] = r * std::cos(phi);
@@ -180,7 +185,7 @@ namespace Crow {
 
                 for (int i = 0; i < N; i += 2) {
                     T a = std::sqrt(-2 * std::log(UniformReal<T>()(rng)));
-                    T b = 2 * pi_c<T> * UniformReal<T>()(rng);
+                    T b = 2 * pi_v<T> * UniformReal<T>()(rng);
                     v[i] = a * std::cos(b);
                     if (i + 1 < N)
                         v[i + 1] = a * std::sin(b);
