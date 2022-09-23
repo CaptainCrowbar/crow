@@ -141,20 +141,10 @@ void test_crow_algorithm_container_algorithms() {
 
     const auto is_upper = [] (char c) { return c >= 'A' && c <= 'Z'; };
     const auto is_lower = [] (char c) { return c >= 'a' && c <= 'z'; };
-    const auto is_alpha = [=] (char c) { return is_upper(c) || is_lower(c); };
     const auto same_case = [=] (char a, char b) { return (is_lower(a) && is_lower(b)) || (is_upper(a) && is_upper(b)); };
 
     std::string s;
 
-    s = "";                 TRY(remove_in(s, 'c'));                        TEST_EQUAL(s, "");
-    s = "xyzxyzxyz";        TRY(remove_in(s, 'c'));                        TEST_EQUAL(s, "xyzxyzxyz");
-    s = "abcabcabc";        TRY(remove_in(s, 'c'));                        TEST_EQUAL(s, "ababab");
-    s = "";                 TRY(remove_in_if(s, is_alpha));                TEST_EQUAL(s, "");
-    s = "1234567890";       TRY(remove_in_if(s, is_alpha));                TEST_EQUAL(s, "1234567890");
-    s = "abc123abc123";     TRY(remove_in_if(s, is_alpha));                TEST_EQUAL(s, "123123");
-    s = "";                 TRY(remove_in_if_not(s, is_alpha));            TEST_EQUAL(s, "");
-    s = "abcdefghijklm";    TRY(remove_in_if_not(s, is_alpha));            TEST_EQUAL(s, "abcdefghijklm");
-    s = "abc123abc123";     TRY(remove_in_if_not(s, is_alpha));            TEST_EQUAL(s, "abcabc");
     s = "";                 TRY(unique_in(s));                             TEST_EQUAL(s, "");
     s = "abcdeabcde";       TRY(unique_in(s));                             TEST_EQUAL(s, "abcdeabcde");
     s = "abbcccddddeeeee";  TRY(unique_in(s));                             TEST_EQUAL(s, "abcde");

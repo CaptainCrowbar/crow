@@ -30,7 +30,7 @@ namespace Crow {
         )", Regex::anchor | Regex::extended | Regex::icase | Regex::optimize);
 
         std::string text(str);
-        remove_in_if(text, ascii_isspace);
+        std::erase_if(text, ascii_isspace);
 
         if (text.empty())
             return;

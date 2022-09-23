@@ -42,12 +42,6 @@ from an integer.
 ## Container algorithms
 
 ```c++
-template <typename Container, typename T>
-    void remove_in(Container& con, const T& t);
-template <typename Container, typename Predicate>
-    void remove_in_if(Container& con, Predicate p);
-template <typename Container, typename Predicate>
-    void remove_in_if_not(Container& con, Predicate p);
 template <typename Container>
     void unique_in(Container& con);
 template <typename Container, typename BinaryPredicate>

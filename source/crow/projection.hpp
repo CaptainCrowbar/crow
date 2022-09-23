@@ -967,7 +967,7 @@ namespace Crow {
             for (auto& t: inter)
                 t = symmetric_remainder(t, 2 * pi_v<T>);
             sort_unique_in(inter);
-            remove_in_if(inter, [] (T t) { return t <= - pi_v<T> || t >= pi_v<T>; });
+            std::erase_if(inter, [] (T t) { return t <= - pi_v<T> || t >= pi_v<T>; });
             inter.insert(inter.begin(), - pi_v<T>);
             inter.push_back(pi_v<T>);
             auto second = std::next(inter.begin());

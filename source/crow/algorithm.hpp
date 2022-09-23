@@ -69,22 +69,6 @@ namespace Crow {
 
     // Container algorithms
 
-    template <typename Container, typename T>
-    void remove_in(Container& con, const T& t) {
-        con.erase(std::remove(con.begin(), con.end(), t), con.end());
-    }
-
-    template <typename Container, typename Predicate>
-    void remove_in_if(Container& con, Predicate p) {
-        con.erase(std::remove_if(con.begin(), con.end(), p), con.end());
-    }
-
-    template <typename Container, typename Predicate>
-    void remove_in_if_not(Container& con, Predicate p) {
-        using T = std::decay_t<decltype(*con.begin())>;
-        con.erase(std::remove_if(con.begin(), con.end(), [p] (const T& x) { return ! p(x); }), con.end());
-    }
-
     template <typename Container>
     void unique_in(Container& con) {
         con.erase(std::unique(con.begin(), con.end()), con.end());
