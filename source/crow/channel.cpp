@@ -1,8 +1,10 @@
 #include "crow/channel.hpp"
 #include "crow/guard.hpp"
 #include <algorithm>
+#include <chrono>
 #include <cstring>
 #include <stdexcept>
+#include <thread>
 
 using namespace std::chrono;
 using namespace std::literals;

@@ -4,7 +4,6 @@
 #include "crow/string.hpp"
 #include "crow/types.hpp"
 #include <cstdlib>
-#include <functional>
 #include <ostream>
 #include <string>
 #include <utility>

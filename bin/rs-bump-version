@@ -67,8 +67,8 @@ cat > "$version_header" << EOF
 
 #pragma once
 
-#include <string>
 #include <array>
+#include <string>
 
 namespace $namespace {
 

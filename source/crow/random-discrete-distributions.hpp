@@ -7,7 +7,6 @@
 #include "crow/rational.hpp"
 #include "crow/types.hpp"
 #include <cmath>
-#include <limits>
 #include <numbers>
 #include <type_traits>
 

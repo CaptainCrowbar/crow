@@ -7,7 +7,6 @@
 #include "crow/string.hpp"
 #include "crow/types.hpp"
 #include "crow/vector.hpp"
-#include <functional>
 #include <limits>
 #include <optional>
 #include <ostream>

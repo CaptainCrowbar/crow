@@ -2,7 +2,6 @@
 
 #include "crow/iterator.hpp"
 #include "crow/types.hpp"
-#include <iterator>
 #include <memory>
 #include <ostream>
 #include <stdexcept>

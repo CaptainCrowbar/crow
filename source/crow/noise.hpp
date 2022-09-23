@@ -5,7 +5,6 @@
 #include "crow/vector.hpp"
 #include <algorithm>
 #include <array>
-#include <cmath>
 #include <cstdlib>
 #include <type_traits>
 

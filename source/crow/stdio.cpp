@@ -2,7 +2,6 @@
 #include "crow/unicode.hpp"
 #include <algorithm>
 #include <cerrno>
-#include <cstdio>
 #include <fcntl.h>
 #include <random>
 

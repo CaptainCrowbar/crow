@@ -4,7 +4,6 @@
 #include "crow/thread.hpp"
 #include "crow/time.hpp"
 #include "crow/types.hpp"
-#include <chrono>
 #include <condition_variable>
 #include <deque>
 #include <exception>

@@ -1,6 +1,7 @@
 #include "crow/regex.hpp"
 #include <algorithm>
 #include <cstdlib>
+#include <iterator>
 #include <new>
 #include <utility>
 

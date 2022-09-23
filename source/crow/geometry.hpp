@@ -5,7 +5,6 @@
 #include "crow/types.hpp"
 #include "crow/vector.hpp"
 #include <cmath>
-#include <cstdlib>
 #include <numbers>
 #include <ostream>
 #include <string>

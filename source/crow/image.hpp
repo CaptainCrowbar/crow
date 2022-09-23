@@ -15,12 +15,12 @@
 #include <cstring>
 #include <iterator>
 #include <memory>
+#include <new>
 #include <ostream>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <utility>
-#include <vector>
 
 namespace Crow {
 

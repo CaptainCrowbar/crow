@@ -7,7 +7,6 @@
 #include "crow/vector.hpp"
 #include <algorithm>
 #include <array>
-#include <functional>
 #include <ostream>
 #include <string>
 #include <type_traits>

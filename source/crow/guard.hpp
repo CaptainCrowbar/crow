@@ -2,7 +2,6 @@
 
 #include "crow/types.hpp"
 #include <exception>
-#include <functional>
 #include <utility>
 
 namespace Crow {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "crow/log.hpp"
+#include <cstdint>
 #include <cstdlib>
 #include <iterator>
 #include <string>

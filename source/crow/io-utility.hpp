@@ -1,7 +1,6 @@
 #pragma once
 
 #include "crow/types.hpp"
-#include <string>
 #include <utility>
 
 namespace Crow {
