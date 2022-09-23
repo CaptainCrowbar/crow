@@ -5,6 +5,7 @@
 #include "crow/string.hpp"
 #include "crow/unicode.hpp"
 #include <algorithm>
+#include <bit>
 #include <limits>
 #include <stdexcept>
 
@@ -142,7 +143,7 @@ namespace Crow {
 
     void TextGen::set(option opt) {
         static constexpr auto case_options = option::lower | option::upper | option::title | option::xtitle | option::sentence;
-        if (popcount(int(opt & case_options)) > 1)
+        if (std::popcount(unsigned(opt & case_options)) > 1)
             throw std::invalid_argument("Invalid combination of options for text generator");
         options_ = opt;
     }

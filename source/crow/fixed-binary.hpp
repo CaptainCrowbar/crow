@@ -4,6 +4,7 @@
 #include "crow/types.hpp"
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cmath>
 #include <functional>
 #include <initializer_list>
@@ -115,7 +116,7 @@ namespace Crow {
         constexpr const uint8_t* data() const noexcept { return reinterpret_cast<const uint8_t*>(&value_); }
         template <typename T> constexpr bool fits_in() const noexcept { return significant_bits() <= std::numeric_limits<T>::digits; }
         constexpr size_t hash() const noexcept { return std::hash<value_type>()(value_); }
-        constexpr size_t significant_bits() const noexcept { return bit_width(value_); }
+        constexpr size_t significant_bits() const noexcept { return std::bit_width(value_); }
 
         constexpr explicit operator bool() const noexcept { return value_ != 0; }
         template <typename T> constexpr explicit operator T() const noexcept { static_assert(std::is_arithmetic_v<T>); return T(value_); }
@@ -370,7 +371,7 @@ namespace Crow {
             size_t i = units - 1;
             while (i != npos && array_[i] == 0)
                 --i;
-            return i == npos ? 0 : unit_bits * i + bit_width(array_[i]);
+            return i == npos ? 0 : unit_bits * i + std::bit_width(array_[i]);
         }
 
         template <size_t N>

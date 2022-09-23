@@ -37,7 +37,6 @@ int main(int argc, char** argv) {
 
     // binary-test.cpp
     UNIT_TEST(crow_binary_byte_order)
-    UNIT_TEST(crow_binary_birwise_operations)
     UNIT_TEST(crow_binary_signed_overflow_detection)
     UNIT_TEST(crow_binary_unsigned_overflow_detection)
 

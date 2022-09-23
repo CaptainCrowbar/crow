@@ -2,6 +2,7 @@
 
 #include "crow/binary.hpp"
 #include "crow/types.hpp"
+#include <bit>
 #include <functional>
 #include <iterator>
 #include <string>
@@ -109,19 +110,19 @@ namespace Crow {
         static constexpr void siprounds(int n, uint64_t& v0, uint64_t& v1, uint64_t& v2, uint64_t& v3) noexcept {
             for (int i = 0; i < n; ++i) {
                 v0 += v1;
-                v1 = rotl(v1, 13);
+                v1 = std::rotl(v1, 13);
                 v1 ^= v0;
-                v0 = rotl(v0, 32);
+                v0 = std::rotl(v0, 32);
                 v2 += v3;
-                v3 = rotl(v3, 16);
+                v3 = std::rotl(v3, 16);
                 v3 ^= v2;
                 v0 += v3;
-                v3 = rotl(v3, 21);
+                v3 = std::rotl(v3, 21);
                 v3 ^= v0;
                 v2 += v1;
-                v1 = rotl(v1, 17);
+                v1 = std::rotl(v1, 17);
                 v1 ^= v2;
-                v2 = rotl(v2, 32);
+                v2 = std::rotl(v2, 32);
             }
         }
 

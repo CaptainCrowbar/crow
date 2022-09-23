@@ -8,6 +8,7 @@
 #include "crow/hash.hpp"
 #include "crow/types.hpp"
 #include <array>
+#include <bit>
 #include <functional>
 #include <iterator>
 #include <type_traits>
@@ -74,7 +75,7 @@ namespace Crow {
             state_ += b_;
             auto x = uint64_t((state_ >> 64) ^ state_);
             auto y = int(state_ >> 122) & 63;
-            return rotr(x, y);
+            return std::rotr(x, y);
         }
 
         constexpr void advance(int64_t offset) noexcept {
@@ -165,14 +166,14 @@ namespace Crow {
         constexpr Xoshiro(uint64_t s, uint64_t t, uint64_t u, uint64_t v) noexcept: state_() { seed(s, t, u, v); }
 
         constexpr uint64_t operator()() noexcept {
-            uint64_t x = rotl(state_[1] * 5, 7) * 9;
+            uint64_t x = std::rotl(state_[1] * 5, 7) * 9;
             uint64_t y = state_[1] << 17;
             state_[2] ^= state_[0];
             state_[3] ^= state_[1];
             state_[1] ^= state_[2];
             state_[0] ^= state_[3];
             state_[2] ^= y;
-            state_[3] = rotl(state_[3], 45);
+            state_[3] = std::rotl(state_[3], 45);
             return x;
         }
 

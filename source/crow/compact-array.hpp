@@ -4,6 +4,7 @@
 #include "crow/iterator.hpp"
 #include "crow/types.hpp"
 #include <algorithm>
+#include <bit>
 #include <functional>
 #include <initializer_list>
 #include <iterator>
@@ -391,7 +392,7 @@ namespace Crow {
             }
             if (n <= N)
                 return;
-            size_t new_cap = bit_ceil(n);
+            size_t new_cap = std::bit_ceil(n);
             if (new_cap <= capacity())
                 return;
             auto new_ptr = new raw_memory[new_cap];

@@ -6,6 +6,7 @@
 #include "crow/vector.hpp"
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cmath>
 #include <cstdlib>
 #include <deque>
@@ -48,11 +49,13 @@ namespace Crow {
     template <typename T, typename U, typename BinaryFunction>
     constexpr T integer_power(T x, U y, BinaryFunction f, T unit = T(1)) noexcept {
         static_assert(std::is_integral_v<U>);
-        U mask = bit_floor(y);
+        using U2 = std::make_unsigned_t<U>;
+        U2 y2 = U2(y);
+        U2 mask = std::bit_floor(y2);
         T z = unit;
         while (mask != 0) {
             z = f(z, z);
-            if ((y & mask) != 0)
+            if ((y2 & mask) != 0)
                 z = f(z, x);
             mask >>= 1;
         }

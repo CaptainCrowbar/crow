@@ -1,4 +1,5 @@
 #include "crow/mp-integer.hpp"
+#include <bit>
 #include <cstring>
 #include <stdexcept>
 
@@ -155,14 +156,14 @@ namespace Crow {
     size_t MPN::bits() const noexcept {
         size_t n = 32 * rep_.size();
         if (! rep_.empty())
-            n -= 32 - bit_width(rep_.back());
+            n -= 32 - std::bit_width(rep_.back());
         return n;
     }
 
     size_t MPN::bits_set() const noexcept {
         size_t n = 0;
         for (auto i: rep_)
-            n += popcount(i);
+            n += std::popcount(i);
         return n;
     }
 
