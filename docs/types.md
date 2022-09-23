@@ -12,38 +12,7 @@ namespace Crow;
 * TOC
 {:toc}
 
-## Target system properties
-
-All of these are always defined as `constexpr bool` constants. They are set to
-true or false to reflect the compiler and target system properties.
-
-| Property                    | True constants                         |
-| --------                    | --------------                         |
-| **Byte order**              |                                        |
-| Big endian                  | `big_endian_target`                    |
-| Little endian               | `little_endian_target`                 |
-| **CPU architecture**        |                                        |
-| 32-bit ARM CPU              | `arm_cpu, arm_32_cpu`                  |
-| 64-bit ARM CPU              | `arm_cpu, arm_64_cpu`                  |
-| 32-bit x86 CPU              | `x86_cpu, x86_32_cpu`                  |
-| 64-bit x86-64 CPU           | `x86_cpu, x86_64_cpu`                  |
-| **Operating system**        |                                        |
-| Apple operating system      | `unix_os, apple_os`                    |
-| Linux                       | `unix_os, linux_os`                    |
-| Other Unix                  | `unix_os`                              |
-| Microsoft Windows           | `windows_os`                           |
-| **Compiler**                |                                        |
-| Clang (non-Apple versions)  | `gcc_family_compiler, clang_compiler`  |
-| Clang/Xcode                 | `gcc_family_compiler, xcode_compiler`  |
-| GCC                         | `gcc_family_compiler, gcc_compiler`    |
-| Intel C++                   | `intel_compiler` _(see below)_         |
-| Microsoft Visual Studio     | `microsoft_compiler`                   |
-
-If `intel_compiler` is set, one of `gcc_family_compiler` or
-`microsoft_compiler` may also be set, depending on the Intel compiler's
-compatibility options.
-
-## Other constants
+## Constants
 
 ```c++
 constexpr size_t npos = std::string::npos;

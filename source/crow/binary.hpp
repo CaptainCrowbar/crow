@@ -1,6 +1,7 @@
 #pragma once
 
 #include "crow/types.hpp"
+#include <bit>
 #include <cstring>
 #include <limits>
 #include <optional>
@@ -31,7 +32,7 @@ namespace Crow {
     template <typename T>
     constexpr T big_endian(T t) noexcept {
         static_assert(std::is_scalar_v<T>);
-        if constexpr (big_endian_target)
+        if constexpr (std::endian::native == std::endian::big)
             return t;
         else
             return swap_ends(t);
@@ -40,10 +41,10 @@ namespace Crow {
     template <typename T>
     constexpr T little_endian(T t) noexcept {
         static_assert(std::is_scalar_v<T>);
-        if constexpr (little_endian_target)
-            return t;
-        else
+        if constexpr (std::endian::native == std::endian::big)
             return swap_ends(t);
+        else
+            return t;
     }
 
     template <typename T>

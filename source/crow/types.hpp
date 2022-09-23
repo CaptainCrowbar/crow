@@ -11,104 +11,6 @@ namespace Crow {
 
     namespace Detail {
 
-        constexpr bool def_bigend =
-            #if ! defined(_WIN32) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-                true;
-            #else
-                false;
-            #endif
-
-        constexpr bool def_arm =
-            #if defined(__arm__) || defined(_M_ARM)
-                true;
-            #else
-                false;
-            #endif
-
-        constexpr bool def_aarch64 =
-            #if defined(__aarch64__) || defined(_M_ARM64)
-                true;
-            #else
-                false;
-            #endif
-
-        constexpr bool def_i386 =
-            #if defined(__i386__) || defined(_M_IX86)
-                true;
-            #else
-                false;
-            #endif
-
-        constexpr bool def_x8664 =
-            #if defined(__x86_64__) || defined(_M_X64)
-                true;
-            #else
-                false;
-            #endif
-
-        constexpr bool def_apple =
-            #ifdef __APPLE__
-                true;
-            #else
-                false;
-            #endif
-
-        constexpr bool def_linux =
-            #ifdef __linux__
-                true;
-            #else
-                false;
-            #endif
-
-        constexpr bool def_win32 =
-            #ifdef _WIN32
-                true;
-            #else
-                false;
-            #endif
-
-        constexpr bool def_xopen =
-            #ifdef _XOPEN_SOURCE
-                true;
-            #else
-                false;
-            #endif
-
-        constexpr bool def_applecc =
-            #if defined(__APPLE_CC__) && __APPLE_CC__ > 1
-                true;
-            #else
-                false;
-            #endif
-
-        constexpr bool def_clang =
-            #ifdef __clang__
-                true;
-            #else
-                false;
-            #endif
-
-        constexpr bool def_gnuc =
-            #ifdef __GNUC__
-                true;
-            #else
-                false;
-            #endif
-
-        constexpr bool def_intel =
-            #ifdef __INTEL_COMPILER
-                true;
-            #else
-                false;
-            #endif
-
-        constexpr bool def_mscver =
-            #ifdef _MSC_VER
-                true;
-            #else
-                false;
-            #endif
-
         template <typename T, typename = void> struct HasAddAssignOperator: std::false_type {};
         template <typename T> struct HasAddAssignOperator<T, std::void_t<decltype(std::declval<T&>() += std::declval<T>())>>: std::true_type {};
         template <typename T, typename = void> struct HasSubtractAssignOperator: std::false_type {};
@@ -164,28 +66,7 @@ namespace Crow {
 
     }
 
-    // Target system properties
-
-    constexpr bool big_endian_target     = Detail::def_bigend;
-    constexpr bool little_endian_target  = ! Detail::def_bigend;
-    constexpr bool arm_cpu               = Detail::def_arm;
-    constexpr bool arm_32_cpu            = Detail::def_arm && ! Detail::def_aarch64;
-    constexpr bool arm_64_cpu            = Detail::def_arm && Detail::def_aarch64;
-    constexpr bool x86_cpu               = Detail::def_i386 || Detail::def_x8664;
-    constexpr bool x86_32_cpu            = Detail::def_i386;
-    constexpr bool x86_64_cpu            = Detail::def_x8664;
-    constexpr bool unix_os               = Detail::def_xopen;
-    constexpr bool apple_os              = Detail::def_xopen && Detail::def_apple;
-    constexpr bool linux_os              = Detail::def_xopen && Detail::def_linux;
-    constexpr bool windows_os            = Detail::def_win32 && ! Detail::def_xopen;
-    constexpr bool gcc_family_compiler   = Detail::def_gnuc;
-    constexpr bool clang_compiler        = Detail::def_gnuc && Detail::def_clang && ! Detail::def_applecc;
-    constexpr bool xcode_compiler        = Detail::def_gnuc && Detail::def_clang && Detail::def_applecc;
-    constexpr bool gcc_compiler          = Detail::def_gnuc && ! Detail::def_clang;
-    constexpr bool intel_compiler        = Detail::def_intel;
-    constexpr bool microsoft_compiler    = Detail::def_mscver;
-
-    // Other constants
+    // Constants
 
     constexpr size_t npos = std::string::npos;
 
