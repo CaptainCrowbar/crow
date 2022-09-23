@@ -470,7 +470,7 @@ namespace Crow {
             if (it == irregular.end()) {
 
                 for (auto& [s,p]: inflections) {
-                    if (ends_with(l_noun, s)) {
+                    if (l_noun.ends_with(s)) {
                         p_noun = l_noun.substr(0, l_noun.size() - s.size()) + p;
                         break;
                     }

@@ -469,7 +469,7 @@ void test_crow_english_lorem_ipsum() {
         TEST(size <= bytes + 15);
 
         if (size >= 11)
-            TEST(starts_with(s, "Lorem ipsum"));
+            TEST(s.starts_with("Lorem ipsum"));
 
     }
 
@@ -483,7 +483,7 @@ void test_crow_english_lorem_ipsum() {
         TEST(size <= bytes + 15);
 
         if (size >= 11)
-            TEST(starts_with(s, "Lorem ipsum"));
+            TEST(s.starts_with("Lorem ipsum"));
 
     }
 

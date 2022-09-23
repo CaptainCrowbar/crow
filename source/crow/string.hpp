@@ -62,8 +62,6 @@ namespace Crow {
     std::vector<std::string> split(const std::string& str, const std::string& chars = ascii_whitespace);
     std::vector<std::string> split_at(const std::string& str, const std::string& delimiter);
     std::vector<std::string> split_lines(const std::string& str);
-    bool starts_with(const std::string& str, const std::string& prefix) noexcept;
-    bool ends_with(const std::string& str, const std::string& suffix) noexcept;
     std::string trim(const std::string& str, const std::string& chars = ascii_whitespace);
     std::string trim_left(const std::string& str, const std::string& chars = ascii_whitespace);
     std::string trim_right(const std::string& str, const std::string& chars = ascii_whitespace);

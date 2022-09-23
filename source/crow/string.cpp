@@ -221,14 +221,6 @@ namespace Crow {
         return lines;
     }
 
-    bool starts_with(const std::string& str, const std::string& prefix) noexcept {
-        return str.size() >= prefix.size() && std::memcmp(str.data(), prefix.data(), prefix.size()) == 0;
-    }
-
-    bool ends_with(const std::string& str, const std::string& suffix) noexcept {
-        return str.size() >= suffix.size() && std::memcmp(str.data() + str.size() - suffix.size(), suffix.data(), suffix.size()) == 0;
-    }
-
     std::string trim(const std::string& str, const std::string& chars) {
         size_t i = str.find_first_not_of(chars);
         if (i == npos)

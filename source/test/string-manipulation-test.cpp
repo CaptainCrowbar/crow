@@ -197,34 +197,6 @@ void test_crow_string_split_lines() {
 
 }
 
-void test_crow_string_starts_ends_with() {
-
-    TEST(starts_with("", ""));
-    TEST(starts_with("Hello", ""));
-    TEST(starts_with("Hello", "H"));
-    TEST(starts_with("Hello", "He"));
-    TEST(starts_with("Hello", "Hel"));
-    TEST(starts_with("Hello", "Hell"));
-    TEST(starts_with("Hello", "Hello"));
-    TEST(! starts_with("Hello", "Hello "));
-    TEST(! starts_with("Hello", "Hello world"));
-    TEST(! starts_with("Hello", "W"));
-    TEST(! starts_with("Hello", "HellO"));
-
-    TEST(ends_with("", ""));
-    TEST(ends_with("world", ""));
-    TEST(ends_with("world", "d"));
-    TEST(ends_with("world", "ld"));
-    TEST(ends_with("world", "rld"));
-    TEST(ends_with("world", "orld"));
-    TEST(ends_with("world", "world"));
-    TEST(! ends_with("world", " world"));
-    TEST(! ends_with("world", "Hello world"));
-    TEST(! ends_with("world", "o"));
-    TEST(! ends_with("world", "World"));
-
-}
-
 void test_crow_string_trim() {
 
     TEST_EQUAL(trim(""),                                    "");

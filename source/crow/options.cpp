@@ -124,7 +124,7 @@ namespace Crow {
 
                     size_t opt_index = npos;
                     bool invert = false;
-                    if (starts_with(arg, "--no-")) {
+                    if (arg.starts_with("--no-")) {
                         opt_index = option_index(arg.substr(5));
                         if (opt_index != npos && options_[opt_index].kind == mode::boolean)
                             invert = paired = true;

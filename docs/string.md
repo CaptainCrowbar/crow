@@ -187,14 +187,6 @@ The third function splits the string into lines, delimited by `"\n"` or
 `"\r\n"`, removing the trailing line breaks from each line.
 
 ```c++
-bool starts_with(const std::string& str, const std::string& prefix) noexcept;
-bool ends_with(const std::string& str, const std::string& suffix) noexcept;
-```
-
-True if the string starts with the given prefix, or ends with the given
-suffix.
-
-```c++
 std::string trim(const std::string& str,
     const std::string& chars = ascii_whitespace);
 std::string trim_left(const std::string& str,

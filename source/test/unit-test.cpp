@@ -792,7 +792,6 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_string_split)
     UNIT_TEST(crow_string_split_at)
     UNIT_TEST(crow_string_split_lines)
-    UNIT_TEST(crow_string_starts_ends_with)
     UNIT_TEST(crow_string_trim)
     UNIT_TEST(crow_string_unqualify)
 
