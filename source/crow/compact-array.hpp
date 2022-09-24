@@ -487,21 +487,22 @@ namespace Crow {
 
         template <typename T, size_t N>
         auto operator<=>(const CompactArray<T, N>& a, const CompactArray<T, N>& b) noexcept {
+            using namespace Detail;
             auto i = a.begin();
             auto j = a.end();
             auto k = b.begin();
             auto l = b.end();
             for (; i != j && k != l; ++i, ++j) {
-                auto c = *i <=> *k;
+                auto c = compare3way(*i, *k);
                 if (c != 0)
                     return c;
             }
             if (*i != *j)
-                return std::strong_ordering::greater;
+                return SO::greater;
             else if (*k != *l)
-                return std::strong_ordering::less;
+                return SO::less;
             else
-                return std::strong_ordering::equal;
+                return SO::equal;
         }
 
 }

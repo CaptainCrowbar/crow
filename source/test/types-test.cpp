@@ -10,6 +10,27 @@
 #include <vector>
 
 using namespace Crow;
+using namespace std::literals;
+
+void test_crow_types_comparison() {
+
+    using namespace Crow::Detail;
+
+    auto c = SO::equal;
+
+    TRY(c = compare3way(86, 99));  TEST(c == SO::less);
+    TRY(c = compare3way(86, 86));  TEST(c == SO::equal);
+    TRY(c = compare3way(99, 86));  TEST(c == SO::greater);
+
+    TRY(c = compare3way("hello"s, "world"s));  TEST(c == SO::less);
+    TRY(c = compare3way("hello"s, "hello"s));  TEST(c == SO::equal);
+    TRY(c = compare3way("world"s, "hello"s));  TEST(c == SO::greater);
+
+    TRY(c = to_order(-42));  TEST(c == SO::less);
+    TRY(c = to_order(0));    TEST(c == SO::equal);
+    TRY(c = to_order(42));   TEST(c == SO::greater);
+
+}
 
 void test_crow_types_mixins() {
 

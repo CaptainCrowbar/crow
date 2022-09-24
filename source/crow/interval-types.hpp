@@ -83,11 +83,6 @@ namespace Crow {
             std::true_type {};
 
         template <typename T>
-        int compare_3way(const T& a, const T& b) noexcept {
-            return a == b ? 0 : a < b ? -1 : 1;
-        }
-
-        template <typename T>
         T from_string(const std::string& s) {
             if constexpr (std::is_constructible_v<T, std::string>) {
                 return T(s);

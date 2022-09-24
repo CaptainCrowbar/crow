@@ -1,6 +1,8 @@
 #pragma once
 
 #include "crow/log.hpp"
+#include <compare>
+#include <concepts>
 #include <cstdint>
 #include <cstdlib>
 #include <iterator>
@@ -11,6 +13,8 @@
 namespace Crow {
 
     namespace Detail {
+
+        using SO = std::strong_ordering;
 
         template <typename T, typename = void> struct HasAddAssignOperator: std::false_type {};
         template <typename T> struct HasAddAssignOperator<T, std::void_t<decltype(std::declval<T&>() += std::declval<T>())>>: std::true_type {};
@@ -64,6 +68,34 @@ namespace Crow {
         template <typename T, typename = void> struct HasSecondMember: std::false_type {};
         template <typename T> struct HasSecondMember<T, std::void_t<decltype(std::declval<T>().second)>>: std::true_type {};
         template <typename T> constexpr bool is_pairlike = HasFirstMember<T>::value && HasSecondMember<T>::value;
+
+        // Xcode 14 brain damage
+
+        template <typename T, typename = void> struct IsThreeWayComparable: std::false_type {};
+        template <typename T> struct IsThreeWayComparable<T, std::void_t<decltype(std::declval<T>() <=> std::declval<T>())>>: std::true_type {};
+
+        template <std::totally_ordered T>
+        SO compare3way(const T& a, const T& b) noexcept {
+            if constexpr (IsThreeWayComparable<T>::value) {
+                return a <=> b;
+            } else {
+                if (a == b)
+                    return SO::equal;
+                else if (a < b)
+                    return SO::less;
+                else
+                    return SO::greater;
+            }
+        }
+
+        constexpr SO to_order(std::integral auto t) noexcept {
+            if (t < 0)
+                return SO::less;
+            else if (t == 0)
+                return SO::equal;
+            else
+                return SO::greater;
+        }
 
     }
 
