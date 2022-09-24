@@ -85,6 +85,7 @@ Format the UUID in the standard broken down hex representation, e.g.
 `"01234567-89ab-cdef-0123-456789abcdef"`.
 
 ```c++
+std::strong_ordering operator<=>(const Uuid& u, const Uuid& v) noexcept;
 constexpr bool operator==(const Uuid& u, const Uuid& v) noexcept;
 constexpr bool operator!=(const Uuid& u, const Uuid& v) noexcept;
 constexpr bool operator<(const Uuid& u, const Uuid& v) noexcept;

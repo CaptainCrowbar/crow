@@ -3,6 +3,7 @@
 #include "crow/interval-class-base.hpp"
 #include "crow/interval-types.hpp"
 #include "crow/types.hpp"
+#include <compare>
 #include <iterator>
 #include <string>
 #include <type_traits>
@@ -33,8 +34,7 @@ namespace Crow {
 
     public:
 
-        class iterator:
-        public TotalOrder<iterator> {
+        class iterator {
         public:
             using difference_type = delta_type;
             using iterator_category = std::conditional_t<has_random_access, std::random_access_iterator_tag, std::bidirectional_iterator_tag>;
@@ -55,8 +55,7 @@ namespace Crow {
             friend iterator operator+(delta_type lhs, const iterator& rhs) { return rhs + lhs; }
             iterator operator-(delta_type rhs) const { auto it = *this; it -= rhs; return it; }
             delta_type operator-(const iterator& rhs) { return delta_type(value_ - rhs.value_); }
-            bool operator==(const iterator& rhs) const noexcept { return value_ == rhs.value_; }
-            bool operator<(const iterator& rhs) const noexcept { return value_ < rhs.value_; }
+            auto operator<=>(const iterator& rhs) const noexcept = default;
         private:
             T value_;
         };
@@ -114,8 +113,7 @@ namespace Crow {
 
     public:
 
-        class iterator:
-        public TotalOrder<iterator> {
+        class iterator {
         public:
             using difference_type = delta_type;
             using iterator_category = std::conditional_t<has_random_access, std::random_access_iterator_tag, std::bidirectional_iterator_tag>;
@@ -136,8 +134,7 @@ namespace Crow {
             friend iterator operator+(delta_type lhs, const iterator& rhs) { return rhs + lhs; }
             iterator operator-(delta_type rhs) const { auto it = *this; it -= rhs; return it; }
             delta_type operator-(const iterator& rhs) { return delta_type(value_ - rhs.value_); }
-            bool operator==(const iterator& rhs) const noexcept { return value_ == rhs.value_; }
-            bool operator<(const iterator& rhs) const noexcept { return value_ < rhs.value_; }
+            auto operator<=>(const iterator& rhs) const noexcept = default;
         private:
             T value_;
         };

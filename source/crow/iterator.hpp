@@ -1,6 +1,7 @@
 #pragma once
 
 #include "crow/types.hpp"
+#include <compare>
 #include <iterator>
 #include <type_traits>
 #include <utility>
@@ -19,7 +20,6 @@ namespace Crow {
         using value_type = std::remove_const_t<CV>;
         CV* operator->() const noexcept { return &*static_cast<const T&>(*this); }
         friend T operator++(T& t, int) { T rc = t; ++t; return rc; }
-        friend bool operator!=(const T& a, const T& b) noexcept { return ! (a == b); }
     };
 
     template <typename T>
@@ -53,8 +53,9 @@ namespace Crow {
     template <typename T, typename CV>
     class RandomAccessIterator:
     public BidirectionalIterator<T, CV> {
+    private:
+        using SO = std::strong_ordering;
     public:
-        // Inheriting from TotalOrder here would lead to function resolution collision for operator!=
         using iterator_category = std::random_access_iterator_tag;
         CV& operator[](ptrdiff_t i) const noexcept { T t = static_cast<const T&>(*this); t += i; return *t; }
         friend T& operator++(T& t) { return t += 1; }
@@ -64,16 +65,14 @@ namespace Crow {
         friend T operator+(ptrdiff_t a, const T& b) { T t = b; return t += a; }
         friend T operator-(const T& a, ptrdiff_t b) { T t = a; return t -= b; }
         friend bool operator==(const T& a, const T& b) noexcept { return a - b == 0; }
-        friend bool operator<(const T& a, const T& b) noexcept { return a - b < 0; }
-        friend bool operator>(const T& a, const T& b) noexcept { return b < a; }
-        friend bool operator<=(const T& a, const T& b) noexcept { return ! (b < a); }
-        friend bool operator>=(const T& a, const T& b) noexcept { return ! (a < b); }
+        friend SO operator<=>(const T& a, const T& b) noexcept { auto c = a - b; return c == 0 ? SO::equal : c < 0 ? SO::less : SO::greater; }
     };
 
     template <typename T, typename CV, typename Category>
     class FlexibleIterator:
     public InputIterator<T, CV> {
     private:
+        using SO = std::strong_ordering;
         static constexpr bool is_random = std::is_same_v<Category, std::random_access_iterator_tag>;
         static constexpr bool is_bidi = is_random || std::is_same_v<Category, std::bidirectional_iterator_tag>;
         template <typename U = T> using BT = std::enable_if_t<SfinaeTrue<U, is_bidi>::value, T>;
@@ -87,6 +86,8 @@ namespace Crow {
         template <typename U = T> friend T operator+(const RT<U>& a, ptrdiff_t b) { T t = a; return t += b; }
         template <typename U = T> friend T operator+(RP<U> a, const T& b) { T t = b; return t += a; }
         template <typename U = T> friend T operator-(const RT<U>& a, ptrdiff_t b) { T t = a; return t -= b; }
+        template <typename U = T> friend SO operator<=>(const RT<U>& a, const T& b) noexcept
+            { auto c = a - b; return c == 0 ? SO::equal : c < 0 ? SO::less : SO::greater; }
         template <typename U = T> friend bool operator<(const RT<U>& a, const T& b) noexcept { return a - b < 0; }
         template <typename U = T> friend bool operator>(const RT<U>& a, const T& b) noexcept { return b < a; }
         template <typename U = T> friend bool operator<=(const RT<U>& a, const T& b) noexcept { return ! (b < a); }

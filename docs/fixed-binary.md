@@ -104,13 +104,6 @@ constexpr void Binary::clear() noexcept;
 Sets the value to zero.
 
 ```c++
-constexpr int Binary::compare(Binary y) const noexcept;
-```
-
-Three-way comparison, returning -1 if `*this<y`, 0 if `*this==y`, or 1 if
-`*this>y`.
-
-```c++
 constexpr uint8_t* Binary::data() noexcept;
 constexpr const uint8_t* Binary::data() const noexcept;
 ```
@@ -235,6 +228,7 @@ The `parse_*()` functions return the parsed value, and throw
 supplied reference and return true on success, and return false on failure.
 
 ```c++
+std::strong_ordering operator<=>(const Binary& a, const Binary& b) noexcept;
 bool operator==(Binary x, Binary y) noexcept;
 bool operator!=(Binary x, Binary y) noexcept;
 bool operator<(Binary x, Binary y) noexcept;

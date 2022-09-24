@@ -5,6 +5,7 @@
 #include "crow/types.hpp"
 #include <algorithm>
 #include <bit>
+#include <compare>
 #include <functional>
 #include <initializer_list>
 #include <iterator>
@@ -44,8 +45,7 @@ namespace Crow {
     }
 
     template <typename T, size_t N>
-    class CompactArray:
-    public TotalOrder<CompactArray<T, N>> {
+    class CompactArray {
 
     public:
 
@@ -113,11 +113,6 @@ namespace Crow {
 
         size_t hash() const noexcept;
         void swap(CompactArray& ca) noexcept;
-
-        friend bool operator==(const CompactArray& a, const CompactArray& b) noexcept
-            { return a.size() == b.size() && std::equal(a.begin(), a.end(), b.begin()); }
-        friend bool operator<(const CompactArray& a, const CompactArray& b) noexcept
-            { return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end()); }
 
     private:
 
@@ -483,6 +478,30 @@ namespace Crow {
         template <typename T, size_t N>
         void swap(CompactArray<T, N>& a, CompactArray<T, N>& b) noexcept {
             a.swap(b);
+        }
+
+        template <typename T, size_t N>
+        bool operator==(const CompactArray<T, N>& a, const CompactArray<T, N>& b) noexcept {
+            return a.size() == b.size() && std::equal(a.begin(), a.end(), b.begin());
+        }
+
+        template <typename T, size_t N>
+        auto operator<=>(const CompactArray<T, N>& a, const CompactArray<T, N>& b) noexcept {
+            auto i = a.begin();
+            auto j = a.end();
+            auto k = b.begin();
+            auto l = b.end();
+            for (; i != j && k != l; ++i, ++j) {
+                auto c = *i <=> *k;
+                if (c != 0)
+                    return c;
+            }
+            if (*i != *j)
+                return std::strong_ordering::greater;
+            else if (*k != *l)
+                return std::strong_ordering::less;
+            else
+                return std::strong_ordering::equal;
         }
 
 }

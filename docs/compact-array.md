@@ -172,6 +172,7 @@ void swap(CompactArray& a, CompactArray& b) noexcept;
 Swap functions.
 
 ```c++
+std::strong_ordering operator<=>(const CompactArray& a, const CompactArray& b) noexcept;
 bool operator==(const CompactArray& a, const CompactArray& b) noexcept;
 bool operator!=(const CompactArray& a, const CompactArray& b) noexcept;
 bool operator<(const CompactArray& a, const CompactArray& b) noexcept;

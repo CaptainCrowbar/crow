@@ -3,6 +3,7 @@
 #include "crow/io-utility.hpp"
 #include "crow/string.hpp"
 #include "crow/types.hpp"
+#include <compare>
 #include <cstdlib>
 #include <ostream>
 #include <string>
@@ -11,8 +12,7 @@
 
 namespace Crow {
 
-    class Uri:
-    public TotalOrder<Uri> {
+    class Uri {
 
     public:
 
@@ -80,7 +80,7 @@ namespace Crow {
 
         friend Uri operator/(const Uri& u, const std::string& s) { Uri v = u; v.append_path(s); return v; }
         friend bool operator==(const Uri& u, const Uri& v) noexcept { return u.text_ == v.text_; }
-        friend bool operator<(const Uri& u, const Uri& v) noexcept { return u.text_ < v.text_; }
+        friend std::strong_ordering operator<(const Uri& u, const Uri& v) noexcept;
         friend std::ostream& operator<<(std::ostream& out, const Uri& u) { return out << u.text_; }
 
     private:

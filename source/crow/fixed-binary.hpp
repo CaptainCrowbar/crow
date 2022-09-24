@@ -84,8 +84,7 @@ namespace Crow {
     }
 
     template <size_t N>
-    class SmallBinary:
-    public TotalOrder<SmallBinary<N>> {
+    class SmallBinary {
 
     private:
 
@@ -111,7 +110,6 @@ namespace Crow {
         std::string dec() const { return std::to_string(value_); }
         std::string hex() const { return Detail::to_hex(value_, hex_digits); }
         constexpr void clear() noexcept { value_ = 0; }
-        constexpr int compare(SmallBinary y) const noexcept { return value_ < y.value_ ? -1 : value_ > y.value_ ? 1 : 0; }
         constexpr uint8_t* data() noexcept { return reinterpret_cast<uint8_t*>(&value_); }
         constexpr const uint8_t* data() const noexcept { return reinterpret_cast<const uint8_t*>(&value_); }
         template <typename T> constexpr bool fits_in() const noexcept { return significant_bits() <= std::numeric_limits<T>::digits; }
@@ -164,7 +162,7 @@ namespace Crow {
         friend constexpr SmallBinary operator<<(SmallBinary x, int y) noexcept { auto z = x; z <<= y; return z; }
         friend constexpr SmallBinary operator>>(SmallBinary x, int y) noexcept { auto z = x; z >>= y; return z; }
         friend constexpr bool operator==(SmallBinary x, SmallBinary y) noexcept { return x.value_ == y.value_; }
-        friend constexpr bool operator<(SmallBinary x, SmallBinary y) noexcept { return x.value_ < y.value_; }
+        friend constexpr auto operator<=>(SmallBinary x, SmallBinary y) noexcept { return x.value_ <=> y.value_; }
         friend std::ostream& operator<<(std::ostream& out, SmallBinary x) { return out << x.dec(); }
 
         friend std::string to_string(SmallBinary x) { return x.dec(); }
@@ -178,8 +176,7 @@ namespace Crow {
     };
 
     template <size_t N>
-    class LargeBinary:
-    public TotalOrder<LargeBinary<N>> {
+    class LargeBinary {
 
     private:
 
@@ -208,7 +205,6 @@ namespace Crow {
         std::string dec() const;
         std::string hex() const;
         constexpr void clear() noexcept { array_ = {}; }
-        constexpr int compare(const LargeBinary& y) const noexcept;
         constexpr uint8_t* data() noexcept { return reinterpret_cast<uint8_t*>(array_.data()); }
         constexpr const uint8_t* data() const noexcept { return reinterpret_cast<const uint8_t*>(array_.data()); }
         template <typename T> constexpr bool fits_in() const noexcept { return significant_bits() <= std::numeric_limits<T>::digits; }
@@ -260,7 +256,7 @@ namespace Crow {
         friend constexpr LargeBinary operator<<(const LargeBinary& x, int y) noexcept { auto z = x; z <<= y; return z; }
         friend constexpr LargeBinary operator>>(const LargeBinary& x, int y) noexcept { auto z = x; z >>= y; return z; }
         friend constexpr bool operator==(const LargeBinary& x, const LargeBinary& y) noexcept { return x.compare(y) == 0; }
-        friend constexpr bool operator<(const LargeBinary& x, const LargeBinary& y) noexcept { return x.compare(y) < 0; }
+        friend constexpr auto operator<=>(const LargeBinary& x, const LargeBinary& y) noexcept { return x.compare(y); }
         friend std::ostream& operator<<(std::ostream& out, const LargeBinary& x) { return out << x.dec(); }
 
         friend std::string to_string(LargeBinary x) { return x.dec(); }
@@ -275,6 +271,7 @@ namespace Crow {
 
         std::array<unit_type, units> array_ = {}; // Little endian order
 
+        constexpr std::strong_ordering compare(const LargeBinary& y) const noexcept;
         constexpr void do_mask() noexcept { array_[units - 1] &= high_mask; }
 
         constexpr static void add_with_carry(unit_type& x, unit_type y, unit_type& c) noexcept;
@@ -348,14 +345,6 @@ namespace Crow {
             for (size_t i = units - 2; i != npos; --i)
                 s += Detail::to_hex(array_[i]);
             return s;
-        }
-
-        template <size_t N>
-        constexpr int LargeBinary<N>::compare(const LargeBinary& y) const noexcept {
-            for (size_t i = units - 1; i != npos; --i)
-                if (array_[i] != y.array_[i])
-                    return array_[i] < y.array_[i] ? -1 : 1;
-            return 0;
         }
 
         template <size_t N>
@@ -608,6 +597,16 @@ namespace Crow {
                 u = unit_mask;
             x.do_mask();
             return x;
+        }
+
+        template <size_t N>
+        constexpr std::strong_ordering LargeBinary<N>::compare(const LargeBinary& y) const noexcept {
+            for (size_t i = units - 1; i != npos; --i) {
+                auto c = array_[i] <=> y.array_[i];
+                if (c != 0)
+                    return c;
+            }
+            return std::strong_ordering::equal;
         }
 
         template <size_t N>

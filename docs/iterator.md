@@ -91,14 +91,14 @@ one of the standard iterator category tags.
 In the table below, `t` and `u` are objects of type `T` (the derived iterator
 type), `x` is an object of the iterator's value type, and `n` is an integer.
 
-| Mixin                    | Requires                    | Defines                                                                  |
-| -----                    | --------                    | -------                                                                  |
-| `InputIterator`          | `*t ++t t==u`               | `t-> t++ t!=u`                                                           |
-| `OutputIterator`         | `t=x`                       | `*t ++t t++`                                                             |
-| `ForwardIterator`        | `*t ++t t==u`               | `t-> t++ t!=u`                                                           |
-| `BidirectionalIterator`  | `*t ++t --t t==u`           | `t-> t++ t-- t!=u`                                                       |
-| `RandomAccessIterator`   | `*t t+=n t-u`               | `t-> t[n] ++t t++ --t t-- t-=n t+n n+t t-n t==u t!=u t<u t>u t<=u t>=u`  |
-| `FlexibleIterator`       | `*t ++t --t t+=n t-u t==u`  | `t-> t[n] t++ t-- t+n n+t t-=n t-n t!=u t<u t>u t<=u t>=u`               |
+| Mixin                    | Requires                    | Defines                                                                        |
+| -----                    | --------                    | -------                                                                        |
+| `InputIterator`          | `*t ++t t==u`               | `t-> t++ t!=u`                                                                 |
+| `OutputIterator`         | `t=x`                       | `*t ++t t++`                                                                   |
+| `ForwardIterator`        | `*t ++t t==u`               | `t-> t++ t!=u`                                                                 |
+| `BidirectionalIterator`  | `*t ++t --t t==u`           | `t-> t++ t-- t!=u`                                                             |
+| `RandomAccessIterator`   | `*t t+=n t-u`               | `t-> t[n] ++t t++ --t t-- t-=n t+n n+t t-n t==u t!=u t<u t>u t<=u t>=u t<=>u`  |
+| `FlexibleIterator`       | `*t ++t --t t+=n t-u t==u`  | `t-> t[n] t++ t-- t+n n+t t-=n t-n t!=u t<u t>u t<=u t>=u t<=>u`               |
 
 ## Range classes
 

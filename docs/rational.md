@@ -96,6 +96,7 @@ constexpr Ratio operator/(Ratio x, Ratio y) noexcept;
 Arithmetic operators.
 
 ```c++
+std::strong_ordering operator<=>(Ratio x, Ratio y) noexcept;
 constexpr bool operator==(Ratio x, Ratio y) noexcept;
 constexpr bool operator!=(Ratio x, Ratio y) noexcept;
 constexpr bool operator<(Ratio x, Ratio y) noexcept;

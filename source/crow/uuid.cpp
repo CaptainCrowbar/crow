@@ -1,5 +1,6 @@
 #include "crow/uuid.hpp"
 #include <algorithm>
+#include <cstring>
 #include <stdexcept>
 
 namespace Crow {

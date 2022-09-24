@@ -382,6 +382,7 @@ by assuming the RHS is relative to the LHS.
 ## Comparison operators
 
 ```c++
+std::strong_ordering operator<=>(const Path& lhs, const Path& rhs) noexcept;
 bool operator==(const Path& lhs, const Path& rhs) noexcept;
 bool operator!=(const Path& lhs, const Path& rhs) noexcept;
 bool operator<(const Path& lhs, const Path& rhs) noexcept;

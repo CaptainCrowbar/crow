@@ -4,6 +4,7 @@
 #include "crow/interval.hpp"
 #include "crow/types.hpp"
 #include <algorithm>
+#include <compare>
 #include <initializer_list>
 #include <iterator>
 #include <ostream>
@@ -16,8 +17,7 @@ namespace Crow {
     // Interval set
 
     template <typename T>
-    class IntervalSet:
-    public TotalOrder<IntervalSet<T>> {
+    class IntervalSet {
 
     public:
 
@@ -189,6 +189,30 @@ namespace Crow {
             return s;
         }
 
+    template <typename T>
+    bool operator==(const IntervalSet<T>& a, const IntervalSet<T>& b) noexcept {
+        return std::equal(a.begin(), a.end(), b.begin(), b.end());
+    }
+
+    template <typename T>
+    auto operator<=>(const IntervalSet<T>& a, const IntervalSet<T>& b) noexcept {
+        auto i = a.begin();
+        auto j = a.end();
+        auto k = b.begin();
+        auto l = b.end();
+        for (; i != j && k != l; ++i, ++j) {
+            auto c = *i <=> *k;
+            if (c != 0)
+                return c;
+        }
+        if (*i != *j)
+            return std::strong_ordering::greater;
+        else if (*k != *l)
+            return std::strong_ordering::less;
+        else
+            return std::strong_ordering::equal;
+    }
+
     template <typename T> IntervalSet<T> operator&(const IntervalSet<T>& a, const IntervalSet<T>& b) { return a.set_intersection(b); }
     template <typename T> IntervalSet<T> operator&(const IntervalSet<T>& a, const Interval<T>& b) { return a.set_intersection(b); }
     template <typename T> IntervalSet<T> operator&(const Interval<T>& a, const IntervalSet<T>& b) { return a.set_intersection(b); }
@@ -209,10 +233,6 @@ namespace Crow {
     template <typename T> IntervalSet<T> operator^(const Interval<T>& a, const IntervalSet<T>& b) { return a.set_symmetric_difference(b); }
     template <typename T> IntervalSet<T> operator^(const IntervalSet<T>& a, const T& b) { return IntervalSet<T>(a).set_symmetric_difference(b); }
     template <typename T> IntervalSet<T> operator^(const T& a, const IntervalSet<T>& b) { return IntervalSet<T>(a).set_symmetric_difference(b); }
-    template <typename T> bool operator==(const IntervalSet<T>& a, const IntervalSet<T>& b) noexcept
-        { return std::equal(a.begin(), a.end(), b.begin(), b.end()); }
-    template <typename T> bool operator<(const IntervalSet<T>& a, const IntervalSet<T>& b) noexcept
-        { return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end()); }
     template <typename T> std::ostream& operator<<(std::ostream& out, const IntervalSet<T>& set) { return out << set.str(); }
     template <typename T> void swap(IntervalSet<T>& a, IntervalSet<T>& b) { a.swap(b); }
 

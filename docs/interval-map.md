@@ -81,6 +81,7 @@ value, later entries in the initializer list will overwrite earlier ones.
 ### Comparison operators
 
 ```c++
+std::strong_ordering operator<=>(const IntervalMap& a, const IntervalMap& b) noexcept;
 bool operator==(const IntervalMap& a, const IntervalMap& b) noexcept;
 bool operator!=(const IntervalMap& a, const IntervalMap& b) noexcept;
 bool operator<(const IntervalMap& a, const IntervalMap& b) noexcept;

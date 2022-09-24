@@ -7,6 +7,10 @@ namespace Crow {
 
     namespace {
 
+        constexpr auto eq = std::strong_ordering::equal;
+        constexpr auto lt = std::strong_ordering::less;
+        constexpr auto gt = std::strong_ordering::greater;
+
         std::string roman(const MPN& n, bool lcase = false) {
 
             static constexpr std::pair<int, const char*> table[] = {
@@ -175,15 +179,6 @@ namespace Crow {
                 + size_t(rep_.back() > size_t(0xffff)) + size_t(rep_.back() > size_t(0xffffff));
     }
 
-    int MPN::compare(const MPN& rhs) const noexcept {
-        if (rep_.size() != rhs.rep_.size())
-            return rep_.size() < rhs.rep_.size() ? -1 : 1;
-        for (size_t i = rep_.size() - 1; i != std::string::npos; --i)
-            if (rep_[i] != rhs.rep_[i])
-                return rep_[i] < rhs.rep_[i] ? -1 : 1;
-        return 0;
-    }
-
     bool MPN::get_bit(size_t i) const noexcept {
         if (i < 32 * rep_.size())
             return (rep_[i / 32] >> (i % 32)) & 1;
@@ -312,6 +307,70 @@ namespace Crow {
         return result;
     }
 
+    std::strong_ordering MPN::compare(const MPN& rhs) const noexcept {
+        auto c = rep_.size() <=> rhs.rep_.size();
+        if (c != 0)
+            return c;
+        for (size_t i = rep_.size() - 1; i != std::string::npos; --i) {
+            c = rep_[i] <=> rhs.rep_[i];
+            if (c != 0)
+                return c;
+        }
+        return eq;
+    }
+
+    void MPN::init(std::string_view s, int base) {
+
+        if (base < 0 || base == 1 || base > 36)
+            throw std::invalid_argument("Invalid base: " + std::to_string(base));
+
+        if (s.empty())
+            return;
+
+        auto ptr = s.data(), end = ptr + s.size();
+
+        if (base == 0) {
+            if (s[0] != '0' || s.size() < 3)
+                base = 10;
+            else if (s[1] == 'B' || s[1] == 'b')
+                base = 2;
+            else if (s[1] == 'X' || s[1] == 'x')
+                base = 16;
+            else
+                base = 10;
+            if (base != 10)
+                ptr += 2;
+        }
+
+        MPN nbase = base;
+        int digit = 0;
+        int (*get_digit)(char c);
+
+        if (base <= 10)
+            get_digit = [] (char c) noexcept { return c >= '0' && c <= '9' ? int(c - '0') : 64; };
+        else
+            get_digit = [] (char c) noexcept { return c >= '0' && c <= '9' ? int(c - '0') :
+                c >= 'A' && c <= 'Z' ? int(c - 'A') + 10 : c >= 'a' && c <= 'z' ? int(c - 'a') + 10 : 64; };
+
+        for (; ptr != end; ++ptr) {
+            if (*ptr == '\'')
+                continue;
+            digit = get_digit(*ptr);
+            if (digit >= base)
+                throw std::invalid_argument(fmt("Invalid base {0} integer: {1:q}", base, s));
+            *this *= nbase;
+            *this += digit;
+        }
+
+    }
+
+    void MPN::trim() noexcept {
+        size_t i = rep_.size() - 1;
+        while (i != std::string::npos && rep_[i] == 0)
+            --i;
+        rep_.resize(i + 1);
+    }
+
     void MPN::do_divide(const MPN& x, const MPN& y, MPN& q, MPN& r) {
 
         MPN quo, rem = x;
@@ -381,58 +440,6 @@ namespace Crow {
 
     }
 
-    void MPN::init(std::string_view s, int base) {
-
-        if (base < 0 || base == 1 || base > 36)
-            throw std::invalid_argument("Invalid base: " + std::to_string(base));
-
-        if (s.empty())
-            return;
-
-        auto ptr = s.data(), end = ptr + s.size();
-
-        if (base == 0) {
-            if (s[0] != '0' || s.size() < 3)
-                base = 10;
-            else if (s[1] == 'B' || s[1] == 'b')
-                base = 2;
-            else if (s[1] == 'X' || s[1] == 'x')
-                base = 16;
-            else
-                base = 10;
-            if (base != 10)
-                ptr += 2;
-        }
-
-        MPN nbase = base;
-        int digit = 0;
-        int (*get_digit)(char c);
-
-        if (base <= 10)
-            get_digit = [] (char c) noexcept { return c >= '0' && c <= '9' ? int(c - '0') : 64; };
-        else
-            get_digit = [] (char c) noexcept { return c >= '0' && c <= '9' ? int(c - '0') :
-                c >= 'A' && c <= 'Z' ? int(c - 'A') + 10 : c >= 'a' && c <= 'z' ? int(c - 'a') + 10 : 64; };
-
-        for (; ptr != end; ++ptr) {
-            if (*ptr == '\'')
-                continue;
-            digit = get_digit(*ptr);
-            if (digit >= base)
-                throw std::invalid_argument(fmt("Invalid base {0} integer: {1:q}", base, s));
-            *this *= nbase;
-            *this += digit;
-        }
-
-    }
-
-    void MPN::trim() noexcept {
-        size_t i = rep_.size() - 1;
-        while (i != std::string::npos && rep_[i] == 0)
-            --i;
-        rep_.resize(i + 1);
-    }
-
     // Signed integer class
 
     MPZ& MPZ::operator+=(const MPZ& rhs) {
@@ -444,28 +451,18 @@ namespace Crow {
         } else if (neg_ == rhs.neg_) {
             mag_ += rhs.mag_;
         } else {
-            switch (mag_.compare(rhs.mag_)) {
-                case -1:
-                    mag_ = rhs.mag_ - mag_;
-                    neg_ = ! neg_;
-                    break;
-                case 1:
-                    mag_ -= rhs.mag_;
-                    break;
-                default:
-                    mag_ = {};
-                    neg_ = false;
-                    break;
+            auto c = mag_ <=> rhs.mag_;
+            if (c == lt) {
+                mag_ = rhs.mag_ - mag_;
+                neg_ = ! neg_;
+            } else if (c == gt) {
+                mag_ -= rhs.mag_;
+            } else {
+                mag_ = {};
+                neg_ = false;
             }
         }
         return *this;
-    }
-
-    int MPZ::compare(const MPZ& rhs) const noexcept {
-        if (neg_ != rhs.neg_)
-            return neg_ ? -1 : 1;
-        int c = mag_.compare(rhs.mag_);
-        return neg_ ? - c : c;
     }
 
     MPZ MPZ::pow(const MPZ& n) const {
@@ -494,6 +491,16 @@ namespace Crow {
         if (x < 0)
             i = - i;
         return i;
+    }
+
+    std::strong_ordering MPZ::compare(const MPZ& rhs) const noexcept {
+        auto c = rhs.neg_ <=> neg_;
+        if (c != 0)
+            return c;
+        else if (neg_)
+            return rhs.mag_ <=> mag_;
+        else
+            return mag_ <=> rhs.mag_;
     }
 
     void MPZ::init(std::string_view s, int base) {

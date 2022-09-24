@@ -5,6 +5,7 @@
 #include "crow/string.hpp"
 #include "crow/types.hpp"
 #include <algorithm>
+#include <compare>
 #include <functional>
 #include <ostream>
 #include <stdexcept>
@@ -29,8 +30,7 @@ namespace Crow {
     }
 
     template <typename T>
-    class Ratio:
-    public TotalOrder<Ratio<T>> {
+    class Ratio {
 
     public:
 
@@ -81,7 +81,7 @@ namespace Crow {
         }
 
         friend constexpr bool operator==(Ratio x, Ratio y) noexcept { return x.num_ == y.num_ && x.den_ == y.den_; }
-        friend constexpr bool operator<(Ratio x, Ratio y) noexcept { return x.num_ * y.den_ < y.num_ * x.den_; }
+        friend constexpr auto operator<=>(Ratio x, Ratio y) noexcept { return x.num_ * y.den_ <=> y.num_ * x.den_; }
 
         constexpr T num() const noexcept { return num_; }
         constexpr T den() const noexcept { return den_; }

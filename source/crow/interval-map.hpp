@@ -4,6 +4,7 @@
 #include "crow/interval.hpp"
 #include "crow/types.hpp"
 #include <algorithm>
+#include <compare>
 #include <initializer_list>
 #include <map>
 #include <ostream>
@@ -16,8 +17,7 @@ namespace Crow {
     // Interval map
 
     template <typename K, typename T>
-    class IntervalMap:
-    public TotalOrder<IntervalMap<K, T>> {
+    class IntervalMap {
 
     public:
 
@@ -176,10 +176,30 @@ namespace Crow {
             return {end(), false};
         }
 
-    template <typename K, typename T> bool operator==(const IntervalMap<K, T>& a, const IntervalMap<K, T>& b) noexcept
-        { return std::equal(a.begin(), a.end(), b.begin(), b.end()); }
-    template <typename K, typename T> bool operator<(const IntervalMap<K, T>& a, const IntervalMap<K, T>& b) noexcept
-        { return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end()); }
+    template <typename K, typename T>
+    bool operator==(const IntervalMap<K, T>& a, const IntervalMap<K, T>& b) noexcept {
+        return std::equal(a.begin(), a.end(), b.begin(), b.end());
+    }
+
+    template <typename K, typename T>
+    auto operator<=>(const IntervalMap<K, T>& a, const IntervalMap<K, T>& b) noexcept {
+        auto i = a.begin();
+        auto j = a.end();
+        auto k = b.begin();
+        auto l = b.end();
+        for (; i != j && k != l; ++i, ++j) {
+            auto c = *i <=> *k;
+            if (c != 0)
+                return c;
+        }
+        if (*i != *j)
+            return std::strong_ordering::greater;
+        else if (*k != *l)
+            return std::strong_ordering::less;
+        else
+            return std::strong_ordering::equal;
+    }
+
     template <typename K, typename T> std::ostream& operator<<(std::ostream& out, const IntervalMap<K, T>& set) { return out << set.str(); }
     template <typename K, typename T> void swap(IntervalMap<K, T>& a, IntervalMap<K, T>& b) { a.swap(b); }
 

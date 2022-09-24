@@ -46,13 +46,6 @@ Given some or all of the fused arithmetic assignment operators
 binary operators `+ - * / % & | ^`. The shift operators are not included
 because the RHS is frequently not the same type.
 
-```c++
-template <typename T> class TotalOrder;
-```
-
-Given `==` and `<` operators for `T`, this defines the other comparison
-operators: `!= > <= >=`.
-
 ## SFINAE support
 
 ```c++

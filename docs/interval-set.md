@@ -73,6 +73,7 @@ touch or overlap.
 ### Comparison operators
 
 ```c++
+std::strong_ordering operator<=>(const IntervalSet& a, const IntervalSet& b) noexcept;
 bool operator==(const IntervalSet& a, const IntervalSet& b) noexcept;
 bool operator!=(const IntervalSet& a, const IntervalSet& b) noexcept;
 bool operator<(const IntervalSet& a, const IntervalSet& b) noexcept;

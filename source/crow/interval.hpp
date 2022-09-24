@@ -7,6 +7,7 @@
 #include "crow/interval-types.hpp"
 #include "crow/types.hpp"
 #include <algorithm>
+#include <compare>
 #include <ostream>
 #include <stdexcept>
 #include <string>
@@ -29,8 +30,7 @@ namespace Crow {
 
     template <typename T>
     class Interval:
-    public IntervalCategoryBase<T>,
-    public TotalOrder<Interval<T>> {
+    public IntervalCategoryBase<T> {
 
     public:
 
@@ -52,7 +52,6 @@ namespace Crow {
         IntervalSet<T> complement() const;
         IntervalSet<T> operator~() const { return complement(); }
         IntervalOrder order(const Interval& b) const;
-        int compare(const Interval& b) const noexcept;
         bool includes(const Interval& b) const;      // True if b is a subset of this
         bool overlaps(const Interval& b) const;      // True if the intersection is not empty
         bool touches(const Interval& b) const;       // True if there is no gap between this and b
@@ -66,6 +65,13 @@ namespace Crow {
 
         static Interval all() noexcept { return Interval(T(), IntervalBound::unbound, IntervalBound::unbound); }
         static Interval from_string(const std::string& str);
+
+        friend bool operator==(const Interval& a, const Interval& b) noexcept { return a.compare(b) == 0; }
+        friend std::strong_ordering operator<=>(const Interval& a, const Interval& b) noexcept { return a.compare(b); }
+
+    private:
+
+        std::strong_ordering compare(const Interval& b) const noexcept;
 
     };
 
@@ -155,40 +161,6 @@ namespace Crow {
                 else
                     return IntervalOrder::equal;
             }
-
-        }
-
-        template <typename T>
-        int Interval<T>::compare(const Interval& b) const noexcept {
-
-            auto& a = *this;
-
-            if (a.empty() || b.empty())
-                return int(b.empty()) - int(a.empty());
-
-            if (a.is_left_bounded() && b.is_left_bounded()) {
-                if (a.min() > b.min())
-                    return 1;
-                else if (a.min() < b.min())
-                    return -1;
-                else if (a.is_left_closed() != b.is_left_closed())
-                    return a.is_left_closed() ? -1 : 1;
-            } else if (a.is_left_bounded() || b.is_left_bounded()) {
-                return a.is_left_bounded() ? 1 : -1;
-            }
-
-            if (a.is_right_bounded() && b.is_right_bounded()) {
-                if (a.max() < b.max())
-                    return -1;
-                else if (a.max() > b.max())
-                    return 1;
-                else if (a.is_right_closed() != b.is_right_closed())
-                    return a.is_right_closed() ? 1 : -1;
-            } else if (a.is_right_bounded() || b.is_right_bounded()) {
-                return a.is_right_bounded() ? -1 : 1;
-            }
-
-            return 0;
 
         }
 
@@ -435,8 +407,48 @@ namespace Crow {
 
         }
 
-    template <typename T> bool operator==(const Interval<T>& a, const Interval<T>& b) noexcept { return a.compare(b) == 0; }
-    template <typename T> bool operator<(const Interval<T>& a, const Interval<T>& b) noexcept { return a.compare(b) < 0; }
+        template <typename T>
+        std::strong_ordering Interval<T>::compare(const Interval& b) const noexcept {
+
+            static constexpr auto eq = std::strong_ordering::equal;
+            static constexpr auto lt = std::strong_ordering::less;
+            static constexpr auto gt = std::strong_ordering::greater;
+
+            auto& a = *this;
+
+            if (a.empty() && b.empty())
+                return eq;
+            else if (a.empty())
+                return lt;
+            else if (b.empty())
+                return gt;
+
+            if (a.is_left_bounded() && b.is_left_bounded()) {
+                if (a.min() > b.min())
+                    return gt;
+                else if (a.min() < b.min())
+                    return lt;
+                else if (a.is_left_closed() != b.is_left_closed())
+                    return a.is_left_closed() ? lt : gt;
+            } else if (a.is_left_bounded() || b.is_left_bounded()) {
+                return a.is_left_bounded() ? gt : lt;
+            }
+
+            if (a.is_right_bounded() && b.is_right_bounded()) {
+                if (a.max() < b.max())
+                    return lt;
+                else if (a.max() > b.max())
+                    return gt;
+                else if (a.is_right_closed() != b.is_right_closed())
+                    return a.is_right_closed() ? gt : lt;
+            } else if (a.is_right_bounded() || b.is_right_bounded()) {
+                return a.is_right_bounded() ? lt : gt;
+            }
+
+            return eq;
+
+        }
+
     template <typename T> std::ostream& operator<<(std::ostream& out, const Interval<T>& in) { return out << in.str(); }
 
     template <typename T> Interval<T> make_interval(const T& t) { return Interval<T>(t); }

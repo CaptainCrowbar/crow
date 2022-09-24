@@ -234,6 +234,7 @@ or `';'` appears first in the string will be used. Key and value strings are
 percent encoded by `make_query()` and decoded by `parse_query()`.
 
 ```c++
+std::strong_ordering operator<=>(const Uri& u, const Uri& v) noexcept;
 bool operator==(const Uri& u, const Uri& v) noexcept;
 bool operator!=(const Uri& u, const Uri& v) noexcept;
 bool operator<(const Uri& u, const Uri& v) noexcept;

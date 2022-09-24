@@ -314,15 +314,6 @@ Determines the relationship between two intervals. See the description of the
 `IntervalOrder` enumeration above for the interpretation of the result.
 
 ```c++
-int Interval::compare(const Interval& b) const noexcept;
-```
-
-Performs a three-way lexicographical ordering of two intervals, according to
-`T`'s less-than operator. The return value is a positive integer if
-`*this>b`, a negative integer if `*this<b`, or zero if `*this==b`. An empty
-interval compares less than any non-empty interval.
-
-```c++
 bool Interval::includes(const Interval& b) const;
 bool Interval::overlaps(const Interval& b) const;
 bool Interval::touches(const Interval& b) const;
@@ -334,6 +325,7 @@ is true if `b` is a subset of `*this`; `overlaps()` is true if `*this` and
 between the two intervals (this includes overlapping intervals).
 
 ```c++
+std::strong_ordering operator<=>(const Interval& a, const Interval& b) noexcept;
 bool operator==(const Interval& a, const Interval& b) noexcept;
 bool operator!=(const Interval& a, const Interval& b) noexcept;
 bool operator<(const Interval& a, const Interval& b) noexcept;

@@ -2,13 +2,13 @@
 
 #include "crow/types.hpp"
 #include <array>
+#include <compare>
 #include <ostream>
 #include <string>
 
 namespace Crow {
 
-    class Uuid:
-    public TotalOrder<Uuid> {
+    class Uuid {
 
     public:
 
@@ -68,11 +68,13 @@ namespace Crow {
             return true;
         }
 
-        constexpr bool operator<(const Uuid& u, const Uuid& v) noexcept {
-            for (int i = 0; i < 16; ++i)
-                if (u[i] != v[i])
-                    return u[i] < v[i];
-            return false;
+        constexpr std::strong_ordering operator<=>(const Uuid& u, const Uuid& v) noexcept {
+            for (int i = 0; i < 16; ++i) {
+                auto c = u[i] <=> v[i];
+                if (c != 0)
+                    return c;
+            }
+            return std::strong_ordering::equal;
         }
 
         inline std::ostream& operator<<(std::ostream& out, const Uuid& u) { return out << u.str(); }

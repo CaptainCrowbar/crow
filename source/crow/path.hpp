@@ -6,6 +6,7 @@
 #include "crow/types.hpp"
 #include "crow/unicode.hpp"
 #include <chrono>
+#include <compare>
 #include <functional>
 #include <iterator>
 #include <memory>
@@ -16,8 +17,7 @@
 
 namespace Crow {
 
-    class Path:
-    public TotalOrder<Path> {
+    class Path {
 
     public:
 
@@ -154,7 +154,7 @@ namespace Crow {
         friend std::ostream& operator<<(std::ostream& out, const Path& p) { return out << p.name(); }
         friend std::ostream& operator<<(std::ostream& out, Path::form f);
         friend bool operator==(const Path& lhs, const Path& rhs) noexcept { return lhs.filename_ == rhs.filename_; }
-        friend bool operator<(const Path& lhs, const Path& rhs) noexcept { return lhs.filename_ < rhs.filename_; }
+        friend std::strong_ordering operator<=>(const Path& lhs, const Path& rhs) noexcept;
 
         // File system query functions
 

@@ -3,6 +3,7 @@
 #include "crow/iterator.hpp"
 #include "crow/types.hpp"
 #include <algorithm>
+#include <compare>
 #include <functional>
 #include <initializer_list>
 #include <iterator>
@@ -42,8 +43,7 @@ namespace Crow {
     }
 
     template <typename T, size_t N>
-    class BoundedArray:
-    public TotalOrder<BoundedArray<T, N>> {
+    class BoundedArray {
 
     public:
 
@@ -108,11 +108,6 @@ namespace Crow {
 
         size_t hash() const noexcept;
         void swap(BoundedArray& ba) noexcept;
-
-        friend bool operator==(const BoundedArray& a, const BoundedArray& b) noexcept
-            { return a.size() == b.size() && std::equal(a.begin(), a.end(), b.begin()); }
-        friend bool operator<(const BoundedArray& a, const BoundedArray& b) noexcept
-            { return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end()); }
 
     private:
 
@@ -401,6 +396,30 @@ namespace Crow {
         template <typename T, size_t N>
         void swap(BoundedArray<T, N>& a, BoundedArray<T, N>& b) noexcept {
             a.swap(b);
+        }
+
+        template <typename T, size_t N>
+        bool operator==(const BoundedArray<T, N>& a, const BoundedArray<T, N>& b) noexcept {
+            return a.size() == b.size() && std::equal(a.begin(), a.end(), b.begin());
+        }
+
+        template <typename T, size_t N>
+        auto operator<=>(const BoundedArray<T, N>& a, const BoundedArray<T, N>& b) noexcept {
+            auto i = a.begin();
+            auto j = a.end();
+            auto k = b.begin();
+            auto l = b.end();
+            for (; i != j && k != l; ++i, ++j) {
+                auto c = *i <=> *k;
+                if (c != 0)
+                    return c;
+            }
+            if (*i != *j)
+                return std::strong_ordering::greater;
+            else if (*k != *l)
+                return std::strong_ordering::less;
+            else
+                return std::strong_ordering::equal;
         }
 
 }

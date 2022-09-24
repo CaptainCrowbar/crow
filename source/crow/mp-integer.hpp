@@ -7,6 +7,7 @@
 #include "crow/types.hpp"
 #include <algorithm>
 #include <cmath>
+#include <compare>
 #include <cstdlib>
 #include <ostream>
 #include <string>
@@ -19,8 +20,8 @@ namespace Crow {
 
     // Unsigned integer class
 
-    class MPN:
-    public TotalOrder<MPN> {
+    class MPN {
+
     public:
 
         MPN() = default;
@@ -50,7 +51,6 @@ namespace Crow {
         size_t bits() const noexcept;
         size_t bits_set() const noexcept;
         size_t bytes() const noexcept;
-        int compare(const MPN& rhs) const noexcept;
         bool get_bit(size_t i) const noexcept;
         uint8_t get_byte(size_t i) const noexcept;
         void set_bit(size_t i, bool b = true);
@@ -72,6 +72,8 @@ namespace Crow {
         friend MPN operator*(const MPN& lhs, const MPN& rhs) { MPN z; MPN::do_multiply(lhs, rhs, z); return z; }
         friend MPN operator/(const MPN& lhs, const MPN& rhs) { MPN q, r; MPN::do_divide(lhs, rhs, q, r); return q; }
         friend MPN operator%(const MPN& lhs, const MPN& rhs) { MPN q, r; MPN::do_divide(lhs, rhs, q, r); return r; }
+        friend bool operator==(const MPN& lhs, const MPN& rhs) noexcept { return lhs.compare(rhs) == 0; }
+        friend auto operator<=>(const MPN& lhs, const MPN& rhs) noexcept { return lhs.compare(rhs); }
 
         friend std::pair<MPN, MPN> divide(const MPN& lhs, const MPN& rhs) { MPN q, r; MPN::do_divide(lhs, rhs, q, r); return {q, r}; }
 
@@ -83,6 +85,7 @@ namespace Crow {
 
         std::vector<uint32_t> rep_; // Least significant word first
 
+        std::strong_ordering compare(const MPN& rhs) const noexcept;
         void init(std::string_view s, int base);
         void trim() noexcept;
 
@@ -98,8 +101,6 @@ namespace Crow {
         inline MPN operator^(const MPN& lhs, const MPN& rhs) { auto z = lhs; z ^= rhs; return z; }
         inline MPN operator<<(const MPN& lhs, size_t rhs) { auto z = lhs; z <<= rhs; return z; }
         inline MPN operator>>(const MPN& lhs, size_t rhs) { auto z = lhs; z >>= rhs; return z; }
-        inline bool operator==(const MPN& lhs, const MPN& rhs) noexcept { return lhs.compare(rhs) == 0; }
-        inline bool operator<(const MPN& lhs, const MPN& rhs) noexcept { return lhs.compare(rhs) == -1; }
         inline std::string to_string(const MPN& x) { return x.str(); }
         inline std::ostream& operator<<(std::ostream& out, const MPN& x) { return out << x.str(); }
 
@@ -122,8 +123,7 @@ namespace Crow {
 
     // Signed integer class
 
-    class MPZ:
-    public TotalOrder<MPZ> {
+    class MPZ {
 
     public:
 
@@ -150,7 +150,6 @@ namespace Crow {
         MPZ& operator%=(const MPZ& rhs) { MPZ q, r; do_divide(*this, rhs, q, r); std::swap(*this, r); return *this; }
 
         MPN abs() const { return mag_; }
-        int compare(const MPZ& rhs) const noexcept;
         size_t hash() const noexcept { return hash_mix(mag_, neg_); }
         bool is_even() const noexcept { return mag_.is_even(); }
         bool is_odd() const noexcept { return mag_.is_odd(); }
@@ -163,6 +162,8 @@ namespace Crow {
         friend MPZ operator*(const MPZ& lhs, const MPZ& rhs) { MPZ z; MPZ::do_multiply(lhs, rhs, z); return z; }
         friend MPZ operator/(const MPZ& lhs, const MPZ& rhs) { MPZ q, r; MPZ::do_divide(lhs, rhs, q, r); return q; }
         friend MPZ operator%(const MPZ& lhs, const MPZ& rhs) { MPZ q, r; MPZ::do_divide(lhs, rhs, q, r); return r; }
+        friend bool operator==(const MPZ& lhs, const MPZ& rhs) noexcept { return lhs.compare(rhs) == 0; }
+        friend auto operator<=>(const MPZ& lhs, const MPZ& rhs) noexcept { return lhs.compare(rhs); }
         friend std::pair<MPZ, MPZ> divide(const MPZ& lhs, const MPZ& rhs) { MPZ q, r; MPZ::do_divide(lhs, rhs, q, r); return {q, r}; }
 
     private:
@@ -170,6 +171,7 @@ namespace Crow {
         MPN mag_;
         bool neg_ = false;
 
+        std::strong_ordering compare(const MPZ& rhs) const noexcept;
         void init(std::string_view s, int base);
 
         static void do_divide(const MPZ& x, const MPZ& y, MPZ& q, MPZ& r);
@@ -181,8 +183,6 @@ namespace Crow {
 
         inline MPZ operator+(const MPZ& lhs, const MPZ& rhs) { auto z = lhs; z += rhs; return z; }
         inline MPZ operator-(const MPZ& lhs, const MPZ& rhs) { auto z = lhs; z -= rhs; return z; }
-        inline bool operator==(const MPZ& lhs, const MPZ& rhs) noexcept { return lhs.compare(rhs) == 0; }
-        inline bool operator<(const MPZ& lhs, const MPZ& rhs) noexcept { return lhs.compare(rhs) == -1; }
         inline std::string to_string(const MPZ& x) { return x.str(); }
         inline std::ostream& operator<<(std::ostream& out, const MPZ& x) { return out << x.str(); }
 

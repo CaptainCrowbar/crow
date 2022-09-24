@@ -105,6 +105,7 @@ MPN operator>>(const MPN& x, size_t y);
 Bitwise operators.
 
 ```c++
+std::strong_ordering operator<=>(const MPN& x, const MPN& y) noexcept;
 bool operator==(const MPN& x, const MPN& y) noexcept;
 bool operator!=(const MPN& x, const MPN& y) noexcept;
 bool operator<(const MPN& x, const MPN& y) noexcept;
@@ -308,6 +309,7 @@ signs of the arguments, and the quotient is the integer that satisfies
 `x=q*y+r`. Behaviour is undefined if the divisor is zero.
 
 ```c++
+std::strong_ordering operator<=>(const MPZ& x, const MPZ& y) noexcept;
 bool operator==(const MPZ& x, const MPZ& y) noexcept;
 bool operator!=(const MPZ& x, const MPZ& y) noexcept;
 bool operator<(const MPZ& x, const MPZ& y) noexcept;

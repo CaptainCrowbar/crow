@@ -404,6 +404,15 @@ namespace Crow {
         return out;
     }
 
+    std::strong_ordering operator<=>(const Path& lhs, const Path& rhs) noexcept {
+        if (lhs.filename_ == rhs.filename_)
+            return std::strong_ordering::equal;
+        else if (lhs.filename_ < rhs.filename_)
+            return std::strong_ordering::less;
+        else
+            return std::strong_ordering::greater;
+    }
+
     // File system query functions
 
     Path::time_point Path::access_time([[maybe_unused]] flag flags) const noexcept {

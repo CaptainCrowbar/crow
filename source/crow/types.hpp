@@ -111,15 +111,6 @@ namespace Crow {
                 { T c = a; c ^= b; return c; }
     };
 
-    template <typename T>
-    class TotalOrder {
-    public:
-        friend bool operator!=(const T& a, const T& b) noexcept { return ! (a == b); }
-        friend bool operator>(const T& a, const T& b) noexcept { return b < a; }
-        friend bool operator<=(const T& a, const T& b) noexcept { return ! (b < a); }
-        friend bool operator>=(const T& a, const T& b) noexcept { return ! (a < b); }
-    };
-
     // SFINAE support
 
     template <typename T, bool B> struct SfinaeTrue {};

@@ -155,6 +155,7 @@ void swap(BoundedArray& a, BoundedArray& b) noexcept;
 Swap functions.
 
 ```c++
+std::strong_ordering operator<=>(const BoundedArray& a, const BoundedArray& b) noexcept;
 bool operator==(const BoundedArray& a, const BoundedArray& b) noexcept;
 bool operator!=(const BoundedArray& a, const BoundedArray& b) noexcept;
 bool operator<(const BoundedArray& a, const BoundedArray& b) noexcept;

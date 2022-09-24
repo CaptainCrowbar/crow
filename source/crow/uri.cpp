@@ -476,4 +476,13 @@ namespace Crow {
         return i + 1;
     }
 
+    std::strong_ordering operator<(const Uri& u, const Uri& v) noexcept {
+        if (u.text_ == v.text_)
+            return std::strong_ordering::equal;
+        else if (u.text_ < v.text_)
+            return std::strong_ordering::less;
+        else
+            return std::strong_ordering::greater;
+    }
+
 }
