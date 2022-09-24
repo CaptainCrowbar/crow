@@ -208,7 +208,7 @@ namespace Crow {
 namespace std {
 
     template <>
-    class hash<Crow::MPZ> {
+    struct hash<Crow::MPZ> {
     public:
         size_t operator()(const Crow::MPZ& x) const noexcept {
             return x.hash();
@@ -216,7 +216,7 @@ namespace std {
     };
 
     template <>
-    class hash<Crow::MPN> {
+    struct hash<Crow::MPN> {
     public:
         size_t operator()(const Crow::MPN& x) const noexcept {
             return x.hash();

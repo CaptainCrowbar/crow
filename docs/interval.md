@@ -451,7 +451,7 @@ formatted (`A` and `B` represent formatted values of `T`).
 
 ```c++
 size_t Interval::hash() const noexcept;
-class std::hash<Interval>;
+struct std::hash<Interval>;
 ```
 
 Hash function for an interval. This relies on the existence of a hash function

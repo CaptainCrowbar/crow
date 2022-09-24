@@ -71,7 +71,7 @@ greater than 15.
 
 ```c++
 constexpr size_t Uuid::hash() const noexcept;
-class std::hash<Uuid>;
+struct std::hash<Uuid>;
 ```
 
 Hash functions.

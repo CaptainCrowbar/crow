@@ -139,7 +139,7 @@ Erasure functions.
 
 ```c++
 size_t BoundedArray::hash() const noexcept;
-class std::hash<BoundedArray<T, N>>;
+struct std::hash<BoundedArray<T, N>>;
 ```
 
 Hash functions.

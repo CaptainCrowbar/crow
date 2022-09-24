@@ -154,7 +154,7 @@ significant end. If the index is too big for the stored value,
 
 ```c++
 size_t MPN::hash() const noexcept;
-class std::hash<MPN>;
+struct std::hash<MPN>;
 ```
 
 Hash functions.
@@ -335,7 +335,7 @@ Returns a three way comparison of `*this` and `y`, returning -1 if
 
 ```c++
 size_t MPZ::hash() const noexcept;
-class std::hash<MPZ>;
+struct std::hash<MPZ>;
 ```
 
 Hash functions.

@@ -126,7 +126,7 @@ Format an interval set as a string. The format is `"{A,B,C...}"`, where `A`,
 
 ```c++
 size_t IntervalSet::hash() const noexcept;
-class std::hash<IntervalSet>;
+struct std::hash<IntervalSet>;
 ```
 
 Hash function for an interval set.

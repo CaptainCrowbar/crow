@@ -481,7 +481,7 @@ namespace Crow {
 namespace std {
 
     template <typename T>
-    class hash<Crow::Interval<T>> {
+    struct hash<Crow::Interval<T>> {
     public:
         size_t operator()(const Crow::Interval<T>& in) const noexcept { return in.hash(); }
     };

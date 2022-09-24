@@ -166,7 +166,7 @@ values respectively. The default value is not reported.
 
 ```c++
 size_t IntervalMap::hash() const noexcept;
-class std::hash<IntervalMap>;
+struct std::hash<IntervalMap>;
 ```
 
 Hash function for an interval map.

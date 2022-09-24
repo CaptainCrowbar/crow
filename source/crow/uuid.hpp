@@ -84,7 +84,7 @@ namespace Crow {
 namespace std {
 
     template <>
-    class hash<Crow::Uuid> {
+    struct hash<Crow::Uuid> {
         size_t operator()(const Crow::Uuid& u) const noexcept {
             return u.hash();
         }

@@ -241,7 +241,7 @@ namespace Crow {
 namespace std {
 
     template <typename T>
-    class hash<Crow::IntervalSet<T>> {
+    struct hash<Crow::IntervalSet<T>> {
     public:
         size_t operator()(const Crow::IntervalSet<T>& set) const noexcept { return set.hash(); }
     };

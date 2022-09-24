@@ -36,7 +36,7 @@ inline std::istream& operator>>(std::istream& in, Stepwise& s) {
 namespace std {
 
     template <>
-    class hash<Stepwise> {
+    struct hash<Stepwise> {
     public:
         size_t operator()(Stepwise in) const noexcept { return std::hash<int>()(in.get()); }
     };

@@ -171,7 +171,7 @@ True if the URI is empty.
 
 ```c++
 size_t Uri::hash() const noexcept;
-class std::hash<Uri>;
+struct std::hash<Uri>;
 ```
 
 Hash functions.

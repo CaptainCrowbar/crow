@@ -120,7 +120,7 @@ information. `T` must be a primitive arithmetic type.
 
 ```c++
 constexpr size_t Binary::hash() const noexcept;
-class std::hash<Binary<T>>;
+struct std::hash<Binary<T>>;
 ```
 
 Hash function.

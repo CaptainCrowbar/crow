@@ -156,7 +156,7 @@ Erasure functions.
 
 ```c++
 size_t CompactArray::hash() const noexcept;
-class std::hash<CompactArray<T, N>>;
+struct std::hash<CompactArray<T, N>>;
 ```
 
 Hash functions.

@@ -131,7 +131,7 @@ of the functions; `round()` rounds halves toward positive infinity.
 
 ```c++
 size_t Ratio::hash() const noexcept;
-class std::hash<Ratio>;
+struct std::hash<Ratio>;
 ```
 
 Hash functions.

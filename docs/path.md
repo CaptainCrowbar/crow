@@ -283,7 +283,7 @@ functions will always be true for any path. On Unix, `is_drive_absolute()` and
 
 ```c++
 size_t Path::hash() const noexcept;
-class std::hash<Path>;
+struct std::hash<Path>;
 ```
 
 Hash of the file name. This returns the same value as `std::hash` of the
