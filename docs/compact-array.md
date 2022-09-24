@@ -62,8 +62,7 @@ Member constant.
 ```c++
 CompactArray::CompactArray() noexcept;
 explicit CompactArray::CompactArray(size_t n, const T& t = {});
-template <typename InputIterator>
-    CompactArray::CompactArray(InputIterator i, InputIterator j);
+template <std::input_iterator I> CompactArray::CompactArray(I i, I j);
 CompactArray::CompactArray(std::initializer_list<T> list);
 CompactArray::~CompactArray() noexcept;
 CompactArray::CompactArray(const CompactArray& ca);
@@ -121,9 +120,8 @@ small enough, or if not, reallocates the dynamic array to set the capacity
 exactly equal to the current size.
 
 ```c++
-template <typename InputIterator>
-    CompactArray::iterator CompactArray::append(InputIterator i,
-        InputIterator j);
+template <std::input_iterator I>
+    CompactArray::iterator CompactArray::append(I i, I j);
 template <typename InputRange>
     CompactArray::iterator CompactArray::append(const InputRange& r);
 template <typename InputRange>
@@ -137,9 +135,8 @@ CompactArray::iterator
     CompactArray::insert(const_iterator i, const T& t);
 CompactArray::iterator
     CompactArray::insert(const_iterator i, T&& t);
-template <typename InputIterator>
-    CompactArray::iterator CompactArray::insert(const_iterator i,
-        InputIterator j, InputIterator k);
+template <std::input_iterator I>
+    CompactArray::iterator CompactArray::insert(const_iterator i, I j, I k);
 void CompactArray::push_back(const T& t);
 void CompactArray::push_back(T&& t);
 ```

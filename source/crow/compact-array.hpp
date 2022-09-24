@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <bit>
 #include <compare>
+#include <concepts>
 #include <functional>
 #include <initializer_list>
 #include <iterator>
@@ -61,7 +62,7 @@ namespace Crow {
 
         CompactArray() noexcept = default;
         explicit CompactArray(size_t n, const T& t = {});
-        template <typename InputIterator> CompactArray(InputIterator i, InputIterator j, std::enable_if_t<is_iterator<InputIterator>>* = nullptr);
+        template <std::input_iterator I> CompactArray(I i, I j);
         CompactArray(std::initializer_list<T> list);
         ~CompactArray() noexcept { clear(); }
         CompactArray(const CompactArray& ca);
@@ -93,7 +94,7 @@ namespace Crow {
         bool is_compact() const noexcept { return local_; }
         size_t size() const noexcept { return num_; }
 
-        template <typename InputIterator> iterator append(InputIterator i, InputIterator j);
+        template <std::input_iterator I> iterator append(I i, I j);
         template <typename InputRange> iterator append(const InputRange& r);
         template <typename InputRange> iterator append(InputRange&& r);
         void clear() noexcept;
@@ -103,7 +104,7 @@ namespace Crow {
         void erase(const_iterator i, const_iterator j) noexcept;
         iterator insert(const_iterator i, const T& t);
         iterator insert(const_iterator i, T&& t);
-        template <typename InputIterator> iterator insert(const_iterator i, InputIterator j, InputIterator k);
+        template <std::input_iterator I> iterator insert(const_iterator i, I j, I k);
         void pop_back() noexcept;
         void push_back(const T& t);
         void push_back(T&& t);
@@ -141,10 +142,10 @@ namespace Crow {
         }
 
         template <typename T, size_t N>
-        template <typename InputIterator>
-        CompactArray<T, N>::CompactArray(InputIterator i, InputIterator j, std::enable_if_t<is_iterator<InputIterator>>*) {
+        template <std::input_iterator I>
+        CompactArray<T, N>::CompactArray(I i, I j) {
             using namespace Detail;
-            if (std::is_same<typename std::iterator_traits<InputIterator>::iterator_category, std::input_iterator_tag>::value) {
+            if (std::is_same<typename std::iterator_traits<I>::iterator_category, std::input_iterator_tag>::value) {
                 for (; i != j; ++i)
                     push_back(*i);
             } else {
@@ -200,11 +201,11 @@ namespace Crow {
         }
 
         template <typename T, size_t N>
-        template <typename InputIterator>
-        typename CompactArray<T, N>::iterator CompactArray<T, N>::append(InputIterator i, InputIterator j) {
+        template <std::input_iterator I>
+        typename CompactArray<T, N>::iterator CompactArray<T, N>::append(I i, I j) {
             using namespace Detail;
             size_t n_old = num_;
-            if (std::is_same<typename std::iterator_traits<InputIterator>::iterator_category, std::input_iterator_tag>::value) {
+            if (std::is_same<typename std::iterator_traits<I>::iterator_category, std::input_iterator_tag>::value) {
                 for (; i != j; ++i)
                     push_back(*i);
             } else {
@@ -327,11 +328,11 @@ namespace Crow {
         }
 
         template <typename T, size_t N>
-        template <typename InputIterator>
-        typename CompactArray<T, N>::iterator CompactArray<T, N>::insert(const_iterator i, InputIterator j, InputIterator k) {
+        template <std::input_iterator I>
+        typename CompactArray<T, N>::iterator CompactArray<T, N>::insert(const_iterator i, I j, I k) {
             using namespace Detail;
             size_t n_before = i - begin(), n_after = num_ - n_before;
-            if (std::is_same<typename std::iterator_traits<InputIterator>::iterator_category, std::input_iterator_tag>::value) {
+            if (std::is_same<typename std::iterator_traits<I>::iterator_category, std::input_iterator_tag>::value) {
                 CompactArray temp(i, cend());
                 erase(i, end());
                 for (; j != k; ++j)

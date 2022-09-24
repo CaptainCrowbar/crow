@@ -4,6 +4,7 @@
 #include "crow/types.hpp"
 #include <algorithm>
 #include <compare>
+#include <concepts>
 #include <functional>
 #include <initializer_list>
 #include <iterator>
@@ -59,7 +60,7 @@ namespace Crow {
 
         BoundedArray() noexcept = default;
         explicit BoundedArray(size_t n, const T& t = {});
-        template <typename InputIterator> BoundedArray(InputIterator i, InputIterator j, std::enable_if_t<is_iterator<InputIterator>>* = nullptr);
+        template <std::input_iterator I> BoundedArray(I i, I j);
         BoundedArray(std::initializer_list<T> list);
         ~BoundedArray() noexcept { clear(); }
         BoundedArray(const BoundedArray& ba);
@@ -90,7 +91,7 @@ namespace Crow {
         bool empty() const noexcept { return num_ == 0; }
         size_t size() const noexcept { return num_; }
 
-        template <typename InputIterator> iterator append(InputIterator i, InputIterator j);
+        template <std::input_iterator I> iterator append(I i, I j);
         template <typename InputRange> iterator append(const InputRange& r);
         template <typename InputRange> iterator append(InputRange&& r);
         void clear() noexcept;
@@ -100,7 +101,7 @@ namespace Crow {
         void erase(const_iterator i, const_iterator j) noexcept;
         iterator insert(const_iterator i, const T& t);
         iterator insert(const_iterator i, T&& t);
-        template <typename InputIterator> iterator insert(const_iterator i, InputIterator j, InputIterator k);
+        template <std::input_iterator I> iterator insert(const_iterator i, I j, I k);
         void pop_back() noexcept;
         void push_back(const T& t);
         void push_back(T&& t);
@@ -129,10 +130,10 @@ namespace Crow {
         }
 
         template <typename T, size_t N>
-        template <typename InputIterator>
-        BoundedArray<T, N>::BoundedArray(InputIterator i, InputIterator j, std::enable_if_t<is_iterator<InputIterator>>*) {
+        template <std::input_iterator I>
+        BoundedArray<T, N>::BoundedArray(I i, I j) {
             using namespace Detail;
-            if constexpr (std::is_same<typename std::iterator_traits<InputIterator>::iterator_category, std::input_iterator_tag>::value) {
+            if constexpr (std::is_same<typename std::iterator_traits<I>::iterator_category, std::input_iterator_tag>::value) {
                 for (; i != j; ++i)
                     push_back(*i);
             } else {
@@ -185,11 +186,11 @@ namespace Crow {
         }
 
         template <typename T, size_t N>
-        template <typename InputIterator>
-        typename BoundedArray<T, N>::iterator BoundedArray<T, N>::append(InputIterator i, InputIterator j) {
+        template <std::input_iterator I>
+        typename BoundedArray<T, N>::iterator BoundedArray<T, N>::append(I i, I j) {
             using namespace Detail;
             size_t n_old = num_;
-            if (std::is_same<typename std::iterator_traits<InputIterator>::iterator_category, std::input_iterator_tag>::value) {
+            if (std::is_same<typename std::iterator_traits<I>::iterator_category, std::input_iterator_tag>::value) {
                 for (; i != j; ++i)
                     push_back(*i);
             } else {
@@ -309,11 +310,11 @@ namespace Crow {
         }
 
         template <typename T, size_t N>
-        template <typename InputIterator>
-        typename BoundedArray<T, N>::iterator BoundedArray<T, N>::insert(const_iterator i, InputIterator j, InputIterator k) {
+        template <std::input_iterator I>
+        typename BoundedArray<T, N>::iterator BoundedArray<T, N>::insert(const_iterator i, I j, I k) {
             using namespace Detail;
             size_t n_before = i - begin(), n_after = num_ - n_before;
-            if (std::is_same<typename std::iterator_traits<InputIterator>::iterator_category, std::input_iterator_tag>::value) {
+            if (std::is_same<typename std::iterator_traits<I>::iterator_category, std::input_iterator_tag>::value) {
                 BoundedArray temp(i, cend());
                 erase(i, end());
                 for (; j != k; ++j)

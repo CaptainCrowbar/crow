@@ -54,8 +54,7 @@ Member constant.
 ```c++
 BoundedArray::BoundedArray() noexcept;
 explicit BoundedArray::BoundedArray(size_t n, const T& t = {});
-template <typename InputIterator>
-    BoundedArray::BoundedArray(InputIterator i, InputIterator j);
+template <std::input_iterator I> BoundedArray::BoundedArray(I i, I j);
 BoundedArray::BoundedArray(std::initializer_list<T> list);
 BoundedArray::~BoundedArray() noexcept;
 BoundedArray::BoundedArray(const BoundedArray& ca);
@@ -103,9 +102,8 @@ functions have their usual semantics for sequential containers, except that
 capacity.
 
 ```c++
-template <typename InputIterator>
-    BoundedArray::iterator BoundedArray::append(InputIterator i,
-        InputIterator j);
+template <std::input_iterator I>
+    BoundedArray::iterator BoundedArray::append(I i, I j);
 template <typename InputRange>
     BoundedArray::iterator BoundedArray::append(const InputRange& r);
 template <typename InputRange>
@@ -119,9 +117,8 @@ BoundedArray::iterator
     BoundedArray::insert(const_iterator i, const T& t);
 BoundedArray::iterator
     BoundedArray::insert(const_iterator i, T&& t);
-template <typename InputIterator>
-    BoundedArray::iterator BoundedArray::insert(const_iterator i,
-        InputIterator j, InputIterator k);
+template <std::input_iterator I>
+    BoundedArray::iterator BoundedArray::insert(const_iterator i, I j, I k);
 void BoundedArray::push_back(const T& t);
 void BoundedArray::push_back(T&& t);
 ```
