@@ -4,6 +4,7 @@
 #include "crow/format.hpp"
 #include "crow/string.hpp"
 #include "crow/types.hpp"
+#include <concepts>
 #include <istream>
 #include <limits>
 #include <ostream>
@@ -108,11 +109,11 @@ namespace Crow {
     constexpr IntervalBound operator~(IntervalBound b) noexcept { return IntervalBound(3 - int(b)); }
 
     CROW_ENUM_CLASS(IntervalCategory, int, 0,
-        none,       // Not usable in an interval
-        ordered,    // Ordered but not an arithmetic type (e.g. string)
-        stepwise,   // Incrementable and decrementable (e.g. pointer)
-        integral,   // Integer arithmetic operations (e.g. integer)
-        continuous  // Models a continuous arithmetic type (e.g. floating point)
+        none,        // Not usable in an interval
+        continuous,  // Models a continuous arithmetic type (e.g. floating point)
+        integral,    // Integer arithmetic operations (e.g. integer)
+        ordered,     // Ordered but not an arithmetic type (e.g. string)
+        stepwise     // Incrementable and decrementable (e.g. pointer)
     )
 
     CROW_ENUM_CLASS(IntervalMatch, int, -1,
@@ -166,6 +167,12 @@ namespace Crow {
     };
 
     template <typename T> constexpr auto interval_category = IntervalTraits<T>::category;
+
+    template <typename T> concept ContinuousIntervalType = interval_category<T> == IntervalCategory::continuous;
+    template <typename T> concept IntegralIntervalType = interval_category<T> == IntervalCategory::integral;
+    template <typename T> concept OrderedIntervalType = interval_category<T> == IntervalCategory::ordered;
+    template <typename T> concept StepwiseIntervalType = interval_category<T> == IntervalCategory::stepwise;
+    template <typename T> concept ArithmeticIntervalType = ContinuousIntervalType<T> || IntegralIntervalType<T>;
 
     namespace Detail {
 

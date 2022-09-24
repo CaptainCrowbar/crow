@@ -12,7 +12,6 @@ int main(int argc, char** argv) {
 
     // types-test.cpp
     UNIT_TEST(crow_types_comparison)
-    UNIT_TEST(crow_types_mixins)
     UNIT_TEST(crow_types_traits)
     UNIT_TEST(crow_types_iterator_category)
     UNIT_TEST(crow_types_range_category)

@@ -49,35 +49,43 @@ types, a type must at the very least be default constructible, copyable, and
 totally ordered (defining all six comparison operators). Additional type
 properties enable additional interval properties.
 
-| IntervalCategory  | Description                          | Example        |
-| ----------------  | -----------                          | -------        |
-| `none`            | Not usable in an interval            | `bool`         |
-| `ordered`         | Ordered but not an arithmetic type   | `std::string`  |
-| `stepwise`        | Incrementable and decrementable      | `int*`         |
-| `integral`        | Integer arithmetic operations        | `int`          |
-| `continuous`      | Models a continuous arithmetic type  | `float`        |
+| IntervalCategory  | Description                             | Example        |
+| ----------------  | -----------                             | -------        |
+| `none`            | Not usable in an interval               | `bool`         |
+| `continuous`      | Models a continuous arithmetic type     | `float`        |
+| `integral`        | Supports integer arithmetic operations  | `int`          |
+| `ordered`         | Ordered but not an arithmetic type      | `std::string`  |
+| `stepwise`        | Incrementable and decrementable         | `int*`         |
 
-The `IntervalTraits` or `interval_category` templates determine the category
-of a given type, according to the following algorithm:
+The `IntervalTraits` and `interval_category` templates determine the category
+of a given type, according to the following table. The first matching row in
+the table determines the type's interval category. If the default algorithm
+does not give the appropriate category, the category for a user defined type
+can be controlled by specializing `IntervalTraits` for that type.
 
-* _if `T` is `bool` or `T` is not default constructible, copyable, and totally ordered_
-    * _category is `none`_
-* _else if `is_floating_point_v<T>` is true, or `numeric_limits<T>` is defined and `is_integer` is false_
-    * _category is `continuous`_
-* _else if `is_integral_v<T>` is true, or `numeric_limits<T>` is defined and `is_integer` is true_
-    * _category is `integral`_
-* _else if `T` has unary `++ --` and binary `+ - * /`_
-    * _category is `integral`_
-* _else if `T` has `+ - * /` operators but not `++ --`_
-    * _category is `continuous`_
-* _else if `T` has `++ --` operators but not `+ - * /`_
-    * _category is `stepwise`_
-* _else_
-    * _category is `ordered`_
+| Condition                                                        | Category      |
+| ---------                                                        | --------      |
+| `IntervalTraits` is specialized                                  | As trait      |
+| `T` is not default constructible, copyable, and totally ordered  | `none`        |
+| `T` is `bool`                                                    | `none`        |
+| `is_integral_v<T>` is true                                       | `integral`    |
+| `is_floating_point_v<T>` is true                                 | `continuous`  |
+| `numeric_limits<T>` is specialized and `is_integer` is true      | `integral`    |
+| `numeric_limits<T>` is specialized and `is_integer` is false     | `continuous`  |
+| `T` has unary `++ --` and binary `+ - * /`                       | `integral`    |
+| `T` has `+ - * /` but not `++ --`                                | `continuous`  |
+| `T` has `++ --` but not `+ - * /`                                | `stepwise`    |
+| Otherwise                                                        | `ordered`     |
 
-The interval category for a user defined type can be controlled by
-specializing `IntervalTraits` for that type, if the default algorithm does
-not give the appropriate category.
+The following concepts are defined to match the value type categories:
+
+| Concept                   | Category                  |
+| -------                   | --------                  |
+| `ArithmeticIntervalType`  | `continuous or integral`  |
+| `ContinuousIntervalType`  | `continuous`              |
+| `IntegralIntervalType`    | `integral`                |
+| `OrderedIntervalType`     | `ordered`                 |
+| `StepwiseIntervalType`    | `stepwise`                |
 
 ### Relationship between a value and an interval
 

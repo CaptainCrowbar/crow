@@ -15,9 +15,6 @@ namespace Crow {
 
     namespace Detail {
 
-        template <typename T> constexpr bool is_arithmetic_interval = interval_category<T> == IntervalCategory::integral
-            || interval_category<T> == IntervalCategory::continuous;
-
         template <typename T>
         bool contains_zero(const Interval<T>& i) noexcept {
             using IB = IntervalBound;
@@ -124,39 +121,35 @@ namespace Crow {
 
     // Interval arithmetic operators
 
-    template <typename T>
-    std::enable_if_t<Detail::is_arithmetic_interval<T>, Interval<T>>
-    operator+(const Interval<T>& i) {
+    template <ArithmeticIntervalType T>
+    Interval<T> operator+(const Interval<T>& i) {
         return i;
     }
 
-    template <typename T>
-    std::enable_if_t<Detail::is_arithmetic_interval<T>, Interval<T>>
-    operator-(const Interval<T>& i) {
+    template <ArithmeticIntervalType T>
+    Interval<T> operator-(const Interval<T>& i) {
         return Interval<T>(- i.max(), - i.min(), i.right(), i.left());
     }
 
-    template <typename T>
-    std::enable_if_t<Detail::is_arithmetic_interval<T>, Interval<T>>
-    operator+(const Interval<T>& a, const Interval<T>& b) {
+    template <ArithmeticIntervalType T>
+    Interval<T> operator+(const Interval<T>& a, const Interval<T>& b) {
+        using namespace Detail;
         if (a.empty() || b.empty())
             return {};
-        auto l = Detail::left_boundary_of(a) + Detail::left_boundary_of(b);
-        auto r = Detail::right_boundary_of(a) + Detail::right_boundary_of(b);
-        return Detail::interval_from_boundaries(l, r);
+        auto l = left_boundary_of(a) + left_boundary_of(b);
+        auto r = right_boundary_of(a) + right_boundary_of(b);
+        return interval_from_boundaries(l, r);
     }
 
-    template <typename T>
-    std::enable_if_t<Detail::is_arithmetic_interval<T>, Interval<T>>
-    operator-(const Interval<T>& a, const Interval<T>& b) {
+    template <ArithmeticIntervalType T>
+    Interval<T> operator-(const Interval<T>& a, const Interval<T>& b) {
         return a + - b;
     }
 
-    template <typename T>
-    std::enable_if_t<Detail::is_arithmetic_interval<T>, Interval<T>>
-    operator*(const Interval<T>& a, const Interval<T>& b) {
+    template <ArithmeticIntervalType T>
+    Interval<T> operator*(const Interval<T>& a, const Interval<T>& b) {
 
-        using namespace Crow::Detail;
+        using namespace Detail;
 
         using B = Boundary<T>;
 
@@ -184,99 +177,85 @@ namespace Crow {
 
     }
 
-    template <typename T>
-    std::enable_if_t<interval_category<T> == IntervalCategory::continuous, IntervalSet<T>>
-    operator/(const Interval<T>& a, const Interval<T>& b) {
+    template <ContinuousIntervalType T>
+    IntervalSet<T> operator/(const Interval<T>& a, const Interval<T>& b) {
+        using namespace Detail;
         if (a.empty() || b.empty())
             return {};
-        auto b_reciprocals = Detail::reciprocal_set(b);
+        auto b_reciprocals = reciprocal_set(b);
         IntervalSet<T> set;
         for (auto& br: b_reciprocals)
             set.insert(a * br);
         return set;
     }
 
-    template <typename T>
-    std::enable_if_t<Detail::is_arithmetic_interval<T>, Interval<T>>
-    operator+(const Interval<T>& a, const T& b) {
+    template <ArithmeticIntervalType T>
+    Interval<T> operator+(const Interval<T>& a, const T& b) {
         return a + Interval<T>(b);
     }
 
-    template <typename T>
-    std::enable_if_t<Detail::is_arithmetic_interval<T>, Interval<T>>
-    operator-(const Interval<T>& a, const T& b) {
+    template <ArithmeticIntervalType T>
+    Interval<T> operator-(const Interval<T>& a, const T& b) {
         return a - Interval<T>(b);
     }
 
-    template <typename T>
-    std::enable_if_t<Detail::is_arithmetic_interval<T>, Interval<T>>
-    operator*(const Interval<T>& a, const T& b) {
+    template <ArithmeticIntervalType T>
+    Interval<T> operator*(const Interval<T>& a, const T& b) {
         return a * Interval<T>(b);
     }
 
-    template <typename T>
-    std::enable_if_t<interval_category<T> == IntervalCategory::continuous, IntervalSet<T>>
-    operator/(const Interval<T>& a, const T& b) {
+    template <ContinuousIntervalType T>
+    IntervalSet<T> operator/(const Interval<T>& a, const T& b) {
         return a / Interval<T>(b);
     }
 
-    template <typename T>
-    std::enable_if_t<Detail::is_arithmetic_interval<T>, Interval<T>>
-    operator+(const T& a, const Interval<T>& b) {
+    template <ArithmeticIntervalType T>
+    Interval<T> operator+(const T& a, const Interval<T>& b) {
         return Interval<T>(a) + b;
     }
 
-    template <typename T>
-    std::enable_if_t<Detail::is_arithmetic_interval<T>, Interval<T>>
-    operator-(const T& a, const Interval<T>& b) {
+    template <ArithmeticIntervalType T>
+    Interval<T> operator-(const T& a, const Interval<T>& b) {
         return Interval<T>(a) - b;
     }
 
-    template <typename T>
-    std::enable_if_t<Detail::is_arithmetic_interval<T>, Interval<T>>
-    operator*(const T& a, const Interval<T>& b) {
+    template <ArithmeticIntervalType T>
+    Interval<T> operator*(const T& a, const Interval<T>& b) {
         return Interval<T>(a) * b;
     }
 
-    template <typename T>
-    std::enable_if_t<interval_category<T> == IntervalCategory::continuous, IntervalSet<T>>
-    operator/(const T& a, const Interval<T>& b) {
+    template <ContinuousIntervalType T>
+    IntervalSet<T> operator/(const T& a, const Interval<T>& b) {
         return Interval<T>(a) / b;
     }
 
-    template <typename T>
-    std::enable_if_t<Detail::is_arithmetic_interval<T>, Interval<T>&>
-    operator+=(Interval<T>& a, const Interval<T>& b) {
+    template <ArithmeticIntervalType T>
+    Interval<T>& operator+=(Interval<T>& a, const Interval<T>& b) {
         return a = a + b;
     }
 
-    template <typename T>
-    std::enable_if_t<Detail::is_arithmetic_interval<T>, Interval<T>&>
-    operator-=(Interval<T>& a, const Interval<T>& b) {
+    template <ArithmeticIntervalType T>
+    Interval<T>& operator-=(Interval<T>& a, const Interval<T>& b) {
         return a = a - b;
     }
 
-    template <typename T>
-    std::enable_if_t<Detail::is_arithmetic_interval<T>, Interval<T>&>
-    operator*=(Interval<T>& a, const Interval<T>& b) {
+    template <ArithmeticIntervalType T>
+    Interval<T>& operator*=(Interval<T>& a, const Interval<T>& b) {
         return a = a * b;
     }
 
-    template <typename T>
-    std::enable_if_t<Detail::is_arithmetic_interval<T>, Interval<T>&>
-    operator+=(Interval<T>& a, const T& b) {
+    template <ArithmeticIntervalType T>
+    Interval<T>& operator+=(Interval<T>& a, const T& b) {
         return a = a + Interval<T>(b);
     }
 
-    template <typename T>
-    std::enable_if_t<Detail::is_arithmetic_interval<T>, Interval<T>&>
-    operator-=(Interval<T>& a, const T& b) {
+    template <ArithmeticIntervalType T>
+    Interval<T>& operator-=(Interval<T>& a, const T& b) {
         return a = a - Interval<T>(b);
     }
 
-    template <typename T>
-    std::enable_if_t<Detail::is_arithmetic_interval<T>, Interval<T>&>
-    operator*=(Interval<T>& a, const T& b) {
+    template <ArithmeticIntervalType T>
+    Interval<T>& operator*=(Interval<T>& a, const T& b) {
         return a = a * Interval<T>(b);
     }
 

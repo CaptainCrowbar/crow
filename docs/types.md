@@ -30,22 +30,6 @@ struct FreeMem {
 
 A deleter (suitable for use with smart pointers) that calls `std::free()`.
 
-## Mixin classes
-
-These are intended to be used as base classes, following the well known CRTP
-pattern, and will supply the boilerplate to define several common member or
-non-member functions given certain pre-defined functions of the derived
-type `T`.
-
-```c++
-template <typename T> class BinaryOperators;
-```
-
-Given some or all of the fused arithmetic assignment operators
-`+= -= *= /= %= &= |= ^=` for `T`, this defines the corresponding plain
-binary operators `+ - * / % & | ^`. The shift operators are not included
-because the RHS is frequently not the same type.
-
 ## SFINAE support
 
 ```c++

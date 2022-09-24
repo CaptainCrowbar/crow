@@ -112,37 +112,6 @@ namespace Crow {
         }
     };
 
-    // Mixin classes
-
-    template <typename T>
-    class BinaryOperators {
-    public:
-        template <typename U = T> friend T operator+(const T& a,
-            const std::enable_if_t<Detail::HasAddAssignOperator<U>::value, T>& b)
-                { T c = a; c += b; return c; }
-        template <typename U = T> friend T operator-(const T& a,
-            const std::enable_if_t<Detail::HasSubtractAssignOperator<U>::value, T>& b)
-                { T c = a; c -= b; return c; }
-        template <typename U = T> friend T operator*(const T& a,
-            const std::enable_if_t<Detail::HasMultiplyAssignOperator<U>::value, T>& b)
-                { T c = a; c *= b; return c; }
-        template <typename U = T> friend T operator/(const T& a,
-            const std::enable_if_t<Detail::HasDivideAssignOperator<U>::value, T>& b)
-                { T c = a; c /= b; return c; }
-        template <typename U = T> friend T operator%(const T& a,
-            const std::enable_if_t<Detail::HasRemainderAssignOperator<U>::value, T>& b)
-                { T c = a; c %= b; return c; }
-        template <typename U = T> friend T operator&(const T& a,
-            const std::enable_if_t<Detail::HasBitwiseAndAssignOperator<U>::value, T>& b)
-                { T c = a; c &= b; return c; }
-        template <typename U = T> friend T operator|(const T& a,
-            const std::enable_if_t<Detail::HasBitwiseOrAssignOperator<U>::value, T>& b)
-                { T c = a; c |= b; return c; }
-        template <typename U = T> friend T operator^(const T& a,
-            const std::enable_if_t<Detail::HasBitwiseXorAssignOperator<U>::value, T>& b)
-                { T c = a; c ^= b; return c; }
-    };
-
     // SFINAE support
 
     template <typename T, bool B> struct SfinaeTrue {};

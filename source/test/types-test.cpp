@@ -32,64 +32,6 @@ void test_crow_types_comparison() {
 
 }
 
-void test_crow_types_mixins() {
-
-    class FP:
-    public BinaryOperators<FP> {
-    public:
-        FP() = default;
-        explicit FP(double x): value_(x) {}
-        double get() const { return value_; }
-        FP& operator+=(FP y) { value_ += y.value_; return *this; }
-        FP& operator-=(FP y) { value_ -= y.value_; return *this; }
-        FP& operator*=(FP y) { value_ *= y.value_; return *this; }
-        FP& operator/=(FP y) { value_ /= y.value_; return *this; }
-    private:
-        double value_ = 0;
-    };
-
-    class Int:
-    public BinaryOperators<Int> {
-    public:
-        Int() = default;
-        explicit Int(int x): value_(x) {}
-        int get() const { return value_; }
-        Int& operator+=(Int y) { value_ += y.value_; return *this; }
-        Int& operator-=(Int y) { value_ -= y.value_; return *this; }
-        Int& operator*=(Int y) { value_ *= y.value_; return *this; }
-        Int& operator/=(Int y) { value_ /= y.value_; return *this; }
-        Int& operator%=(Int y) { value_ %= y.value_; return *this; }
-        Int& operator&=(Int y) { value_ &= y.value_; return *this; }
-        Int& operator|=(Int y) { value_ |= y.value_; return *this; }
-        Int& operator^=(Int y) { value_ ^= y.value_; return *this; }
-    private:
-        int value_ = 0;
-    };
-
-    FP f(3);
-    FP g(4);
-    FP h;
-
-    TRY(h = f + g);  TEST_EQUAL(h.get(), 7);
-    TRY(h = f - g);  TEST_EQUAL(h.get(), -1);
-    TRY(h = f * g);  TEST_EQUAL(h.get(), 12);
-    TRY(h = f / g);  TEST_EQUAL(h.get(), 0.75);
-
-    Int i(11);
-    Int j(6);
-    Int k;
-
-    TRY(k = i + j);   TEST_EQUAL(k.get(), 17);
-    TRY(k = i - j);   TEST_EQUAL(k.get(), 5);
-    TRY(k = i * j);   TEST_EQUAL(k.get(), 66);
-    TRY(k = i / j);   TEST_EQUAL(k.get(), 1);
-    TRY(k = i % j);   TEST_EQUAL(k.get(), 5);
-    TRY(k = i & j);   TEST_EQUAL(k.get(), 2);
-    TRY(k = i | j);   TEST_EQUAL(k.get(), 15);
-    TRY(k = i ^ j);   TEST_EQUAL(k.get(), 13);
-
-}
-
 void test_crow_types_traits() {
 
     TEST(! is_iterator<void>);
