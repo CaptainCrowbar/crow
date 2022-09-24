@@ -410,42 +410,40 @@ namespace Crow {
         template <typename T>
         std::strong_ordering Interval<T>::compare(const Interval& b) const noexcept {
 
-            static constexpr auto eq = std::strong_ordering::equal;
-            static constexpr auto lt = std::strong_ordering::less;
-            static constexpr auto gt = std::strong_ordering::greater;
+            using namespace Detail;
 
             auto& a = *this;
 
             if (a.empty() && b.empty())
-                return eq;
+                return SO::equal;
             else if (a.empty())
-                return lt;
+                return SO::less;
             else if (b.empty())
-                return gt;
+                return SO::greater;
 
             if (a.is_left_bounded() && b.is_left_bounded()) {
                 if (a.min() > b.min())
-                    return gt;
+                    return SO::greater;
                 else if (a.min() < b.min())
-                    return lt;
+                    return SO::less;
                 else if (a.is_left_closed() != b.is_left_closed())
-                    return a.is_left_closed() ? lt : gt;
+                    return a.is_left_closed() ? SO::less : SO::greater;
             } else if (a.is_left_bounded() || b.is_left_bounded()) {
-                return a.is_left_bounded() ? gt : lt;
+                return a.is_left_bounded() ? SO::greater : SO::less;
             }
 
             if (a.is_right_bounded() && b.is_right_bounded()) {
                 if (a.max() < b.max())
-                    return lt;
+                    return SO::less;
                 else if (a.max() > b.max())
-                    return gt;
+                    return SO::greater;
                 else if (a.is_right_closed() != b.is_right_closed())
-                    return a.is_right_closed() ? gt : lt;
+                    return a.is_right_closed() ? SO::greater : SO::less;
             } else if (a.is_right_bounded() || b.is_right_bounded()) {
-                return a.is_right_bounded() ? lt : gt;
+                return a.is_right_bounded() ? SO::less : SO::greater;
             }
 
-            return eq;
+            return SO::equal;
 
         }
 

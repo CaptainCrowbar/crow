@@ -11,7 +11,8 @@
 
 using namespace Crow;
 using namespace Crow::Test;
-using namespace std::numbers;
+
+using std::numbers::pi;
 
 using Grey = Vector<double, 1>;
 

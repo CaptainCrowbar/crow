@@ -9,7 +9,8 @@
 
 using namespace Crow;
 using namespace Crow::Literals;
-using namespace std::numbers;
+
+using std::numbers::pi;
 
 void test_crow_integer_vector_construction() {
 

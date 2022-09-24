@@ -25,7 +25,7 @@ namespace Crow {
     protected:
         RootFinder() = default;
         virtual T do_solve(T y, T x1, T x2) = 0;
-        void set_error(T e) noexcept { error_ = e; }
+        void set_error(T er) noexcept { error_ = er; }
         void set_count(int n) noexcept { count_ = n; }
     private:
         T epsilon_ = (sizeof(T) < sizeof(double) ? T(1e-4) : T(1e-10));

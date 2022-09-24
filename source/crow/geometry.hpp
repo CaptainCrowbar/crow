@@ -176,8 +176,8 @@ namespace Crow {
 
         template <typename T, int N>
         typename Sphere<T, N>::real_type Sphere<T, N>::volume() const noexcept {
-            using namespace std::numbers;
             using R = real_type;
+            using std::numbers::pi_v;
             if constexpr (N == 1) {
                 return R(2) * R(radius_);
             } else if constexpr (N == 2) {
@@ -196,8 +196,8 @@ namespace Crow {
 
         template <typename T, int N>
         typename Sphere<T, N>::real_type Sphere<T, N>::surface() const noexcept {
-            using namespace std::numbers;
             using R = real_type;
+            using std::numbers::pi_v;
             if constexpr (N == 1) {
                 return R(2);
             } else if constexpr (N == 2) {

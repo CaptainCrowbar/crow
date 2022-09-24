@@ -92,7 +92,7 @@ namespace Crow {
 
         template <typename RNG>
         T operator()(RNG& rng) const noexcept {
-            using namespace std::numbers;
+            using std::numbers::pi_v;
             T u = 1 - unit_(rng); // to ensure log(u) doesn't fail
             T v = unit_(rng);
             T a = std::sqrt(-2 * std::log(u));
@@ -116,26 +116,26 @@ namespace Crow {
         T sd_ = 1;
 
         T pdf_z(T z) const noexcept {
-            using namespace std::numbers;
-            static constexpr T c = inv_sqrtpi_v<T> / sqrt2_v<T>;
+            using namespace Detail;
+            static constexpr T c = SN::inv_sqrtpi_v<T> / SN::sqrt2_v<T>;
             return c * std::exp(- z * z / 2);
         }
 
         T cdf_z(T z) const noexcept {
-            using namespace std::numbers;
-            static constexpr T c = 1 / sqrt2_v<T>;
+            using namespace Detail;
+            static constexpr T c = 1 / SN::sqrt2_v<T>;
             return std::erfc(- c * z) / 2;
         }
 
         T q_z(T p) const noexcept {
-            using namespace std::numbers;
-            return - sqrt2_v<T> * inverse_erfc(2 * p);
+            using namespace Detail;
+            return - SN::sqrt2_v<T> * inverse_erfc(2 * p);
         }
 
         static T inverse_erfc(T y) noexcept {
-            using namespace std::numbers;
+            using namespace Detail;
             static constexpr T epsilon = 2 * std::numeric_limits<T>::epsilon();
-            static constexpr T sqrtpi_over_2 = 1 / (2 * inv_sqrtpi_v<T>);
+            static constexpr T sqrtpi_over_2 = 1 / (2 * SN::inv_sqrtpi_v<T>);
             static const auto inv_deriv = [] (T x) { return - sqrtpi_over_2 * std::exp(x * x); };
             if (y > 1)
                 return - inverse_erfc(2 - y);
@@ -165,10 +165,10 @@ namespace Crow {
         LogNormal() noexcept {} // Defaults to (0,1)
 
         LogNormal(T m, T s, LogMode mode = LogMode::natural) noexcept {
-            using namespace std::numbers;
+            using namespace Detail;
             if (mode == LogMode::common) {
-                m *= ln10_v<T>;
-                s *= ln10_v<T>;
+                m *= SN::ln10_v<T>;
+                s *= SN::ln10_v<T>;
             }
             norm_ = NormalDistribution<T>(m, s);
         }

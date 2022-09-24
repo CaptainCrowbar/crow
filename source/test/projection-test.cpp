@@ -16,7 +16,8 @@
 
 using namespace Crow;
 using namespace Crow::Literals;
-using namespace std::numbers;
+
+using std::numbers::pi;
 
 namespace {
 

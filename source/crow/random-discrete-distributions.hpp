@@ -193,7 +193,7 @@ namespace Crow {
 
             // https://www.johndcook.com/blog/2010/06/14/generating-poisson-random-values/
 
-            using namespace std::numbers;
+            using std::numbers::pi;
 
             T n = 0;
             UniformReal<double> unit;

@@ -98,7 +98,7 @@ namespace Crow {
         template <typename RNG>
         result_type operator()(RNG& rng) const {
 
-            using namespace std::numbers;
+            using std::numbers::pi_v;
 
             result_type v;
 
@@ -159,7 +159,7 @@ namespace Crow {
         template <typename RNG>
         result_type operator()(RNG& rng) const {
 
-            using namespace std::numbers;
+            using std::numbers::pi_v;
 
             result_type v;
 

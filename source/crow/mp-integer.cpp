@@ -7,10 +7,6 @@ namespace Crow {
 
     namespace {
 
-        constexpr auto eq = std::strong_ordering::equal;
-        constexpr auto lt = std::strong_ordering::less;
-        constexpr auto gt = std::strong_ordering::greater;
-
         std::string roman(const MPN& n, bool lcase = false) {
 
             static constexpr std::pair<int, const char*> table[] = {
@@ -308,6 +304,7 @@ namespace Crow {
     }
 
     std::strong_ordering MPN::compare(const MPN& rhs) const noexcept {
+        using namespace Detail;
         auto c = rep_.size() <=> rhs.rep_.size();
         if (c != 0)
             return c;
@@ -316,7 +313,7 @@ namespace Crow {
             if (c != 0)
                 return c;
         }
-        return eq;
+        return SO::equal;
     }
 
     void MPN::init(std::string_view s, int base) {
@@ -443,6 +440,7 @@ namespace Crow {
     // Signed integer class
 
     MPZ& MPZ::operator+=(const MPZ& rhs) {
+        using namespace Detail;
         if (! rhs.mag_) {
             // do nothing
         } else if (! mag_) {
@@ -452,10 +450,10 @@ namespace Crow {
             mag_ += rhs.mag_;
         } else {
             auto c = mag_ <=> rhs.mag_;
-            if (c == lt) {
+            if (c == SO::less) {
                 mag_ = rhs.mag_ - mag_;
                 neg_ = ! neg_;
-            } else if (c == gt) {
+            } else if (c == SO::greater) {
                 mag_ -= rhs.mag_;
             } else {
                 mag_ = {};

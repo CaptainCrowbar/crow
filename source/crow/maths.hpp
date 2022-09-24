@@ -113,14 +113,14 @@ namespace Crow {
     template <typename T>
     constexpr T to_degrees(T rad) noexcept {
         static_assert(std::is_floating_point_v<T>);
-        using namespace std::numbers;
+        using std::numbers::pi_v;
         return rad * (T(180) / pi_v<T>);
     }
 
     template <typename T>
     constexpr T to_radians(T deg) noexcept {
         static_assert(std::is_floating_point_v<T>);
-        using namespace std::numbers;
+        using std::numbers::pi_v;
         return deg * (pi_v<T> / T(180));
     }
 

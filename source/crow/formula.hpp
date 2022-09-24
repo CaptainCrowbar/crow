@@ -23,14 +23,14 @@ namespace Crow {
     template <typename T>
     constexpr T sphere_area_from_radius(T radius) noexcept {
         static_assert(std::is_floating_point_v<T>);
-        using namespace std::numbers;
+        using std::numbers::pi_v;
         return 4 * pi_v<T> * radius * radius;
     }
 
     template <typename T>
     T sphere_radius_from_area(T area) noexcept {
         static_assert(std::is_floating_point_v<T>);
-        using namespace std::numbers;
+        using std::numbers::pi_v;
         return std::sqrt(area / (4 * pi_v<T>));
     }
 
@@ -207,8 +207,8 @@ namespace Crow {
         T bc = 0;
         T x = 1;
 
-        for (T c: range) {
-            bc += c * x;
+        for (T t: range) {
+            bc += t * x;
             x *= log_t;
         }
 
