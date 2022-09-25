@@ -5,10 +5,39 @@
 #include <concepts>
 #include <cstdint>
 #include <cstdlib>
+#include <functional>
 #include <iterator>
 #include <string>
 #include <type_traits>
 #include <utility>
+
+#define CROW_STD_HASH_0(T) \
+    namespace std { \
+        template <> struct hash<Crow::T> { \
+            size_t operator()(const Crow::T& t) const noexcept { return t.hash(); } \
+        }; \
+    }
+
+#define CROW_STD_HASH_1(T, U) \
+    namespace std { \
+        template <U u> struct hash<Crow::T<u>> { \
+            size_t operator()(const Crow::T<u>& t) const noexcept { return t.hash(); } \
+        }; \
+    }
+
+#define CROW_STD_HASH_2(T, U, V) \
+    namespace std { \
+        template <U u, V v> struct hash<Crow::T<u, v>> { \
+            size_t operator()(const Crow::T<u, v>& t) const noexcept { return t.hash(); } \
+        }; \
+    }
+
+#define CROW_STD_HASH_3(T, U, V, W) \
+    namespace std { \
+        template <U u, V v, W w> struct hash<Crow::T<u, v, w>> { \
+            size_t operator()(const Crow::T<u, v, w>& t) const noexcept { return t.hash(); } \
+        }; \
+    }
 
 namespace Crow {
 

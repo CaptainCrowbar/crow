@@ -228,12 +228,9 @@ namespace Crow {
 
 }
 
-namespace std {
+CROW_STD_HASH_2(Vector, typename, int)
 
-    template <typename T, int N>
-    struct hash<Crow::Vector<T, N>> {
-        size_t operator()(const Crow::Vector<T, N>& v) const noexcept { return v.hash(); }
-    };
+namespace std {
 
     template <typename T, int N>
     struct greater<Crow::Vector<T, N>> {

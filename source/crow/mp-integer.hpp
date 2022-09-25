@@ -198,29 +198,12 @@ namespace Crow {
 
     namespace Literals {
 
-        inline MPZ operator""_mpi(const char* raw) { return MPZ(raw); }
         inline MPN operator""_mpu(const char* raw) { return MPN(raw); }
+        inline MPZ operator""_mpi(const char* raw) { return MPZ(raw); }
 
     }
 
 }
 
-namespace std {
-
-    template <>
-    struct hash<Crow::MPZ> {
-    public:
-        size_t operator()(const Crow::MPZ& x) const noexcept {
-            return x.hash();
-        }
-    };
-
-    template <>
-    struct hash<Crow::MPN> {
-    public:
-        size_t operator()(const Crow::MPN& x) const noexcept {
-            return x.hash();
-        }
-    };
-
-}
+CROW_STD_HASH_0(MPN)
+CROW_STD_HASH_0(MPZ)

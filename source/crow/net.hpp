@@ -314,27 +314,6 @@ namespace Crow {
 
 }
 
-namespace std {
-
-    template <>
-    struct hash<Crow::IPv4> {
-        size_t operator()(const Crow::IPv4& t) const noexcept {
-            return t.hash();
-        }
-    };
-
-    template <>
-    struct hash<Crow::IPv6> {
-        size_t operator()(const Crow::IPv6& t) const noexcept {
-            return t.hash();
-        }
-    };
-
-    template <>
-    struct hash<Crow::SocketAddress> {
-        size_t operator()(const Crow::SocketAddress& t) const noexcept {
-            return t.hash();
-        }
-    };
-
-}
+CROW_STD_HASH_0(IPv4)
+CROW_STD_HASH_0(IPv6)
+CROW_STD_HASH_0(SocketAddress)

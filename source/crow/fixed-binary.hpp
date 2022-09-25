@@ -617,20 +617,5 @@ namespace Crow {
 
 }
 
-namespace std {
-
-    template <size_t N>
-    struct hash<Crow::SmallBinary<N>> {
-        size_t operator()(const Crow::SmallBinary<N>& x) const noexcept {
-            return x.hash();
-        }
-    };
-
-    template <size_t N>
-    struct hash<Crow::LargeBinary<N>> {
-        size_t operator()(const Crow::LargeBinary<N>& x) const noexcept {
-            return x.hash();
-        }
-    };
-
-}
+CROW_STD_HASH_1(SmallBinary, size_t)
+CROW_STD_HASH_1(LargeBinary, size_t)

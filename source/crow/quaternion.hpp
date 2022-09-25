@@ -94,11 +94,4 @@ namespace Crow {
 
 }
 
-namespace std {
-
-    template <typename T>
-    struct hash<Crow::Quaternion<T>> {
-        size_t operator()(const Crow::Quaternion<T>& q) const noexcept { return q.hash(); }
-    };
-
-}
+CROW_STD_HASH_1(Quaternion, typename)

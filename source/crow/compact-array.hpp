@@ -508,13 +508,4 @@ namespace Crow {
 
 }
 
-namespace std {
-
-    template <typename T, size_t N>
-    struct hash<Crow::CompactArray<T, N>> {
-        size_t operator()(Crow::CompactArray<T, N> ca) const noexcept {
-            return ca.hash();
-        }
-    };
-
-}
+CROW_STD_HASH_2(CompactArray, typename, size_t)

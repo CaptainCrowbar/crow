@@ -628,11 +628,4 @@ namespace Crow {
 
 }
 
-namespace std {
-
-    template <typename VT, typename CS, Crow::ColourLayout CL>
-    struct hash<Crow::Colour<VT, CS, CL>> {
-        size_t operator()(const Crow::Colour<VT, CS, CL>& c) const noexcept { return c.hash(); }
-    };
-
-}
+CROW_STD_HASH_3(Colour, typename, typename, Crow::ColourLayout)

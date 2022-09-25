@@ -125,13 +125,4 @@ namespace Crow {
 
 }
 
-namespace std {
-
-    template <>
-    struct hash<Crow::Uri> {
-        size_t operator()(const Crow::Uri& u) const noexcept {
-            return u.hash();
-        }
-    };
-
-}
+CROW_STD_HASH_0(Uri)

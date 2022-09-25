@@ -276,13 +276,4 @@ namespace Crow {
 
 }
 
-namespace std {
-
-    template <>
-    struct hash<Crow::Path> {
-        size_t operator()(const Crow::Path& path) const {
-            return path.hash();
-        }
-    };
-
-}
+CROW_STD_HASH_0(Path)

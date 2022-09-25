@@ -371,11 +371,4 @@ namespace Crow {
 
 }
 
-namespace std {
-
-    template <typename T, int N, Crow::MatrixLayout L>
-    struct hash<Crow::Matrix<T, N, L>> {
-        size_t operator()(const Crow::Matrix<T, N, L>& m) const noexcept { return m.hash(); }
-    };
-
-}
+CROW_STD_HASH_3(Matrix, typename, int, Crow::MatrixLayout)

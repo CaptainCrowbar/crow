@@ -205,12 +205,4 @@ namespace Crow {
 
 }
 
-namespace std {
-
-    template <typename K, typename T>
-    struct hash<Crow::IntervalMap<K, T>> {
-    public:
-        size_t operator()(const Crow::IntervalMap<K, T>& map) const noexcept { return map.hash(); }
-    };
-
-}
+CROW_STD_HASH_2(IntervalMap, typename, typename)

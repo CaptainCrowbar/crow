@@ -260,13 +260,4 @@ namespace Crow {
 
 }
 
-namespace std {
-
-    template <typename T>
-    struct hash<Crow::Ratio<T>> {
-        size_t operator()(const Crow::Ratio<T>& r) const noexcept {
-            return r.hash();
-        }
-    };
-
-}
+CROW_STD_HASH_1(Ratio, typename)

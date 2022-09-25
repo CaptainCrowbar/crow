@@ -426,13 +426,4 @@ namespace Crow {
 
 }
 
-namespace std {
-
-    template <typename T, size_t N>
-    struct hash<Crow::BoundedArray<T, N>> {
-        size_t operator()(Crow::BoundedArray<T, N> ba) const noexcept {
-            return ba.hash();
-        }
-    };
-
-}
+CROW_STD_HASH_2(BoundedArray, typename, size_t)
