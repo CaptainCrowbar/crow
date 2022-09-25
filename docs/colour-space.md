@@ -25,9 +25,9 @@ using CS::base = [some colour space];
 ```
 
 Another colour space from which this one is defined. For the `CIEXYZ` space,
-the root of the colour space relationship tree, `CIEXYZ::base` is itself. For
-all other colour space classes, the base must be another colour space that
-has already been defined. Circular dependencies are not allowed.
+the root of the colour space graph, `CIEXYZ::base` is itself. For all other
+colour space classes, the base must be another colour space that has already
+been defined. Circular dependencies are not allowed.
 
 ```c++
 static constexpr std::array<char,N> CS::channels;
@@ -67,10 +67,10 @@ are not intended to be called directly by users of this library. Refer to the
 with integer or floating point channels.
 
 As a simplification, I treat colour spaces as stateless. When the definition
-of a colour space includes state, such as a choice of standard illuminant,
-this will need to be hardcoded into the colour space class, with different
-classes (probably template instantiations) for different illuminants. See the
-`WorkingSpace` and `NonlinearSpace` templates below for examples.
+of a colour space includes state, such as a choice of standard illuminant or
+white point, this will need to be hardcoded into the colour space class, with
+different classes (probably template instantiations) for different parameters.
+See the `WorkingSpace` and `NonlinearSpace` templates below for examples.
 
 Definitions of a colour space sometimes vary in the scaling of the
 coordinates. Here I use the unit range for CIE XYZ and closely related spaces,
@@ -84,9 +84,10 @@ convention in which the zero angle corresponds to red, and the angle
 increases in the red-to-yellow direction.
 
 The term "working space" refers to the linear form of a nonlinear RGB space
-such as sRGB, before the transfer function ("gamma") has been applied. The
-base space of a nonlinear space should be the corresponding working space,
-and the working space's own base space should normally be CIE XYZ.
+such as sRGB, before the transfer function (loosely called "gamma") has been
+applied. The base space of a nonlinear space should be the corresponding
+working space, and the working space's own base space should normally be CIE
+XYZ.
 
 [Bruce Lindbloom's site](http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html)
 is my main source for the RGB/XYZ matrices.
@@ -107,9 +108,9 @@ colour space violates any of them:
 enum class Csp: int {
     none = 0,
     linear,  // Linear colour space
-    polar,   // Valid colours are restricted to the unit cube
+    polar,   // First channel is polar, not Cartesian
     rgb,     // Cartesian RGB-based colour space
-    unit,    // First channel is circular
+    unit,    // Valid colours are restricted to the unit cube
 };
 ```
 
@@ -130,30 +131,30 @@ Tests provided for convenience.
 
 ### List of classes
 
-| Colour space       | Base space         | Properties       | Description                                   |
-| ------------       | ----------         | ----------       | -----------                                   |
-| `CIEXYZ`           | `CIEXYZ`           | linear,unit      | CIE 1931 XYZ colour space                     |
-| `CIExyY`           | `CIEXYZ`           | unit             | CIE 1931 xyY colour space                     |
-| `CIELab`           | `CIEXYZ`           | 0                | CIE 1976 L\*a\*b\* colour space               |
-| `CIELuv`           | `CIEXYZ`           | 0                | CIE 1976 L\*u\*v\* colour space               |
-| `HCLab`            | `CIELab`           | polar            | CIE L\*C\*h<sub>ab</sub> colour space         |
-| `HCLuv`            | `CIELuv`           | polar            | CIE L\*C\*h<sub>uv</sub> colour space         |
-| `sRGB`             | `LinearRGB`        | rgb,unit         | Widely used sRGB standard colour space        |
-| `LinearRGB`        | `CIEXYZ`           | linear,rgb,unit  | Linear RGB working space for sRGB             |
-| `AdobeRGB`         | `LinearAdobeRGB`   | rgb,unit         | Adobe RGB (1998) colour space                 |
-| `LinearAdobeRGB`   | `CIEXYZ`           | linear,rgb,unit  | Working space for Adobe RGB                   |
-| `ProPhoto`         | `LinearProPhoto`   | rgb,unit         | ProPhoto colour space (a.k.a. ROMM RGB)       |
-| `LinearProPhoto`   | `CIEXYZ`           | linear,rgb,unit  | Working space for ProPhoto                    |
-| `WideGamut`        | `LinearWideGamut`  | rgb,unit         | Adobe Wide Gamut colour space (a.k.a. opRGB)  |
-| `LinearWideGamut`  | `CIEXYZ`           | linear,rgb,unit  | Working space for Wide Gamut                  |
-| `HSL`              | `LinearRGB`        | polar,unit       | Polar transformation of linear RGB            |
-| `HSV`              | `LinearRGB`        | polar,unit       | Polar transformation of linear RGB            |
-| `Greyscale`        | `CIEXYZ`           | linear,unit      | Greyscale                                     |
-| `sGreyscale`       | `Greyscale`        | unit             | Gamma adjusted greyscale                      |
+| Colour space       | Base space         | Properties       | Description                            |
+| ------------       | ----------         | ----------       | -----------                            |
+| `CIEXYZ`           | `CIEXYZ`           | linear,unit      | CIE 1931 XYZ colour space              |
+| `CIExyY`           | `CIEXYZ`           | unit             | CIE 1931 xyY colour space              |
+| `CIELab`           | `CIEXYZ`           | none             | CIE 1976 L\*a\*b\* colour space        |
+| `CIELuv`           | `CIEXYZ`           | none             | CIE 1976 L\*u\*v\* colour space        |
+| `HCLab`            | `CIELab`           | polar            | CIE L\*C\*h<sub>ab</sub> colour space  |
+| `HCLuv`            | `CIELuv`           | polar            | CIE L\*C\*h<sub>uv</sub> colour space  |
+| `sRGB`             | `LinearRGB`        | rgb,unit         | Standard sRGB colour space             |
+| `LinearRGB`        | `CIEXYZ`           | linear,rgb,unit  | Linear RGB working space for sRGB      |
+| `AdobeRGB`         | `LinearAdobeRGB`   | rgb,unit         | Adobe RGB (1998) colour space          |
+| `LinearAdobeRGB`   | `CIEXYZ`           | linear,rgb,unit  | Working space for Adobe RGB            |
+| `ProPhoto`         | `LinearProPhoto`   | rgb,unit         | ProPhoto (ROMM RGB) colour space       |
+| `LinearProPhoto`   | `CIEXYZ`           | linear,rgb,unit  | Working space for ProPhoto             |
+| `WideGamut`        | `LinearWideGamut`  | rgb,unit         | Adobe Wide Gamut (opRGB) colour space  |
+| `LinearWideGamut`  | `CIEXYZ`           | linear,rgb,unit  | Working space for Wide Gamut           |
+| `HSL`              | `LinearRGB`        | polar,unit       | Polar transformation of linear RGB     |
+| `HSV`              | `LinearRGB`        | polar,unit       | Polar transformation of linear RGB     |
+| `Greyscale`        | `CIEXYZ`           | linear,unit      | Greyscale                              |
+| `sGreyscale`       | `Greyscale`        | unit             | Gamma adjusted greyscale               |
 
 ### Relationship diagram
 
-The arrows point from each colour space to its base space.
+Arrows point from each colour space to its base space.
 
 ![Colour space relationship diagram](images/colour-spaces.png)
 
@@ -263,12 +264,7 @@ this template.
 #### sRGB
 
 ```c++
-using LinearRGB = WorkingSpace<
-     4'124'564,  3'575'761,  1'804'375,
-     2'126'729,  7'151'522,    721'750,
-       193'339,  1'191'920,  9'503'041,
-    10'000'000
->;
+using LinearRGB = WorkingSpace<...>;
 class sRGB {
     using base = LinearRGB;
     static constexpr std::array<char, 3> channels = { 'R', 'G', 'B' };
@@ -285,12 +281,7 @@ The widely used sRGB standard colour space, and its linear working space.
 #### Adobe RGB
 
 ```c++
-using LinearAdobeRGB = WorkingSpace<
-     5'767'309,  1'855'540,  1'881'852,
-     2'973'769,  6'273'491,    752'741,
-       270'343,    706'872,  9'911'085,
-    10'000'000
->;
+using LinearAdobeRGB = WorkingSpace<...>;
 using AdobeRGB = NonlinearSpace<LinearAdobeRGB, 22, 10>;
 ```
 
@@ -299,12 +290,7 @@ Adobe RGB (1998) colour space, and its linear working space.
 #### ProPhoto
 
 ```c++
-using LinearProPhoto = WorkingSpace<
-     7'976'749,  1'351'917,    313'534,
-     2'880'402,  7'118'741,        857,
-             0,          0,  8'252'100,
-    10'000'000
->;
+using LinearProPhoto = WorkingSpace<...>;
 class ProPhoto {
     using base = LinearProPhoto;
     static constexpr std::array<char, 3> channels = { 'R', 'G', 'B' };
@@ -321,12 +307,7 @@ ProPhoto (a.k.a. ROMM RGB) colour space, and its linear working space.
 #### Wide Gamut
 
 ```c++
-using LinearWideGamut = WorkingSpace<
-     7'161'046,  1'009'296,  1'471'858,
-     2'581'874,  7'249'378,    168'748,
-             0,    517'813,  7'734'287,
-    10'000'000
->;
+using LinearWideGamut = WorkingSpace<...>;
 using WideGamut = NonlinearSpace<LinearWideGamut, 563, 256>;
 ```
 
@@ -407,7 +388,7 @@ class sGreyscale {
 
 One-dimensional colour spaces. The single channel in the `Greyscale` space is
 simply the Y channel from CIE XYZ. The `sGreyscale` channel is the linear
-greyscale after applying the sRGB transform to make in visually uniform.
+greyscale after applying the sRGB transform to make it more visually uniform.
 
 ## Functions
 

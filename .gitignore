@@ -2,4 +2,5 @@
 Icon?
 build*
 _*
+*.bkp
 *.log
