@@ -132,8 +132,8 @@ namespace Crow {
     template <typename T> concept RandomAccessRangeType = RandomAccessIteratorType<RangeIterator<T>>;
     template <typename T> concept MaplikeRangeType = RangeType<T> && Detail::is_pairlike<RangeValue<T>>;
 
+    template <typename T> concept PrimitiveScalarType = std::is_scalar_v<T>;
     template <typename T, typename U> concept SameBasicType = std::is_same_v<std::remove_cvref_t<T>, std::remove_cvref_t<U>>;
-
     template <typename T> concept ThreeWayComparable = Detail::IsThreeWayComparable<T>::value;
 
     // Comparison functions

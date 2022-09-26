@@ -70,6 +70,12 @@ these will be satisfied if the iterator's category is at least equal to the
 named category.
 
 ```c++
+template <typename T> concept PrimitiveScalarType;
+```
+
+Satisfied if `T` is a primitive scalar type.
+
+```c++
 template <typename T, typename U> concept SameBasicType;
 ```
 
