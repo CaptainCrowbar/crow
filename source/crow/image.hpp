@@ -239,8 +239,6 @@ namespace Crow {
             return a.shape_ == b.shape_ && std::memcmp(a.pix_.get(), b.pix_.get(), a.bytes()) == 0;
         }
 
-        friend bool operator!=(const Image& a, const Image& b) noexcept { return ! (a == b); }
-
     private:
 
         std::unique_ptr<colour_type, FreeMem> pix_;

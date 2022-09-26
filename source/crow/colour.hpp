@@ -44,11 +44,7 @@ namespace Crow {
 
         template <ColourSpace CS, char CH, int Offset = 0>
         struct ColourSpaceChannelIndex {
-            static constexpr int get() noexcept;
-        };
-
-            template <ColourSpace CS, char CH, int Offset>
-            constexpr int ColourSpaceChannelIndex<CS, CH, Offset>::get() noexcept {
+            static constexpr int get() noexcept {
                 if constexpr (Offset >= CS::count)
                     return -1;
                 else if constexpr (CS::channels[Offset] == CH)
@@ -56,15 +52,12 @@ namespace Crow {
                 else
                     return ColourSpaceChannelIndex<CS, CH, Offset + 1>::get();
             }
+        };
 
         template <ColourSpace CS, char CH, ColourLayout CL>
         struct ColourChannelIndex {
             static constexpr int cs_index = ColourSpaceChannelIndex<CS, CH>::get();
-            static constexpr int get() noexcept;
-        };
-
-            template <ColourSpace CS, char CH, ColourLayout CL>
-            constexpr int ColourChannelIndex<CS, CH, CL>::get() noexcept {
+            static constexpr int get() noexcept {
                 if constexpr (cs_index == -1)
                     return -1;
                 else if constexpr (CL == ColourLayout::forward || CL == ColourLayout::forward_alpha)
@@ -76,9 +69,7 @@ namespace Crow {
                 else
                     return CS::count - cs_index;
             }
-
-        template <ColourSpace CS, char CH, ColourLayout CL>
-        constexpr int colour_channel_index = ColourChannelIndex<CS, CH, CL>::get();
+        };
 
         template <ArithmeticType VT, ColourSpace CS, ColourLayout CL, bool IsLinear = LinearColourSpace<CS>>
         class ColourArithmetic {
@@ -176,7 +167,7 @@ namespace Crow {
     private:
 
         template <ArithmeticType VT2, char Lit> using if_channel_t =
-            std::enable_if<SfinaeTrue<VT2, Detail::colour_channel_index<CS, Lit, CL> != -1>::value>;
+            std::enable_if<SfinaeTrue<VT2, Detail::ColourChannelIndex<CS, Lit, CL>::get() != -1>::value>;
         template <typename... Args> using if_alpha_args_t =
             std::enable_if_t<sizeof...(Args) + 2 == channels, VT>;
         template <typename... Args> using if_nonalpha_args_t =
@@ -204,11 +195,11 @@ namespace Crow {
         #define CROW_COLOUR_CHANNEL_(Ch, Lit) \
             template <ArithmeticType VT2 = VT> \
             constexpr VT& Ch(if_channel_t<VT2, Lit>* = nullptr) noexcept { \
-                return vec_[Detail::colour_channel_index<CS, Lit, CL>]; \
+                return vec_[Detail::ColourChannelIndex<CS, Lit, CL>::get()]; \
             } \
             template <ArithmeticType VT2 = VT> \
             constexpr const VT& Ch(if_channel_t<VT2, Lit>* = nullptr) const noexcept { \
-                return vec_[Detail::colour_channel_index<CS, Lit, CL>]; \
+                return vec_[Detail::ColourChannelIndex<CS, Lit, CL>::get()]; \
             }
 
         CROW_COLOUR_CHANNEL_(a, 'a')  CROW_COLOUR_CHANNEL_(A, 'A')
@@ -275,7 +266,6 @@ namespace Crow {
         template <ArithmeticType VT2 = VT> static Colour magenta(if_rgb_t<VT2>* = nullptr) noexcept { return {scale, 0, scale}; }
 
         friend constexpr bool operator==(Colour a, Colour b) noexcept { return a.vec_ == b.vec_; }
-        friend constexpr bool operator!=(Colour a, Colour b) noexcept { return ! (a == b); }
 
     private:
 
