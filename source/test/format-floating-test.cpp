@@ -3,7 +3,7 @@
 
 using namespace Crow;
 
-void test_crow_floating_pointing_point_significant_digits_format() {
+void test_crow_format_floating_point_significant_digits_format() {
 
     TEST_EQUAL(format_floating_point(0,                  "d"),    "0.00000");
     TEST_EQUAL(format_floating_point(0,                  "d0"),   "0");
@@ -66,7 +66,7 @@ void test_crow_floating_pointing_point_significant_digits_format() {
 
 }
 
-void test_crow_floating_pointing_point_scientific_notation() {
+void test_crow_format_floating_point_scientific_notation() {
 
     TEST_EQUAL(format_floating_point(0,                  "e"),    "0.00000e0");
     TEST_EQUAL(format_floating_point(0,                  "e0"),   "0e0");
@@ -117,7 +117,7 @@ void test_crow_floating_pointing_point_scientific_notation() {
 
 }
 
-void test_crow_floating_pointing_point_fixed_point_format() {
+void test_crow_format_floating_point_fixed_point_format() {
 
     TEST_EQUAL(format_floating_point(0,                   "f"),    "0.000000");
     TEST_EQUAL(format_floating_point(0,                   "f0"),   "0");
@@ -156,7 +156,7 @@ void test_crow_floating_pointing_point_fixed_point_format() {
 
 }
 
-void test_crow_floating_pointing_point_general_format() {
+void test_crow_format_floating_point_general_format() {
 
     TEST_EQUAL(format_floating_point(0,                  "g"),    "0.00000");
     TEST_EQUAL(format_floating_point(0,                  "g0"),   "0");
@@ -224,7 +224,7 @@ void test_crow_floating_pointing_point_general_format() {
 
 }
 
-void test_crow_floating_pointing_point_probability_format() {
+void test_crow_format_floating_point_probability_format() {
 
     TEST_EQUAL(format_floating_point(0.0,              "p"),  "0");
     TEST_EQUAL(format_floating_point(0.0000123456789,  "p"),  "0.0000123457");

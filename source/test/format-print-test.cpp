@@ -5,7 +5,7 @@
 
 using namespace Crow;
 
-void test_crow_print() {
+void test_crow_format_print() {
 
     std::vector<int> v = {123,456,789};
 

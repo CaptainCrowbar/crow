@@ -192,39 +192,40 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_font_map)
 
     // format-floating-test.cpp
-    UNIT_TEST(crow_floating_pointing_point_significant_digits_format)
-    UNIT_TEST(crow_floating_pointing_point_scientific_notation)
-    UNIT_TEST(crow_floating_pointing_point_fixed_point_format)
-    UNIT_TEST(crow_floating_pointing_point_general_format)
-    UNIT_TEST(crow_floating_pointing_point_probability_format)
+    UNIT_TEST(crow_format_floating_point_significant_digits_format)
+    UNIT_TEST(crow_format_floating_point_scientific_notation)
+    UNIT_TEST(crow_format_floating_point_fixed_point_format)
+    UNIT_TEST(crow_format_floating_point_general_format)
+    UNIT_TEST(crow_format_floating_point_probability_format)
 
     // format-integer-test.cpp
-    UNIT_TEST(crow_signed_integers)
-    UNIT_TEST(crow_unsigned_integers)
+    UNIT_TEST(crow_format_signed_integers)
+    UNIT_TEST(crow_format_unsigned_integers)
 
     // format-null-test.cpp
-    UNIT_TEST(crow_null_values)
+    UNIT_TEST(crow_format_null_values)
 
     // format-numeric-test.cpp
-    UNIT_TEST(crow_integer_delimiters)
-    UNIT_TEST(crow_floating_point_delimiters)
+    UNIT_TEST(crow_format_integer_delimiters)
+    UNIT_TEST(crow_format_floating_point_delimiters)
 
     // format-print-test.cpp
-    UNIT_TEST(crow_print)
+    UNIT_TEST(crow_format_print)
 
     // format-range-test.cpp
-    UNIT_TEST(crow_string)
-    UNIT_TEST(crow_ranges)
+    UNIT_TEST(crow_format_string)
+    UNIT_TEST(crow_format_ranges)
 
     // format-type-test.cpp
-    UNIT_TEST(crow_custom_formatting)
-    UNIT_TEST(crow_boolean)
-    UNIT_TEST(crow_characters_and_strings)
-    UNIT_TEST(crow_pointers)
-    UNIT_TEST(crow_types)
-    UNIT_TEST(crow_formatter_class)
-    UNIT_TEST(crow_function)
-    UNIT_TEST(crow_literal)
+    UNIT_TEST(crow_format_concepts)
+    UNIT_TEST(crow_format_custom_types)
+    UNIT_TEST(crow_format_boolean)
+    UNIT_TEST(crow_format_characters_and_strings)
+    UNIT_TEST(crow_format_pointers)
+    UNIT_TEST(crow_format_types)
+    UNIT_TEST(crow_format_class)
+    UNIT_TEST(crow_format_function)
+    UNIT_TEST(crow_format_literals)
 
     // formula-test.cpp
     UNIT_TEST(crow_formula_sphere_geometry)

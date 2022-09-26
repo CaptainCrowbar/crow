@@ -4,7 +4,7 @@
 
 using namespace Crow;
 
-void test_crow_integer_delimiters() {
+void test_crow_format_integer_delimiters() {
 
     TEST_EQUAL(format_integer(0l,                   "na"),   "0");
     TEST_EQUAL(format_integer(123l,                 "na"),   "123");
@@ -89,7 +89,7 @@ void test_crow_integer_delimiters() {
 
 }
 
-void test_crow_floating_point_delimiters() {
+void test_crow_format_floating_point_delimiters() {
 
     TEST_EQUAL(format_floating_point(0.000012345678,  "da8"),   "0.000'012'345'678");
     TEST_EQUAL(format_floating_point(0.00012345678,   "da8"),   "0.000'123'456'78");

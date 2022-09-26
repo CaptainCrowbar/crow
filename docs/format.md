@@ -237,6 +237,16 @@ Notes:
     * The `char16_t`, `char32_t`, or `wchar_t` equivalents of any of the above
     * Any type that can be implicitly converted to any of the above
 
+```c++
+template <typename T> concept FixedFormatType;
+template <typename T> concept VariableFormatType;
+```
+
+`FixedFormatType` is satisfied by any type that matches any of the clauses in
+the algorithm above, except the runtime check for `T` format and the final
+fallback option. `VariableFormatType` is satisfied if a `FormatSpec` is
+respected.
+
 ## Format specification
 
 ```c++
@@ -362,11 +372,11 @@ Returns the format spec as a string.
 ```c++
 std::string format_boolean(bool b,
     const FormatSpec& spec);
-template <typename T> std::string format_integer(T t,
+template <std::integral T> std::string format_integer(T t,
     FormatSpec spec = {});
-template <typename T> std::string format_floating_point(T t,
+template <ArithmeticType T> std::string format_floating_point(T t,
     FormatSpec spec = {});
-template <typename T> std::string format_number(T t,
+template <ArithmeticType T> std::string format_number(T t,
     FormatSpec spec = {});
 ```
 

@@ -10,6 +10,7 @@
 #include "crow/types.hpp"
 #include "crow/unicode.hpp"
 #include <chrono>
+#include <concepts>
 #include <cstddef>
 #include <exception>
 #include <sstream>
@@ -23,13 +24,14 @@ namespace Crow {
 
     std::string format_boolean(bool b, const FormatSpec& spec);
 
-    template <typename T>
+    template <std::integral T>
     std::string format_number(T t, const FormatSpec& spec = {}) {
-        static_assert(std::is_arithmetic_v<T>);
-        if constexpr (std::is_floating_point_v<T>)
-            return format_floating_point(t, spec);
-        else
-            return format_integer(t, spec);
+        return format_integer(t, spec);
+    }
+
+    template <std::floating_point T>
+    std::string format_number(T t, const FormatSpec& spec = {}) {
+        return format_floating_point(t, spec);
     }
 
     template <typename T>
@@ -48,6 +50,66 @@ namespace Crow {
         out << t;
         return out.str();
     }
+
+    template <typename T>
+    concept FixedFormatType =
+        SameBasicType<T, std::nullptr_t>
+        || SameBasicType<T, bool>
+        || SameBasicType<T, char>
+        || SameBasicType<T, char16_t>
+        || SameBasicType<T, char32_t>
+        || SameBasicType<T, wchar_t>
+        || SameBasicType<T, std::chrono::system_clock::time_point>
+        || std::convertible_to<T, const char*>
+        || std::convertible_to<T, const char16_t*>
+        || std::convertible_to<T, const char32_t*>
+        || std::convertible_to<T, const wchar_t*>
+        || std::convertible_to<T, std::string>
+        || std::convertible_to<T, std::u16string>
+        || std::convertible_to<T, std::u32string>
+        || std::convertible_to<T, std::wstring>
+        || std::convertible_to<T, std::string_view>
+        || std::convertible_to<T, std::u16string_view>
+        || std::convertible_to<T, std::u32string_view>
+        || std::convertible_to<T, std::wstring_view>
+        || std::constructible_from<std::string, std::decay_t<T>>
+        || std::derived_from<std::decay_t<T>, std::exception>
+        || std::derived_from<std::decay_t<T>, Formatted>
+        || std::is_pointer_v<std::decay_t<T>>
+        || ArithmeticType<std::decay_t<T>>
+        || RangeType<std::decay_t<T>>
+        || Detail::is_duration<std::decay_t<T>>
+        || Detail::has_str_method<std::decay_t<T>>
+        || Detail::has_extended_str_method<std::decay_t<T>>
+        || Detail::has_adl_to_string_function<std::decay_t<T>>
+        || Detail::has_std_to_string_function<std::decay_t<T>>
+        || Detail::has_output_operator<std::decay_t<T>>;
+
+    template <typename T>
+    concept VariableFormatType =
+        SameBasicType<T, bool>
+        || SameBasicType<T, char>
+        || SameBasicType<T, char16_t>
+        || SameBasicType<T, char32_t>
+        || SameBasicType<T, wchar_t>
+        || SameBasicType<T, std::chrono::system_clock::time_point>
+        || std::convertible_to<T, const char*>
+        || std::convertible_to<T, const char16_t*>
+        || std::convertible_to<T, const char32_t*>
+        || std::convertible_to<T, const wchar_t*>
+        || std::convertible_to<T, std::string>
+        || std::convertible_to<T, std::u16string>
+        || std::convertible_to<T, std::u32string>
+        || std::convertible_to<T, std::wstring>
+        || std::convertible_to<T, std::string_view>
+        || std::convertible_to<T, std::u16string_view>
+        || std::convertible_to<T, std::u32string_view>
+        || std::convertible_to<T, std::wstring_view>
+        || std::derived_from<std::decay_t<T>, Formatted>
+        || ArithmeticType<std::decay_t<T>>
+        || RangeType<std::decay_t<T>>
+        || Detail::is_duration<std::decay_t<T>>
+        || Detail::has_extended_str_method<std::decay_t<T>>;
 
     template <typename T>
     struct FormatType {

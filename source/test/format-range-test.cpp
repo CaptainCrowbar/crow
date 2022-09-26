@@ -7,7 +7,7 @@
 
 using namespace Crow;
 
-void test_crow_string() {
+void test_crow_format_string() {
 
     TEST_EQUAL(format_string("",             ""),     "");
     TEST_EQUAL(format_string("",             "s"),    "");
@@ -47,7 +47,7 @@ void test_crow_string() {
 
 }
 
-void test_crow_ranges() {
+void test_crow_format_ranges() {
 
     std::vector<int> v;
 

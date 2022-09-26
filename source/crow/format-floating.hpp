@@ -5,6 +5,7 @@
 #include "crow/string.hpp"
 #include "crow/types.hpp"
 #include <algorithm>
+#include <concepts>
 #include <cstdio>
 #include <cstdlib>
 #include <stdexcept>
@@ -18,7 +19,7 @@ namespace Crow {
         std::string trim_exponent(const std::string& str, bool xsign);
         std::string trim_zeros(const std::string& str);
 
-        template <typename T, typename U>
+        template <std::floating_point T, std::floating_point U>
         std::string native_format(const char* pattern, U u, int prec) {
             std::string result(15, '\0');
             int rc = 0;
@@ -32,7 +33,7 @@ namespace Crow {
             return result;
         }
 
-        template <typename T>
+        template <std::floating_point T>
         std::string format_float_d(T t, const FormatSpec& spec) {
             int prec = std::max(spec.prec() - 1, 0);
             std::string native;
@@ -59,7 +60,7 @@ namespace Crow {
             return result;
         }
 
-        template <typename T>
+        template <std::floating_point T>
         std::string format_float_e(T t, const FormatSpec& spec) {
             bool cap = ascii_isupper(spec.mode());
             int prec = std::max(spec.prec() - 1, 0);
@@ -71,7 +72,7 @@ namespace Crow {
             return trim_exponent(native, spec.option('S'));
         }
 
-        template <typename T>
+        template <std::floating_point T>
         std::string format_float_f(T t, const FormatSpec& spec) {
             std::string result;
             if constexpr (sizeof(T) <= sizeof(double))
@@ -83,7 +84,7 @@ namespace Crow {
             return result;
         }
 
-        template <typename T>
+        template <std::floating_point T>
         std::string format_float_g(T t, const FormatSpec& spec) {
             auto y = std::abs(t);
             if (y == 0 || (y >= 1e-3 && y < 1e6))
@@ -92,7 +93,7 @@ namespace Crow {
                 return format_float_e(t, spec);
         }
 
-        template <typename T>
+        template <std::floating_point T>
         std::string format_float_p(T t, const FormatSpec& spec) {
             bool pc = spec.mode() == 'P';
             if (t < 0 || t > 1)
@@ -119,18 +120,16 @@ namespace Crow {
 
     }
 
-    template <typename T>
+    template <ArithmeticType T>
     std::string format_floating_point(T t, FormatSpec spec = {}) {
 
-        if constexpr(std::is_integral_v<T>) {
+        if constexpr(std::integral<T>) {
 
             using floating_type = std::conditional_t<(sizeof(T) >= sizeof(double)), long double, double>;
 
             return format_floating_point(floating_type(t), spec);
 
         } else {
-
-            static_assert(std::is_floating_point_v<T>);
 
             static const FormatSpec default_spec("gz6");
 

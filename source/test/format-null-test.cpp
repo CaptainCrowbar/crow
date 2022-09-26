@@ -5,7 +5,7 @@
 using namespace Crow;
 using namespace std::literals;
 
-void test_crow_null_values() {
+void test_crow_format_null_values() {
 
     static constexpr const char* cptr0 = nullptr;
     static constexpr const char* cptr1 = "Hello";

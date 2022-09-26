@@ -6,15 +6,14 @@
 #include "crow/string.hpp"
 #include "crow/types.hpp"
 #include <algorithm>
+#include <concepts>
 #include <string>
 #include <type_traits>
 
 namespace Crow {
 
-    template <typename T>
+    template <std::integral T>
     std::string format_integer(T t, FormatSpec spec = {}) {
-
-        static_assert(std::is_integral_v<T>);
 
         if (spec.lcmode() >= 'd' && spec.lcmode() <= 'g')
             return format_floating_point(t, spec);

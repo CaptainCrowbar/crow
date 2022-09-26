@@ -3,7 +3,7 @@
 
 using namespace Crow;
 
-void test_crow_signed_integers() {
+void test_crow_format_signed_integers() {
 
     TEST_EQUAL(format_integer(0,           ""),     "0");
     TEST_EQUAL(format_integer(42,          ""),     "42");
@@ -61,7 +61,7 @@ void test_crow_signed_integers() {
 
 }
 
-void test_crow_unsigned_integers() {
+void test_crow_format_unsigned_integers() {
 
     TEST_EQUAL(format_integer(0u,          ""),     "0");
     TEST_EQUAL(format_integer(42u,         ""),     "42");

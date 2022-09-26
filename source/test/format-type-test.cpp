@@ -1,5 +1,6 @@
 #include "crow/format.hpp"
 #include "crow/unit-test.hpp"
+#include <map>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -56,7 +57,33 @@ namespace Crow {
 
 }
 
-void test_crow_custom_formatting() {
+void test_crow_format_concepts() {
+
+    TEST(FixedFormatType<void*>);
+    TEST(FixedFormatType<int>);
+    TEST(FixedFormatType<int*>);
+    TEST(FixedFormatType<std::string>);
+    TEST(FixedFormatType<const char*>);
+    TEST(FixedFormatType<std::vector<int>>);
+    TEST((FixedFormatType<std::map<int, std::string>>));
+    TEST(FixedFormatType<Foo>);
+    TEST(FixedFormatType<Bar>);
+    TEST(! FixedFormatType<Zap>);
+
+    TEST(! VariableFormatType<void*>);
+    TEST(VariableFormatType<int>);
+    TEST(! VariableFormatType<int*>);
+    TEST(VariableFormatType<std::string>);
+    TEST(VariableFormatType<const char*>);
+    TEST(VariableFormatType<std::vector<int>>);
+    TEST((VariableFormatType<std::map<int, std::string>>));
+    TEST(VariableFormatType<Foo>);
+    TEST(VariableFormatType<Bar>);
+    TEST(! VariableFormatType<Zap>);
+
+}
+
+void test_crow_format_custom_types() {
 
     TEST_EQUAL(format_object(Foo()),          "*0");
     TEST_EQUAL(format_object(Foo(42)),        "*42");
@@ -73,7 +100,7 @@ void test_crow_custom_formatting() {
 
 }
 
-void test_crow_boolean() {
+void test_crow_format_boolean() {
 
     TEST_EQUAL(format_object(false,  ""),    "false");
     TEST_EQUAL(format_object(true,   ""),    "true");
@@ -92,7 +119,7 @@ void test_crow_boolean() {
 
 }
 
-void test_crow_characters_and_strings() {
+void test_crow_format_characters_and_strings() {
 
     TEST_EQUAL(format_object("",             ""),    "");
     TEST_EQUAL(format_object("",             "s"),   "");
@@ -149,7 +176,7 @@ void test_crow_characters_and_strings() {
 
 }
 
-void test_crow_pointers() {
+void test_crow_format_pointers() {
 
     std::string s = "Hello";
     char* cp = s.data();
@@ -174,7 +201,7 @@ void test_crow_pointers() {
 
 }
 
-void test_crow_types() {
+void test_crow_format_types() {
 
     int i = 0;
     double d = 0;
@@ -194,7 +221,7 @@ void test_crow_types() {
 
 }
 
-void test_crow_formatter_class() {
+void test_crow_format_class() {
 
     std::vector<int> v = {123,456,789};
 
@@ -223,7 +250,7 @@ void test_crow_formatter_class() {
 
 }
 
-void test_crow_function() {
+void test_crow_format_function() {
 
     std::vector<int> v = {123,456,789};
 
@@ -252,7 +279,7 @@ void test_crow_function() {
 
 }
 
-void test_crow_literal() {
+void test_crow_format_literals() {
 
     Formatter f;
     std::vector<int> v = {123,456,789};
