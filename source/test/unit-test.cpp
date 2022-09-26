@@ -72,6 +72,7 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_channel_dispatch_async_stream_channel)
 
     // colour-alpha-test.cpp
+    UNIT_TEST(crow_colour_concepts)
     UNIT_TEST(crow_colour_channel_order)
     UNIT_TEST(crow_colour_premultiplied_alpha)
     UNIT_TEST(crow_colour_alpha_blending)

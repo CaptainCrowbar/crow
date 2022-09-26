@@ -65,6 +65,12 @@ template <typename C> concept ColourType;
 
 True if `C` is an instantiation of the `Colour` template.
 
+```c++
+template <typename C> concept LinearColourType;
+```
+
+True if `C` is a colour type with a linear colour space.
+
 ### Colour type aliases
 
 ```c++

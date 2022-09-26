@@ -20,7 +20,7 @@ namespace Crow {
 
     namespace Detail {
 
-        template <typename C>
+        template <ColourType C>
         constexpr C default_text_background() noexcept {
             if constexpr (C::has_alpha)
                 return C::clear();
@@ -95,9 +95,9 @@ namespace Crow {
         int descent() const noexcept;
         int line_gap() const noexcept;
         int line_offset() const noexcept { return ascent() - descent() + line_gap(); }
-        template <typename C, ImageFlags F> void render(Image<C, F>& image, Point& offset, const std::string& text,
+        template <LinearColourType C, ImageFlags F> void render(Image<C, F>& image, Point& offset, const std::string& text,
             int line_shift = 0, C text_colour = C::black(), C background = Detail::default_text_background<C>()) const;
-        template <typename C, ImageFlags F> void render_to(Image<C, F>& image, Point ref_point, const std::string& text,
+        template <LinearColourType C, ImageFlags F> void render_to(Image<C, F>& image, Point ref_point, const std::string& text,
             int line_shift = 0, C text_colour = C::black()) const;
         Box_i2 text_box(const std::string& text, int line_shift = 0) const;
         size_t text_fit(const std::string& text, size_t max_pixels) const;
@@ -119,11 +119,8 @@ namespace Crow {
 
     };
 
-        template <typename C, ImageFlags F>
+        template <LinearColourType C, ImageFlags F>
         void ScaledFont::render(Image<C, F>& image, Point& offset, const std::string& text, int line_shift, C text_colour, C background) const {
-
-            static_assert(C::is_linear);
-            static_assert(C::has_alpha);
 
             if (! font_)
                 throw std::invalid_argument("No font");
@@ -142,11 +139,8 @@ namespace Crow {
 
         }
 
-        template <typename C, ImageFlags F>
+        template <LinearColourType C, ImageFlags F>
         void ScaledFont::render_to(Image<C, F>& image, Point ref_point, const std::string& text, int line_shift, C text_colour) const {
-
-            static_assert(C::is_linear);
-            static_assert(C::has_alpha);
 
             if (! font_)
                 throw std::invalid_argument("No font");

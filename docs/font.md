@@ -149,15 +149,14 @@ lines, and is equal to `ascent()-descent()+line_gap()`. All measures are in
 pixels.
 
 ```c++
-template <typename C, int F>
+template <LinearColourType C, int F>
     void ScaledFont::render(Image<C, F>& image, Point& offset,
         const std::string& text, int line_shift = 0,
         C text_colour = C::black(), C background = [see below]) const;
 ```
 
 This function renders text to a new image. The supplied `image` object will be
-reset to the minimum size required to contain the rendered text. The image
-must have a linear colour space.
+reset to the minimum size required to contain the rendered text.
 
 Multiple lines of text are supported. The `offset` vector will be set to the
 position of the image's top left corner relative to the initial reference
@@ -177,14 +176,13 @@ contains invalid UTF-8. It will run without error if nothing was rendered
 because the text is empty or contains only whitespace characters.
 
 ```c++
-template <typename C, int F>
+template <LinearColourType C, int F>
     void ScaledFont::render_to(Image<C, F>& image, Point ref_point,
         const std::string& text, int line_shift = 0,
         C text_colour = C::black()) const;
 ```
 
-This function renders text to an existing image. The image must have a linear
-colour space.
+This function renders text to an existing image.
 
 Multiple lines of text are supported. The supplied `ref_point` is used as the
 beginning of the baseline of the first line of text (it should be at least

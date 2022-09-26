@@ -7,6 +7,20 @@
 using namespace Crow;
 using namespace Crow::Test;
 
+void test_crow_colour_concepts() {
+
+    using C1 = Colour<float, LinearRGB>;
+    using C2 = Colour<float, sRGB>;
+
+    TEST(ColourType<C1>);
+    TEST(ColourType<C2>);
+    TEST(! ColourType<int>);
+    TEST(LinearColourType<C1>);
+    TEST(! LinearColourType<C2>);
+    TEST(! LinearColourType<int>);
+
+}
+
 void test_crow_colour_channel_order() {
 
     Colour<double, LinearRGB, ColourLayout::forward> a;

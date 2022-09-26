@@ -142,6 +142,7 @@ namespace Crow {
     }
 
     template <typename CT> concept ColourType = Detail::IsColourType<CT>::value;
+    template <typename CT> concept LinearColourType = ColourType<CT> && CT::is_linear;
 
     // Don't use single letter template parameters here
 
