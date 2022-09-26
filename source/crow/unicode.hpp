@@ -1,6 +1,7 @@
 #pragma once
 
 #include "crow/types.hpp"
+#include <concepts>
 #include <functional>
 #include <initializer_list>
 #include <iterator>
@@ -16,26 +17,28 @@ namespace Crow {
 
     constexpr bool is_unicode(char32_t c) noexcept { return c <= 0xd7ff || (c >= 0xe000 && c <= 0x10ffff); }
 
+    template <typename C>
+    concept CharacterType =
+        std::same_as<C, char>
+        || std::same_as<C, char16_t>
+        || std::same_as<C, char32_t>
+        || std::same_as<C, wchar_t>;
+
     namespace Detail {
 
         constexpr const char* hex_digits_lc = "0123456789abcdef";
         constexpr const char* hex_digits_uc = "0123456789ABCDEF";
 
-        template <typename C> constexpr bool is_character_type = std::is_same_v<C, char>
-            || std::is_same_v<C, char16_t> || std::is_same_v<C, char32_t> || std::is_same_v<C, wchar_t>;
-
-        template <typename T>
+        template <std::integral T>
         void append_hex(T t, std::string& str) {
-            static_assert(std::is_integral_v<T>);
             using U = std::make_unsigned_t<T>;
             auto u = U(t);
             for (int i = 8 * int(sizeof(T)) - 4; i >= 0; i -= 4)
                 str += hex_digits_lc[(u >> i) % 16];
         }
 
-        template <typename T>
+        template <std::integral T>
         std::string hex_data(const T* ptr, size_t len, bool space = true) {
-            static_assert(std::is_integral_v<T>);
             if (ptr == nullptr || len == 0)
                 return {};
             std::string hex;
@@ -72,43 +75,37 @@ namespace Crow {
 
     }
 
-    template <typename C>
+    template <CharacterType C>
     char32_t decode_char(const std::basic_string<C>& str, size_t& pos) noexcept {
-        static_assert(Detail::is_character_type<C>);
         return Detail::decode_char_impl(str, pos);
     }
 
-    template <typename C>
+    template <CharacterType C>
     char32_t check_decode_char(const std::basic_string<C>& str, size_t& pos) {
-        static_assert(Detail::is_character_type<C>);
         return Detail::check_decode_char_impl(str, pos);
     }
 
-    template <typename C>
+    template <CharacterType C>
     bool encode_char(char32_t c, std::basic_string<C>& str) {
-        static_assert(Detail::is_character_type<C>);
         return Detail::encode_char_impl(c, str);
     }
 
-    template <typename C>
+    template <CharacterType C>
     void check_encode_char(char32_t c, std::basic_string<C>& str) {
-        static_assert(Detail::is_character_type<C>);
         if (! encode_char(c, str))
             throw std::invalid_argument("Invalid Unicode character: " + Detail::hex_char32(c));
     }
 
-    template <typename C>
+    template <CharacterType C>
     std::u32string decode_string(const std::basic_string<C>& str) {
-        static_assert(Detail::is_character_type<C>);
         std::u32string utf32;
         for (size_t pos = 0; pos < str.size();)
             utf32 += check_decode_char(str, pos);
         return utf32;
     }
 
-    template <typename C>
+    template <CharacterType C>
     void encode_string(const std::u32string& src, std::basic_string<C>& dst) {
-        static_assert(Detail::is_character_type<C>);
         std::basic_string<C> temp;
         for (auto c: src)
             check_encode_char(c, temp);
@@ -120,18 +117,16 @@ namespace Crow {
     std::u32string to_utf32(const std::u32string& utf32);
     std::wstring to_wstring(const std::u32string& utf32);
 
-    template <typename C>
+    template <CharacterType C>
     size_t utf_length(const std::basic_string<C>& str) {
-        static_assert(Detail::is_character_type<C>);
         size_t len = 0;
         for (size_t pos = 0; pos < str.size(); ++len)
             check_decode_char(str, pos);
         return len;
     }
 
-    template <typename C>
+    template <CharacterType C>
     bool is_valid_utf(const std::basic_string<C>& str) {
-        static_assert(Detail::is_character_type<C>);
         for (size_t pos = 0; pos < str.size();)
             if (decode_char(str, pos) == not_unicode)
                 return false;
@@ -167,9 +162,8 @@ namespace Crow {
 
     }
 
-    template <typename C>
+    template <CharacterType C>
     size_t utf_width(const std::basic_string<C>& str) {
-        static_assert(Detail::is_character_type<C>);
         size_t width = 0;
         for (size_t pos = 0; pos < str.size();)
             width += Detail::character_width(check_decode_char(str, pos));

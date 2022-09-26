@@ -22,11 +22,16 @@ constexpr char32_t not_unicode = ~ char32_t(0);
 
 This is returned by some of the functions below to indicate failure.
 
-## Character functions
+## Concepts
 
-Most of these are templates based on the character type `C`. These check by
-`static_assert` that this is one of `char,char16_t,char32_t,wchar_t`
+```c++
+template <typename C> concept CharacterType;
+```
+
+This is satisfied only for `char`, `char16_t`, `char32_t`, and `wchar_t`
 (`char8_t` is not supported yet).
+
+## Character functions
 
 ```c++
 constexpr bool is_unicode(char32_t c) noexcept;
@@ -36,7 +41,7 @@ True if the code point is a valid Unicode scalar value, in the range
 `0-0xd7ff` or `0xe000-0x10ffff`.
 
 ```c++
-template <typename T>
+template <CharacterType C>
     char32_t decode_char(const std::basic_string<C>& str, size_t& pos) noexcept;
 ```
 
@@ -53,7 +58,7 @@ The UTF-32 version does no actual decoding, but checks that the next character
 is valid. This also applies to all of the other UTF-32 based functions below.
 
 ```c++
-template <typename T>
+template <CharacterType C>
     char32_t check_decode_char(const std::basic_string<C>& str, size_t& pos);
 ```
 
@@ -64,7 +69,8 @@ is at or past the end of the string, or `std::invalid_argument` if invalid
 Unicode is encountered.
 
 ```c++
-template <typename T> bool encode_char(char32_t c, std::basic_string<C>& str);
+template <CharacterType C>
+    bool encode_char(char32_t c, std::basic_string<C>& str);
 ```
 
 Encodes a Unicode code point, appending the encoded character to the string.
@@ -72,7 +78,7 @@ This will return true on success, false if the character argument is not a
 valid Unicode scalar value.
 
 ```c++
-template <typename T>
+template <CharacterType C>
     void check_encode_char(char32_t c, std::basic_string<C>& str);
 ```
 
@@ -82,7 +88,7 @@ This performs the same operation as `encode_char()` above, but throws
 ## String functions
 
 ```c++
-template <typename C>
+template <CharacterType C>
     std::u32string decode_string(const std::basic_string<C>& str);
 ```
 
@@ -90,7 +96,7 @@ Convert an encoded Unicode string to a UTF-32 string. This will throw
 `std::invalid_argument` if invalid encoding is encountered.
 
 ```c++
-template <typename C>
+template <CharacterType C>
     void encode_string(const std::u32string& src, std::basic_string<C>& dst);
 std::string to_utf8(const std::u32string& utf32);
 std::u16string to_utf16(const std::u32string& utf32);
@@ -102,20 +108,23 @@ These convert a UTF-32 string into an encoded string. They will throw
 `std::invalid_argument` if an invalid Unicode scalar value is encountered.
 
 ```c++
-template <typename C> bool is_valid_utf(const std::basic_string<C>& str);
+template <CharacterType C>
+    bool is_valid_utf(const std::basic_string<C>& str);
 ```
 
 True if the string contains valid UTF (or is empty).
 
 ```c++
-template <typename C> size_t utf_length(const std::basic_string<C>& str);
+template <CharacterType C>
+    size_t utf_length(const std::basic_string<C>& str);
 ```
 
 Returns the number of encoded Unicode scalar values in the string. It will
 throw `std::invalid_argument` if invalid encoding is encountered.
 
 ```c++
-template <typename C> size_t utf_width(const std::basic_string<C>& str);
+template <CharacterType C>
+    size_t utf_width(const std::basic_string<C>& str);
 ```
 
 This function attempts to determine the actual display width of a string, when
