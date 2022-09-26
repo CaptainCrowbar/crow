@@ -10,11 +10,10 @@ namespace Crow;
 ## Vector class
 
 ```c++
-template <typename T, int N> class Vector;
+template <ArithmeticType T, int N> class Vector;
 ```
 
-An `N`-dimensional vector type. `T` must be an arithmetic type; `N` must be a
-positive integer.
+An `N`-dimensional vector type.
 
 ```c++
 using Byte2 = Vector<uint8_t, 2>;
@@ -77,12 +76,11 @@ This copies the elements from the pointed-to data. Behaviour is undefined if
 the pointer is null or does not point to an array of at least `N` elements.
 
 ```c++
-template <typename U>
+template <ArithmeticType U>
     constexpr explicit Vector::Vector(const Vector<U, N>& v) noexcept;
 ```
 
-Converts a vector from one element type to another. An implicit conversion
-from `U` to `T` must exist.
+Converts a vector from one element type to another.
 
 ```c++
 constexpr Vector::Vector(const Vector& v) noexcept;
@@ -221,7 +219,7 @@ Returns `N`.
 
 ```c++
 size_t Vector::hash() const noexcept;
-template <typename T, int N> struct std::hash<Crow::Vector<T, N>>;
+template <ArithmeticType T, int N> struct std::hash<Crow::Vector<T, N>>;
 ```
 
 Hash function.
@@ -261,22 +259,17 @@ These perform element-wise `clamp()`, `min()`, and `max()` operations on
 vectors.
 
 ```c++
-template <typename T, typename U> constexpr T lerp(T a, T b, U x) noexcept;
-template <typename T, int N, typename U>
+template <ArithmeticType T, int N, std::floating_point U>
     constexpr Vector<T, N> lerp(const Vector<T, N>& a, const Vector<T, N>& b,
         U x) noexcept;
 ```
 
-Linear interpolation functions. In the first version, `T` must be a primitive
-arithmetic type, and `U` must be a floating point type (if `T` is floating
-point, `U` must be the same type). In both versions, if `T` is an integer
-type, the results are rounded to the nearest integer (halves round toward
-positive infinity). Behaviour is undefined if the correct result would be out
-of range for `T`.
+Elementwise linear interpolation. If `T` is an integer type, the results are
+rounded to the nearest integer (halves round toward positive infinity).
 
 ```c++
-template <typename T, int N> struct std::greater<Crow::Vector<T, N>>;
-template <typename T, int N> struct std::less<Crow::Vector<T, N>>;
+template <ArithmeticType T, int N> struct std::greater<Vector<T, N>>;
+template <ArithmeticType T, int N> struct std::less<Vector<T, N>>;
 ```
 
 Ordered comparison operators are not provided for vectors, since they have no

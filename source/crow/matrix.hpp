@@ -7,6 +7,7 @@
 #include "crow/vector.hpp"
 #include <algorithm>
 #include <array>
+#include <concepts>
 #include <ostream>
 #include <string>
 #include <type_traits>
@@ -17,10 +18,10 @@ namespace Crow {
 
     namespace Detail {
 
-        template <typename T, int N, MatrixLayout L>
+        template <ArithmeticType T, int N, MatrixLayout L>
         struct MatrixLayoutTraits;
 
-        template <typename T, int N>
+        template <ArithmeticType T, int N>
         struct MatrixLayoutTraits<T, N, MatrixLayout::column> {
             using V = Vector<T, N>;
             static constexpr T& get_ref(T* ptr, int r, int c) noexcept { return ptr[r + N * c]; }
@@ -43,7 +44,7 @@ namespace Crow {
             }
         };
 
-        template <typename T, int N>
+        template <ArithmeticType T, int N>
         struct MatrixLayoutTraits<T, N, MatrixLayout::row> {
             using V = Vector<T, N>;
             static constexpr T& get_ref(T* ptr, int r, int c) noexcept { return ptr[N * r + c]; }
@@ -68,12 +69,11 @@ namespace Crow {
 
     }
 
-    template <typename T, int N, MatrixLayout L = MatrixLayout::column>
+    template <ArithmeticType T, int N, MatrixLayout L = MatrixLayout::column>
     class Matrix {
 
     private:
 
-        static_assert(std::is_arithmetic_v<T>);
         static_assert(N >= 1);
 
         static constexpr MatrixLayout alt_layout = L == MatrixLayout::column ? MatrixLayout::row : MatrixLayout::column;
@@ -95,7 +95,7 @@ namespace Crow {
         constexpr Matrix(T lead, T other) noexcept: Matrix(other) { for (int i = 0; i < cells; i += N + 1) array_[i] = lead; }
         constexpr Matrix(const alt_matrix& m) noexcept: array_{}
             { for (int r = 0; r < N; ++r) for (int c = 0; c < N; ++c) (*this)(r, c) = m(r, c); }
-        template <typename... Args, typename U = T>
+        template <typename... Args, ArithmeticType U = T>
             constexpr Matrix(T x, std::enable_if_t<SfinaeTrue<U, sizeof...(Args) + 2 == cells>::value, T> y, Args... args):
             array_{{T(x), T(y), T(args)...}} {}
 
@@ -176,7 +176,7 @@ namespace Crow {
     using Ldouble3x3r = Matrix<long double, 3, MatrixLayout::row>;
     using Ldouble4x4r = Matrix<long double, 4, MatrixLayout::row>;
 
-    template <typename T, int N, MatrixLayout L>
+    template <ArithmeticType T, int N, MatrixLayout L>
     constexpr Matrix<T, N, L> operator*(const Matrix<T, N, L>& a, const Matrix<T, N, L>& b) noexcept {
         auto m = Matrix<T, N, L>::null();
         for (int r = 0; r < N; ++r)
@@ -186,7 +186,7 @@ namespace Crow {
         return m;
     }
 
-    template <typename T, int N, MatrixLayout L>
+    template <ArithmeticType T, int N, MatrixLayout L>
     constexpr Vector<T, N> operator*(const Matrix<T, N, L>& a, const Vector<T, N>& b) noexcept {
         auto v = Vector<T, N>::null();
         for (int r = 0; r < N; ++r)
@@ -195,7 +195,7 @@ namespace Crow {
         return v;
     }
 
-    template <typename T, int N, MatrixLayout L>
+    template <ArithmeticType T, int N, MatrixLayout L>
     constexpr Vector<T, N> operator*(const Vector<T, N>& a, const Matrix<T, N, L>& b) noexcept {
         auto v = Vector<T, N>::null();
         for (int r = 0; r < N; ++r)
@@ -204,21 +204,21 @@ namespace Crow {
         return v;
     }
 
-    template <typename T, int N, MatrixLayout L>
+    template <ArithmeticType T, int N, MatrixLayout L>
     constexpr Matrix<T, N, L> Matrix<T, N, L>::swap_columns(int c1, int c2) const noexcept {
         auto m = *this;
         layout_traits::swap_columns(m.begin(), c1, c2);
         return m;
     }
 
-    template <typename T, int N, MatrixLayout L>
+    template <ArithmeticType T, int N, MatrixLayout L>
     constexpr Matrix<T, N, L> Matrix<T, N, L>::swap_rows(int r1, int r2) const noexcept {
         auto m = *this;
         layout_traits::swap_rows(m.begin(), r1, r2);
         return m;
     }
 
-    template <typename T, int N, MatrixLayout L>
+    template <ArithmeticType T, int N, MatrixLayout L>
     constexpr T Matrix<T, N, L>::det() const noexcept {
 
         if constexpr (N == 1) {
@@ -267,13 +267,13 @@ namespace Crow {
 
         } else {
 
-            static_assert(Detail::dependent_false<T>, "Matrix determinant is not implemented for N>4");
+            static_assert(dependent_false<T>, "Matrix determinant is not implemented for N>4");
 
         }
 
     }
 
-    template <typename T, int N, MatrixLayout L>
+    template <ArithmeticType T, int N, MatrixLayout L>
     constexpr Matrix<T, N, L> Matrix<T, N, L>::inverse() const noexcept {
 
         if constexpr (N == 1) {
@@ -341,13 +341,13 @@ namespace Crow {
 
         } else {
 
-            static_assert(Detail::dependent_false<T>, "Matrix inverse is not implemented for N>4");
+            static_assert(dependent_false<T>, "Matrix inverse is not implemented for N>4");
 
         }
 
     }
 
-    template <typename T, int N, MatrixLayout L>
+    template <ArithmeticType T, int N, MatrixLayout L>
     constexpr Matrix<T, N, L> Matrix<T, N, L>::transposed() const noexcept {
         Matrix m;
         for (int r = 0; r < N; ++r)
@@ -356,7 +356,7 @@ namespace Crow {
         return m;
     }
 
-    template <typename T, int N, MatrixLayout L>
+    template <ArithmeticType T, int N, MatrixLayout L>
     std::string Matrix<T, N, L>::str(const FormatSpec& spec) const {
         std::string s;
         for (int r = 0; r < N; ++r) {
@@ -371,4 +371,4 @@ namespace Crow {
 
 }
 
-CROW_STD_HASH_3(Matrix, typename, int, Crow::MatrixLayout)
+CROW_STD_HASH_3(Matrix, Crow::ArithmeticType, int, Crow::MatrixLayout)

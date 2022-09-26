@@ -20,12 +20,11 @@ Flags indicating the internal layout of a matrix (row major or column major).
 Column major is the default.
 
 ```c++
-template <typename T, int N, MatrixLayout L = MatrixLayout::column>
+template <ArithmeticType T, int N, MatrixLayout L = MatrixLayout::column>
     class Matrix;
 ```
 
-An `NxN` square matrix type. `T` must be an arithmetic type; `N` must be a
-positive integer; `L` must be one of the `MatrixLayout` enumeration values.
+An `NxN` square matrix type.
 
 ```c++
 using Float2x2 = Matrix<float, 2>;

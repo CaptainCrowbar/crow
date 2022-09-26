@@ -133,18 +133,6 @@ void test_crow_integer_vector_hash() {
 
 void test_crow_integer_vector_interpolation() {
 
-    int x = 0;
-
-    TRY(x = lerp(50, 100, -0.50));  TEST_EQUAL(x, 25);
-    TRY(x = lerp(50, 100, -0.25));  TEST_EQUAL(x, 38);
-    TRY(x = lerp(50, 100, 0.00));   TEST_EQUAL(x, 50);
-    TRY(x = lerp(50, 100, 0.25));   TEST_EQUAL(x, 63);
-    TRY(x = lerp(50, 100, 0.50));   TEST_EQUAL(x, 75);
-    TRY(x = lerp(50, 100, 0.75));   TEST_EQUAL(x, 88);
-    TRY(x = lerp(50, 100, 1.00));   TEST_EQUAL(x, 100);
-    TRY(x = lerp(50, 100, 1.25));   TEST_EQUAL(x, 113);
-    TRY(x = lerp(50, 100, 1.50));   TEST_EQUAL(x, 125);
-
     Int3 u = {10,20,30};
     Int3 v = {12,34,56};
     Int3 w;
@@ -315,18 +303,6 @@ void test_crow_floating_vector_arithmetic() {
 }
 
 void test_crow_floating_vector_interpolation() {
-
-    double x = 0;
-
-    TRY(x = lerp(50.0, 100.0, -0.50));  TEST_EQUAL(x, 25.0);
-    TRY(x = lerp(50.0, 100.0, -0.25));  TEST_EQUAL(x, 37.5);
-    TRY(x = lerp(50.0, 100.0, 0.00));   TEST_EQUAL(x, 50.0);
-    TRY(x = lerp(50.0, 100.0, 0.25));   TEST_EQUAL(x, 62.5);
-    TRY(x = lerp(50.0, 100.0, 0.50));   TEST_EQUAL(x, 75.0);
-    TRY(x = lerp(50.0, 100.0, 0.75));   TEST_EQUAL(x, 87.5);
-    TRY(x = lerp(50.0, 100.0, 1.00));   TEST_EQUAL(x, 100.0);
-    TRY(x = lerp(50.0, 100.0, 1.25));   TEST_EQUAL(x, 112.5);
-    TRY(x = lerp(50.0, 100.0, 1.50));   TEST_EQUAL(x, 125.0);
 
     Double3 u = {10,20,30};
     Double3 v = {12,34,56};

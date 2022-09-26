@@ -6,18 +6,17 @@
 #include "crow/vector.hpp"
 #include <array>
 #include <cmath>
+#include <concepts>
 #include <cstdlib>
 #include <ostream>
 #include <string>
 
 namespace Crow {
 
-    template <typename T>
+    template <std::floating_point T>
     class Quaternion {
 
     public:
-
-        static_assert(std::is_arithmetic_v<T>);
 
         using scalar_type = T;
 
@@ -82,7 +81,7 @@ namespace Crow {
     using Qdouble = Quaternion<double>;
     using Qldouble = Quaternion<long double>;
 
-    template <typename T>
+    template <std::floating_point T>
     constexpr Quaternion<T> operator*(const Quaternion<T>& x, const Quaternion<T>& y) noexcept {
         return {
             x.a() * y.a() - x.b() * y.b() - x.c() * y.c() - x.d() * y.d(),
@@ -94,4 +93,4 @@ namespace Crow {
 
 }
 
-CROW_STD_HASH_1(Quaternion, typename)
+CROW_STD_HASH_1(Quaternion, floating_point)

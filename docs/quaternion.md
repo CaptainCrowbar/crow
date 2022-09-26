@@ -10,11 +10,10 @@ namespace Crow;
 ## Quaternion class
 
 ```c++
-template <typename T> class Quaternion;
+template <std::floating_point T> class Quaternion;
 ```
 
-A quaternion class based on the scalar type `T`, which must be a floating
-point arithmetic type.
+A quaternion class based on the scalar type `T`.
 
 ```c++
 using Qfloat = Quaternion<float>;

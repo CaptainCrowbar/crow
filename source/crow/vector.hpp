@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <concepts>
 #include <cstdlib>
 #include <functional>
 #include <numeric>
@@ -19,9 +20,7 @@ namespace Crow {
 
     namespace Detail {
 
-        template <typename T> constexpr bool dependent_false = false;
-
-        template <typename Range>
+        template <RangeType Range>
         size_t hash_range(const Range& r) noexcept {
             size_t h = 0, hx = 0;
             for (auto& x: r) {
@@ -32,14 +31,29 @@ namespace Crow {
             return h;
         }
 
+        template <std::floating_point T>
+        constexpr T lerp_helper(T a, T b, T x) noexcept {
+            return std::lerp(a, b, x);
+        }
+
+        template <std::integral T, std::floating_point U>
+        constexpr T lerp_helper(T a, T b, U x) noexcept {
+            auto fa = U(a);
+            auto fb = U(b);
+            auto c = std::lerp(fa, fb, x);
+            auto ac = c < 0 ? - c : c;
+            auto ad = T(ac + U(0.5));
+            auto d = c < 0 ? T(0) - ad : ad;
+            return d;
+        }
+
     }
 
-    template <typename T, int N>
+    template <ArithmeticType T, int N>
     class Vector {
 
     public:
 
-        static_assert(std::is_arithmetic_v<T>);
         static_assert(N >= 1);
 
         using scalar_type = T;
@@ -55,7 +69,7 @@ namespace Crow {
                 Args... args) noexcept:
             array_{{T(x), T(y), T(args)...}} {}
         constexpr explicit Vector(const T* ptr) noexcept: array_{} { for (int i = 0; i < N; ++i) array_[i] = ptr[i]; }
-        template <typename U> constexpr explicit Vector(const Vector<U, N>& v) noexcept:
+        template <ArithmeticType U> constexpr explicit Vector(const Vector<U, N>& v) noexcept:
             array_{} { for (int i = 0; i < N; ++i) array_[i] = T(v[i]); }
 
         constexpr Vector(const Vector& v) noexcept = default;
@@ -67,17 +81,17 @@ namespace Crow {
         constexpr const T& operator[](int i) const noexcept { return array_[i]; }
         constexpr T& x() noexcept { return (*this)[0]; }
         constexpr T x() const noexcept { return (*this)[0]; }
-        template <typename U = T>
+        template <ArithmeticType U = T>
             constexpr std::enable_if_t<SfinaeTrue<U, (N >= 2)>::value, T&> y() noexcept { return (*this)[1]; }
-        template <typename U = T>
+        template <ArithmeticType U = T>
             constexpr std::enable_if_t<SfinaeTrue<U, (N >= 2)>::value, T> y() const noexcept { return (*this)[1]; }
-        template <typename U = T>
+        template <ArithmeticType U = T>
             constexpr std::enable_if_t<SfinaeTrue<U, (N >= 3)>::value, T&> z() noexcept { return (*this)[2]; }
-        template <typename U = T>
+        template <ArithmeticType U = T>
             constexpr std::enable_if_t<SfinaeTrue<U, (N >= 3)>::value, T> z() const noexcept { return (*this)[2]; }
-        template <typename U = T>
+        template <ArithmeticType U = T>
             constexpr std::enable_if_t<SfinaeTrue<U, (N >= 4)>::value, T&> w() noexcept { return (*this)[3]; }
-        template <typename U = T>
+        template <ArithmeticType U = T>
             constexpr std::enable_if_t<SfinaeTrue<U, (N >= 4)>::value, T> w() const noexcept { return (*this)[3]; }
 
         constexpr T* begin() noexcept { return array_.data(); }
@@ -104,7 +118,7 @@ namespace Crow {
         constexpr T dot(const Vector& v) const noexcept { return std::inner_product(begin(), end(), v.begin(), T(0)); }
         constexpr friend T operator%(const Vector& a, const Vector& b) noexcept { return a.dot(b); }
 
-        template <typename U = T>
+        template <ArithmeticType U = T>
             constexpr std::enable_if_t<SfinaeTrue<U, N == 3>::value, Vector> cross(const Vector& v) const noexcept {
                 auto& u = *this;
                 return {u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]};
@@ -154,22 +168,22 @@ namespace Crow {
     using Ldouble3 = Vector<long double, 3>;
     using Ldouble4 = Vector<long double, 4>;
 
-    template <typename T>
+    template <ArithmeticType T>
     constexpr Vector<T, 3>& operator^=(Vector<T, 3>& a, const Vector<T, 3>& b) noexcept {
         return a = a.cross(b);
     }
 
-    template <typename T>
+    template <ArithmeticType T>
     constexpr Vector<T, 3> operator^(const Vector<T, 3>& a, const Vector<T, 3>& b) noexcept {
         return a.cross(b);
     }
 
-    template <typename T, int N>
+    template <ArithmeticType T, int N>
     std::string Vector<T, N>::str(const FormatSpec& spec) const {
         return format_range(*this, spec);
     }
 
-    template <typename T, int N>
+    template <ArithmeticType T, int N>
     constexpr Vector<T, N> clampv(const Vector<T, N>& x, const Vector<T, N>& min, const Vector<T, N>& max) noexcept {
         Vector<T, N> y;
         for (int i = 0; i < N; ++i)
@@ -177,7 +191,7 @@ namespace Crow {
         return y;
     }
 
-    template <typename T, int N>
+    template <ArithmeticType T, int N>
     constexpr Vector<T, N> minv(const Vector<T, N>& x, const Vector<T, N>& y) noexcept {
         Vector<T, N> z;
         for (int i = 0; i < N; ++i)
@@ -185,7 +199,7 @@ namespace Crow {
         return z;
     }
 
-    template <typename T, int N>
+    template <ArithmeticType T, int N>
     constexpr Vector<T, N> maxv(const Vector<T, N>& x, const Vector<T, N>& y) noexcept {
         Vector<T, N> z;
         for (int i = 0; i < N; ++i)
@@ -193,7 +207,7 @@ namespace Crow {
         return z;
     }
 
-    template <typename T, int N>
+    template <ArithmeticType T, int N>
     constexpr std::pair<Vector<T, N>, Vector<T, N>> minmaxv(const Vector<T, N>& x, const Vector<T, N>& y) noexcept {
         std::pair<Vector<T, N>, Vector<T, N>> pair;
         for (int i = 0; i < N; ++i)
@@ -201,45 +215,28 @@ namespace Crow {
         return pair;
     }
 
-    template <typename T>
-    constexpr T lerp(T a, std::enable_if_t<std::is_floating_point_v<T>, T> b, T x) noexcept {
-        return a + (b - a) * x;
-    }
-
-    template <typename T, typename U>
-    constexpr T lerp(T a, std::enable_if_t<std::is_integral_v<T>, T> b, U x) noexcept {
-        static_assert(std::is_floating_point_v<U>);
-        auto fp_a = U(a);
-        auto fp_b = U(b);
-        auto fp_result = fp_a + (fp_b - fp_a) * x;
-        auto fp_abs = fp_result < 0 ? - fp_result : fp_result;
-        auto int_abs = T(fp_abs + U(0.5));
-        auto int_result = fp_result < 0 ? T(0) - int_abs : int_abs;
-        return T(int_result);
-    }
-
-    template <typename T, int N, typename U>
+    template <ArithmeticType T, int N, std::floating_point U>
     constexpr Vector<T, N> lerp(const Vector<T, N>& a, const Vector<T, N>& b, U x) noexcept {
         Vector<T, N> result;
         for (int i = 0; i < N; ++i)
-            result[i] = lerp(a[i], b[i], x);
+            result[i] = Detail::lerp_helper(a[i], b[i], x);
         return result;
     }
 
 }
 
-CROW_STD_HASH_2(Vector, typename, int)
+CROW_STD_HASH_2(Vector, Crow::ArithmeticType, int)
 
 namespace std {
 
-    template <typename T, int N>
+    template <Crow::ArithmeticType T, int N>
     struct greater<Crow::Vector<T, N>> {
         bool operator()(const Crow::Vector<T, N>& x, const Crow::Vector<T, N>& y) const noexcept {
             return std::lexicographical_compare(x.begin(), x.end(), y.begin(), y.end(), std::greater<T>());
         }
     };
 
-    template <typename T, int N>
+    template <Crow::ArithmeticType T, int N>
     struct less<Crow::Vector<T, N>> {
         bool operator()(const Crow::Vector<T, N>& x, const Crow::Vector<T, N>& y) const noexcept {
             return std::lexicographical_compare(x.begin(), x.end(), y.begin(), y.end(), std::less<T>());
