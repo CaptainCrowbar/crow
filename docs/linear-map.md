@@ -10,14 +10,13 @@ namespace Crow;
 ## Linear interpolated map class
 
 ```c++
-template <typename X, typename Y = X> class LinearMap;
+template <std::floating_point X, [see below] Y = X> class LinearMap;
 ```
 
 An `InterpolatedMap` holds a list of `(X,Y)` pairs, returning an interpolated
-`Y` value for an arbitrary `X` input. The input type `X` must be a floating
-point arithmetic type; the output type `Y` is the same as `X` by default, but
-can be any type that allows addition (`Y+Y`), subtraction(`Y-Y`), and
-multiplication by `X` (`X*Y`).
+`Y` value for an arbitrary `X` input. The output type `Y` is the same as `X`
+by default, but can be any type that allows addition (`Y+Y`), subtraction
+(`Y-Y`), and multiplication by `X` (`X*Y`).
 
 ```c++
 using LinearMap::key_type = X;

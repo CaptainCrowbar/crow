@@ -2,6 +2,7 @@
 
 #include "crow/maths.hpp"
 #include "crow/types.hpp"
+#include <concepts>
 #include <initializer_list>
 #include <iterator>
 #include <map>
@@ -9,12 +10,22 @@
 
 namespace Crow {
 
-    template <typename X, typename Y = X>
+    namespace Detail {
+
+        template <typename X, typename Y>
+        concept LinearInterpolationTypes = requires(X x, Y y1, Y y2) {
+            { y1 + y2 } -> std::convertible_to<Y>;
+            { y1 - y2 } -> std::convertible_to<Y>;
+            { x * y1 } -> std::convertible_to<Y>;
+        };
+
+    }
+
+    template <std::floating_point X, typename Y = X>
+    requires Detail::LinearInterpolationTypes<X, Y>
     class LinearMap {
 
     private:
-
-        static_assert(std::is_floating_point_v<X>);
 
         struct init_type {
             X x0;
@@ -57,13 +68,15 @@ namespace Crow {
 
     };
 
-        template <typename X, typename Y>
+        template <std::floating_point X, typename Y>
+        requires Detail::LinearInterpolationTypes<X, Y>
         LinearMap<X, Y>::LinearMap(std::initializer_list<init_type> list) {
             for (auto& in: list)
                 map_.insert({in.x0, {in.y1, in.y2, in.y3}});
         }
 
-        template <typename X, typename Y>
+        template <std::floating_point X, typename Y>
+        requires Detail::LinearInterpolationTypes<X, Y>
         Y LinearMap<X, Y>::operator[](X x) const {
             if (map_.empty())
                 return Y();
@@ -78,7 +91,8 @@ namespace Crow {
             return interpolate(j->first, j->second.right, i->first, i->second.left, x);
         }
 
-        template <typename X, typename Y>
+        template <std::floating_point X, typename Y>
+        requires Detail::LinearInterpolationTypes<X, Y>
         void LinearMap<X, Y>::erase(X x1, X x2) noexcept {
             auto i = map_.lower_bound(x1);
             auto j = map_.upper_bound(x2);
