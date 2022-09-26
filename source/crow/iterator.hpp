@@ -123,7 +123,7 @@ namespace Crow {
         if (offset >= 0) {
             for (; offset > 0 && i != j; ++i, --offset) {}
         } else {
-            if constexpr (is_bidirectional_range<Range>) {
+            if constexpr (BidirectionalRangeType<Range>) {
                 auto k = j;
                 for (; offset < 0 && k != i; --k, ++offset) {}
                 i = k;

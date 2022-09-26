@@ -11,11 +11,11 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_logging_output)
 
     // types-test.cpp
-    UNIT_TEST(crow_types_comparison)
     UNIT_TEST(crow_types_concepts)
     UNIT_TEST(crow_types_traits)
     UNIT_TEST(crow_types_iterator_category)
     UNIT_TEST(crow_types_range_category)
+    UNIT_TEST(crow_types_comparison_functions)
 
     // algorithm-test.cpp
     UNIT_TEST(crow_algorithm_binomial_coefficients)

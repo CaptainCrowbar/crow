@@ -103,30 +103,12 @@ namespace Crow {
         template <typename T, typename = void> struct IsThreeWayComparable: std::false_type {};
         template <typename T> struct IsThreeWayComparable<T, std::void_t<decltype(std::declval<T>() <=> std::declval<T>())>>: std::true_type {};
 
-        template <std::totally_ordered T>
-        SO compare3way(const T& a, const T& b) noexcept {
-            if constexpr (IsThreeWayComparable<T>::value) {
-                return a <=> b;
-            } else {
-                if (a == b)
-                    return SO::equal;
-                else if (a < b)
-                    return SO::less;
-                else
-                    return SO::greater;
-            }
-        }
-
-        constexpr SO to_order(std::integral auto t) noexcept {
-            if (t < 0)
-                return SO::less;
-            else if (t == 0)
-                return SO::equal;
-            else
-                return SO::greater;
-        }
-
     }
+
+    // Related types
+
+    template <typename T> using RangeIterator = typename Detail::RangeTraits<T>::iterator_type;
+    template <typename T> using RangeValue = typename Detail::RangeTraits<T>::value_type;
 
     // Constants
 
@@ -134,11 +116,69 @@ namespace Crow {
 
     // Concepts
 
-    template <typename T>
-    concept ArithmeticType = std::is_arithmetic_v<T> && ! std::is_same_v<T, bool>;
+    template <typename T> concept ArithmeticType = std::is_arithmetic_v<T> && ! std::is_same_v<T, bool>;
 
-    template <typename T, typename U>
-    concept SameBasicType = std::is_same_v<std::remove_cvref_t<T>, std::remove_cvref_t<U>>;
+    template <typename T> concept IteratorType = Detail::HasIteratorCategory<T>::value;
+    template <typename T> concept RangeType = (Detail::HasAdlBeginFunction<T>::value && Detail::HasAdlEndFunction<T>::value)
+        || (Detail::HasStdBeginFunction<T>::value && Detail::HasStdEndFunction<T>::value);
+
+    template <typename T> concept InputIteratorType =
+        std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::input_iterator_tag>
+        || std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::forward_iterator_tag>
+        || std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::bidirectional_iterator_tag>
+        || std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::random_access_iterator_tag>;
+    template <typename T> concept OutputIteratorType =
+        std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::output_iterator_tag>
+        || std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::forward_iterator_tag>
+        || std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::bidirectional_iterator_tag>
+        || std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::random_access_iterator_tag>;
+    template <typename T> concept ForwardIteratorType =
+        std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::forward_iterator_tag>
+        || std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::bidirectional_iterator_tag>
+        || std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::random_access_iterator_tag>;
+    template <typename T> concept BidirectionalIteratorType =
+        std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::bidirectional_iterator_tag>
+        || std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::random_access_iterator_tag>;
+    template <typename T> concept RandomAccessIteratorType =
+        std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::random_access_iterator_tag>;
+
+    template <typename T> concept InputRangeType = InputIteratorType<RangeIterator<T>>;
+    template <typename T> concept OutputRangeType = OutputIteratorType<RangeIterator<T>>;
+    template <typename T> concept ForwardRangeType = ForwardIteratorType<RangeIterator<T>>;
+    template <typename T> concept BidirectionalRangeType = BidirectionalIteratorType<RangeIterator<T>>;
+    template <typename T> concept RandomAccessRangeType = RandomAccessIteratorType<RangeIterator<T>>;
+    template <typename T> concept MaplikeRangeType = RangeType<T> && Detail::is_pairlike<RangeValue<T>>;
+
+    template <typename T, typename U> concept SameBasicType = std::is_same_v<std::remove_cvref_t<T>, std::remove_cvref_t<U>>;
+
+    template <typename T> concept ThreeWayComparable = Detail::IsThreeWayComparable<T>::value;
+
+    // Comparison functions
+
+    template <std::totally_ordered T>
+    std::strong_ordering compare3way(const T& a, const T& b) noexcept {
+        using SO = std::strong_ordering;
+        if constexpr (ThreeWayComparable<T>) {
+            return a <=> b;
+        } else {
+            if (a == b)
+                return SO::equal;
+            else if (a < b)
+                return SO::less;
+            else
+                return SO::greater;
+        }
+    }
+
+    constexpr std::strong_ordering to_order(ArithmeticType auto t) noexcept {
+        using SO = std::strong_ordering;
+        if (t < 0)
+            return SO::less;
+        else if (t == 0)
+            return SO::equal;
+        else
+            return SO::greater;
+    }
 
     // Memory management types
 
@@ -149,55 +189,11 @@ namespace Crow {
         }
     };
 
-    // SFINAE support
+    // Metaprogramming support
 
     template <typename T, bool B> struct SfinaeTrue {};
     template <typename T> struct SfinaeTrue<T, true>: std::true_type {};
 
-    // Static assert support
-
     template <typename T> constexpr bool dependent_false = false;
-
-    // Type traits
-
-    template <typename T> constexpr bool is_iterator = Detail::HasIteratorCategory<T>::value;
-    template <typename T> constexpr bool is_range = (Detail::HasAdlBeginFunction<T>::value && Detail::HasAdlEndFunction<T>::value)
-        || (Detail::HasStdBeginFunction<T>::value && Detail::HasStdEndFunction<T>::value);
-
-    template <typename T>
-    constexpr bool is_input_iterator =
-        std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::input_iterator_tag>
-        || std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::forward_iterator_tag>
-        || std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::bidirectional_iterator_tag>
-        || std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::random_access_iterator_tag>;
-    template <typename T>
-    constexpr bool is_output_iterator =
-        std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::output_iterator_tag>
-        || std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::forward_iterator_tag>
-        || std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::bidirectional_iterator_tag>
-        || std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::random_access_iterator_tag>;
-    template <typename T>
-    constexpr bool is_forward_iterator =
-        std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::forward_iterator_tag>
-        || std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::bidirectional_iterator_tag>
-        || std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::random_access_iterator_tag>;
-    template <typename T>
-    constexpr bool is_bidirectional_iterator =
-        std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::bidirectional_iterator_tag>
-        || std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::random_access_iterator_tag>;
-    template <typename T>
-    constexpr bool is_random_access_iterator =
-        std::is_same_v<typename Detail::AltIteratorCategory<T>::type, std::random_access_iterator_tag>;
-
-    template <typename T> using RangeIterator = typename Detail::RangeTraits<T>::iterator_type;
-    template <typename T> using RangeValue = typename Detail::RangeTraits<T>::value_type;
-
-    template <typename T> constexpr bool is_input_range = is_input_iterator<RangeIterator<T>>;
-    template <typename T> constexpr bool is_output_range = is_output_iterator<RangeIterator<T>>;
-    template <typename T> constexpr bool is_forward_range = is_forward_iterator<RangeIterator<T>>;
-    template <typename T> constexpr bool is_bidirectional_range = is_bidirectional_iterator<RangeIterator<T>>;
-    template <typename T> constexpr bool is_random_access_range = is_random_access_iterator<RangeIterator<T>>;
-
-    template <typename T> constexpr bool is_maplike_range = is_range<T> && Detail::is_pairlike<RangeValue<T>>;
 
 }

@@ -12,26 +12,6 @@
 using namespace Crow;
 using namespace std::literals;
 
-void test_crow_types_comparison() {
-
-    using namespace Crow::Detail;
-
-    auto c = SO::equal;
-
-    TRY(c = compare3way(86, 99));  TEST(c == SO::less);
-    TRY(c = compare3way(86, 86));  TEST(c == SO::equal);
-    TRY(c = compare3way(99, 86));  TEST(c == SO::greater);
-
-    TRY(c = compare3way("hello"s, "world"s));  TEST(c == SO::less);
-    TRY(c = compare3way("hello"s, "hello"s));  TEST(c == SO::equal);
-    TRY(c = compare3way("world"s, "hello"s));  TEST(c == SO::greater);
-
-    TRY(c = to_order(-42));  TEST(c == SO::less);
-    TRY(c = to_order(0));    TEST(c == SO::equal);
-    TRY(c = to_order(42));   TEST(c == SO::greater);
-
-}
-
 void test_crow_types_concepts() {
 
     TEST(ArithmeticType<int>);
@@ -51,33 +31,33 @@ void test_crow_types_concepts() {
 
 void test_crow_types_traits() {
 
-    TEST(! is_iterator<void>);
-    TEST(! is_iterator<int>);
-    TEST(! is_iterator<std::string>);
-    TEST(is_iterator<std::string::iterator>);
-    TEST(is_iterator<std::string::const_iterator>);
-    TEST(is_iterator<std::vector<int>::iterator>);
-    TEST(is_iterator<std::vector<int>::const_iterator>);
-    TEST(is_iterator<std::vector<std::string>::iterator>);
-    TEST(is_iterator<std::vector<std::string>::const_iterator>);
+    TEST(! IteratorType<void>);
+    TEST(! IteratorType<int>);
+    TEST(! IteratorType<std::string>);
+    TEST(IteratorType<std::string::iterator>);
+    TEST(IteratorType<std::string::const_iterator>);
+    TEST(IteratorType<std::vector<int>::iterator>);
+    TEST(IteratorType<std::vector<int>::const_iterator>);
+    TEST(IteratorType<std::vector<std::string>::iterator>);
+    TEST(IteratorType<std::vector<std::string>::const_iterator>);
 
-    TEST((! is_range<void>));
-    TEST((! is_range<int>));
-    TEST((is_range<std::string>));
-    TEST((is_range<std::vector<int>>));
-    TEST((is_range<std::vector<std::string>>));
-    TEST((is_range<std::vector<std::pair<int, std::string>>>));
-    TEST((is_range<std::map<int, std::string>>));
-    TEST((is_range<std::unordered_map<int, std::string>>));
+    TEST((! RangeType<void>));
+    TEST((! RangeType<int>));
+    TEST((RangeType<std::string>));
+    TEST((RangeType<std::vector<int>>));
+    TEST((RangeType<std::vector<std::string>>));
+    TEST((RangeType<std::vector<std::pair<int, std::string>>>));
+    TEST((RangeType<std::map<int, std::string>>));
+    TEST((RangeType<std::unordered_map<int, std::string>>));
 
-    TEST((! is_maplike_range<void>));
-    TEST((! is_maplike_range<int>));
-    TEST((! is_maplike_range<std::string>));
-    TEST((! is_maplike_range<std::vector<int>>));
-    TEST((! is_maplike_range<std::vector<std::string>>));
-    TEST((is_maplike_range<std::vector<std::pair<int, std::string>>>));
-    TEST((is_maplike_range<std::map<int, std::string>>));
-    TEST((is_maplike_range<std::unordered_map<int, std::string>>));
+    TEST((! MaplikeRangeType<void>));
+    TEST((! MaplikeRangeType<int>));
+    TEST((! MaplikeRangeType<std::string>));
+    TEST((! MaplikeRangeType<std::vector<int>>));
+    TEST((! MaplikeRangeType<std::vector<std::string>>));
+    TEST((MaplikeRangeType<std::vector<std::pair<int, std::string>>>));
+    TEST((MaplikeRangeType<std::map<int, std::string>>));
+    TEST((MaplikeRangeType<std::unordered_map<int, std::string>>));
 
     TEST_TYPE(RangeIterator<void>,                            void);
     TEST_TYPE(RangeValue<void>,                               void);
@@ -100,98 +80,118 @@ void test_crow_types_traits() {
 
 void test_crow_types_iterator_category() {
 
-    TEST(! is_input_iterator<void>);
-    TEST(! is_output_iterator<void>);
-    TEST(! is_forward_iterator<void>);
-    TEST(! is_bidirectional_iterator<void>);
-    TEST(! is_random_access_iterator<void>);
+    TEST(! InputIteratorType<void>);
+    TEST(! OutputIteratorType<void>);
+    TEST(! ForwardIteratorType<void>);
+    TEST(! BidirectionalIteratorType<void>);
+    TEST(! RandomAccessIteratorType<void>);
 
-    TEST(! is_input_iterator<int>);
-    TEST(! is_output_iterator<int>);
-    TEST(! is_forward_iterator<int>);
-    TEST(! is_bidirectional_iterator<int>);
-    TEST(! is_random_access_iterator<int>);
+    TEST(! InputIteratorType<int>);
+    TEST(! OutputIteratorType<int>);
+    TEST(! ForwardIteratorType<int>);
+    TEST(! BidirectionalIteratorType<int>);
+    TEST(! RandomAccessIteratorType<int>);
 
-    TEST(! is_input_iterator<void*>);
-    TEST(! is_output_iterator<void*>);
-    TEST(! is_forward_iterator<void*>);
-    TEST(! is_bidirectional_iterator<void*>);
-    TEST(! is_random_access_iterator<void*>);
+    TEST(! InputIteratorType<void*>);
+    TEST(! OutputIteratorType<void*>);
+    TEST(! ForwardIteratorType<void*>);
+    TEST(! BidirectionalIteratorType<void*>);
+    TEST(! RandomAccessIteratorType<void*>);
 
-    TEST(is_input_iterator<int*>);
-    TEST(is_output_iterator<int*>);
-    TEST(is_forward_iterator<int*>);
-    TEST(is_bidirectional_iterator<int*>);
-    TEST(is_random_access_iterator<int*>);
+    TEST(InputIteratorType<int*>);
+    TEST(OutputIteratorType<int*>);
+    TEST(ForwardIteratorType<int*>);
+    TEST(BidirectionalIteratorType<int*>);
+    TEST(RandomAccessIteratorType<int*>);
 
-    TEST(is_input_iterator<std::string::iterator>);
-    TEST(is_output_iterator<std::string::iterator>);
-    TEST(is_forward_iterator<std::string::iterator>);
-    TEST(is_bidirectional_iterator<std::string::iterator>);
-    TEST(is_random_access_iterator<std::string::iterator>);
+    TEST(InputIteratorType<std::string::iterator>);
+    TEST(OutputIteratorType<std::string::iterator>);
+    TEST(ForwardIteratorType<std::string::iterator>);
+    TEST(BidirectionalIteratorType<std::string::iterator>);
+    TEST(RandomAccessIteratorType<std::string::iterator>);
 
-    TEST(is_input_iterator<std::vector<int>::iterator>);
-    TEST(is_output_iterator<std::vector<int>::iterator>);
-    TEST(is_forward_iterator<std::vector<int>::iterator>);
-    TEST(is_bidirectional_iterator<std::vector<int>::iterator>);
-    TEST(is_random_access_iterator<std::vector<int>::iterator>);
+    TEST(InputIteratorType<std::vector<int>::iterator>);
+    TEST(OutputIteratorType<std::vector<int>::iterator>);
+    TEST(ForwardIteratorType<std::vector<int>::iterator>);
+    TEST(BidirectionalIteratorType<std::vector<int>::iterator>);
+    TEST(RandomAccessIteratorType<std::vector<int>::iterator>);
 
-    TEST(is_input_iterator<std::forward_list<int>::iterator>);
-    TEST(is_output_iterator<std::forward_list<int>::iterator>);
-    TEST(is_forward_iterator<std::forward_list<int>::iterator>);
-    TEST(! is_bidirectional_iterator<std::forward_list<int>::iterator>);
-    TEST(! is_random_access_iterator<std::forward_list<int>::iterator>);
+    TEST(InputIteratorType<std::forward_list<int>::iterator>);
+    TEST(OutputIteratorType<std::forward_list<int>::iterator>);
+    TEST(ForwardIteratorType<std::forward_list<int>::iterator>);
+    TEST(! BidirectionalIteratorType<std::forward_list<int>::iterator>);
+    TEST(! RandomAccessIteratorType<std::forward_list<int>::iterator>);
 
-    TEST(is_input_iterator<std::list<int>::iterator>);
-    TEST(is_output_iterator<std::list<int>::iterator>);
-    TEST(is_forward_iterator<std::list<int>::iterator>);
-    TEST(is_bidirectional_iterator<std::list<int>::iterator>);
-    TEST(! is_random_access_iterator<std::list<int>::iterator>);
+    TEST(InputIteratorType<std::list<int>::iterator>);
+    TEST(OutputIteratorType<std::list<int>::iterator>);
+    TEST(ForwardIteratorType<std::list<int>::iterator>);
+    TEST(BidirectionalIteratorType<std::list<int>::iterator>);
+    TEST(! RandomAccessIteratorType<std::list<int>::iterator>);
 
-    TEST(is_input_iterator<std::istream_iterator<int>>);
-    TEST(! is_output_iterator<std::istream_iterator<int>>);
-    TEST(! is_forward_iterator<std::istream_iterator<int>>);
-    TEST(! is_bidirectional_iterator<std::istream_iterator<int>>);
-    TEST(! is_random_access_iterator<std::istream_iterator<int>>);
+    TEST(InputIteratorType<std::istream_iterator<int>>);
+    TEST(! OutputIteratorType<std::istream_iterator<int>>);
+    TEST(! ForwardIteratorType<std::istream_iterator<int>>);
+    TEST(! BidirectionalIteratorType<std::istream_iterator<int>>);
+    TEST(! RandomAccessIteratorType<std::istream_iterator<int>>);
 
-    TEST(! is_input_iterator<std::ostream_iterator<int>>);
-    TEST(is_output_iterator<std::ostream_iterator<int>>);
-    TEST(! is_forward_iterator<std::ostream_iterator<int>>);
-    TEST(! is_bidirectional_iterator<std::ostream_iterator<int>>);
-    TEST(! is_random_access_iterator<std::ostream_iterator<int>>);
+    TEST(! InputIteratorType<std::ostream_iterator<int>>);
+    TEST(OutputIteratorType<std::ostream_iterator<int>>);
+    TEST(! ForwardIteratorType<std::ostream_iterator<int>>);
+    TEST(! BidirectionalIteratorType<std::ostream_iterator<int>>);
+    TEST(! RandomAccessIteratorType<std::ostream_iterator<int>>);
 
 }
 
 void test_crow_types_range_category() {
 
-    TEST(! is_input_range<void>);
-    TEST(! is_output_range<void>);
-    TEST(! is_forward_range<void>);
-    TEST(! is_bidirectional_range<void>);
-    TEST(! is_random_access_range<void>);
+    TEST(! InputRangeType<void>);
+    TEST(! OutputRangeType<void>);
+    TEST(! ForwardRangeType<void>);
+    TEST(! BidirectionalRangeType<void>);
+    TEST(! RandomAccessRangeType<void>);
 
-    TEST(is_input_range<std::string>);
-    TEST(is_output_range<std::string>);
-    TEST(is_forward_range<std::string>);
-    TEST(is_bidirectional_range<std::string>);
-    TEST(is_random_access_range<std::string>);
+    TEST(InputRangeType<std::string>);
+    TEST(OutputRangeType<std::string>);
+    TEST(ForwardRangeType<std::string>);
+    TEST(BidirectionalRangeType<std::string>);
+    TEST(RandomAccessRangeType<std::string>);
 
-    TEST(is_input_range<std::vector<int>>);
-    TEST(is_output_range<std::vector<int>>);
-    TEST(is_forward_range<std::vector<int>>);
-    TEST(is_bidirectional_range<std::vector<int>>);
-    TEST(is_random_access_range<std::vector<int>>);
+    TEST(InputRangeType<std::vector<int>>);
+    TEST(OutputRangeType<std::vector<int>>);
+    TEST(ForwardRangeType<std::vector<int>>);
+    TEST(BidirectionalRangeType<std::vector<int>>);
+    TEST(RandomAccessRangeType<std::vector<int>>);
 
-    TEST(is_input_range<std::forward_list<int>>);
-    TEST(is_output_range<std::forward_list<int>>);
-    TEST(is_forward_range<std::forward_list<int>>);
-    TEST(! is_bidirectional_range<std::forward_list<int>>);
-    TEST(! is_random_access_range<std::forward_list<int>>);
+    TEST(InputRangeType<std::forward_list<int>>);
+    TEST(OutputRangeType<std::forward_list<int>>);
+    TEST(ForwardRangeType<std::forward_list<int>>);
+    TEST(! BidirectionalRangeType<std::forward_list<int>>);
+    TEST(! RandomAccessRangeType<std::forward_list<int>>);
 
-    TEST(is_input_range<std::list<int>>);
-    TEST(is_output_range<std::list<int>>);
-    TEST(is_forward_range<std::list<int>>);
-    TEST(is_bidirectional_range<std::list<int>>);
-    TEST(! is_random_access_range<std::list<int>>);
+    TEST(InputRangeType<std::list<int>>);
+    TEST(OutputRangeType<std::list<int>>);
+    TEST(ForwardRangeType<std::list<int>>);
+    TEST(BidirectionalRangeType<std::list<int>>);
+    TEST(! RandomAccessRangeType<std::list<int>>);
+
+}
+
+void test_crow_types_comparison_functions() {
+
+    using SO = std::strong_ordering;
+
+    auto c = SO::equal;
+
+    TRY(c = compare3way(86, 99));  TEST(c == SO::less);
+    TRY(c = compare3way(86, 86));  TEST(c == SO::equal);
+    TRY(c = compare3way(99, 86));  TEST(c == SO::greater);
+
+    TRY(c = compare3way("hello"s, "world"s));  TEST(c == SO::less);
+    TRY(c = compare3way("hello"s, "hello"s));  TEST(c == SO::equal);
+    TRY(c = compare3way("world"s, "hello"s));  TEST(c == SO::greater);
+
+    TRY(c = to_order(-42));  TEST(c == SO::less);
+    TRY(c = to_order(0));    TEST(c == SO::equal);
+    TRY(c = to_order(42));   TEST(c == SO::greater);
 
 }

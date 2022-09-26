@@ -18,6 +18,5 @@ namespace Crow::Detail {
     template <typename T> constexpr bool has_adl_to_string_function = HasAdlToStringFunction<T>::value;
     template <typename T> constexpr bool has_std_to_string_function = HasStdToStringFunction<T>::value;
     template <typename T> constexpr bool has_output_operator = HasOutputOperator<T>::value;
-    template <typename T> constexpr bool is_maplike = is_range<T> && is_pairlike<RangeValue<T>>;
 
 }

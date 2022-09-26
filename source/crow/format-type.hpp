@@ -113,9 +113,9 @@ namespace Crow {
                 return std::string(t);
             else if constexpr (std::is_base_of_v<std::exception, U>)
                 return t.what();
-            else if constexpr (Detail::is_maplike<U>)
+            else if constexpr (MaplikeRangeType<U>)
                 return format_map(t, spec);
-            else if constexpr (is_range<U>)
+            else if constexpr (RangeType<U>)
                 return format_range(t, spec);
             else if constexpr (std::is_pointer_v<U>)
                 return format_pointer(t, spec);
