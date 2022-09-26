@@ -363,8 +363,8 @@ namespace Crow {
 
     namespace Detail {
 
-        std::string roman_helper(uint64_t n, bool lcase) {
-            static constexpr std::pair<uint64_t, const char*> table[] = {
+        std::string roman_helper(uint32_t n, bool lcase) {
+            static constexpr std::pair<uint32_t, const char*> table[] = {
                 { 900, "CM" }, { 500, "D" }, { 400, "CD" }, { 100, "C" },
                 { 90, "XC" }, { 50, "L" }, { 40, "XL" }, { 10, "X" },
                 { 9, "IX" }, { 5, "V" }, { 4, "IV" }, { 1, "I" },

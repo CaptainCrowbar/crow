@@ -1,6 +1,7 @@
 #pragma once
 
 #include "crow/types.hpp"
+#include <concepts>
 #include <cstdlib>
 #include <limits>
 #include <stdexcept>
@@ -71,9 +72,8 @@ namespace Crow {
         bool checked = false);
     std::string indent_lines(const std::string& str, size_t spaces = 4);
 
-    template <typename T>
+    template <std::integral T>
     std::string hex(T t) {
-        static_assert(std::is_integral_v<T>);
         using U = std::make_unsigned_t<T>;
         static constexpr auto digits = "0123456789abcdef";
         auto u = U(t);
@@ -98,29 +98,25 @@ namespace Crow {
 
     namespace Detail {
 
-        std::string roman_helper(uint64_t n, bool lcase);
+        std::string roman_helper(uint32_t n, bool lcase);
 
     }
 
-    template <typename T>
+    template <std::integral T>
     std::string roman(T t, bool lcase = false) {
-        static_assert(std::is_integral_v<T>);
-        if (t < 1)
-            throw std::invalid_argument("No Roman numeral for " + std::to_string(t));
-        return Detail::roman_helper(t, lcase);
+        if (t < 1 || t > 1'000'000)
+            throw std::invalid_argument("Invalid argument for Roman numerals: " + std::to_string(t));
+        return Detail::roman_helper(uint32_t(t), lcase);
     }
 
     // String parsing functions
 
     bool to_boolean(const std::string& str);
 
-    template <typename T>
+    template <std::integral T>
     T to_integer(const std::string& str, int base = 10) {
 
-        static_assert(std::is_integral_v<T>);
-        static_assert(sizeof(T) <= sizeof(long long));
-
-        static const auto error_message = std::is_signed_v<T> ? "Invalid integer: " : "Invalid unsigned integer: ";
+        static const char* const error_message = std::is_signed_v<T> ? "Invalid integer: " : "Invalid unsigned integer: ";
 
         if (str.empty() || ascii_isspace(str[0]))
             throw std::invalid_argument(error_message + quote(str));
@@ -185,9 +181,8 @@ namespace Crow {
     inline auto to_ptrdiff(const std::string& str, int base = 10) { return to_integer<ptrdiff_t>(str, base); }
     inline auto to_size(const std::string& str, int base = 10) { return to_integer<size_t>(str, base); }
 
-    template <typename T>
+    template <std::floating_point T>
     T to_floating(const std::string& str) {
-        static_assert(std::is_floating_point_v<T>);
         if (str.empty())
             throw std::invalid_argument("Invalid real number: " + quote(str));
         T t;

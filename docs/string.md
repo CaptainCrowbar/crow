@@ -93,12 +93,12 @@ Returns a string of `4*size` spaces, for convenience when generating indented
 text.
 
 ```c++
-template <typename T> std::string hex(T t);
+template <std::integral T> std::string hex(T t);
 ```
 
 Returns a hexadecimal representation of a number. This will always consist of
-`2*sizeof(T)` digits. `T` must be a primitive integer type. If `T` is signed,
-the output represents the twos complement representation.
+`2*sizeof(T)` digits. If `T` is signed, the output represents the twos
+complement representation.
 
 ```c++
 std::string indent_lines(const std::string& str, size_t spaces = 4);
@@ -161,12 +161,12 @@ Replaces all (non-overlapping) occurrences of `target` in the string with
 `target` is empty.
 
 ```c++
-template <typename T> std::string roman(T t, bool lcase = false);
+template <std::integral T> std::string roman(T t, bool lcase = false);
 ```
 
-Expresses a number in Roman numerals, optionally in lower case. This will fail
-to compile if `T` is not an integer type, and will throw
-`std::invalid_argument` if the value is less than 1.
+Expresses a number in Roman numerals, optionally in lower case. This will
+throw `std::invalid_argument` if the value is less than 1 or greater than one
+million.
 
 ```c++
 std::vector<std::string> split(const std::string& str,
@@ -243,7 +243,7 @@ return true; `"false"`, `"f"`, `"no"`, `"n"`, `"off"`, or `"0"` return false
 (case insensitive). Any other argument throws `std::invalid_argument`.
 
 ```c++
-template <typename T> T to_integer(const std::string& str, int base = 10);
+template <std::integral T> T to_integer(const std::string& str, int base = 10);
 short to_short(const std::string& str, int base = 10);
 unsigned short to_ushort(const std::string& str, int base = 10);
 int to_int(const std::string& str, int base = 10);
@@ -270,7 +270,7 @@ invalid or the string is not a valid integer with the appropriate base,
 signedness, and range.
 
 ```c++
-template <typename T> T to_floating(const std::string& str);
+template <std::floating_point T> T to_floating(const std::string& str);
 float to_float(const std::string& str);
 double to_double(const std::string& str);
 long double to_ldouble(const std::string& str);
