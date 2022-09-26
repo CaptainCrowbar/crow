@@ -15,21 +15,20 @@ namespace Crow;
 ## Arithmetic algorithms
 
 ```c++
-template <typename T> constexpr T binomial(T a, T b) noexcept;
+template <ArithmeticType T> constexpr T binomial(T a, T b) noexcept;
 ```
 
 Returns the binomial coefficient of `(a,b)`, equal to `a!/b!(a-b)!` if
-`b∈[0,a]`, otherwise zero). `T` must be an arithmetic type (floating point
-types are allowed). Behaviour is undefined if the correct result would be out
-of range for `T`, or if `T` is floating point and either argument is not an
-integer value.
+`b∈[0,a]`, otherwise zero). Behaviour is undefined if the correct result would
+be out of range for `T`, or if `T` is floating point and either argument is
+not an integer value.
 
 ```c++
-template <typename T, typename U>
-    constexpr T integer_power(T x, U y) noexcept;
-template <typename T, typename U, typename BinaryFunction>
+template <typename T, std::integral U>
+    constexpr T integer_power(T x, U y);
+template <typename T, std::integral U, typename BinaryFunction>
     constexpr T integer_power(T x, U y, BinaryFunction f,
-        T unit = T(1)) noexcept;
+        T unit = T(1));
 ```
 
 Raise `x` to the power of `y`, using an _O(log y)_ algorithm. `T` can be any
@@ -62,25 +61,25 @@ predicate has less-than semantics, where that of `unique_in()`, like
 ## Difference
 
 ```c++
-template <typename RandomAccessRange> struct DiffEntry {
+template <RandomAccessRangeType Range> struct DiffEntry {
     using iterator = [range const iterator];
     using subrange = Irange<iterator>;
     subrange del;
     subrange ins;
 };
-template <typename RandomAccessRange>
-    using DiffList = std::vector<DiffEntry<RandomAccessRange>>;
+template <RandomAccessRangeType Range>
+    using DiffList = std::vector<DiffEntry<Range>>;
 ```
 
 Supporting types.
 
 ```c++
-template <typename RandomAccessRange>
-    DiffList<RandomAccessRange> diff(const RandomAccessRange& lhs,
-        const RandomAccessRange& rhs);
-template <typename RandomAccessRange, typename EqualityPredicate>
-    DiffList<RandomAccessRange> diff(const RandomAccessRange& lhs,
-        const RandomAccessRange& rhs, EqualityPredicate eq);
+template <RandomAccessRangeType Range>
+    DiffList<Range> diff(const Range& lhs,
+        const Range& rhs);
+template <RandomAccessRangeType Range, std::equivalence_relation<...> ER>
+    DiffList<Range> diff(const Range& lhs,
+        const Range& rhs, ER eq);
 ```
 
 This is an implementation of the widely used diff algorithm, based on
@@ -98,20 +97,20 @@ and _k_ is the number of differences.
 ## Edit distance
 
 ```c++
-template <typename ForwardRange1, typename ForwardRange2>
-    int edit_distance(const ForwardRange1& range1,
-        const ForwardRange2& range2);
-template <typename ForwardRange1, typename ForwardRange2, typename T>
-    T edit_distance(const ForwardRange1& range1,
-        const ForwardRange2& range2, T ins, T del, T sub);
+template <ForwardRangeType Range1, ForwardRangeType Range2>
+    int edit_distance(const Range1& range1,
+        const Range2& range2);
+template <ForwardRangeType Range1, ForwardRangeType Range2,
+        ArithmeticType T>
+    T edit_distance(const Range1& range1,
+        const Range2& range2, T ins, T del, T sub);
 ```
 
 These return the edit distance (Levenshtein distance) between two ranges,
 based on the number of insertions, deletions, and substitutions required to
 transform one range into the other. By default, each operation is given a
-weight of 1; optionally, explicit weights can be given to each operation. The
-weight type `T` must be an arithmetic type. Behaviour is undefined if any of
-the weights are negative.
+weight of 1; optionally, explicit weights can be given to each operation.
+Behaviour is undefined if any of the weights are negative.
 
 Complexity: _O(mn)_, where _m_ and _n_ are the lengths of the input ranges.
 
@@ -138,8 +137,6 @@ Complexity: _O(n)_.
 
 ## Interpolation
 
-For all of these templates, `T` must be a floating point arithmetic type.
-
 ```c++
 enum Interpolate: int {
     log_x = 1,
@@ -152,7 +149,7 @@ these bitmask flags, to indicate which of the X and Y scales are
 logarithmic.
 
 ```c++
-template <typename T>
+template <std::floating_point T>
     T interpolate(T x1, T y1, T x2, T y2, T x, int flags = 0) noexcept;
 ```
 
@@ -162,7 +159,7 @@ are less than or equal to zero; or if the `log_y` flag is used and either of
 the Y values is less than or equal to zero.
 
 ```c++
-template <typename T, int Flags = 0> class InterpolatedMap {
+template <std::floating_point T, int Flags = 0> class InterpolatedMap {
     InterpolatedMap();
     InterpolatedMap(std::initializer_list<std::pair<const T, T>> list);
     explicit InterpolatedMap(const std::vector<std::pair<T, T>> points);
@@ -180,7 +177,7 @@ earlier one. The constructors and `insert()` function will throw
 log-scaled parameter.
 
 ```c++
-template <typename T, int Flags = 0> class CubicSplineMap {
+template <std::floating_point T, int Flags = 0> class CubicSplineMap {
     CubicSplineMap();
     CubicSplineMap(std::initializer_list<std::pair<T, T>> list);
     explicit CubicSplineMap(const std::vector<std::pair<T, T>> points);
@@ -197,7 +194,7 @@ values.
 ## Numerical algorithms
 
 ```c++
-template <typename T, typename F>
+template <std::floating_point T, std::invocable<T> F>
     T line_integral(T x1, T x2, int k, F f);
 ```
 
@@ -206,7 +203,7 @@ algorithm, using `k` subdivisions. Behaviour is undefined if `k<1` or the
 function has a pole within the interval.
 
 ```c++
-template <typename T, int N, typename F>
+template <std::floating_point T, int N, std::invocable<T> F>
     T volume_integral(Vector<T, N> x1, Vector<T, N> x2, int k, F f);
 ```
 
@@ -216,7 +213,7 @@ This has complexity _O(k<sup>N</sup>)._ Behaviour is undefined if `k<1` or
 the function has a pole within the volume.
 
 ```c++
-template <typename T> class PrecisionSum {
+template <std::floating_point T> class PrecisionSum {
     using value_type = T;
     PrecisionSum& add(T t);
     PrecisionSum& operator()(T t); // same as add()
@@ -224,8 +221,8 @@ template <typename T> class PrecisionSum {
     T get() const;
     operator T() const; // same as get()
 };
-template <typename SinglePassRange>
-    [value type] precision_sum(const SinglePassRange& range);
+template <InputRangeType Range>
+    [value type] precision_sum(const Range& range);
 ```
 
 Calculate the sum of a sequence of numbers using the high precision algorithm from
@@ -242,20 +239,20 @@ IEEE arithmetic (on GCC this requires the `-ffloat-store` option).
 ## Range algorithms
 
 ```c++
-template <typename ForwardRange, typename UnaryFunction, typename Compare>
-    [iterator] find_optimum(ForwardRange& range, UnaryFunction f,
+template <ForwardRangeType Range, std::invocable<...> UnaryFunction,
+        std::strict_weak_ordering<...> Compare>
+    [iterator type] find_optimum(Range& range, UnaryFunction f,
         Compare cmp);
-template <typename ForwardRange, typename UnaryFunction>
-    [iterator] find_optimum(ForwardRange& range, UnaryFunction f);
+template <ForwardRangeType Range, std::invocable<...> UnaryFunction>
+    [iterator type] find_optimum(Range& range, UnaryFunction f);
 ```
 
 Return an iterator identifying the range element for which `f(x)` has the
 maximum value, according to the given comparison function. The comparison
-function is expected to have less-than semantics, and defaults to
-`std::greater<T>()`, where `T` is the return type of `f()`. Use
-`std::less<T>()` to get the minimum value of `f(x)` instead of the maximum. If
-there is more than one optimum element, the first one will be returned. These
-will return an end iterator only if the range is empty.
+function defaults to `std::greater<T>()`, where `T` is the return type of
+`f()`. Use `std::less<T>()` to get the minimum value of `f(x)` instead of the
+maximum. If there is more than one optimum element, the first one will be
+returned. These will return an end iterator only if the range is empty.
 
 ## Subsets
 
@@ -274,5 +271,5 @@ subsets (where _n_ is the container size).
 No promises are made about what order the subsets will be listed in. For the
 second function, behaviour is undefined if `k<0` or `k>n`.
 
-Complexity: _O(2<sup>n</sup>)_ for the first version; _O(kC(n,k))_ for the
+Complexity: _O(2<sup>n</sup>)_ for the first version; _O(k.C(n,k))_ for the
 second.

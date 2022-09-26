@@ -8,6 +8,7 @@
 #include <array>
 #include <bit>
 #include <cmath>
+#include <concepts>
 #include <cstdlib>
 #include <deque>
 #include <functional>
@@ -26,9 +27,8 @@ namespace Crow {
 
     // Arithmetic algorithms
 
-    template <typename T>
+    template <ArithmeticType T>
     constexpr T binomial(T a, T b) noexcept {
-        static_assert(std::is_arithmetic_v<T>);
         if (b < 0 || b > a)
             return 0;
         if (b == 0 || b == a)
@@ -46,8 +46,12 @@ namespace Crow {
         return n / d;
     }
 
-    template <typename T, typename U, typename BinaryFunction>
-    constexpr T integer_power(T x, U y, BinaryFunction f, T unit = T(1)) noexcept {
+    template <typename T, std::integral U, typename BinaryFunction>
+    requires std::invocable<BinaryFunction, T, T>
+        && requires (T t, BinaryFunction f) {
+            { f(t, t) } -> std::convertible_to<T>;
+        }
+    constexpr T integer_power(T x, U y, BinaryFunction f, T unit = T(1)) {
         static_assert(std::is_integral_v<U>);
         using U2 = std::make_unsigned_t<U>;
         U2 y2 = U2(y);
@@ -62,8 +66,8 @@ namespace Crow {
         return z;
     }
 
-    template <typename T, typename U>
-    constexpr T integer_power(T x, U y) noexcept {
+    template <typename T, std::integral U>
+    constexpr T integer_power(T x, U y) {
         return integer_power(x, y, std::multiplies<T>());
     }
 
@@ -95,15 +99,15 @@ namespace Crow {
     // Myers difference algorithm
     // http://xmailserver.org/diff2.pdf
 
-    template <typename RandomAccessRange>
+    template <RandomAccessRangeType Range>
     struct DiffEntry {
-        using iterator = RangeIterator<const RandomAccessRange>;
+        using iterator = RangeIterator<const Range>;
         using subrange = Irange<iterator>;
         subrange del;
         subrange ins;
     };
 
-    template <typename RandomAccessRange> using DiffList = std::vector<DiffEntry<RandomAccessRange>>;
+    template <RandomAccessRangeType Range> using DiffList = std::vector<DiffEntry<Range>>;
 
     namespace Detail {
 
@@ -206,8 +210,9 @@ namespace Crow {
 
     }
 
-    template <typename RandomAccessRange, typename EqualityPredicate>
-    DiffList<RandomAccessRange> diff(const RandomAccessRange& lhs, const RandomAccessRange& rhs, EqualityPredicate eq) {
+    template <RandomAccessRangeType Range,
+        std::equivalence_relation<RangeValue<Range>, RangeValue<Range>> ER>
+    DiffList<Range> diff(const Range& lhs, const Range& rhs, ER eq) {
 
         using std::begin;
         using std::end;
@@ -219,7 +224,7 @@ namespace Crow {
         auto r_end = end(rhs);
         auto r_size = std::distance(r_begin, r_end);
 
-        DiffList<RandomAccessRange> diffs;
+        DiffList<Range> diffs;
 
         Detail::DiffHelper dh(l_size, r_size,
             [eq,l_begin,r_begin] (ptrdiff_t i, ptrdiff_t j) { return eq(l_begin[i], r_begin[j]); },
@@ -233,17 +238,15 @@ namespace Crow {
 
     }
 
-    template <typename RandomAccessRange>
-    DiffList<RandomAccessRange> diff(const RandomAccessRange& lhs, const RandomAccessRange& rhs) {
-        return diff(lhs, rhs, std::equal_to<RangeValue<RandomAccessRange>>());
+    template <RandomAccessRangeType Range>
+    DiffList<Range> diff(const Range& lhs, const Range& rhs) {
+        return diff(lhs, rhs, std::equal_to<RangeValue<Range>>());
     }
 
     // Edit distance (Levenshtein distance)
 
-    template <typename ForwardRange1, typename ForwardRange2, typename T>
-    T edit_distance(const ForwardRange1& range1, const ForwardRange2& range2, T ins, T del, T sub) {
-
-        static_assert(std::is_arithmetic_v<T>);
+    template <ForwardRangeType Range1, ForwardRangeType Range2, ArithmeticType T>
+    T edit_distance(const Range1& range1, const Range2& range2, T ins, T del, T sub) {
 
         using std::begin;
         using std::end;
@@ -271,8 +274,8 @@ namespace Crow {
 
     }
 
-    template <typename ForwardRange1, typename ForwardRange2>
-    int edit_distance(const ForwardRange1& range1, const ForwardRange2& range2) {
+    template <ForwardRangeType Range1, ForwardRangeType Range2>
+    int edit_distance(const Range1& range1, const Range2& range2) {
         return edit_distance(range1, range2, 1, 1, 1);
     }
 
@@ -318,9 +321,8 @@ namespace Crow {
         log_y = 2,
     };
 
-    template <typename T>
+    template <std::floating_point T>
     T interpolate(T x1, T y1, T x2, T y2, T x, int flags = 0) noexcept {
-        static_assert(std::is_floating_point_v<T>);
         if ((flags & Interpolate::log_x) != 0) {
             x1 = std::log(x1);
             x2 = std::log(x2);
@@ -336,12 +338,10 @@ namespace Crow {
         return y;
     }
 
-    template <typename T, int Flags = 0>
+    template <std::floating_point T, int Flags = 0>
     class InterpolatedMapBase {
 
     protected:
-
-        static_assert(std::is_floating_point_v<T>);
 
         static constexpr bool x_log = (Flags & Interpolate::log_x) != 0;
         static constexpr bool y_log = (Flags & Interpolate::log_y) != 0;
@@ -352,7 +352,7 @@ namespace Crow {
 
     };
 
-    template <typename T, int Flags = 0>
+    template <std::floating_point T, int Flags = 0>
     class InterpolatedMap:
     public InterpolatedMapBase<T, Flags> {
 
@@ -375,7 +375,7 @@ namespace Crow {
 
     };
 
-        template <typename T, int Flags>
+        template <std::floating_point T, int Flags>
         InterpolatedMap<T, Flags>& InterpolatedMap<T, Flags>::insert(T x, T y) {
             x = this->x_in(x);
             y = this->y_in(y);
@@ -383,7 +383,7 @@ namespace Crow {
             return *this;
         }
 
-        template <typename T, int Flags>
+        template <std::floating_point T, int Flags>
         T InterpolatedMap<T, Flags>::operator()(T x) const noexcept {
 
             if (map_.empty())
@@ -413,7 +413,7 @@ namespace Crow {
 
         }
 
-    template <typename T, int Flags = 0>
+    template <std::floating_point T, int Flags = 0>
     class CubicSplineMap:
     public InterpolatedMapBase<T, Flags> {
 
@@ -437,7 +437,7 @@ namespace Crow {
 
     };
 
-        template <typename T, int Flags>
+        template <std::floating_point T, int Flags>
         T CubicSplineMap<T, Flags>::operator()(T x) const noexcept {
 
             x = this->x_in(x);
@@ -464,7 +464,7 @@ namespace Crow {
 
         }
 
-        template <typename T, int Flags>
+        template <std::floating_point T, int Flags>
         void CubicSplineMap<T, Flags>::init() {
 
             count_ = int(points_.size());
@@ -512,12 +512,10 @@ namespace Crow {
 
     // Numerical algorithms
 
-    template <typename T>
+    template <std::floating_point T>
     class PrecisionSum {
 
     public:
-
-        static_assert(std::is_floating_point_v<T>);
 
         using value_type = T;
 
@@ -548,12 +546,10 @@ namespace Crow {
 
     };
 
-    template <typename SinglePassRange>
-    auto precision_sum(const SinglePassRange& range) {
-        using std::begin;
-        using T = std::decay_t<decltype(*begin(range))>;
-        static_assert(std::is_floating_point_v<T>);
-        PrecisionSum<T> sum;
+    template <InputRangeType Range>
+    requires std::floating_point<RangeValue<Range>>
+    auto precision_sum(const Range& range) {
+        PrecisionSum<RangeValue<Range>> sum;
         for (auto x: range)
             sum(x);
         return sum;
@@ -561,7 +557,7 @@ namespace Crow {
 
     namespace Detail {
 
-        template <typename T>
+        template <std::floating_point T>
         class LineIntegralIterator:
         public ForwardIterator<LineIntegralIterator<T>, const T> {
 
@@ -569,7 +565,9 @@ namespace Crow {
 
             LineIntegralIterator() = default;
 
-            template <typename F> LineIntegralIterator(T x1, T x2, int k, F f):
+            template <std::invocable<T> F>
+            requires std::convertible_to<std::invoke_result_t<F, T>, T>
+            LineIntegralIterator(T x1, T x2, int k, F f):
             function_(f), start_x_(x1), delta_x_((x2 - x1) / k), prev_y_(f(x1)), area_element_(0), index_(0) {
                 ++*this;
             }
@@ -598,7 +596,7 @@ namespace Crow {
 
         };
 
-        template <typename T, int N>
+        template <std::floating_point T, int N>
         class VolumeIntegralIterator:
         public ForwardIterator<VolumeIntegralIterator<T, N>, const T> {
 
@@ -608,7 +606,9 @@ namespace Crow {
 
             VolumeIntegralIterator() = default;
 
-            template <typename F> VolumeIntegralIterator(vector_type x1, vector_type x2, int k, F f):
+            template <std::invocable<vector_type> F>
+            requires std::convertible_to<std::invoke_result_t<F, vector_type>, T>
+            VolumeIntegralIterator(vector_type x1, vector_type x2, int k, F f):
                 function_(f),
                 cache_(),
                 start_x_(x1),
@@ -686,7 +686,8 @@ namespace Crow {
 
     }
 
-    template <typename T, typename F>
+    template <std::floating_point T, std::invocable<T> F>
+    requires std::convertible_to<std::invoke_result_t<F, T>, T>
     T line_integral(T x1, T x2, int k, F f) {
         static_assert(std::is_floating_point_v<T>);
         static_assert(std::is_convertible_v<F, std::function<T(T)>>);
@@ -696,7 +697,8 @@ namespace Crow {
         return precision_sum(irange(i, j));
     }
 
-    template <typename T, int N, typename F>
+    template <std::floating_point T, int N, std::invocable<Vector<T, N>> F>
+    requires std::convertible_to<std::invoke_result_t<F, Vector<T, N>>, T>
     T volume_integral(Vector<T, N> x1, Vector<T, N> x2, int k, F f) {
         static_assert(std::is_floating_point_v<T>);
         static_assert(N > 0);
@@ -709,8 +711,13 @@ namespace Crow {
 
     // Range algorithms
 
-    template <typename ForwardRange, typename UnaryFunction, typename Compare>
-    auto find_optimum(ForwardRange& range, UnaryFunction f, Compare cmp) {
+    template <ForwardRangeType Range,
+        std::invocable<RangeValue<Range>> UnaryFunction,
+        std::strict_weak_order<
+            std::invoke_result_t<UnaryFunction, RangeValue<Range>>,
+            std::invoke_result_t<UnaryFunction, RangeValue<Range>>
+        > Compare>
+    auto find_optimum(Range& range, UnaryFunction f, Compare cmp) {
         using std::begin;
         using std::end;
         auto i = begin(range);
@@ -729,8 +736,9 @@ namespace Crow {
         return opt;
     }
 
-    template <typename ForwardRange, typename UnaryFunction>
-    auto find_optimum(ForwardRange& range, UnaryFunction f) {
+    template <ForwardRangeType Range,
+        std::invocable<RangeValue<Range>> UnaryFunction>
+    auto find_optimum(Range& range, UnaryFunction f) {
         using std::begin;
         using T = std::decay_t<decltype(f(*begin(range)))>;
         return find_optimum(range, f, std::greater<T>());
