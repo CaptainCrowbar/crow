@@ -112,11 +112,11 @@ Pointers to the internal representation, which will consist of a number of
 bytes equal to the `bytes` constant, in little endian order.
 
 ```c++
-template <typename T> constexpr bool Binary::fits_in() const noexcept;
+template <ArithmeticType T> constexpr bool Binary::fits_in() const noexcept;
 ```
 
 True if the current value of the `Binary` will fit in a `T` without loss of
-information. `T` must be a primitive arithmetic type.
+information.
 
 ```c++
 constexpr size_t Binary::hash() const noexcept;
@@ -138,15 +138,14 @@ constexpr explicit Binary::operator bool() const noexcept;
 True if the value is not zero.
 
 ```c++
-template <typename T> constexpr explicit Binary::operator T() const noexcept;
+template <ArithmeticType T> constexpr explicit Binary::operator T() const noexcept;
 template <size_t M> constexpr explicit LargeBinary::operator SmallBinary<M>() const noexcept;
 ```
 
 Converts a fixed binary number into a standard integer or floating point type,
 or another fixed binary type. The usual arithmetic overflow rules apply if
-the value is out of range for the result type. `T` must be a primitive
-arithmetic type, Behaviour is undefined if `T` is a signed integer and
-`fits_in<T>()` is false.
+the value is out of range for the result type. Behaviour is undefined if `T`
+is a signed integer and `fits_in<T>()` is false.
 
 ```c++
 SmallBinary Binary::operator+() const noexcept;

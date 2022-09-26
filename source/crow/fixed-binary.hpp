@@ -6,6 +6,7 @@
 #include <array>
 #include <bit>
 #include <cmath>
+#include <concepts>
 #include <functional>
 #include <initializer_list>
 #include <limits>
@@ -28,7 +29,7 @@ namespace Crow {
 
     namespace Detail {
 
-        template <typename T>
+        template <std::unsigned_integral T>
         std::string to_binary(T t, size_t digits = 8 * sizeof(T)) {
             std::string s(digits, '0');
             for (int i = int(digits) - 1; i >= 0 && t != 0; --i, t /= 2)
@@ -36,7 +37,7 @@ namespace Crow {
             return s;
         }
 
-        template <typename T>
+        template <std::unsigned_integral T>
         std::string to_hex(T t, size_t digits = 2 * sizeof(T)) {
             static constexpr const char* xdigits = "0123456789abcdef";
             std::string s(digits, '0');
@@ -112,12 +113,12 @@ namespace Crow {
         constexpr void clear() noexcept { value_ = 0; }
         constexpr uint8_t* data() noexcept { return reinterpret_cast<uint8_t*>(&value_); }
         constexpr const uint8_t* data() const noexcept { return reinterpret_cast<const uint8_t*>(&value_); }
-        template <typename T> constexpr bool fits_in() const noexcept { return significant_bits() <= std::numeric_limits<T>::digits; }
+        template <ArithmeticType T> constexpr bool fits_in() const noexcept { return significant_bits() <= std::numeric_limits<T>::digits; }
         constexpr size_t hash() const noexcept { return std::hash<value_type>()(value_); }
         constexpr size_t significant_bits() const noexcept { return std::bit_width(value_); }
 
         constexpr explicit operator bool() const noexcept { return value_ != 0; }
-        template <typename T> constexpr explicit operator T() const noexcept { static_assert(std::is_arithmetic_v<T>); return T(value_); }
+        template <ArithmeticType T> constexpr explicit operator T() const noexcept { return T(value_); }
 
         constexpr SmallBinary operator+() const noexcept { return *this; }
         constexpr SmallBinary operator-() const noexcept { auto x = ~ *this; ++x; return x; }
@@ -207,12 +208,12 @@ namespace Crow {
         constexpr void clear() noexcept { array_ = {}; }
         constexpr uint8_t* data() noexcept { return reinterpret_cast<uint8_t*>(array_.data()); }
         constexpr const uint8_t* data() const noexcept { return reinterpret_cast<const uint8_t*>(array_.data()); }
-        template <typename T> constexpr bool fits_in() const noexcept { return significant_bits() <= std::numeric_limits<T>::digits; }
+        template <ArithmeticType T> constexpr bool fits_in() const noexcept { return significant_bits() <= std::numeric_limits<T>::digits; }
         constexpr size_t hash() const noexcept;
         constexpr size_t significant_bits() const noexcept;
 
         constexpr explicit operator bool() const noexcept;
-        template <typename T> constexpr explicit operator T() const noexcept;
+        template <ArithmeticType T> constexpr explicit operator T() const noexcept;
         template <size_t M> constexpr explicit operator SmallBinary<M>() const noexcept { return SmallBinary<M>(uint64_t(*this)); }
 
         constexpr LargeBinary operator+() const noexcept { return *this; }
@@ -372,10 +373,8 @@ namespace Crow {
         }
 
         template <size_t N>
-        template <typename T>
+        template <ArithmeticType T>
         constexpr LargeBinary<N>::operator T() const noexcept {
-
-            static_assert(std::is_arithmetic_v<T>);
 
             if constexpr (std::is_floating_point_v<T>) {
 
