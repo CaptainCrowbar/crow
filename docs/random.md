@@ -24,6 +24,16 @@ enum class LogMode: int {
 Used in some of the logarithmic distributions to indicate whether natural
 (base e) or common (base 10) logs are intended.
 
+## Concepts
+
+```c++
+template <typename T> concept RandomEngineType;
+```
+
+A simplified concept to match random engine types. This tests for an unsigned
+integral `result_type`, a call operator that returns `result_type`, and
+`min()` and `max()` functions.
+
 ## Primitive random engines
 
 ### Linear congruential generators
@@ -117,9 +127,12 @@ but we don't want to make it a template.
 
 ## Standard distributions
 
-Most of these duplicate distributions from the standard library, to allow
+Many of these duplicate distributions from the standard library, to allow
 consistently reproducible results without depending on the library
 implementation.
+
+The template argument types are usually not restricted by concepts, to allow
+their use with non-standard arithmetic types.
 
 In addition to the standard properties of a random distribution class, many of
 these also provide functions that return statistical properties of the
@@ -156,7 +169,7 @@ template <typename T> class UniformInteger {
         // range=[0,r-1]; UB if r<1
     constexpr UniformInteger(T a, T b) noexcept;
         // range=[a,b]; UB if a>b
-    template <typename RNG>
+    template <RandomEngineType RNG>
         constexpr T operator()(RNG& rng) const noexcept;
     constexpr T min() const noexcept;
     constexpr T max() const noexcept;
@@ -181,7 +194,7 @@ class BernoulliDistribution {
     template <typename T>
         constexpr explicit BernoulliDistribution(Ratio<T> p) noexcept;
         // UB if p<0 or p>1
-    template <typename RNG>
+    template <RandomEngineType RNG>
         constexpr bool operator()(RNG& rng) const noexcept;
     constexpr double p() const noexcept;
 };
@@ -194,7 +207,8 @@ template <typename T> class DiscreteNormal {
     using result_type = T;
     DiscreteNormal() noexcept; // mean=0,sd=1
     DiscreteNormal(double mean, double sd) noexcept;
-    template <typename RNG> T operator()(RNG& rng) const noexcept;
+    template <RandomEngineType RNG>
+        T operator()(RNG& rng) const noexcept;
     double mean() const noexcept;
     double sd() const noexcept;
 };
@@ -209,7 +223,8 @@ template <typename T> class PoissonDistribution {
         // lambda=1
     explicit PoissonDistribution(double lambda) noexcept;
         // UB if lambda<=0
-    template <typename RNG> T operator()(RNG& rng) const noexcept;
+    template <RandomEngineType RNG>
+        T operator()(RNG& rng) const noexcept;
     constexpr double mean() const noexcept;
     constexpr double variance() const noexcept;
     double sd() const noexcept;
@@ -232,7 +247,7 @@ template <typename T> class UniformReal {
         // range=[0,r); UB if r<=0
     constexpr UniformReal(T a, T b) noexcept;
         // range=[a,b); UB if a>b
-    template <typename RNG>
+    template <RandomEngineType RNG>
         constexpr T operator()(RNG& rng) const noexcept;
     constexpr T min() const noexcept;
     constexpr T max() const noexcept;
@@ -254,7 +269,8 @@ template <typename T> class NormalDistribution {
     using result_type = T;
     NormalDistribution() noexcept; // mean=0, sd=1
     NormalDistribution(T mean, T sd) noexcept;
-    template <typename RNG> T operator()(RNG& rng) const noexcept;
+    template <RandomEngineType RNG>
+        T operator()(RNG& rng) const noexcept;
     constexpr T mean() const noexcept;
     constexpr T sd() const noexcept;
     constexpr T variance() const noexcept;
@@ -273,7 +289,8 @@ template <typename T> class LogUniform {
     using result_type = T;
     constexpr LogUniform() noexcept; // range=[0,e)
     constexpr LogUniform(T min, T max) noexcept; // UB if min>max
-    template <typename RNG> constexpr T operator()(RNG& rng) const noexcept;
+    template <RandomEngineType RNG>
+        constexpr T operator()(RNG& rng) const noexcept;
     constexpr T min() const noexcept;
     constexpr T max() const noexcept;
 };
@@ -286,7 +303,8 @@ template <typename T> class LogNormal {
     using result_type = T;
     LogNormal() noexcept; // m=0, s=1
     LogNormal(T m, T s, LogMode mode = LogMode::natural) noexcept;
-    template <typename RNG> T operator()(RNG& rng) const noexcept;
+    template <RandomEngineType RNG>
+        T operator()(RNG& rng) const noexcept;
     T m() const noexcept;
     T s() const noexcept;
     T median() const noexcept;
@@ -307,7 +325,8 @@ template <typename Base> class ConstrainedDistribution {
     template <typename... Args>
         ConstrainedDistribution(result_type min, result_type max,
             Args&&... args);
-    template <typename RNG> result_type operator()(RNG& rng) const;
+    template <RandomEngineType RNG>
+        result_type operator()(RNG& rng) const;
     result_type min() const noexcept;
     result_type max() const noexcept;
 };
@@ -333,9 +352,12 @@ template <typename T> class RandomChoice {
     using result_type = T;
     RandomChoice();
     RandomChoice(std::initializer_list<T> list);
-    template <typename Range> explicit RandomChoice(const Range& range);
-    template <typename RNG> const T& operator()(RNG& rng) const;
-    template <typename... Args> RandomChoice& add(const Args&... args);
+    template <typename Range>
+        explicit RandomChoice(const Range& range);
+    template <RandomEngineType RNG>
+        const T& operator()(RNG& rng) const;
+    template <typename... Args>
+        RandomChoice& add(const Args&... args);
     bool empty() const noexcept;
     size_t size() const noexcept;
 };
@@ -358,7 +380,8 @@ template <typename T> class WeightedChoice {
     using result_type = T;
     WeightedChoice();
     WeightedChoice(std::initializer_list<...> list);
-    template <typename RNG> const T& operator()(RNG& rng) const;
+    template <RandomEngineType RNG>
+        const T& operator()(RNG& rng) const;
     template <typename... Args>
         WeightedChoice& add(double w, const Args&... args);
     bool empty() const noexcept;
@@ -381,9 +404,10 @@ distribution.
 
 ```c++
 class RandomUuid {
-    using result_type = TL::Uuid;
+    using result_type = Uuid;
     RandomUuid();
-    template <typename RNG> TL::Uuid operator()(RNG& rng) const;
+    template <RandomEngineType RNG>
+        Uuid operator()(RNG& rng) const;
 };
 ```
 
@@ -394,7 +418,7 @@ Generates a random version 4 UUID.
 ### Random vectors
 
 ```c++
-template <typename T, int N> class RandomVector {
+template <std::floating_point T, int N> class RandomVector {
     using result_type = Graphics::Core::Vector<T, N>;
     using scalar_type = T;
     static constexpr int dim = N;
@@ -403,10 +427,11 @@ template <typename T, int N> class RandomVector {
     constexpr explicit RandomVector(T t) noexcept;
         // apex=(t,t,...)
     constexpr explicit RandomVector(const result_type& apex) noexcept;
-    template <typename RNG> result_type operator()(RNG& rng) const;
+    template <RandomEngineType RNG>
+        result_type operator()(RNG& rng) const;
     constexpr result_type apex() const noexcept;
 };
-template <typename T, int N> class SymmetricRandomVector {
+template <std::floating_point T, int N> class SymmetricRandomVector {
     using result_type = Graphics::Core::Vector<T, N>;
     using scalar_type = T;
     static constexpr int dim = N;
@@ -416,7 +441,8 @@ template <typename T, int N> class SymmetricRandomVector {
         // apex=(t,t,...)
     constexpr explicit
         SymmetricRandomVector(const result_type& apex) noexcept;
-    template <typename RNG> result_type operator()(RNG& rng) const;
+    template <RandomEngineType RNG>
+        result_type operator()(RNG& rng) const;
     constexpr result_type apex() const noexcept;
 };
 ```
@@ -429,13 +455,14 @@ point in the box whose corners are `(origin,apex)`, while
 ### Random point in a sphere
 
 ```c++
-template <typename T, int N> class RandomPointInSphere {
+template <std::floating_point T, int N> class RandomPointInSphere {
     using result_type = Graphics::Core::Vector<T, N>;
     using scalar_type = T;
     static constexpr int dim = N;
     constexpr RandomPointInSphere() noexcept;
     constexpr explicit RandomPointInSphere(T r) noexcept;
-    template <typename RNG> result_type operator()(RNG& rng) const;
+    template <RandomEngineType RNG>
+        result_type operator()(RNG& rng) const;
     constexpr T radius() const noexcept;
 };
 ```
@@ -446,12 +473,13 @@ origin in `N` dimensions. Behaviour is undefined if `r<0`.
 ### Random direction
 
 ```c++
-template <typename T, int N> class RandomDirection {
+template <std::floating_point T, int N> class RandomDirection {
     using result_type = Graphics::Core::Vector<T, N>;
     using scalar_type = T;
     static constexpr int dim = N;
     constexpr RandomDirection() noexcept;
-    template <typename RNG> result_type operator()(RNG& rng) const;
+    template <RandomEngineType RNG>
+        result_type operator()(RNG& rng) const;
 };
 ```
 

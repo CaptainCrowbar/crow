@@ -9,8 +9,22 @@
 #include "crow/types.hpp"
 #include <array>
 #include <bit>
+#include <concepts>
+#include <type_traits>
 
 namespace Crow {
+
+    // Concepts
+
+    template <typename T>
+    concept RandomEngineType = requires {
+        typename T::result_type;
+        requires std::unsigned_integral<typename T::result_type>;
+        requires std::invocable<T&>;
+        requires std::convertible_to<std::invoke_result_t<T&>, typename T::result_type>;
+        { T::min() } -> std::convertible_to<typename T::result_type>;
+        { T::max() } -> std::convertible_to<typename T::result_type>;
+    };
 
     // Good LCG transformations for 32 and 64 bit integers
     // Pierre L'Ecuyer (1999), "Tables of Linear Congruential Generators of Different Sizes and Good Lattice Structure"

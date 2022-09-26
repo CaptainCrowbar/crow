@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "crow/random-engines.hpp"
 #include "crow/constants.hpp"
 #include "crow/enum.hpp"
 #include "crow/types.hpp"
@@ -32,7 +33,7 @@ namespace Crow {
         constexpr explicit UniformReal(T range) noexcept: UniformReal(0, range) {} // 0 to range; UB if range<0
         constexpr UniformReal(T a, T b) noexcept: min_(a), max_(b) {} // a to b; UB if a>b
 
-        template <typename RNG>
+        template <RandomEngineType RNG>
         constexpr T operator()(RNG& rng) const noexcept {
             return min_ + ((max_ - min_) / (T(rng.max()) + 1)) * rng();
         }
@@ -90,7 +91,7 @@ namespace Crow {
         NormalDistribution() noexcept {} // Defaults to (0,1)
         NormalDistribution(T mean, T sd) noexcept: unit_(), mean_(mean), sd_(sd) {}
 
-        template <typename RNG>
+        template <RandomEngineType RNG>
         T operator()(RNG& rng) const noexcept {
             using std::numbers::pi_v;
             T u = 1 - unit_(rng); // to ensure log(u) doesn't fail
@@ -173,7 +174,7 @@ namespace Crow {
             norm_ = NormalDistribution<T>(m, s);
         }
 
-        template <typename RNG>
+        template <RandomEngineType RNG>
         T operator()(RNG& rng) const noexcept {
             return std::exp(norm_(rng));
         }
@@ -201,7 +202,7 @@ namespace Crow {
         constexpr LogUniform() noexcept: base_(1) {} // Defaults to 1-e
         constexpr LogUniform(T min, T max) noexcept: base_(std::log(min), std::log(max)) {} // UB if min<=0 or max<=0 or min>max
 
-        template <typename RNG>
+        template <RandomEngineType RNG>
         constexpr T operator()(RNG& rng) const noexcept {
             return std::exp(base_(rng));
         }

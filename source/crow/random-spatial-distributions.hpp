@@ -5,21 +5,21 @@
 
 #include "crow/random-continuous-distributions.hpp"
 #include "crow/random-discrete-distributions.hpp"
+#include "crow/random-engines.hpp"
 #include "crow/types.hpp"
 #include "crow/vector.hpp"
 #include <cmath>
+#include <concepts>
+#include <cstdlib>
 #include <numbers>
 #include <type_traits>
 
 namespace Crow {
 
-    template <typename T, int N>
+    template <std::floating_point T, int N>
     class RandomVector {
 
     public:
-
-        static_assert(std::is_floating_point_v<T>);
-        static_assert(N > 0);
 
         using result_type = Vector<T, N>;
         using scalar_type = T;
@@ -30,7 +30,7 @@ namespace Crow {
         constexpr explicit RandomVector(T t) noexcept: vec_(t) {}
         constexpr explicit RandomVector(const result_type& v) noexcept: vec_(v) {}
 
-        template <typename RNG>
+        template <RandomEngineType RNG>
         result_type operator()(RNG& rng) const {
             result_type v;
             for (int i = 0; i < N; ++i)
@@ -46,13 +46,10 @@ namespace Crow {
 
     };
 
-    template <typename T, int N>
+    template <std::floating_point T, int N>
     class SymmetricRandomVector {
 
     public:
-
-        static_assert(std::is_floating_point_v<T>);
-        static_assert(N > 0);
 
         using result_type = Vector<T, N>;
         using scalar_type = T;
@@ -63,7 +60,7 @@ namespace Crow {
         constexpr explicit SymmetricRandomVector(T t) noexcept: vec_(t) {}
         constexpr explicit SymmetricRandomVector(const result_type& v) noexcept: vec_(v) {}
 
-        template <typename RNG>
+        template <RandomEngineType RNG>
         result_type operator()(RNG& rng) const {
             result_type v;
             for (int i = 0; i < N; ++i)
@@ -79,13 +76,10 @@ namespace Crow {
 
     };
 
-    template <typename T, int N>
+    template <std::floating_point T, int N>
     class RandomPointInSphere {
 
     public:
-
-        static_assert(std::is_floating_point_v<T>);
-        static_assert(N > 0);
 
         using result_type = Vector<T, N>;
         using scalar_type = T;
@@ -95,7 +89,7 @@ namespace Crow {
         constexpr RandomPointInSphere() noexcept: radius_(1) {}
         constexpr explicit RandomPointInSphere(T r) noexcept: radius_(std::fabs(r)) {}
 
-        template <typename RNG>
+        template <RandomEngineType RNG>
         result_type operator()(RNG& rng) const {
 
             using std::numbers::pi_v;
@@ -141,13 +135,10 @@ namespace Crow {
 
     };
 
-    template <typename T, int N>
+    template <std::floating_point T, int N>
     class RandomDirection {
 
     public:
-
-        static_assert(std::is_floating_point_v<T>);
-        static_assert(N > 0);
 
         using result_type = Vector<T, N>;
         using scalar_type = T;
@@ -156,7 +147,7 @@ namespace Crow {
 
         constexpr RandomDirection() noexcept {}
 
-        template <typename RNG>
+        template <RandomEngineType RNG>
         result_type operator()(RNG& rng) const {
 
             using std::numbers::pi_v;

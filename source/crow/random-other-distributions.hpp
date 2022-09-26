@@ -4,6 +4,7 @@
 #pragma once
 
 #include "crow/random-discrete-distributions.hpp"
+#include "crow/random-engines.hpp"
 #include "crow/iterator.hpp"
 #include "crow/types.hpp"
 #include "crow/uuid.hpp"
@@ -43,7 +44,7 @@ namespace Crow {
         ConstrainedDistribution(const Base& dist, result_type min, result_type max);
         template <typename... Args> ConstrainedDistribution(result_type min, result_type max, Args&&... args);
 
-        template <typename RNG> result_type operator()(RNG& rng) const;
+        template <RandomEngineType RNG> result_type operator()(RNG& rng) const;
 
         result_type min() const noexcept { return min_; }
         result_type max() const noexcept { return max_; }
@@ -72,7 +73,7 @@ namespace Crow {
         }
 
         template <typename Base>
-        template <typename RNG>
+        template <RandomEngineType RNG>
         typename ConstrainedDistribution<Base>::result_type
         ConstrainedDistribution<Base>::operator()(RNG& rng) const {
             result_type x;
@@ -108,7 +109,7 @@ namespace Crow {
             vec_.assign(begin(range), end(range));
         }
 
-        template <typename RNG>
+        template <RandomEngineType RNG>
         const T& operator()(RNG& rng) const {
             UniformInteger<size_t> dist(vec_.size());
             size_t index = dist(rng);
@@ -165,7 +166,7 @@ namespace Crow {
                 add_group(g);
         }
 
-        template <typename RNG>
+        template <RandomEngineType RNG>
         const T& operator()(RNG& rng) const {
             double x = dist_(rng);
             auto it = table_.upper_bound(x);
@@ -210,7 +211,7 @@ namespace Crow {
 
         using result_type = Uuid;
 
-        template <typename RNG>
+        template <RandomEngineType RNG>
         Uuid operator()(RNG& rng) const {
             std::array<uint64_t, 2> array;
             UniformInteger<uint64_t> make64(0, ~ uint64_t(0));

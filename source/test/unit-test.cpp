@@ -674,6 +674,9 @@ int main(int argc, char** argv) {
     // random-adapter-test.cpp
     UNIT_TEST(crow_random_constrained_distribution)
 
+    // random-concept-test.cpp
+    UNIT_TEST(crow_random_concepts)
+
     // random-continuous-test.cpp
     UNIT_TEST(crow_random_uniform_real_distribution_properties)
     UNIT_TEST(crow_random_uniform_real_distribution)

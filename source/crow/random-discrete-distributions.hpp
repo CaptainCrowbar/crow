@@ -4,6 +4,7 @@
 #pragma once
 
 #include "crow/random-continuous-distributions.hpp"
+#include "crow/random-engines.hpp"
 #include "crow/rational.hpp"
 #include "crow/types.hpp"
 #include <cmath>
@@ -25,7 +26,7 @@ namespace Crow {
         constexpr explicit UniformInteger(T range) noexcept: min_(0), max_(range - 1) {} // 0 to range-1; UB if range<1
         constexpr UniformInteger(T a, T b) noexcept: min_(a), max_(b) {} // a to b inclusive; UB if a>b
 
-        template <typename RNG>
+        template <RandomEngineType RNG>
         constexpr T operator()(RNG& rng) const noexcept {
             return generate(rng, min(), max());
         }
@@ -66,7 +67,7 @@ namespace Crow {
         T min_ = 0;
         T max_ = 1;
 
-        template <typename RNG>
+        template <RandomEngineType RNG>
         constexpr static T generate(RNG& rng, T min, T max) noexcept {
 
             // We need an unsigned integer type big enough for both the RNG
@@ -140,7 +141,7 @@ namespace Crow {
         constexpr explicit BernoulliDistribution(double p) noexcept: prob_(p) {}
         template <typename T> constexpr explicit BernoulliDistribution(Ratio<T> p) noexcept: prob_(double(p)) {}
 
-        template <typename RNG> constexpr bool operator()(RNG& rng) const noexcept { return UniformReal<double>()(rng) < prob_; }
+        template <RandomEngineType RNG> constexpr bool operator()(RNG& rng) const noexcept { return UniformReal<double>()(rng) < prob_; }
 
         constexpr double p() const noexcept { return prob_; }
 
@@ -162,7 +163,7 @@ namespace Crow {
         DiscreteNormal() = default; // Defaults to (0,1)
         DiscreteNormal(double mean, double sd) noexcept: norm_(mean, sd) {}
 
-        template <typename RNG>
+        template <RandomEngineType RNG>
         T operator()(RNG& rng) const noexcept {
             return T(std::lround(norm_(rng)));
         }
@@ -188,7 +189,7 @@ namespace Crow {
         PoissonDistribution() noexcept {}
         explicit PoissonDistribution(double lambda) noexcept: lambda_(lambda), log_lambda_(std::log(lambda)) {}
 
-        template <typename RNG>
+        template <RandomEngineType RNG>
         T operator()(RNG& rng) const noexcept {
 
             // https://www.johndcook.com/blog/2010/06/14/generating-poisson-random-values/
