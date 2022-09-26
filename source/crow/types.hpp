@@ -45,23 +45,6 @@ namespace Crow {
 
         using SO = std::strong_ordering;
 
-        template <typename T, typename = void> struct HasAddAssignOperator: std::false_type {};
-        template <typename T> struct HasAddAssignOperator<T, std::void_t<decltype(std::declval<T&>() += std::declval<T>())>>: std::true_type {};
-        template <typename T, typename = void> struct HasSubtractAssignOperator: std::false_type {};
-        template <typename T> struct HasSubtractAssignOperator<T, std::void_t<decltype(std::declval<T&>() -= std::declval<T>())>>: std::true_type {};
-        template <typename T, typename = void> struct HasMultiplyAssignOperator: std::false_type {};
-        template <typename T> struct HasMultiplyAssignOperator<T, std::void_t<decltype(std::declval<T&>() *= std::declval<T>())>>: std::true_type {};
-        template <typename T, typename = void> struct HasDivideAssignOperator: std::false_type {};
-        template <typename T> struct HasDivideAssignOperator<T, std::void_t<decltype(std::declval<T&>() /= std::declval<T>())>>: std::true_type {};
-        template <typename T, typename = void> struct HasRemainderAssignOperator: std::false_type {};
-        template <typename T> struct HasRemainderAssignOperator<T, std::void_t<decltype(std::declval<T&>() %= std::declval<T>())>>: std::true_type {};
-        template <typename T, typename = void> struct HasBitwiseAndAssignOperator: std::false_type {};
-        template <typename T> struct HasBitwiseAndAssignOperator<T, std::void_t<decltype(std::declval<T&>() &= std::declval<T>())>>: std::true_type {};
-        template <typename T, typename = void> struct HasBitwiseOrAssignOperator: std::false_type {};
-        template <typename T> struct HasBitwiseOrAssignOperator<T, std::void_t<decltype(std::declval<T&>() |= std::declval<T>())>>: std::true_type {};
-        template <typename T, typename = void> struct HasBitwiseXorAssignOperator: std::false_type {};
-        template <typename T> struct HasBitwiseXorAssignOperator<T, std::void_t<decltype(std::declval<T&>() ^= std::declval<T>())>>: std::true_type {};
-
         template <typename T, typename = void> struct HasIteratorCategory: std::false_type {};
         template <typename T> struct HasIteratorCategory<T, std::void_t<typename std::iterator_traits<T>::iterator_category>>: std::true_type {};
         template <> struct HasIteratorCategory<void*>: std::false_type {};

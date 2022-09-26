@@ -3,6 +3,8 @@
 #include "crow/types.hpp"
 #include <algorithm>
 #include <cmath>
+#include <concepts>
+#include <cstdlib>
 #include <limits>
 #include <type_traits>
 
@@ -12,12 +14,10 @@ namespace Crow {
     // https://www.johndcook.com/blog/skewness_kurtosis/
     // https://www.johndcook.com/blog/running_regression/
 
-    template <typename T>
+    template <std::floating_point T>
     class Statistics {
 
     public:
-
-        static_assert(std::is_floating_point_v<T>);
 
         constexpr Statistics() noexcept { clear(); }
 
@@ -69,15 +69,15 @@ namespace Crow {
     private:
 
         int count_;
-        T xm1_, xm2_, xm3_, xm4_, xmin_, xmax_;
-        T ym1_, ym2_, ym3_, ym4_, ymin_, ymax_;
-        T sxy_;
+        T xm1_, xm2_, xm3_, xm4_, xmin_, xmax_,
+            ym1_, ym2_, ym3_, ym4_, ymin_, ymax_,
+            sxy_;
 
         constexpr T check(T t, int min_n) const noexcept { return count_ < min_n ? T(0) : t; }
 
     };
 
-    template <typename T>
+    template <std::floating_point T>
     constexpr Statistics<T>& Statistics<T>::operator()(T x) noexcept {
 
         ++count_;
@@ -99,7 +99,7 @@ namespace Crow {
 
     }
 
-    template <typename T>
+    template <std::floating_point T>
     constexpr Statistics<T>& Statistics<T>::operator()(T x, T y) noexcept {
 
         sxy_ += (x_mean() - x ) * (y_mean() - y) * tn() / (tn() + 1);
@@ -136,7 +136,7 @@ namespace Crow {
 
     }
 
-    template <typename T>
+    template <std::floating_point T>
     constexpr Statistics<T> Statistics<T>::operator+(const Statistics& s) const noexcept {
 
         Statistics<T> c;
@@ -182,7 +182,7 @@ namespace Crow {
 
     }
 
-    template <typename T>
+    template <std::floating_point T>
     constexpr void Statistics<T>::clear() noexcept {
         count_ = 0;
         xm1_ = xm2_ = xm3_ = xm4_ = 0;

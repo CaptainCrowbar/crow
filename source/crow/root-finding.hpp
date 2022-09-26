@@ -3,16 +3,16 @@
 #include "crow/maths.hpp"
 #include "crow/types.hpp"
 #include <cmath>
+#include <concepts>
 #include <cstdlib>
 #include <memory>
 #include <type_traits>
 
 namespace Crow {
 
-    template <typename T>
+    template <std::floating_point T>
     class RootFinder {
     public:
-        static_assert(std::is_floating_point_v<T>);
         virtual ~RootFinder() noexcept {}
         T solve(T y = 0, T x = 0) { return do_solve(y, x, x + T(1)); }
         T solve(T y, T x1, T x2) { return do_solve(y, x1, x2); }
@@ -34,7 +34,7 @@ namespace Crow {
         int count_ = 0;
     };
 
-    template <typename T, typename F, typename DF>
+    template <std::floating_point T, typename F, typename DF>
     class NewtonRaphson:
     public RootFinder<T> {
     public:
@@ -46,7 +46,7 @@ namespace Crow {
         DF df_;
     };
 
-        template <typename T, typename F, typename DF>
+        template <std::floating_point T, typename F, typename DF>
         T NewtonRaphson<T, F, DF>::do_solve(T y, T x1, T /*x2*/) {
             this->set_count(0);
             this->set_error(0);
@@ -65,7 +65,7 @@ namespace Crow {
             return x1;
         }
 
-    template <typename T, typename F, typename DF>
+    template <std::floating_point T, typename F, typename DF>
     std::unique_ptr<RootFinder<T>> newton_raphson(F f, DF df) {
         return std::make_unique<NewtonRaphson<T, F, DF>>(f, df);
     }

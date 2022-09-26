@@ -23,14 +23,6 @@ void test_crow_types_concepts() {
     TEST(! ArithmeticType<int*>);
     TEST(! ArithmeticType<std::string>);
 
-    TEST((SameBasicType<int, int>));
-    TEST((SameBasicType<const int, int&>));
-    TEST((SameBasicType<const std::string, std::string&>));
-
-}
-
-void test_crow_types_traits() {
-
     TEST(! IteratorType<void>);
     TEST(! IteratorType<int>);
     TEST(! IteratorType<std::string>);
@@ -75,10 +67,6 @@ void test_crow_types_traits() {
     TEST_TYPE(RangeIterator<const std::vector<std::string>>,  std::vector<std::string>::const_iterator);
     TEST_TYPE(RangeValue<std::vector<std::string>>,           std::string);
     TEST_TYPE(RangeValue<const std::vector<std::string>>,     std::string);
-
-}
-
-void test_crow_types_iterator_category() {
 
     TEST(! InputIteratorType<void>);
     TEST(! OutputIteratorType<void>);
@@ -140,10 +128,6 @@ void test_crow_types_iterator_category() {
     TEST(! BidirectionalIteratorType<std::ostream_iterator<int>>);
     TEST(! RandomAccessIteratorType<std::ostream_iterator<int>>);
 
-}
-
-void test_crow_types_range_category() {
-
     TEST(! InputRangeType<void>);
     TEST(! OutputRangeType<void>);
     TEST(! ForwardRangeType<void>);
@@ -173,6 +157,10 @@ void test_crow_types_range_category() {
     TEST(ForwardRangeType<std::list<int>>);
     TEST(BidirectionalRangeType<std::list<int>>);
     TEST(! RandomAccessRangeType<std::list<int>>);
+
+    TEST((SameBasicType<int, int>));
+    TEST((SameBasicType<const int, int&>));
+    TEST((SameBasicType<const std::string, std::string&>));
 
 }
 

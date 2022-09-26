@@ -15,7 +15,7 @@ namespace Crow;
 ## Root finder base class
 
 ```c++
-template <typename T> class RootFinder {
+template <std::floating_point T> class RootFinder {
 public:
     virtual ~RootFinder() noexcept;
     T solve(T y = 0, T x = 0);
@@ -36,14 +36,13 @@ protected:
 
 The base class for root finding algorithms.
 
-The `solve()` functions perform the actual root finding, solving `f
-(x)=y`. These call the virtual `do_solve()` function, which implements the
-actual root finding algorithm in derived classes. For algorithms that require
-two initial values, if only one is supplied, `x+1` will be used as the second
-initial value. For algorithms that require only one initial value, the second
-one is ignored. Implementations may throw `std::invalid_argument` if it is
-possible to detect that the problem cannot be solved from the given initial
-values.
+The `solve()` functions perform the actual root finding, solving `f(x)=y`.
+These call the virtual `do_solve()` function, which implements the actual root
+finding algorithm in derived classes. For algorithms that require two initial
+values, if only one is supplied, `x+1` will be used as the second initial
+value. For algorithms that require only one initial value, the second one is
+ignored. Implementations may throw `std::invalid_argument` if it is possible
+to detect that the problem cannot be solved from the given initial values.
 
 The `epsilon` parameter defines the maximum error allowed before the root
 finder reports success. The default epsilon is 10<sup>-4</sup> if `T` is
@@ -61,7 +60,7 @@ call to `solve()`. Initially they will both return 0.
 ## Newton-Raphson algorithm
 
 ```c++
-template <typename T, typename F, typename DF>
+template <std::floating_point T, typename F, typename DF>
 class NewtonRaphson: public RootFinder<T> {
     NewtonRaphson(F f, DF df);
 };
@@ -72,7 +71,7 @@ This implements the
 find a root of a function. The arguments are the function and its derivative.
 
 ```c++
-template <typename T, typename F, typename DF>
+template <std::floating_point T, typename F, typename DF>
     std::unique_ptr<RootFinder<T>> newton_raphson(F f, DF df);
 ```
 
