@@ -5,6 +5,7 @@
 #include "crow/types.hpp"
 #include "crow/vector.hpp"
 #include <cmath>
+#include <concepts>
 #include <numbers>
 #include <ostream>
 #include <string>
@@ -12,13 +13,10 @@
 
 namespace Crow {
 
-    template <typename T, int N>
+    template <ArithmeticType T, int N>
     class Box {
 
     public:
-
-        static_assert(std::is_arithmetic_v<T>);
-        static_assert(N > 0);
 
         using scalar_type = T;
         using vector_type = Vector<T, N>;
@@ -57,7 +55,7 @@ namespace Crow {
 
     };
 
-        template <typename T, int N>
+        template <ArithmeticType T, int N>
         constexpr Box<T, N>::Box(const vector_type& p, const vector_type& v) noexcept:
         corner_(p), extent_(v) {
             for (int i = 0; i < N; ++i) {
@@ -68,7 +66,7 @@ namespace Crow {
             }
         }
 
-        template <typename T, int N>
+        template <ArithmeticType T, int N>
         constexpr bool Box<T, N>::contains(const vector_type& p) const noexcept {
             for (int i = 0; i < N; ++i)
                 if (p[i] < corner_[i] || p[i] >= corner_[i] + extent_[i])
@@ -76,7 +74,7 @@ namespace Crow {
             return true;
         }
 
-        template <typename T, int N>
+        template <ArithmeticType T, int N>
         constexpr bool Box<T, N>::contains(const Box& b) const noexcept {
             for (int i = 0; i < N; ++i)
                 if (b.corner_[i] < corner_[i] || b.corner_[i] + b.extent_[i] > corner_[i] + extent_[i])
@@ -84,7 +82,7 @@ namespace Crow {
             return true;
         }
 
-        template <typename T, int N>
+        template <ArithmeticType T, int N>
         std::string Box<T, N>::str(const FormatSpec& spec) const {
             return 'B' + corner_.str(spec) + '+' + extent_.str(spec);
         }
@@ -102,13 +100,10 @@ namespace Crow {
     using Box_ld3 = Box<long double, 3>;
     using Box_ld4 = Box<long double, 4>;
 
-    template <typename T, int N>
+    template <std::floating_point T, int N>
     class Sphere {
 
     public:
-
-        static_assert(std::is_arithmetic_v<T>);
-        static_assert(N > 0);
 
         using scalar_type = T;
         using real_type = std::conditional_t<std::is_floating_point_v<T>, T, double>;
@@ -153,14 +148,14 @@ namespace Crow {
 
     };
 
-        template <typename T, int N>
+        template <std::floating_point T, int N>
         constexpr Sphere<T, N>::Sphere(const vector_type& c, T r) noexcept:
         centre_(c), radius_(r) {
             if constexpr (std::is_signed_v<T>)
                 radius_ = const_abs(r);
         }
 
-        template <typename T, int N>
+        template <std::floating_point T, int N>
         constexpr bool Sphere<T, N>::contains(const Sphere& s) const noexcept {
             if (s.radius_ >= radius_)
                 return false;
@@ -168,13 +163,13 @@ namespace Crow {
             return (s.centre_ - centre_).r2() <= x * x;
         }
 
-        template <typename T, int N>
+        template <std::floating_point T, int N>
         constexpr bool Sphere<T, N>::disjoint(const Sphere& s) const noexcept {
             T x = radius_ + s.radius_;
             return (s.centre_ - centre_).r2() >= x * x;
         }
 
-        template <typename T, int N>
+        template <std::floating_point T, int N>
         typename Sphere<T, N>::real_type Sphere<T, N>::volume() const noexcept {
             using R = real_type;
             using std::numbers::pi_v;
@@ -194,7 +189,7 @@ namespace Crow {
             }
         }
 
-        template <typename T, int N>
+        template <std::floating_point T, int N>
         typename Sphere<T, N>::real_type Sphere<T, N>::surface() const noexcept {
             using R = real_type;
             using std::numbers::pi_v;
@@ -213,7 +208,7 @@ namespace Crow {
             }
         }
 
-        template <typename T, int N>
+        template <std::floating_point T, int N>
         std::string Sphere<T, N>::str(const FormatSpec& spec) const {
             return 'S' + centre_.str(spec) + '+' + format_object(radius_, spec);
         }

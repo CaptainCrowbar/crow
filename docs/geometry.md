@@ -7,9 +7,6 @@ _[Crow Library by Ross Smith](index.html)_
 namespace Crow;
 ```
 
-The classes here represent some basic geometric primitives. In all cases `T`
-must be a standard arithmetic type, and `N` must be a positive integer.
-
 ## Contents
 
 * TOC
@@ -18,7 +15,7 @@ must be a standard arithmetic type, and `N` must be a positive integer.
 ## Box class
 
 ```c++
-template <typename T, int N> class Box;
+template <ArithmeticType T, int N> class Box;
 ```
 
 Represents a rectangular box in `N` dimensions.
@@ -157,10 +154,10 @@ Returns the unit cube (or square), with corners at `[0,0,...]` and
 ## Sphere class
 
 ```c++
-template <typename T, int N> class Sphere;
+template <std::floating_point T, int N> class Sphere;
 ```
 
-Represents a sphere in `N` dimensions. `N` must be a positive integer.
+Represents a sphere in `N` dimensions.
 
 ```c++
 using Sphere_f2 = Sphere<float, 2>;
