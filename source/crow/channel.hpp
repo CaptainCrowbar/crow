@@ -4,6 +4,7 @@
 #include "crow/thread.hpp"
 #include "crow/time.hpp"
 #include "crow/types.hpp"
+#include <concepts>
 #include <condition_variable>
 #include <deque>
 #include <exception>
@@ -364,9 +365,24 @@ namespace Crow {
         Dispatch& operator=(const Dispatch&) = delete;
         Dispatch& operator=(Dispatch&&) = delete;
 
-        template <typename T, typename F> void add(MessageChannel<T>& c, F f);
-        template <typename F> void add(MessageChannel<void>& c, F f);
-        template <typename F> void add(StreamChannel& c, F f);
+        template <typename T, std::invocable<T> F>
+        void add(MessageChannel<T>& c, F f) {
+            check_function(f);
+            add_channel(c, [&c,f,t=T()] () mutable { if (c.read(t)) f(t); });
+        }
+
+        template <std::invocable F>
+        void add(MessageChannel<void>& c, F f) {
+            check_function(f);
+            add_channel(c, f);
+        }
+
+        template <std::invocable<std::string&> F>
+        void add(StreamChannel& c, F f) {
+            check_function(f);
+            add_channel(c, [&c,f,s=std::string()] () mutable { if (c.append(s)) f(s); });
+        }
+
         bool empty() noexcept { return tasks_.empty(); }
         result run() noexcept;
         void stop() noexcept;
@@ -388,37 +404,12 @@ namespace Crow {
         void drop_channel(Channel& c) noexcept;
         void set_fault(Channel& c, std::exception_ptr e = {});
 
-        template <typename Arg, typename F> static void check_call(F& f);
-
-    };
-
-        template <typename T, typename F>
-        void Dispatch::add(MessageChannel<T>& c, F f) {
-            check_call<const T&>(f);
-            add_channel(c, [&c,f,t=T()] () mutable { if (c.read(t)) f(t); });
-        }
-
-        template <typename F>
-        void Dispatch::add(MessageChannel<void>& c, F f) {
-            check_call<void>(f);
-            add_channel(c, f);
-        }
-
-        template <typename F>
-        void Dispatch::add(StreamChannel& c, F f) {
-            check_call<std::string&>(f);
-            add_channel(c, [&c,f,s=std::string()] () mutable { if (c.append(s)) f(s); });
-        }
-
-        template <typename Arg, typename F>
-        void Dispatch::check_call(F& f) {
-            if constexpr (std::is_void_v<Arg>)
-                static_assert(std::is_convertible_v<F, std::function<void()>>, "Invalid callback type");
-            else
-                static_assert(std::is_convertible_v<F, std::function<void(Arg)>>, "Invalid callback type");
+        template <typename F> static void check_function(const F& f) {
             if constexpr (std::is_constructible_v<bool, F>)
                 if (! bool(f))
                     throw std::bad_function_call();
         }
+
+    };
 
 }
