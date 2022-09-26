@@ -78,7 +78,7 @@ namespace Crow {
         || std::is_pointer_v<std::decay_t<T>>
         || ArithmeticType<std::decay_t<T>>
         || RangeType<std::decay_t<T>>
-        || Detail::is_duration<std::decay_t<T>>
+        || Detail::DurationType<std::decay_t<T>>
         || Detail::has_str_method<std::decay_t<T>>
         || Detail::has_extended_str_method<std::decay_t<T>>
         || Detail::has_adl_to_string_function<std::decay_t<T>>
@@ -108,7 +108,7 @@ namespace Crow {
         || std::derived_from<std::decay_t<T>, Formatted>
         || ArithmeticType<std::decay_t<T>>
         || RangeType<std::decay_t<T>>
-        || Detail::is_duration<std::decay_t<T>>
+        || Detail::DurationType<std::decay_t<T>>
         || Detail::has_extended_str_method<std::decay_t<T>>;
 
     template <typename T>
@@ -133,7 +133,7 @@ namespace Crow {
                 return format_integer(t, spec);
             else if constexpr (std::is_floating_point_v<U>)
                 return format_floating_point(t, spec);
-            else if constexpr (Detail::is_duration<U>)
+            else if constexpr (Detail::DurationType<U>)
                 return format_duration(t, spec);
             else if constexpr (std::is_same_v<U, std::chrono::system_clock::time_point>)
                 return format_time_point(t, spec);

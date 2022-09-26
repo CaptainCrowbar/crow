@@ -8,20 +8,13 @@
 #include "crow/string.hpp"
 #include "crow/types.hpp"
 #include <chrono>
+#include <concepts>
 #include <ctime>
 #include <string>
 #include <type_traits>
 #include <vector>
 
 namespace Crow {
-
-    namespace Detail {
-
-        template <typename T> struct IsDuration: std::false_type {};
-        template <typename R, typename P> struct IsDuration<std::chrono::duration<R, P>>: std::true_type {};
-        template <typename T> constexpr bool is_duration = IsDuration<T>::value;
-
-    }
 
     // Supporting types
 
@@ -100,6 +93,10 @@ namespace Crow {
 
     namespace Detail {
 
+        template <typename T> struct IsDurationType: std::false_type {};
+        template <typename R, typename P> struct IsDurationType<std::chrono::duration<R, P>>: std::true_type {};
+        template <typename T> concept DurationType = IsDurationType<T>::value;
+
         double parse_time_helper(const std::string& str);
 
     }
@@ -111,9 +108,8 @@ namespace Crow {
         t = duration_cast<duration<R, P>>(duration<double>(s));
     }
 
-    template <typename D>
+    template <Detail::DurationType D>
     D parse_time(const std::string& str) {
-        static_assert(Detail::is_duration<D>);
         D time;
         parse_time(str, time);
         return time;
