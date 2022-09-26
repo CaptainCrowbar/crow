@@ -593,7 +593,7 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_options_required)
 
     // options-traits-test.cpp
-    UNIT_TEST(crow_options_traits)
+    UNIT_TEST(crow_options_concepts)
 
     // path-directory-test.cpp
     UNIT_TEST(crow_path_directory_iterators)

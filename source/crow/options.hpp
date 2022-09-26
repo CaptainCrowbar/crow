@@ -6,6 +6,7 @@
 #include "crow/string.hpp"
 #include "crow/types.hpp"
 #include <algorithm>
+#include <concepts>
 #include <functional>
 #include <iostream>
 #include <iterator>
@@ -20,36 +21,28 @@ namespace Crow {
 
     namespace Detail {
 
-        template <typename T, typename = void> struct HasBackInserter: std::false_type {};
-        template <typename T> struct HasBackInserter<T,
-            std::void_t<decltype(std::inserter(std::declval<T&>(), std::declval<T&>().end()))>>:
-            std::true_type {};
+        template <typename T>
+        concept AppendableContainer = requires (T t) {
+            t.insert(t.end(), *t.begin());
+        };
 
-        template <typename T, typename = void> struct HasValueType: std::false_type {};
-        template <typename T> struct HasValueType<T, std::void_t<typename T::value_type>>: std::true_type {};
-
-        template <typename T, bool = HasValueType<T>::value> struct ValueType { using type = void; };
-        template <typename T> struct ValueType<T, true> { using type = typename T::value_type; };
-
-        template <typename T> constexpr bool is_scalar_argument_type = (
-            std::is_arithmetic_v<T>
+        template <typename T>
+        concept ScalarArgumentType =
+            ArithmeticType<T>
             || std::is_enum_v<T>
-            || std::is_same_v<T, std::string>
-            || (! HasBackInserter<T>::value
-                && (std::is_constructible_v<T, int>
-                    || std::is_constructible_v<T, std::string>))
-        );
+            || std::same_as<T, std::string>
+            || (! AppendableContainer<T>
+                && (std::constructible_from<T, int>
+                    || std::constructible_from<T, std::string>));
 
-        template <typename T> constexpr bool is_container_argument_type = (
-            HasBackInserter<T>::value
-            && is_scalar_argument_type<typename ValueType<T>::type>
-            && ! std::is_same_v<T, std::string>
-        );
+        template <typename T>
+        concept ContainerArgumentType =
+            AppendableContainer<T>
+            && ScalarArgumentType<typename T::value_type>
+            && ! std::same_as<T, std::string>;
 
-        template <typename T> constexpr bool is_valid_argument_type = (
-            is_scalar_argument_type<T>
-            || is_container_argument_type<T>
-        );
+        template <typename T>
+        concept ValidArgumentType = ScalarArgumentType<T> || ContainerArgumentType<T>;
 
         template <typename T>
         T parse_enum_unchecked(const std::string& arg) {
@@ -87,8 +80,8 @@ namespace Crow {
         Options(const std::string& app, const std::string& version,
             const std::string& description, const std::string& extra = {});
 
-        template <typename T> Options& add(T& var, const std::string& name, char abbrev, const std::string& description,
-            int flags = 0, const std::string& group = {}, const std::string& pattern = {});
+        template <Detail::ValidArgumentType T> Options& add(T& var, const std::string& name, char abbrev,
+            const std::string& description, int flags = 0, const std::string& group = {}, const std::string& pattern = {});
         void auto_help() noexcept { auto_help_ = true; }
         void set_colour(bool b) noexcept { colour_ = int(b); }
         bool parse(std::vector<std::string> args, std::ostream& out = std::cout);
@@ -135,19 +128,17 @@ namespace Crow {
         size_t option_index(const std::string& name) const;
         size_t option_index(char abbrev) const;
 
-        template <typename T> static T parse_argument(const std::string& arg);
-        template <typename T> static validator_type type_validator(const std::string& name, std::string pattern);
-        template <typename T> static std::string type_placeholder();
+        template <Detail::ScalarArgumentType T> static T parse_argument(const std::string& arg);
+        template <Detail::ScalarArgumentType T> static validator_type type_validator(const std::string& name, std::string pattern);
+        template <Detail::ScalarArgumentType T> static std::string type_placeholder();
 
     };
 
-        template <typename T>
-        Options& Options::add(T& var, const std::string& name, char abbrev, const std::string& description,
-                int flags, const std::string& group, const std::string& pattern) {
+        template <Detail::ValidArgumentType T>
+        Options& Options::add(T& var, const std::string& name, char abbrev,
+                const std::string& description, int flags, const std::string& group, const std::string& pattern) {
 
             using namespace Detail;
-
-            static_assert(is_valid_argument_type<T>, "Invalid command line argument type");
 
             setter_type setter;
             validator_type validator;
@@ -155,25 +146,25 @@ namespace Crow {
             std::string default_value;
             mode kind;
 
-            if constexpr (std::is_same_v<T, bool>) {
+            if constexpr (std::same_as<T, bool>) {
 
                 setter = [&var] (const std::string& str) { var = to_boolean(str); };
                 kind = mode::boolean;
 
-            } else if constexpr (is_scalar_argument_type<T>) {
+            } else if constexpr (ScalarArgumentType<T>) {
 
                 setter = [&var] (const std::string& str) { var = parse_argument<T>(str); };
                 validator = type_validator<T>(name, pattern);
                 placeholder = type_placeholder<T>();
                 kind = mode::single;
 
-                if constexpr (std::is_same_v<T, std::string>)
+                if constexpr (std::same_as<T, std::string>)
                     if (validator && ! validator(var))
                         throw setup_error("Default value does not match pattern: --" + name);
 
                 if ((flags & required) == 0 && (std::is_enum_v<T> || var != T())) {
                     default_value = format_object(var);
-                    if constexpr (! std::is_arithmetic_v<T> && ! std::is_enum_v<T>)
+                    if constexpr (! ArithmeticType<T> && ! std::is_enum_v<T>)
                         if (! default_value.empty())
                             default_value = quote(default_value);
                 }
@@ -198,34 +189,33 @@ namespace Crow {
 
         }
 
-        template <typename T>
+        template <Detail::ScalarArgumentType T>
         T Options::parse_argument(const std::string& arg) {
             using namespace Detail;
-            static_assert(is_scalar_argument_type<T>);
             if constexpr (std::is_enum_v<T>)
                 return parse_enum_unchecked<T>(arg);
-            else if constexpr (std::is_same_v<T, std::string>)
+            else if constexpr (std::same_as<T, std::string>)
                 return arg;
-            else if constexpr (std::is_same_v<T, bool>)
+            else if constexpr (std::same_as<T, bool>)
                 return to_boolean(arg);
-            else if constexpr (std::is_integral_v<T>)
+            else if constexpr (std::integral<T>)
                 return to_integer<T>(arg);
-            else if constexpr (std::is_floating_point_v<T>)
+            else if constexpr (std::floating_point<T>)
                 return to_floating<T>(arg);
-            else if constexpr (std::is_constructible_v<T, int>)
+            else if constexpr (std::constructible_from<T, int>)
                 return static_cast<T>(to_int64(arg));
             else
                 return static_cast<T>(arg);
         }
 
-        template <typename T>
+        template <Detail::ScalarArgumentType T>
         Options::validator_type Options::type_validator(const std::string& name, std::string pattern) {
 
             using namespace Literals;
 
             validator_type validator;
 
-            if constexpr (! std::is_same_v<T, std::string>)
+            if constexpr (! std::same_as<T, std::string>)
                 if (! pattern.empty())
                     throw setup_error("Pattern is only allowed for string-valued options: {0:q}"_fmt("--" + name));
 
@@ -234,11 +224,11 @@ namespace Crow {
                     auto& names = list_enum_names(T());
                     return std::find(names.begin(), names.end(), str) != names.end();
                 };
-            else if constexpr (std::is_integral_v<T> && std::is_signed_v<T>)
+            else if constexpr (std::signed_integral<T>)
                 pattern = R"([+-]?\d+)";
-            else if constexpr (std::is_integral_v<T> && std::is_unsigned_v<T>)
+            else if constexpr (std::unsigned_integral<T>)
                 pattern = R"(\+?\d+)";
-            else if constexpr (std::is_floating_point_v<T>)
+            else if constexpr (std::floating_point<T>)
                 pattern = R"([+-]?(\d+(\.\d*)?|\.\d+)([Ee][+-]?\d+)?)";
 
             if (! pattern.empty()) {
@@ -256,13 +246,13 @@ namespace Crow {
 
         }
 
-        template <typename T>
+        template <Detail::ScalarArgumentType T>
         std::string Options::type_placeholder() {
-            if constexpr (std::is_integral_v<T> && std::is_signed_v<T>)
+            if constexpr (std::signed_integral<T>)
                 return "<int>";
-            else if constexpr (std::is_integral_v<T> && std::is_unsigned_v<T>)
+            else if constexpr (std::unsigned_integral<T>)
                 return "<uint>";
-            else if constexpr (std::is_floating_point_v<T>)
+            else if constexpr (std::floating_point<T>)
                 return "<real>";
             else
                 return "<arg>";
