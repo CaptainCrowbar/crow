@@ -3,6 +3,7 @@
 #include "crow/enum.hpp"
 #include "crow/random.hpp"
 #include "crow/types.hpp"
+#include <concepts>
 #include <functional>
 #include <initializer_list>
 #include <memory>
@@ -29,7 +30,9 @@ namespace Crow {
         using BaseList = std::vector<SharedBase>;
         using BaseWeights = std::vector<std::pair<SharedBase, double>>;
 
-        template <typename T, typename... Args> TextGen base2gen(Args&&... args);
+        template <typename T, typename... Args>
+            requires std::derived_from<T, TextBase>
+            TextGen base2gen(Args&&... args);
         SharedBase gen2base(const TextGen& g);
 
     }
@@ -70,7 +73,9 @@ namespace Crow {
 
     private:
 
-        template <typename T, typename... Args> friend TextGen Detail::base2gen(Args&&... args);
+        template <typename T, typename... Args>
+            requires std::derived_from<T, Detail::TextBase>
+            friend TextGen Detail::base2gen(Args&&... args);
         friend Detail::SharedBase Detail::gen2base(const TextGen& g);
 
         Detail::SharedBase base_;
@@ -89,8 +94,8 @@ namespace Crow {
         };
 
         template <typename T, typename... Args>
+        requires std::derived_from<T, TextBase>
         TextGen base2gen(Args&&... args) {
-            static_assert(std::is_base_of_v<TextBase, T>);
             TextGen g;
             g.base_ = std::make_shared<T>(std::forward<Args>(args)...);
             return g;

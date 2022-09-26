@@ -40,8 +40,6 @@ namespace Crow {
 
     public:
 
-        static_assert(std::is_floating_point_v<T>);
-
         using scalar_type = T;
         using seed_type = uint64_t;
         using vector_type = Vector<T, 2>;
@@ -247,8 +245,6 @@ namespace Crow {
     class Noise<T, 3> {
 
     public:
-
-        static_assert(std::is_floating_point_v<T>);
 
         using scalar_type = T;
         using seed_type = uint64_t;
@@ -480,10 +476,6 @@ namespace Crow {
     class NoiseSource {
 
     public:
-
-        static_assert(std::is_floating_point_v<T>);
-        static_assert(DimIn >= 1);
-        static_assert(DimOut >= 1);
 
         using scalar_type = T;
         using seed_type = uint64_t;

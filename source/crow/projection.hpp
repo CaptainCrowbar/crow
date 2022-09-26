@@ -44,7 +44,9 @@ namespace Crow {
                 template <std::floating_point T> class MollweideProjection;
                 template <std::floating_point T> class SinusoidalProjection;
                 template <std::floating_point T> class InterruptedProjectionBase;
-                    template <typename Projection> requires std::derived_from<Projection, MapProjection> class InterruptedProjection;
+                    template <typename Projection>
+                        requires std::derived_from<Projection, PseudocylindricalProjection<typename Projection::scalar_type>>
+                        class InterruptedProjection;
 
     // Constants
 
@@ -214,7 +216,6 @@ namespace Crow {
     class BasicMapProjection:
     public MapProjection {
     public:
-        static_assert(std::is_floating_point_v<T>);
         using scalar_type = T;
         using vector_type = Vector<T, 2>;
         static constexpr vector_type default_origin = {0, std::numbers::pi_v<T> / 2};
@@ -324,7 +325,8 @@ namespace Crow {
     class PseudocylindricalProjection:
     public BasicMapProjection<T> {
     protected:
-        template <typename Projection> requires std::derived_from<Projection, MapProjection>
+        template <typename Projection>
+            requires std::derived_from<Projection, PseudocylindricalProjection<typename Projection::scalar_type>>
             friend class InterruptedProjection;
         explicit PseudocylindricalProjection(Vector<T, 2> origin) noexcept: BasicMapProjection<T>(origin) {}
     };
@@ -992,12 +994,10 @@ namespace Crow {
     }
 
     template <typename Projection>
-    requires std::derived_from<Projection, MapProjection>
+    requires std::derived_from<Projection, PseudocylindricalProjection<typename Projection::scalar_type>>
     class InterruptedProjection:
     public InterruptedProjectionBase<typename Projection::scalar_type> {
     private:
-        static_assert(std::is_base_of_v<PseudocylindricalProjection<typename Projection::scalar_type>, Projection>);
-        static_assert((Projection::map_properties & Maps::family_mask) == Maps::pseudocylindrical);
         using T = typename Projection::scalar_type;
         using base_type = InterruptedProjectionBase<T>;
         using coord_list = typename base_type::coord_list;
@@ -1029,7 +1029,7 @@ namespace Crow {
     };
 
     template <typename Projection>
-    requires std::derived_from<Projection, MapProjection>
+    requires std::derived_from<Projection, PseudocylindricalProjection<typename Projection::scalar_type>>
     bool InterruptedProjection<Projection>::canonical_on_map(vector_type xy) const noexcept {
         using std::numbers::pi_v;
         if (std::abs(xy.x()) > proj_.max_x() || std::abs(xy.y()) > proj_.max_y())
@@ -1046,7 +1046,7 @@ namespace Crow {
     }
 
     template <typename Projection>
-    requires std::derived_from<Projection, MapProjection>
+    requires std::derived_from<Projection, PseudocylindricalProjection<typename Projection::scalar_type>>
     typename InterruptedProjection<Projection>::vector_type
     InterruptedProjection<Projection>::canonical_to_globe(vector_type xy) const noexcept {
         using std::numbers::pi_v;
@@ -1061,7 +1061,7 @@ namespace Crow {
     }
 
     template <typename Projection>
-    requires std::derived_from<Projection, MapProjection>
+    requires std::derived_from<Projection, PseudocylindricalProjection<typename Projection::scalar_type>>
     typename InterruptedProjection<Projection>::vector_type
     InterruptedProjection<Projection>::canonical_to_map(vector_type polar) const noexcept {
         using std::numbers::pi_v;

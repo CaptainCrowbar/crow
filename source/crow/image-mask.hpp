@@ -13,12 +13,10 @@
 
 namespace Crow::Detail {
 
-    template <typename T>
+    template <ArithmeticType T>
     class ImageMask {
 
     public:
-
-        static_assert(std::is_arithmetic_v<T>);
 
         using value_type = T;
 
@@ -39,8 +37,10 @@ namespace Crow::Detail {
         bool empty() const noexcept { return ! ptr_ || shape_.x() <= 0 || shape_.y() <= 0; }
         Point shape() const noexcept { return shape_; }
 
-        template <typename C, ImageFlags F> void make_image(Image<C, F>& image, C foreground, C background) const;
-        template <typename C, ImageFlags F> void onto_image(Image<C, F>& image, Point offset, C colour) const;
+        template <ColourType C, ImageFlags F> requires C::is_linear
+            void make_image(Image<C, F>& image, C foreground, C background) const;
+        template <ColourType C, ImageFlags F> requires C::is_linear
+            void onto_image(Image<C, F>& image, Point offset, C colour) const;
 
     private:
 
@@ -49,25 +49,24 @@ namespace Crow::Detail {
 
         size_t point_to_index(Point p) const noexcept { return size_t(shape_.x()) * size_t(p.y()) + size_t(p.x()); }
 
-        template <typename C> static constexpr C blend(C fg, C bg, T alpha, Pma pma) noexcept;
+        template <ColourType C> static constexpr C blend(C fg, C bg, T alpha, Pma pma) noexcept;
 
     };
 
         using ByteMask = ImageMask<unsigned char>;
         using HdrMask = ImageMask<float>;
 
-        template <typename T>
+        template <ArithmeticType T>
         ImageMask<T>::ImageMask(Point shape) noexcept:
         shape_(shape),
         ptr_(new T[area()]) {
             std::memset(ptr_.get(), 0, area() * sizeof(T));
         }
 
-        template <typename T>
-        template <typename C, ImageFlags F>
+        template <ArithmeticType T>
+        template <ColourType C, ImageFlags F>
+        requires C::is_linear
         void ImageMask<T>::make_image(Image<C, F>& image, C foreground, C background) const {
-
-            static_assert(C::is_linear);
 
             static constexpr Pma pma = Image<C, F>::is_premultiplied ? Pma::result : Pma::none;
 
@@ -79,11 +78,10 @@ namespace Crow::Detail {
 
         }
 
-        template <typename T>
-        template <typename C, ImageFlags F>
+        template <ArithmeticType T>
+        template <ColourType C, ImageFlags F>
+        requires C::is_linear
         void ImageMask<T>::onto_image(Image<C, F>& image, Point offset, C colour) const {
-
-            static_assert(C::is_linear);
 
             static constexpr Pma pma = Image<C, F>::is_premultiplied ? Pma::second | Pma::result : Pma::none;
 
@@ -106,8 +104,8 @@ namespace Crow::Detail {
 
         }
 
-        template <typename T>
-        template <typename C>
+        template <ArithmeticType T>
+        template <ColourType C>
         constexpr C ImageMask<T>::blend(C fg, C bg, T alpha, Pma pma) noexcept {
 
             using V = typename C::value_type;
