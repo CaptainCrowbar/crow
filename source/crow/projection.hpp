@@ -10,6 +10,7 @@
 #include "crow/vector.hpp"
 #include <algorithm>
 #include <cmath>
+#include <concepts>
 #include <cstdlib>
 #include <iterator>
 #include <map>
@@ -26,24 +27,24 @@ namespace Crow {
     // Forward declarations
 
     class MapProjection;
-        template <typename T> class BasicMapProjection;
-            template <typename T> class AzimuthalProjection;
-                template <typename T> class AzimuthalEquidistantProjection;
-                template <typename T> class GnomonicProjection;
-                template <typename T> class LambertAzimuthalProjection;
-                template <typename T> class OrthographicProjection;
-                template <typename T> class StereographicProjection;
-            template <typename T> class CylindricalProjection;
-                template <typename T> class CylindricalEquidistantProjection;
-                template <typename T> class LambertCylindricalProjection;
-                template <typename T> class GallPetersProjection;
-                template <typename T> class MercatorProjection;
-            template <typename T> class PseudocylindricalProjection;
-                template <typename T> class Eckert4Projection;
-                template <typename T> class MollweideProjection;
-                template <typename T> class SinusoidalProjection;
-                template <typename T> class InterruptedProjectionBase;
-                    template <typename Projection> class InterruptedProjection;
+        template <std::floating_point T> class BasicMapProjection;
+            template <std::floating_point T> class AzimuthalProjection;
+                template <std::floating_point T> class AzimuthalEquidistantProjection;
+                template <std::floating_point T> class GnomonicProjection;
+                template <std::floating_point T> class LambertAzimuthalProjection;
+                template <std::floating_point T> class OrthographicProjection;
+                template <std::floating_point T> class StereographicProjection;
+            template <std::floating_point T> class CylindricalProjection;
+                template <std::floating_point T> class CylindricalEquidistantProjection;
+                template <std::floating_point T> class LambertCylindricalProjection;
+                template <std::floating_point T> class GallPetersProjection;
+                template <std::floating_point T> class MercatorProjection;
+            template <std::floating_point T> class PseudocylindricalProjection;
+                template <std::floating_point T> class Eckert4Projection;
+                template <std::floating_point T> class MollweideProjection;
+                template <std::floating_point T> class SinusoidalProjection;
+                template <std::floating_point T> class InterruptedProjectionBase;
+                    template <typename Projection> requires std::derived_from<Projection, MapProjection> class InterruptedProjection;
 
     // Constants
 
@@ -138,7 +139,7 @@ namespace Crow {
         // point is at (0,pi/2) (= lat/long zero), and reverse this
         // transformation.
 
-        template <typename T>
+        template <std::floating_point T>
         class PolarReduce {
         private:
             using V2 = Vector<T, 2>;
@@ -209,7 +210,7 @@ namespace Crow {
 
     // Typed abstract base class
 
-    template <typename T>
+    template <std::floating_point T>
     class BasicMapProjection:
     public MapProjection {
     public:
@@ -243,30 +244,30 @@ namespace Crow {
         polar_reduce offset_;
     };
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> BasicMapProjection<T>::globe_to_map(Vector<T, 2> polar) const noexcept {
         auto rel_polar = offset_.reduce_to_polar(polar);
         return canonical_to_map(rel_polar);
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> BasicMapProjection<T>::map_to_globe(Vector<T, 2> xy) const noexcept {
         auto rel_polar = canonical_to_globe(xy);
         return offset_.inverse_from_polar(rel_polar);
     }
 
-    template <typename T>
+    template <std::floating_point T>
     bool BasicMapProjection<T>::is_on_globe(Vector<T, 2> polar) const noexcept {
         auto rel_polar = offset_.reduce_to_polar(polar);
         return canonical_on_globe(rel_polar);
     }
 
-    template <typename T>
+    template <std::floating_point T>
     bool BasicMapProjection<T>::is_on_map(Vector<T, 2> xy) const noexcept {
         return canonical_on_map(xy);
     }
 
-    template <typename T>
+    template <std::floating_point T>
     bool BasicMapProjection<T>::canonical_on_globe(Vector<T, 2> polar) const noexcept{
         using std::numbers::pi_v;
         switch (cover()) {
@@ -277,7 +278,7 @@ namespace Crow {
         }
     }
 
-    template <typename T>
+    template <std::floating_point T>
     bool BasicMapProjection<T>::canonical_on_map(Vector<T, 2> xy) const noexcept {
         T a, b;
         switch (properties() & Maps::shape_mask) {
@@ -295,7 +296,7 @@ namespace Crow {
         }
     }
 
-    template <typename T>
+    template <std::floating_point T>
     T BasicMapProjection<T>::angle_from_origin(Vector<T, 2> polar) const noexcept {
         using V3 = Vector<T, 3>;
         V3 sph = {T(1), polar[0], polar[1]};
@@ -305,31 +306,32 @@ namespace Crow {
 
     // Intermediate abstract base classes
 
-    template <typename T>
+    template <std::floating_point T>
     class AzimuthalProjection:
     public BasicMapProjection<T> {
     protected:
         explicit AzimuthalProjection(Vector<T, 2> origin) noexcept: BasicMapProjection<T>(origin) {}
     };
 
-    template <typename T>
+    template <std::floating_point T>
     class CylindricalProjection:
     public BasicMapProjection<T> {
     protected:
         explicit CylindricalProjection(Vector<T, 2> origin) noexcept: BasicMapProjection<T>(origin) {}
     };
 
-    template <typename T>
+    template <std::floating_point T>
     class PseudocylindricalProjection:
     public BasicMapProjection<T> {
     protected:
-        template <typename Projection> friend class InterruptedProjection;
+        template <typename Projection> requires std::derived_from<Projection, MapProjection>
+            friend class InterruptedProjection;
         explicit PseudocylindricalProjection(Vector<T, 2> origin) noexcept: BasicMapProjection<T>(origin) {}
     };
 
     // Azimuthal projection classes
 
-    template <typename T>
+    template <std::floating_point T>
     class AzimuthalEquidistantProjection:
     public AzimuthalProjection<T> {
     public:
@@ -350,13 +352,13 @@ namespace Crow {
     };
 
 
-    template <typename T>
+    template <std::floating_point T>
     bool AzimuthalEquidistantProjection<T>::canonical_on_map(Vector<T, 2> xy) const noexcept {
         using std::numbers::pi_v;
         return pow(xy.x(), T(2)) + pow(xy.y(), T(2)) <= pi_v<T> * pi_v<T>;
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> AzimuthalEquidistantProjection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
         using std::numbers::pi_v;
         T x = xy.x();
@@ -371,7 +373,7 @@ namespace Crow {
         return {euclidean_remainder(ph, 2 * pi_v<T>), theta};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> AzimuthalEquidistantProjection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
         using std::numbers::pi_v;
         T ph = polar[0];
@@ -389,7 +391,7 @@ namespace Crow {
         return {x, y};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     class GnomonicProjection:
     public AzimuthalProjection<T> {
     public:
@@ -407,13 +409,13 @@ namespace Crow {
         virtual Vector<T, 2> canonical_to_map(Vector<T, 2> polar) const noexcept override;
     };
 
-    template <typename T>
+    template <std::floating_point T>
     bool GnomonicProjection<T>::canonical_on_globe(Vector<T, 2> polar) const noexcept {
         using std::numbers::pi_v;
         return this->angle_from_origin(polar) < pi_v<T>;
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> GnomonicProjection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
         using std::numbers::pi_v;
         T x = xy.x();
@@ -429,7 +431,7 @@ namespace Crow {
         return {euclidean_remainder(ph, 2 * pi_v<T>), theta};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> GnomonicProjection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
         using std::numbers::pi_v;
         T ph = polar[0];
@@ -444,7 +446,7 @@ namespace Crow {
         return {x, y};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     class LambertAzimuthalProjection:
     public AzimuthalProjection<T> {
     public:
@@ -464,7 +466,7 @@ namespace Crow {
         virtual Vector<T, 2> canonical_to_map(Vector<T, 2> polar) const noexcept override;
     };
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> LambertAzimuthalProjection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
         using std::numbers::pi_v;
         T x = xy.x();
@@ -480,7 +482,7 @@ namespace Crow {
         return {euclidean_remainder(ph, 2 * pi_v<T>), theta};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> LambertAzimuthalProjection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
         using std::numbers::pi_v;
         T ph = polar[0];
@@ -498,7 +500,7 @@ namespace Crow {
         return {x, y};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     class OrthographicProjection:
     public AzimuthalProjection<T> {
     public:
@@ -518,13 +520,13 @@ namespace Crow {
         virtual Vector<T, 2> canonical_to_map(Vector<T, 2> polar) const noexcept override;
     };
 
-    template <typename T>
+    template <std::floating_point T>
     bool OrthographicProjection<T>::canonical_on_globe(Vector<T, 2> polar) const noexcept {
         using std::numbers::pi_v;
         return this->angle_from_origin(polar) <= pi_v<T>;
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> OrthographicProjection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
         using std::numbers::pi_v;
         T x = xy.x();
@@ -535,7 +537,7 @@ namespace Crow {
         return {euclidean_remainder(ph, 2 * pi_v<T>), theta};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> OrthographicProjection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
         using std::numbers::pi_v;
         T ph = polar[0];
@@ -548,7 +550,7 @@ namespace Crow {
         return {x, y};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     class StereographicProjection:
     public AzimuthalProjection<T> {
     public:
@@ -566,13 +568,13 @@ namespace Crow {
         virtual Vector<T, 2> canonical_to_map(Vector<T, 2> polar) const noexcept override;
     };
 
-    template <typename T>
+    template <std::floating_point T>
     bool StereographicProjection<T>::canonical_on_globe(Vector<T, 2> polar) const noexcept {
         using std::numbers::pi_v;
         return this->angle_from_origin(polar) < 2 * pi_v<T>;
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> StereographicProjection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
         using std::numbers::pi_v;
         T x = xy.x();
@@ -588,7 +590,7 @@ namespace Crow {
         return {euclidean_remainder(ph, 2 * pi_v<T>), theta};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> StereographicProjection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
         using std::numbers::pi_v;
         T ph = polar[0];
@@ -605,7 +607,7 @@ namespace Crow {
 
     // Cylindrical projection classes
 
-    template <typename T>
+    template <std::floating_point T>
     class CylindricalEquidistantProjection:
     public CylindricalProjection<T> {
     public:
@@ -625,7 +627,7 @@ namespace Crow {
         virtual Vector<T, 2> canonical_to_map(Vector<T, 2> polar) const noexcept override;
     };
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> CylindricalEquidistantProjection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
         using std::numbers::pi_v;
         T x = xy.x();
@@ -635,7 +637,7 @@ namespace Crow {
         return {ph, theta};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> CylindricalEquidistantProjection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
         using std::numbers::pi_v;
         T ph = polar[0];
@@ -645,7 +647,7 @@ namespace Crow {
         return {x, y};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     class LambertCylindricalProjection:
     public CylindricalProjection<T> {
     public:
@@ -666,7 +668,7 @@ namespace Crow {
         virtual Vector<T, 2> canonical_to_map(Vector<T, 2> polar) const noexcept override;
     };
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> LambertCylindricalProjection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
         using std::numbers::pi_v;
         T x = xy.x();
@@ -676,7 +678,7 @@ namespace Crow {
         return {ph, theta};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> LambertCylindricalProjection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
         using std::numbers::pi_v;
         T ph = polar[0];
@@ -686,7 +688,7 @@ namespace Crow {
         return {x, y};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     class GallPetersProjection:
     public CylindricalProjection<T> {
     public:
@@ -708,19 +710,19 @@ namespace Crow {
         LambertCylindricalProjection<T> lambert_;
     };
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> GallPetersProjection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
         return lambert_.canonical_to_globe(Vector<T, 2>(xy.x(), xy.y() / 2));
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> GallPetersProjection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
         auto xy = lambert_.canonical_to_map(polar);
         xy.y() *= 2;
         return xy;
     }
 
-    template <typename T>
+    template <std::floating_point T>
     class MercatorProjection:
     public CylindricalProjection<T> {
     public:
@@ -741,13 +743,13 @@ namespace Crow {
         virtual Vector<T, 2> canonical_to_map(Vector<T, 2> polar) const noexcept override;
     };
 
-    template <typename T>
+    template <std::floating_point T>
     bool MercatorProjection<T>::canonical_on_globe(Vector<T, 2> polar) const noexcept {
         using std::numbers::pi_v;
         return polar[1] > 0 && polar[1] < pi_v<T>;
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> MercatorProjection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
         using std::numbers::pi_v;
         T x = xy.x();
@@ -757,7 +759,7 @@ namespace Crow {
         return {ph, theta};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> MercatorProjection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
         using std::numbers::pi_v;
         T ph = polar[0];
@@ -769,7 +771,7 @@ namespace Crow {
 
     // Pseudo-cylindrical projection classes
 
-    template <typename T>
+    template <std::floating_point T>
     class Eckert4Projection:
     public PseudocylindricalProjection<T> {
     public:
@@ -789,7 +791,7 @@ namespace Crow {
         virtual Vector<T, 2> canonical_to_map(Vector<T, 2> polar) const noexcept override;
     };
 
-    template <typename T>
+    template <std::floating_point T>
     bool Eckert4Projection<T>::canonical_on_map(Vector<T, 2> xy) const noexcept {
         using std::numbers::pi_v;
         auto abs_x = std::abs(xy.x());
@@ -801,7 +803,7 @@ namespace Crow {
             return false;
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> Eckert4Projection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
         using std::numbers::pi_v;
         T x = xy.x();
@@ -814,7 +816,7 @@ namespace Crow {
         return {euclidean_remainder(ph, 2 * pi_v<T>), theta};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> Eckert4Projection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
         using std::numbers::pi_v;
         T ph = polar[0];
@@ -829,7 +831,7 @@ namespace Crow {
         return {x, y};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     class MollweideProjection:
     public PseudocylindricalProjection<T> {
     public:
@@ -850,7 +852,7 @@ namespace Crow {
         virtual Vector<T, 2> canonical_to_map(Vector<T, 2> polar) const noexcept override;
     };
 
-    template <typename T>
+    template <std::floating_point T>
     bool MollweideProjection<T>::canonical_on_map(Vector<T, 2> xy) const noexcept {
         using std::numbers::pi_v;
         T x = xy.x();
@@ -858,7 +860,7 @@ namespace Crow {
         return x * x + 4 * y * y <= pi_v<T> * pi_v<T>;
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> MollweideProjection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
         using std::numbers::pi_v;
         T x = xy.x();
@@ -872,7 +874,7 @@ namespace Crow {
         return {euclidean_remainder(ph, 2 * pi_v<T>), theta};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> MollweideProjection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
         using std::numbers::pi_v;
         T ph = polar[0];
@@ -887,7 +889,7 @@ namespace Crow {
         return {x, y};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     class SinusoidalProjection:
     public PseudocylindricalProjection<T> {
     public:
@@ -907,13 +909,13 @@ namespace Crow {
         virtual Vector<T, 2> canonical_to_map(Vector<T, 2> polar) const noexcept override;
     };
 
-    template <typename T>
+    template <std::floating_point T>
     bool SinusoidalProjection<T>::canonical_on_map(Vector<T, 2> xy) const noexcept {
         using std::numbers::pi_v;
         return std::abs(xy.x()) <= pi_v<T> * std::cos(xy.y());
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> SinusoidalProjection<T>::canonical_to_globe(Vector<T, 2> xy) const noexcept {
         using std::numbers::pi_v;
         T x = xy.x();
@@ -926,7 +928,7 @@ namespace Crow {
         return {euclidean_remainder(ph, 2 * pi_v<T>), theta};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> SinusoidalProjection<T>::canonical_to_map(Vector<T, 2> polar) const noexcept {
         using std::numbers::pi_v;
         T ph = polar[0];
@@ -938,16 +940,16 @@ namespace Crow {
 
     // Interrupted projection classes
 
-    template <typename T>
+    template <std::floating_point T>
     class InterruptedProjectionBase:
     public PseudocylindricalProjection<T> {
     public:
-        template <typename Range> void interrupt(const Range& inter) { interrupt(inter, inter); }
-        template <typename Range> void interrupt(const Range& inter_north, const Range& inter_south);
+        template <RangeType Range> void interrupt(const Range& inter) { interrupt(inter, inter); }
+        template <RangeType Range> void interrupt(const Range& inter_north, const Range& inter_south);
     protected:
         using coord_list = std::vector<T>;
         struct segment_type { T begin, centre, delta, end; };
-        template <typename Range> InterruptedProjectionBase(Vector<T, 2> origin, const Range& inter_north, const Range& inter_south):
+        template <RangeType Range> InterruptedProjectionBase(Vector<T, 2> origin, const Range& inter_north, const Range& inter_south):
             PseudocylindricalProjection<T>(origin), segments_() { interrupt(inter_north, inter_south); }
         const segment_type& find_segment(T x, bool south) const noexcept;
     private:
@@ -955,8 +957,8 @@ namespace Crow {
         segment_map segments_[2];
     };
 
-    template <typename T>
-    template <typename Range>
+    template <std::floating_point T>
+    template <RangeType Range>
     void InterruptedProjectionBase<T>::interrupt(const Range& inter_north, const Range& inter_south) {
         using std::numbers::pi_v;
         const Range* ptrs[] = {&inter_north, &inter_south};
@@ -979,7 +981,7 @@ namespace Crow {
             segments_[i].swap(new_segments[i]);
     }
 
-    template <typename T>
+    template <std::floating_point T>
     const typename InterruptedProjectionBase<T>::segment_type&
     InterruptedProjectionBase<T>::find_segment(T x, bool south) const noexcept {
         auto& map = segments_[int(south)];
@@ -990,6 +992,7 @@ namespace Crow {
     }
 
     template <typename Projection>
+    requires std::derived_from<Projection, MapProjection>
     class InterruptedProjection:
     public InterruptedProjectionBase<typename Projection::scalar_type> {
     private:
@@ -1005,9 +1008,9 @@ namespace Crow {
             (Projection::map_properties & ~ Maps::shape_mask & ~ Maps::hemisphere_circle) | Maps::other_shape | Maps::interrupted;
         InterruptedProjection():
             base_type(BasicMapProjection<T>::default_origin, coord_list(), coord_list()), proj_() {}
-        template <typename Range> InterruptedProjection(vector_type origin, const Range& inter):
+        template <RangeType Range> InterruptedProjection(vector_type origin, const Range& inter):
             base_type(origin, inter, inter), proj_() {}
-        template <typename Range> InterruptedProjection(vector_type origin, const Range& inter_north, const Range& inter_south):
+        template <RangeType Range> InterruptedProjection(vector_type origin, const Range& inter_north, const Range& inter_south):
             base_type(origin, inter_north, inter_south), proj_() {}
         virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
             { return std::make_shared<InterruptedProjection>(*this); }
@@ -1026,6 +1029,7 @@ namespace Crow {
     };
 
     template <typename Projection>
+    requires std::derived_from<Projection, MapProjection>
     bool InterruptedProjection<Projection>::canonical_on_map(vector_type xy) const noexcept {
         using std::numbers::pi_v;
         if (std::abs(xy.x()) > proj_.max_x() || std::abs(xy.y()) > proj_.max_y())
@@ -1042,6 +1046,7 @@ namespace Crow {
     }
 
     template <typename Projection>
+    requires std::derived_from<Projection, MapProjection>
     typename InterruptedProjection<Projection>::vector_type
     InterruptedProjection<Projection>::canonical_to_globe(vector_type xy) const noexcept {
         using std::numbers::pi_v;
@@ -1056,6 +1061,7 @@ namespace Crow {
     }
 
     template <typename Projection>
+    requires std::derived_from<Projection, MapProjection>
     typename InterruptedProjection<Projection>::vector_type
     InterruptedProjection<Projection>::canonical_to_map(vector_type polar) const noexcept {
         using std::numbers::pi_v;

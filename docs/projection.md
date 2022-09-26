@@ -118,11 +118,10 @@ from each of these will always have exactly one bit set.
 ### Map projection template
 
 ```c++
-template <typename T> class BasicMapProjection: public MapProjection;
+template <std::floating_point T> class BasicMapProjection: public MapProjection;
 ```
 
-The common base class for all map projections with a specific scalar type. `T`
-must be a floating point arithmetic type.
+The common base class for all map projections with a specific scalar type.
 
 ```c++
 using BasicMapProjection::scalar_type = T;
@@ -207,11 +206,11 @@ than _π_.
 ### Projection family intermediate base classes
 
 ```c++
-template <typename T> class AzimuthalProjection:
+template <std::floating_point T> class AzimuthalProjection:
     public BasicMapProjection<T>;
-template <typename T> class CylindricalProjection:
+template <std::floating_point T> class CylindricalProjection:
     public BasicMapProjection<T>;
-template <typename T> class PseudocylindricalProjection:
+template <std::floating_point T> class PseudocylindricalProjection:
     public BasicMapProjection<T>;
 ```
 
@@ -225,7 +224,7 @@ concrete projections of any other type are currently implemented.
 ### Azimuthal equidistant projection
 
 ```c++
-template <typename T> class AzimuthalEquidistantProjection:
+template <std::floating_point T> class AzimuthalEquidistantProjection:
         public AzimuthalProjection<T> {
     static constexpr Maps map_properties =
         Maps::azimuthal | Maps::sphere | Maps::circle | Maps::hemisphere_circle;
@@ -241,7 +240,7 @@ also known as the Postel or zenithal equidistant projection.
 ### Gnomonic projection
 
 ```c++
-template <typename T> class GnomonicProjection:
+template <std::floating_point T> class GnomonicProjection:
         public AzimuthalProjection<T> {
     static constexpr Maps map_properties =
         Maps::azimuthal | Maps::sub_hemisphere | Maps::plane;
@@ -256,7 +255,7 @@ template <typename T> class GnomonicProjection:
 ### Lambert azimuthal projection
 
 ```c++
-template <typename T> class LambertAzimuthalProjection:
+template <std::floating_point T> class LambertAzimuthalProjection:
         public AzimuthalProjection<T> {
     static constexpr Maps map_properties =
         Maps::azimuthal | Maps::sphere | Maps::circle | Maps::equal_area
@@ -273,7 +272,7 @@ also known as the azimuthal equal-area projection or Lambert zenithal equal-area
 ### Orthographic projection
 
 ```c++
-template <typename T> class OrthographicProjection:
+template <std::floating_point T> class OrthographicProjection:
         public AzimuthalProjection<T> {
     static constexpr Maps map_properties =
         Maps::azimuthal | Maps::hemisphere | Maps::circle
@@ -290,7 +289,7 @@ also known as the orthogonal projection.
 ### Stereographic projection
 
 ```c++
-template <typename T> class StereographicProjection:
+template <std::floating_point T> class StereographicProjection:
         public AzimuthalProjection<T> {
     static constexpr Maps map_properties =
         Maps::azimuthal | Maps::sub_sphere | Maps::plane | Maps::conformal
@@ -308,7 +307,7 @@ template <typename T> class StereographicProjection:
 ### Cylindrical equidistant projection
 
 ```c++
-template <typename T> class CylindricalEquidistantProjection:
+template <std::floating_point T> class CylindricalEquidistantProjection:
         public CylindricalProjection<T> {
     static constexpr Maps map_properties =
         Maps::cylindrical | Maps::sphere | Maps::rectangle;
@@ -324,7 +323,7 @@ also known as the equirectangular projection, geographic projection, plate carr�
 ### Gall-Peters projection
 
 ```c++
-template <typename T> class GallPetersProjection:
+template <std::floating_point T> class GallPetersProjection:
         public CylindricalProjection<T> {
     static constexpr Maps map_properties =
         LambertCylindricalProjection<T>::map_properties;
@@ -340,7 +339,7 @@ also known as the Gall orthographic projection.
 ### Lambert cylindrical projection
 
 ```c++
-template <typename T> class LambertCylindricalProjection:
+template <std::floating_point T> class LambertCylindricalProjection:
         public CylindricalProjection<T> {
     static constexpr Maps map_properties =
         Maps::cylindrical | Maps::sphere | Maps::rectangle | Maps::equal_area;
@@ -356,7 +355,7 @@ also known as the cylindrical equal-area projection.
 ### Mercator projection
 
 ```c++
-template <typename T> class MercatorProjection:
+template <std::floating_point T> class MercatorProjection:
         public CylindricalProjection<T> {
     static constexpr Maps map_properties =
         Maps::cylindrical | Maps::sub_sphere | Maps::other_shape
@@ -374,7 +373,7 @@ template <typename T> class MercatorProjection:
 ### Eckert IV projection
 
 ```c++
-template <typename T> class Eckert4Projection:
+template <std::floating_point T> class Eckert4Projection:
         public PseudocylindricalProjection<T> {
     static constexpr Maps map_properties =
         Maps::pseudocylindrical | Maps::sphere | Maps::other_shape
@@ -390,7 +389,7 @@ template <typename T> class Eckert4Projection:
 ### Mollweide projection
 
 ```c++
-template <typename T> class MollweideProjection:
+template <std::floating_point T> class MollweideProjection:
         public PseudocylindricalProjection<T> {
     static constexpr Maps map_properties =
         Maps::pseudocylindrical | Maps::sphere | Maps::ellipse | Maps::equal_area
@@ -407,7 +406,7 @@ also known as the Babinet projection, elliptical equal-area projection, or homol
 ### Sinusoidal projection
 
 ```c++
-template <typename T> class SinusoidalProjection:
+template <std::floating_point T> class SinusoidalProjection:
         public PseudocylindricalProjection<T> {
     static constexpr Maps map_properties =
         Maps::pseudocylindrical | Maps::sphere | Maps::other_shape
@@ -424,18 +423,18 @@ also known as the Mercator equal-area projection or Sanson–Flamsteed projectio
 ## Interrupted projection classes
 
 ```c++
-template <typename T> class InterruptedProjectionBase:
+template <std::floating_point T> class InterruptedProjectionBase:
         public PseudocylindricalProjection<T> {
-    template <typename Range> void interrupt(const Range& inter);
-    template <typename Range> void interrupt(const Range& inter_north,
+    template <RangeType Range> void interrupt(const Range& inter);
+    template <RangeType Range> void interrupt(const Range& inter_north,
         const Range& inter_south);
 };
 template <typename Projection> class InterruptedProjection:
         public InterruptedProjectionBase<Projection::scalar_type> {
     using InterruptedProjection::projection_type = Projection;
-    template <typename Range> InterruptedProjection(vector_type origin,
+    template <RangeType Range> InterruptedProjection(vector_type origin,
         const Range& inter);
-    template <typename Range> InterruptedProjection(vector_type origin,
+    template <RangeType Range> InterruptedProjection(vector_type origin,
         const Range& inter_north, const Range& inter_south);
 };
 ```

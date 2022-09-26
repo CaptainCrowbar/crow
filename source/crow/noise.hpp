@@ -5,6 +5,7 @@
 #include "crow/vector.hpp"
 #include <algorithm>
 #include <array>
+#include <concepts>
 #include <cstdlib>
 #include <type_traits>
 
@@ -12,7 +13,7 @@ namespace Crow {
 
     namespace Detail {
 
-        template <typename T>
+        template <std::floating_point T>
         constexpr int fast_floor(T x) noexcept {
             int i = int(x);
             return i - int(x < T(i));
@@ -30,11 +31,11 @@ namespace Crow {
 
     // Noise class template
 
-    template <typename T, int N> class Noise;
+    template <std::floating_point T, int N> class Noise;
 
     // 2D noise
 
-    template <typename T>
+    template <std::floating_point T>
     class Noise<T, 2> {
 
     public:
@@ -94,7 +95,7 @@ namespace Crow {
 
     };
 
-        template <typename T>
+        template <std::floating_point T>
         void Noise<T, 2>::seed(uint64_t s) noexcept {
 
             using namespace Detail;
@@ -118,7 +119,7 @@ namespace Crow {
 
         }
 
-        template <typename T>
+        template <std::floating_point T>
         T Noise<T, 2>::operator()(const vector_type& point) const noexcept {
 
             using namespace Detail;
@@ -169,7 +170,7 @@ namespace Crow {
 
         }
 
-        template <typename T>
+        template <std::floating_point T>
         Noise<T, 2>::grad_table::grad_table() noexcept {
 
             static constexpr int n = 24;
@@ -192,7 +193,7 @@ namespace Crow {
 
         }
 
-        template <typename T>
+        template <std::floating_point T>
         Noise<T, 2>::lattice_table::lattice_table() noexcept {
 
             int i1, j1, i2, j2;
@@ -242,7 +243,7 @@ namespace Crow {
 
     // 3D noise
 
-    template <typename T>
+    template <std::floating_point T>
     class Noise<T, 3> {
 
     public:
@@ -302,7 +303,7 @@ namespace Crow {
 
     };
 
-        template <typename T>
+        template <std::floating_point T>
         void Noise<T, 3>::seed(uint64_t s) noexcept {
 
             using namespace Detail;
@@ -326,7 +327,7 @@ namespace Crow {
 
         }
 
-        template <typename T>
+        template <std::floating_point T>
         T Noise<T, 3>::operator()(const vector_type& point) const noexcept {
 
             using namespace Detail;
@@ -387,7 +388,7 @@ namespace Crow {
 
         }
 
-        template <typename T>
+        template <std::floating_point T>
         Noise<T, 3>::grad_table::grad_table() noexcept {
 
             static constexpr int n = 48;
@@ -416,7 +417,7 @@ namespace Crow {
 
         }
 
-        template <typename T>
+        template <std::floating_point T>
         Noise<T, 3>::lattice_table::lattice_table() noexcept {
 
             for (int i = 0; i < 8; i++) {
@@ -475,7 +476,7 @@ namespace Crow {
 
     // Generalised noise source
 
-    template <typename T, int DimIn, int DimOut>
+    template <std::floating_point T, int DimIn, int DimOut>
     class NoiseSource {
 
     public:
@@ -517,13 +518,13 @@ namespace Crow {
 
     };
 
-        template <typename T, int DimIn, int DimOut>
+        template <std::floating_point T, int DimIn, int DimOut>
         NoiseSource<T, DimIn, DimOut>::NoiseSource(T cell, T scale, int octaves, uint64_t s) noexcept:
         generators_(), cell_(std::abs(cell)), scale_(std::abs(scale)), octaves_(octaves) {
             seed(s);
         }
 
-        template <typename T, int DimIn, int DimOut>
+        template <std::floating_point T, int DimIn, int DimOut>
         typename NoiseSource<T, DimIn, DimOut>::result_type NoiseSource<T, DimIn, DimOut>::operator()(domain_type point) const noexcept {
 
             point /= cell_;
@@ -550,7 +551,7 @@ namespace Crow {
 
         }
 
-        template <typename T, int DimIn, int DimOut>
+        template <std::floating_point T, int DimIn, int DimOut>
         void NoiseSource<T, DimIn, DimOut>::seed(uint64_t s) noexcept {
             using namespace Detail;
             for (auto& gen: generators_) {

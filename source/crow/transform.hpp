@@ -6,57 +6,58 @@
 #include "crow/types.hpp"
 #include "crow/vector.hpp"
 #include <cmath>
+#include <concepts>
 #include <type_traits>
 
 namespace Crow {
 
     // Coordinate transformations
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> cartesian_to_polar(const Vector<T, 2>& xy) noexcept {
         static_assert(std::is_floating_point_v<T>);
         return {xy.r(), std::atan2(xy[1], xy[0])};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 2> polar_to_cartesian(const Vector<T, 2>& rt) noexcept {
         static_assert(std::is_floating_point_v<T>);
         return {rt[0] * std::cos(rt[1]), rt[0] * std::sin(rt[1])};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 3> cartesian_to_cylindrical(const Vector<T, 3>& xyz) noexcept {
         static_assert(std::is_floating_point_v<T>);
         return {std::sqrt(xyz[0] * xyz[0] + xyz[1] * xyz[1]), std::atan2(xyz[1], xyz[0]), xyz[2]};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 3> cartesian_to_spherical(const Vector<T, 3>& xyz) noexcept {
         static_assert(std::is_floating_point_v<T>);
         T rho = std::sqrt(xyz[0] * xyz[0] + xyz[1] * xyz[1]);
         return {xyz.r(), std::atan2(xyz[1], xyz[0]), std::atan2(rho, xyz[2])};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 3> cylindrical_to_cartesian(const Vector<T, 3>& rpz) noexcept {
         static_assert(std::is_floating_point_v<T>);
         return {rpz[0] * std::cos(rpz[1]), rpz[0] * std::sin(rpz[1]), rpz[2]};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 3> cylindrical_to_spherical(const Vector<T, 3>& rpz) noexcept {
         static_assert(std::is_floating_point_v<T>);
         return {std::sqrt(rpz[0] * rpz[0] + rpz[2] * rpz[2]), rpz[1], std::atan2(rpz[0], rpz[2])};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 3> spherical_to_cartesian(const Vector<T, 3>& rpt) noexcept {
         static_assert(std::is_floating_point_v<T>);
         T rho = rpt[0] * std::sin(rpt[2]);
         return {rho * std::cos(rpt[1]), rho * std::sin(rpt[1]), rpt[0] * std::cos(rpt[2])};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 3> spherical_to_cylindrical(const Vector<T, 3>& rpt) noexcept {
         static_assert(std::is_floating_point_v<T>);
         return {rpt[0] * std::sin(rpt[2]), rpt[1], rpt[0] * std::cos(rpt[2])};
@@ -64,23 +65,23 @@ namespace Crow {
 
     // Projective geometry
 
-    template <typename T>
+    template <std::floating_point T>
     inline Vector<T, 4> vector4(const Vector<T, 3>& v, T w) noexcept {
         static_assert(std::is_floating_point_v<T>);
         return {v.x(), v.y(), v.z(), w};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     inline Vector<T, 4> point4(const Vector<T, 3>& v) noexcept {
         return vector4(v, T(1));
     }
 
-    template <typename T>
+    template <std::floating_point T>
     inline Vector<T, 4> normal4(const Vector<T, 3>& v) noexcept {
         return vector4(v, T(0));
     }
 
-    template <typename T>
+    template <std::floating_point T>
     inline Vector<T, 3> point3(const Vector<T, 4>& v) noexcept {
         static_assert(std::is_floating_point_v<T>);
         Vector<T, 3> u{v.x(), v.y(), v.z()};
@@ -89,13 +90,13 @@ namespace Crow {
         return u;
     }
 
-    template <typename T>
+    template <std::floating_point T>
     inline Vector<T, 3> normal3(const Vector<T, 4>& v) noexcept {
         static_assert(std::is_floating_point_v<T>);
         return {v.x(), v.y(), v.z()};
     }
 
-    template <typename T, MatrixLayout L>
+    template <std::floating_point T, MatrixLayout L>
     Matrix<T, 4, L> make_transform(const Matrix<T, 3, L>& m, const Vector<T, 3>& v) noexcept {
         static_assert(std::is_floating_point_v<T>);
         auto t = Matrix<T, 4, L>::identity();
@@ -107,7 +108,7 @@ namespace Crow {
         return t;
     }
 
-    template <typename T, MatrixLayout L>
+    template <std::floating_point T, MatrixLayout L>
     inline Matrix<T, 4, L> normal_transform(const Matrix<T, 4, L>& m) noexcept {
         static_assert(std::is_floating_point_v<T>);
         return m.inverse().transposed();
@@ -115,7 +116,7 @@ namespace Crow {
 
     // Primitive transformations
 
-    template <typename T>
+    template <std::floating_point T>
     Matrix<T, 3> rotate3(T angle, int index) noexcept {
         static_assert(std::is_floating_point_v<T>);
         auto c = std::cos(angle), s = std::sin(angle);
@@ -129,7 +130,7 @@ namespace Crow {
         return m;
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Matrix<T, 4> rotate4(T angle, int index) noexcept {
         static_assert(std::is_floating_point_v<T>);
         auto c = std::cos(angle), s = std::sin(angle);
@@ -143,13 +144,13 @@ namespace Crow {
         return m;
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Matrix<T, 3> scale3(T t) noexcept {
         static_assert(std::is_floating_point_v<T>);
         return Matrix<T, 3>(t, T(0));
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Matrix<T, 3> scale3(const Vector<T, 3>& v) noexcept {
         static_assert(std::is_floating_point_v<T>);
         Matrix<T, 3> m;
@@ -158,7 +159,7 @@ namespace Crow {
         return m;
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Matrix<T, 4> scale4(T t) noexcept {
         static_assert(std::is_floating_point_v<T>);
         Matrix<T, 4> m(t, T(0));
@@ -166,7 +167,7 @@ namespace Crow {
         return m;
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Matrix<T, 4> scale4(const Vector<T, 3>& v) noexcept {
         static_assert(std::is_floating_point_v<T>);
         Matrix<T, 4> m;
@@ -176,7 +177,7 @@ namespace Crow {
         return m;
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Matrix<T, 4> translate4(const Vector<T, 3>& v) noexcept {
         static_assert(std::is_floating_point_v<T>);
         auto m = Matrix<T, 4>::identity();
@@ -189,7 +190,7 @@ namespace Crow {
 
     namespace Detail {
 
-        template <typename T, int N>
+        template <std::floating_point T, int N>
         void build_matrix(const Quaternion<T>& q, Matrix<T, N>& m) noexcept {
             m(0, 0) = q.a() * q.a() + q.b() * q.b() - q.c() * q.c() - q.d() * q.d();
             m(0, 1) = T(2) * q.b() * q.c() - T(2) * q.a() * q.d();
@@ -204,13 +205,13 @@ namespace Crow {
 
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Vector<T, 3> rotate(const Quaternion<T>& q, const Vector<T, 3>& v) noexcept {
         static_assert(std::is_floating_point_v<T>);
         return q.conj({T(0), v}).vector_part();
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Quaternion<T> q_rotate(T angle, const Vector<T, 3>& axis) noexcept {
         static_assert(std::is_floating_point_v<T>);
         if (axis.is_null())
@@ -219,7 +220,7 @@ namespace Crow {
         return {std::cos(angle), std::sin(angle) * axis.dir()};
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Matrix<T, 3> rotate3(const Quaternion<T>& q) noexcept {
         static_assert(std::is_floating_point_v<T>);
         Matrix<T, 3> m;
@@ -227,7 +228,7 @@ namespace Crow {
         return m;
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Matrix<T, 4> rotate4(const Quaternion<T>& q) noexcept {
         static_assert(std::is_floating_point_v<T>);
         Matrix<T, 4> m;
@@ -236,13 +237,13 @@ namespace Crow {
         return m;
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Matrix<T, 3> rotate3(T angle, const Vector<T, 3>& axis) noexcept {
         static_assert(std::is_floating_point_v<T>);
         return rotate3(q_rotate(angle, axis));
     }
 
-    template <typename T>
+    template <std::floating_point T>
     Matrix<T, 4> rotate4(T angle, const Vector<T, 3>& axis) noexcept {
         static_assert(std::is_floating_point_v<T>);
         return rotate4(q_rotate(angle, axis));

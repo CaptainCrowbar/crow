@@ -15,19 +15,18 @@ namespace Crow;
 ## Noise class
 
 ```c++
-template <typename T, int N> class Noise;
+template <std::floating_point T, int N> class Noise;
 ```
 
 This is based on the [Super Simplex](https://github.com/KdotJPG/OpenSimplex2)
-(or Open Simplex 2S) algorithm by KdotJPG. `T` must be a floating point
-arithmetic type. `N` is the number of dimensions; currently this is only
-implemented for `N=2` and `N=3`.
+(or Open Simplex 2S) algorithm by KdotJPG. Currently this is only implemented
+for `N=2` and `N=3`.
 
-Please note that this will not produce exactly the same noise pattern as the
-original Java code. The seeding algorithm had to be changed slightly because
-the original algorithm relied on specific behaviour of signed integer
-arithmetic in Java, which is difficult to emulate in C++. Apart from that the
-original algorithm is unchanged.
+This will not produce exactly the same noise pattern as the original Java
+code. The seeding algorithm had to be changed slightly because the original
+algorithm relied on specific behaviour of signed integer arithmetic in Java,
+which is difficult to emulate in C++. Apart from that the original algorithm
+is unchanged.
 
 ```c++
 using Noise::scalar_type = T;
@@ -82,7 +81,7 @@ initialised from the same seed.
 ## Generalised noise source
 
 ```c++
-template <typename T, int DimIn, int DimOut> class NoiseSource
+template <std::floating_point T, int DimIn, int DimOut> class NoiseSource
 ```
 
 This is a more general noise generator, which calls `Noise` internally but
