@@ -35,36 +35,21 @@ namespace Crow {
 
     CROW_BITMASK_OPERATORS(Pma)
 
-    template <typename VT, typename CS, ColourLayout CL> class Colour;
-
-    using Rgb8 = Colour<uint8_t, LinearRGB, ColourLayout::forward>;
-    using Rgb16 = Colour<uint16_t, LinearRGB, ColourLayout::forward>;
-    using Rgbf = Colour<float, LinearRGB, ColourLayout::forward>;
-    using Rgbd = Colour<double, LinearRGB, ColourLayout::forward>;
-    using sRgb8 = Colour<uint8_t, sRGB, ColourLayout::forward>;
-    using sRgb16 = Colour<uint16_t, sRGB, ColourLayout::forward>;
-    using sRgbf = Colour<float, sRGB, ColourLayout::forward>;
-    using sRgbd = Colour<double, sRGB, ColourLayout::forward>;
-    using Rgba8 = Colour<uint8_t, LinearRGB, ColourLayout::forward_alpha>;
-    using Rgba16 = Colour<uint16_t, LinearRGB, ColourLayout::forward_alpha>;
-    using Rgbaf = Colour<float, LinearRGB, ColourLayout::forward_alpha>;
-    using Rgbad = Colour<double, LinearRGB, ColourLayout::forward_alpha>;
-    using sRgba8 = Colour<uint8_t, sRGB, ColourLayout::forward_alpha>;
-    using sRgba16 = Colour<uint16_t, sRGB, ColourLayout::forward_alpha>;
-    using sRgbaf = Colour<float, sRGB, ColourLayout::forward_alpha>;
-    using sRgbad = Colour<double, sRGB, ColourLayout::forward_alpha>;
+    template <ArithmeticType VT, ColourSpace CS, ColourLayout CL> class Colour;
 
     namespace Detail {
 
-        template <typename CS, char CH, int Offset = 0>
+        template <typename CT> struct IsColourType: std::false_type {};
+        template <ArithmeticType VT, ColourSpace CS, ColourLayout CL> struct IsColourType<Colour<VT, CS, CL>>: std::true_type {};
+
+        template <ColourSpace CS, char CH, int Offset = 0>
         struct ColourSpaceChannelIndex {
-            static constexpr int cs_channels = int(CS::channels.size());
             static constexpr int get() noexcept;
         };
 
-            template <typename CS, char CH, int Offset>
+            template <ColourSpace CS, char CH, int Offset>
             constexpr int ColourSpaceChannelIndex<CS, CH, Offset>::get() noexcept {
-                if constexpr (Offset >= cs_channels)
+                if constexpr (Offset >= CS::count)
                     return -1;
                 else if constexpr (CS::channels[Offset] == CH)
                     return Offset;
@@ -72,14 +57,13 @@ namespace Crow {
                     return ColourSpaceChannelIndex<CS, CH, Offset + 1>::get();
             }
 
-        template <typename CS, char CH, ColourLayout CL>
+        template <ColourSpace CS, char CH, ColourLayout CL>
         struct ColourChannelIndex {
-            static constexpr int cs_channels = int(CS::channels.size());
             static constexpr int cs_index = ColourSpaceChannelIndex<CS, CH>::get();
             static constexpr int get() noexcept;
         };
 
-            template <typename CS, char CH, ColourLayout CL>
+            template <ColourSpace CS, char CH, ColourLayout CL>
             constexpr int ColourChannelIndex<CS, CH, CL>::get() noexcept {
                 if constexpr (cs_index == -1)
                     return -1;
@@ -88,21 +72,21 @@ namespace Crow {
                 else if constexpr (CL == ColourLayout::alpha_forward)
                     return cs_index + 1;
                 else if constexpr (CL == ColourLayout::reverse || CL == ColourLayout::reverse_alpha)
-                    return cs_channels - cs_index - 1;
+                    return CS::count - cs_index - 1;
                 else
-                    return cs_channels - cs_index;
+                    return CS::count - cs_index;
             }
 
-        template <typename CS, char CH, ColourLayout CL>
+        template <ColourSpace CS, char CH, ColourLayout CL>
         constexpr int colour_channel_index = ColourChannelIndex<CS, CH, CL>::get();
 
-        template <typename VT, typename CS, ColourLayout CL, bool IsLinear = cs_is_linear<CS>>
+        template <ArithmeticType VT, ColourSpace CS, ColourLayout CL, bool IsLinear = LinearColourSpace<CS>>
         class ColourArithmetic {
 
         private:
 
             static constexpr bool ca_has_alpha = CL != ColourLayout::forward && CL != ColourLayout::reverse;
-            static constexpr int ca_channels = int(CS::channels.size()) + int(ca_has_alpha);
+            static constexpr int ca_channels = CS::count + int(ca_has_alpha);
 
             using ca_colour = Colour<VT, CS, CL>;
             using ca_vector = Vector<VT, ca_channels>;
@@ -128,26 +112,26 @@ namespace Crow {
 
         };
 
-        template <typename VT, typename CS, ColourLayout CL>
+        template <ArithmeticType VT, ColourSpace CS, ColourLayout CL>
         class ColourArithmetic<VT, CS, CL, false> {};
 
-        template <typename T>
+        template <ArithmeticType T>
         using FloatingChannelType =
             std::conditional_t<std::is_floating_point_v<T>, T,
             std::conditional_t<(sizeof(T) < sizeof(float)), float,
             std::conditional_t<(sizeof(T) < sizeof(double)), double, long double>>>;
 
-        template <typename T1, typename T2>
+        template <ArithmeticType T1, ArithmeticType T2>
         using WorkingChannelType =
             std::conditional_t<(sizeof(FloatingChannelType<T1>) >= sizeof(FloatingChannelType<T2>)),
             FloatingChannelType<T1>, FloatingChannelType<T2>>;
 
-        template <typename WT, typename T1>
+        template <ArithmeticType WT, ArithmeticType T1>
         constexpr WT channel_to_working_type(T1 c, T1 scale) noexcept {
             return WT(c) / WT(scale);
         }
 
-        template <typename T2, typename WT>
+        template <ArithmeticType T2, ArithmeticType WT>
         constexpr T2 working_type_to_channel(WT w, T2 scale) noexcept {
             w *= WT(scale);
             if constexpr (std::is_integral_v<T2>)
@@ -156,7 +140,7 @@ namespace Crow {
                 return T2(w);
         }
 
-        template <typename T2, typename T1>
+        template <ArithmeticType T2, ArithmeticType T1>
         constexpr T2 round_channel(T1 t) noexcept {
             if constexpr (std::is_integral_v<T2>)
                 return const_round<T2>(t);
@@ -166,39 +150,39 @@ namespace Crow {
 
     }
 
+    template <typename CT> concept ColourType = Detail::IsColourType<CT>::value;
+
     // Don't use single letter template parameters here
 
-    template <typename VT, typename CS = LinearRGB, ColourLayout CL = ColourLayout::forward_alpha>
+    template <ArithmeticType VT, ColourSpace CS = LinearRGB, ColourLayout CL = ColourLayout::forward_alpha>
     class Colour:
     public Detail::ColourArithmetic<VT, CS, CL> {
 
     public:
 
-        static_assert(std::is_arithmetic_v<VT>);
-
-        static constexpr int colour_space_channels = int(CS::channels.size());
+        static constexpr int colour_space_channels = CS::count;
         static constexpr int alpha_index = CL == ColourLayout::alpha_forward || CL == ColourLayout::alpha_reverse ? 0 :
             CL == ColourLayout::forward_alpha || CL == ColourLayout::reverse_alpha ? colour_space_channels : -1;
         static constexpr bool has_alpha = alpha_index != -1;
-        static constexpr bool can_premultiply = has_alpha && cs_is_linear<CS> && cs_is_rgb<CS>
-            && cs_is_unit<CS> && ! cs_is_polar<CS>;
+        static constexpr bool can_premultiply = has_alpha && LinearColourSpace<CS> && RgbColourSpace<CS>
+            && UnitColourSpace<CS> && ! PolarColourSpace<CS>;
         static constexpr int channels = colour_space_channels + int(has_alpha);
         static constexpr bool is_hdr = std::is_floating_point_v<VT>;
-        static constexpr bool is_linear = cs_is_linear<CS>;
+        static constexpr bool is_linear = LinearColourSpace<CS>;
         static constexpr ColourLayout layout = CL;
-        static constexpr VT scale = is_hdr || (! cs_is_polar<CS> && ! cs_is_unit<CS>) ?
+        static constexpr VT scale = is_hdr || (! PolarColourSpace<CS> && ! UnitColourSpace<CS>) ?
             VT(1) : std::numeric_limits<VT>::max();
 
     private:
 
-        template <typename V2, char Lit> using if_channel_t =
-            std::enable_if<SfinaeTrue<V2, Detail::colour_channel_index<CS, Lit, CL> != -1>::value>;
+        template <ArithmeticType VT2, char Lit> using if_channel_t =
+            std::enable_if<SfinaeTrue<VT2, Detail::colour_channel_index<CS, Lit, CL> != -1>::value>;
         template <typename... Args> using if_alpha_args_t =
             std::enable_if_t<sizeof...(Args) + 2 == channels, VT>;
         template <typename... Args> using if_nonalpha_args_t =
             std::enable_if_t<has_alpha && sizeof...(Args) + 2 == colour_space_channels, VT>;
-        template <typename V2> using if_rgb_t = std::enable_if<SfinaeTrue<V2, cs_is_rgb<CS>>::value>;
-        template <typename V2> using if_rgba_t = std::enable_if<SfinaeTrue<V2, cs_is_rgb<CS> && has_alpha>::value>;
+        template <ArithmeticType VT2> using if_rgb_t = std::enable_if<SfinaeTrue<VT2, RgbColourSpace<CS>>::value>;
+        template <ArithmeticType VT2> using if_rgba_t = std::enable_if<SfinaeTrue<VT2, RgbColourSpace<CS> && has_alpha>::value>;
 
     public:
 
@@ -211,19 +195,19 @@ namespace Crow {
 
         constexpr Colour() noexcept {}
         explicit constexpr Colour(VT x) noexcept: vec_(x) { if constexpr (has_alpha) alpha() = scale; }
-        template <typename V2 = VT> constexpr Colour(V2 x, std::enable_if_t<has_alpha, V2> a) noexcept: vec_(VT(x)) { alpha() = VT(a); }
+        template <ArithmeticType VT2 = VT> constexpr Colour(VT2 x, std::enable_if_t<has_alpha, VT2> a) noexcept: vec_(VT(x)) { alpha() = VT(a); }
         explicit constexpr Colour(vector_type v) noexcept: vec_(v) {}
         template <typename... Args> constexpr Colour(VT x, if_alpha_args_t<Args...> y, Args... args) noexcept;
         template <typename... Args> constexpr Colour(VT x, if_nonalpha_args_t<Args...> y, Args... args) noexcept;
         explicit Colour(const std::string& str);
 
         #define CROW_COLOUR_CHANNEL_(Ch, Lit) \
-            template <typename V2 = VT> \
-            constexpr VT& Ch(if_channel_t<V2, Lit>* = nullptr) noexcept { \
+            template <ArithmeticType VT2 = VT> \
+            constexpr VT& Ch(if_channel_t<VT2, Lit>* = nullptr) noexcept { \
                 return vec_[Detail::colour_channel_index<CS, Lit, CL>]; \
             } \
-            template <typename V2 = VT> \
-            constexpr const VT& Ch(if_channel_t<V2, Lit>* = nullptr) const noexcept { \
+            template <ArithmeticType VT2 = VT> \
+            constexpr const VT& Ch(if_channel_t<VT2, Lit>* = nullptr) const noexcept { \
                 return vec_[Detail::colour_channel_index<CS, Lit, CL>]; \
             }
 
@@ -256,7 +240,7 @@ namespace Crow {
 
         VT& operator[](int i) noexcept { return vec_[i]; }
         const VT& operator[](int i) const noexcept { return vec_[i]; }
-        template <typename V2 = VT> constexpr VT& alpha(std::enable_if<SfinaeTrue<V2, has_alpha>::value>* = nullptr) noexcept;
+        template <ArithmeticType VT2 = VT> constexpr VT& alpha(std::enable_if<SfinaeTrue<VT2, has_alpha>::value>* = nullptr) noexcept;
         constexpr const VT& alpha() const noexcept;
         constexpr VT& cs(int i) noexcept { return vec_[space_to_layout_index(i)]; }
         constexpr const VT& cs(int i) const noexcept { return vec_[space_to_layout_index(i)]; }
@@ -272,23 +256,23 @@ namespace Crow {
         constexpr bool empty() const noexcept { return false; }
         size_t hash() const noexcept { return vec_.hash(); }
         std::string hex() const;
-        template <typename V2 = VT> constexpr Colour
-            multiply_alpha(std::enable_if<SfinaeTrue<V2, can_premultiply>::value>* = nullptr) const noexcept;
-        template <typename V2 = VT> constexpr Colour
-            unmultiply_alpha(std::enable_if<SfinaeTrue<V2, can_premultiply>::value>* = nullptr) const noexcept;
+        template <ArithmeticType VT2 = VT> constexpr Colour
+            multiply_alpha(std::enable_if<SfinaeTrue<VT2, can_premultiply>::value>* = nullptr) const noexcept;
+        template <ArithmeticType VT2 = VT> constexpr Colour
+            unmultiply_alpha(std::enable_if<SfinaeTrue<VT2, can_premultiply>::value>* = nullptr) const noexcept;
         constexpr size_t size() const noexcept { return size_t(channels); }
         std::string str(FormatSpec spec = {}) const { return vec_.str(spec); }
         friend std::ostream& operator<<(std::ostream& out, const Colour& c) { return out << c.str(); }
 
-        template <typename V2 = VT> static Colour clear(if_rgba_t<V2>* = nullptr) noexcept { return Colour(0, 0); }
-        template <typename V2 = VT> static Colour black(if_rgb_t<V2>* = nullptr) noexcept { return Colour(0); }
-        template <typename V2 = VT> static Colour white(if_rgb_t<V2>* = nullptr) noexcept { return Colour(scale); }
-        template <typename V2 = VT> static Colour red(if_rgb_t<V2>* = nullptr) noexcept { return {scale, 0, 0}; }
-        template <typename V2 = VT> static Colour yellow(if_rgb_t<V2>* = nullptr) noexcept { return {scale, scale, 0}; }
-        template <typename V2 = VT> static Colour green(if_rgb_t<V2>* = nullptr) noexcept { return {0, scale, 0}; }
-        template <typename V2 = VT> static Colour cyan(if_rgb_t<V2>* = nullptr) noexcept { return {0, scale, scale}; }
-        template <typename V2 = VT> static Colour blue(if_rgb_t<V2>* = nullptr) noexcept { return {0, 0, scale}; }
-        template <typename V2 = VT> static Colour magenta(if_rgb_t<V2>* = nullptr) noexcept { return {scale, 0, scale}; }
+        template <ArithmeticType VT2 = VT> static Colour clear(if_rgba_t<VT2>* = nullptr) noexcept { return Colour(0, 0); }
+        template <ArithmeticType VT2 = VT> static Colour black(if_rgb_t<VT2>* = nullptr) noexcept { return Colour(0); }
+        template <ArithmeticType VT2 = VT> static Colour white(if_rgb_t<VT2>* = nullptr) noexcept { return Colour(scale); }
+        template <ArithmeticType VT2 = VT> static Colour red(if_rgb_t<VT2>* = nullptr) noexcept { return {scale, 0, 0}; }
+        template <ArithmeticType VT2 = VT> static Colour yellow(if_rgb_t<VT2>* = nullptr) noexcept { return {scale, scale, 0}; }
+        template <ArithmeticType VT2 = VT> static Colour green(if_rgb_t<VT2>* = nullptr) noexcept { return {0, scale, 0}; }
+        template <ArithmeticType VT2 = VT> static Colour cyan(if_rgb_t<VT2>* = nullptr) noexcept { return {0, scale, scale}; }
+        template <ArithmeticType VT2 = VT> static Colour blue(if_rgb_t<VT2>* = nullptr) noexcept { return {0, 0, scale}; }
+        template <ArithmeticType VT2 = VT> static Colour magenta(if_rgb_t<VT2>* = nullptr) noexcept { return {scale, 0, scale}; }
 
         friend constexpr bool operator==(Colour a, Colour b) noexcept { return a.vec_ == b.vec_; }
         friend constexpr bool operator!=(Colour a, Colour b) noexcept { return ! (a == b); }
@@ -303,20 +287,20 @@ namespace Crow {
 
     };
 
-        template <typename VT, typename CS, ColourLayout CL>
+        template <ArithmeticType VT, ColourSpace CS, ColourLayout CL>
         template <typename... Args>
         constexpr Colour<VT, CS, CL>::Colour(VT x, if_alpha_args_t<Args...> y, Args... args) noexcept:
         vec_(VT(x), VT(y), VT(args)...) {}
 
-        template <typename VT, typename CS, ColourLayout CL>
+        template <ArithmeticType VT, ColourSpace CS, ColourLayout CL>
         template <typename... Args>
         constexpr Colour<VT, CS, CL>::Colour(VT x, if_nonalpha_args_t<Args...> y, Args... args) noexcept:
         vec_(VT(x), VT(y), VT(args)..., scale) {}
 
-        template <typename VT, typename CS, ColourLayout CL>
+        template <ArithmeticType VT, ColourSpace CS, ColourLayout CL>
         Colour<VT, CS, CL>::Colour(const std::string& str) {
 
-            static_assert(cs_is_rgb<CS>);
+            static_assert(RgbColourSpace<CS>);
 
             Byte4 bytes = {0,0,0,255};
 
@@ -365,13 +349,13 @@ namespace Crow {
 
         }
 
-        template <typename VT, typename CS, ColourLayout CL>
-        template <typename V2>
-        constexpr VT& Colour<VT, CS, CL>::alpha(std::enable_if<SfinaeTrue<V2, has_alpha>::value>*) noexcept {
+        template <ArithmeticType VT, ColourSpace CS, ColourLayout CL>
+        template <ArithmeticType VT2>
+        constexpr VT& Colour<VT, CS, CL>::alpha(std::enable_if<SfinaeTrue<VT2, has_alpha>::value>*) noexcept {
             return vec_[alpha_index];
         }
 
-        template <typename VT, typename CS, ColourLayout CL>
+        template <ArithmeticType VT, ColourSpace CS, ColourLayout CL>
         constexpr const VT& Colour<VT, CS, CL>::alpha() const noexcept {
             if constexpr (has_alpha)
                 return vec_[alpha_index];
@@ -379,7 +363,7 @@ namespace Crow {
                 return scale;
         }
 
-        template <typename VT, typename CS, ColourLayout CL>
+        template <ArithmeticType VT, ColourSpace CS, ColourLayout CL>
         constexpr void Colour<VT, CS, CL>::clamp() noexcept {
 
             if constexpr (has_alpha) {
@@ -402,14 +386,14 @@ namespace Crow {
 
         }
 
-        template <typename VT, typename CS, ColourLayout CL>
+        template <ArithmeticType VT, ColourSpace CS, ColourLayout CL>
         constexpr Colour<VT, CS, CL> Colour<VT, CS, CL>::clamped() const noexcept {
             auto c = *this;
             c.clamp();
             return c;
         }
 
-        template <typename VT, typename CS, ColourLayout CL>
+        template <ArithmeticType VT, ColourSpace CS, ColourLayout CL>
         constexpr bool Colour<VT, CS, CL>::is_clamped() const noexcept {
             if (! is_colour_in_gamut<CS>(partial_vector(), scale))
                 return false;
@@ -419,9 +403,9 @@ namespace Crow {
             return true;
         }
 
-        template <typename VT, typename CS, ColourLayout CL>
+        template <ArithmeticType VT, ColourSpace CS, ColourLayout CL>
         std::string Colour<VT, CS, CL>::hex() const {
-            static_assert(cs_is_rgb<CS>);
+            static_assert(RgbColourSpace<CS>);
             using namespace Literals;
             static const auto form = has_alpha ? "{0:x2}{1:x2}{2:x2}{3:x2}"_fmt : "{0:x2}{1:x2}{2:x2}"_fmt;
             Vector<VT, 4> vts = {R(), G(), B(), alpha()};
@@ -436,9 +420,9 @@ namespace Crow {
             return form(bytes[0], bytes[1], bytes[2], bytes[3]);
         }
 
-        template <typename VT, typename CS, ColourLayout CL>
-        template <typename V2>
-        constexpr Colour<VT, CS, CL> Colour<VT, CS, CL>::multiply_alpha(std::enable_if<SfinaeTrue<V2,
+        template <ArithmeticType VT, ColourSpace CS, ColourLayout CL>
+        template <ArithmeticType VT2>
+        constexpr Colour<VT, CS, CL> Colour<VT, CS, CL>::multiply_alpha(std::enable_if<SfinaeTrue<VT2,
                 can_premultiply>::value>*) const noexcept {
             using FT = Detail::FloatingChannelType<VT>;
             auto result = *this;
@@ -449,9 +433,9 @@ namespace Crow {
             return result;
         }
 
-        template <typename VT, typename CS, ColourLayout CL>
-        template <typename V2>
-        constexpr Colour<VT, CS, CL> Colour<VT, CS, CL>::unmultiply_alpha(std::enable_if<SfinaeTrue<V2,
+        template <ArithmeticType VT, ColourSpace CS, ColourLayout CL>
+        template <ArithmeticType VT2>
+        constexpr Colour<VT, CS, CL> Colour<VT, CS, CL>::unmultiply_alpha(std::enable_if<SfinaeTrue<VT2,
                 can_premultiply>::value>*) const noexcept {
             using FT = Detail::FloatingChannelType<VT>;
             auto result = *this;
@@ -462,7 +446,7 @@ namespace Crow {
             return result;
         }
 
-        template <typename VT, typename CS, ColourLayout CL>
+        template <ArithmeticType VT, ColourSpace CS, ColourLayout CL>
         constexpr int Colour<VT, CS, CL>::space_to_layout_index(int cs) noexcept {
             if constexpr (CL <= ColourLayout::forward_alpha)
                 return cs;
@@ -474,12 +458,16 @@ namespace Crow {
                 return channels - cs - 1;
         }
 
-    template <typename VT1, typename CS1, ColourLayout CL1,
-        typename VT2, typename CS2, ColourLayout CL2>
-    void convert_colour(Colour<VT1, CS1, CL1> in, Colour<VT2, CS2, CL2>& out) noexcept {
+    template <ColourType CT1, ColourType CT2>
+    void convert_colour(CT1 in, CT2& out) noexcept {
 
-        using C1 = Colour<VT1, CS1, CL1>;
-        using C2 = Colour<VT2, CS2, CL2>;
+        using VT1 = typename CT1::value_type;
+        using VT2 = typename CT2::value_type;
+        using CS1 = typename CT1::colour_space;
+        using CS2 = typename CT2::colour_space;
+
+        static constexpr auto CL1 = CT1::layout;
+        static constexpr auto CL2 = CT2::layout;
 
         if constexpr (std::is_same_v<VT1, VT2> && std::is_same_v<CS1, CS2> && CL1 == CL2) {
 
@@ -487,9 +475,9 @@ namespace Crow {
 
         } else if constexpr (std::is_same_v<VT1, VT2> && std::is_same_v<CS1, CS2>) {
 
-            for (int i = 0; i < C1::colour_space_channels; ++i)
+            for (int i = 0; i < CS1::count; ++i)
                 out.cs(i) = in.cs(i);
-            if constexpr (C2::has_alpha)
+            if constexpr (CT2::has_alpha)
                 out.alpha() = in.alpha();
 
         } else {
@@ -501,29 +489,32 @@ namespace Crow {
             // WT is always floating point, so the scale of WC1/2 is always 1
 
             WC1 wc1;
-            for (int i = 0; i < C1::colour_space_channels; ++i)
-                wc1.cs(i) = Detail::channel_to_working_type<WT>(in.cs(i), C1::scale);
-            wc1.alpha() = Detail::channel_to_working_type<WT>(in.alpha(), C1::scale);
+            for (int i = 0; i < CS1::count; ++i)
+                wc1.cs(i) = Detail::channel_to_working_type<WT>(in.cs(i), CT1::scale);
+            wc1.alpha() = Detail::channel_to_working_type<WT>(in.alpha(), CT1::scale);
 
             auto pvec2 = convert_colour_space<CS1, CS2>(wc1.partial_vector());
 
             WC2 wc2;
-            for (int i = 0; i < C2::colour_space_channels; ++i)
+            for (int i = 0; i < CS2::count; ++i)
                 wc2[i] = pvec2[i];
             wc2.alpha() = wc1.alpha();
 
-            for (int i = 0; i < C2::channels; ++i)
-                out.cs(i) = Detail::working_type_to_channel(wc2.cs(i), C2::scale);
+            for (int i = 0; i < CT2::channels; ++i)
+                out.cs(i) = Detail::working_type_to_channel(wc2.cs(i), CT2::scale);
 
         }
 
     }
 
-    template <typename VT, typename CS, ColourLayout CL>
-    constexpr Colour<VT, CS, CL> alpha_blend(Colour<VT, CS, CL> a, Colour<VT, CS, CL> b,
-            std::enable_if_t<SfinaeTrue<VT, Colour<VT, CS, CL>::can_premultiply>::value, Pma> flags = {}) noexcept {
+    template <ColourType CT>
+    constexpr CT alpha_blend(CT a, CT b,
+            std::enable_if_t<SfinaeTrue<typename CT::value_type, CT::can_premultiply>::value, Pma> flags = {}) noexcept {
 
-        using C = Colour<VT, CS, CL>;
+        constexpr auto CL = CT::layout;
+
+        using VT = typename CT::value_type;
+        using CS = typename CT::colour_space;
         using FT = Detail::FloatingChannelType<VT>;
         using FC = Colour<FT, CS, CL>;
 
@@ -538,59 +529,43 @@ namespace Crow {
         if (! (flags & Pma::second))
             fb = fb.multiply_alpha();
 
-        for (int i = 0; i < C::channels; ++i)
+        for (int i = 0; i < CT::channels; ++i)
             fc[i] = fa[i] + fb[i] * (1 - fa.alpha());
 
         if (! (flags & Pma::result))
             fc = fc.unmultiply_alpha();
 
-        C c;
+        CT c;
         convert_colour(fc, c);
 
         return c;
 
     }
 
-    template <typename VT, typename CS, ColourLayout CL, typename U>
-    constexpr Colour<VT, CS, CL> lerp(const Colour<VT, CS, CL>& c1,
-            const std::enable_if_t<SfinaeTrue<VT, Colour<VT, CS, CL>::is_linear>::value, Colour<VT, CS, CL>>& c2,
-            U x) noexcept {
-        static_assert(std::is_floating_point_v<U>);
-        using C = Colour<VT, CS, CL>;
+    template <ColourType CT, std::floating_point FP>
+    constexpr CT lerp(const CT& c1, const CT& c2, FP x) noexcept {
         auto v1 = c1.as_vector();
         auto v2 = c2.as_vector();
         auto v3 = lerp(v1, v2, x);
-        return C(v3);
+        return CT(v3);
     }
 
-    namespace Detail {
-
-        std::optional<sRgba8> get_css_colour(const std::string& str);
-
-        template <typename ColourType>
-        struct GetCssColour;
-
-        template <typename VT, typename CS, ColourLayout CL>
-        struct GetCssColour<Colour<VT, CS, CL>> {
-            Colour<VT, CS, CL> operator()(const std::string& str) const {
-                sRgba8 srgb;
-                auto opt_srgb = get_css_colour(str);
-                if (opt_srgb)
-                    srgb = *opt_srgb;
-                else
-                    srgb = sRgba8(str);
-                Colour<VT, CS, CL> colour;
-                convert_colour(srgb, colour);
-                return colour;
-            }
-        };
-
-    }
-
-    template <typename ColourType>
-    ColourType css_colour(const std::string& str) {
-        return Detail::GetCssColour<ColourType>()(str);
-    }
+    using Rgb8 = Colour<uint8_t, LinearRGB, ColourLayout::forward>;
+    using Rgb16 = Colour<uint16_t, LinearRGB, ColourLayout::forward>;
+    using Rgbf = Colour<float, LinearRGB, ColourLayout::forward>;
+    using Rgbd = Colour<double, LinearRGB, ColourLayout::forward>;
+    using sRgb8 = Colour<uint8_t, sRGB, ColourLayout::forward>;
+    using sRgb16 = Colour<uint16_t, sRGB, ColourLayout::forward>;
+    using sRgbf = Colour<float, sRGB, ColourLayout::forward>;
+    using sRgbd = Colour<double, sRGB, ColourLayout::forward>;
+    using Rgba8 = Colour<uint8_t, LinearRGB, ColourLayout::forward_alpha>;
+    using Rgba16 = Colour<uint16_t, LinearRGB, ColourLayout::forward_alpha>;
+    using Rgbaf = Colour<float, LinearRGB, ColourLayout::forward_alpha>;
+    using Rgbad = Colour<double, LinearRGB, ColourLayout::forward_alpha>;
+    using sRgba8 = Colour<uint8_t, sRGB, ColourLayout::forward_alpha>;
+    using sRgba16 = Colour<uint16_t, sRGB, ColourLayout::forward_alpha>;
+    using sRgbaf = Colour<float, sRGB, ColourLayout::forward_alpha>;
+    using sRgbad = Colour<double, sRGB, ColourLayout::forward_alpha>;
 
     static_assert(std::is_standard_layout_v<Rgb8>);
     static_assert(std::is_standard_layout_v<Rgb16>);
@@ -626,6 +601,32 @@ namespace Crow {
     static_assert(sizeof(sRgbaf) == 16);
     static_assert(sizeof(sRgbad) == 32);
 
+    namespace Detail {
+
+        std::optional<sRgba8> get_css_colour(const std::string& str);
+
+        template <ColourType CT>
+        struct GetCssColour {
+            CT operator()(const std::string& str) const {
+                sRgba8 srgb;
+                auto opt_srgb = get_css_colour(str);
+                if (opt_srgb)
+                    srgb = *opt_srgb;
+                else
+                    srgb = sRgba8(str);
+                CT colour;
+                convert_colour(srgb, colour);
+                return colour;
+            }
+        };
+
+    }
+
+    template <ColourType CT>
+    CT css_colour(const std::string& str) {
+        return Detail::GetCssColour<CT>()(str);
+    }
+
 }
 
-CROW_STD_HASH_3(Colour, typename, typename, Crow::ColourLayout)
+CROW_STD_HASH_3(Colour, Crow::ArithmeticType, Crow::ColourSpace, Crow::ColourLayout)

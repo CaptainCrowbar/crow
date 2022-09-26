@@ -90,11 +90,10 @@ not a null vector, indicating that a file has been successfully queried.
 ## Image class
 
 ```c++
-template <typename Colour, ImageFlags Flags = ImageFlags::none> class Image;
+template <ColourType CT, ImageFlags Flags = ImageFlags::none> class Image;
 ```
 
-The image class. This is only defined when `Colour` is an instantiation of
-`Core::Colour`.
+The image class.
 
 ### Type aliases
 
@@ -139,9 +138,9 @@ using `move()` is safe. Behaviour is undefined if any of `operator*()`,
 off-image iterator.
 
 ```c++
-using Image::channel_type = Colour::value_type;
-using Image::colour_space = Colour::colour_space;
-using Image::colour_type = Colour;
+using Image::channel_type = CT::value_type;
+using Image::colour_space = CT::colour_space;
+using Image::colour_type = CT;
 ```
 
 Properties of the pixel type.
@@ -149,11 +148,11 @@ Properties of the pixel type.
 ### Constants
 
 ```c++
-static constexpr int channels = Colour::channels;
+static constexpr int channels = CT::channels;
 static constexpr Core::ColourLayout colour_layout = CL;
-static constexpr bool has_alpha = Colour::has_alpha;
-static constexpr bool is_hdr = Colour::is_hdr;
-static constexpr bool is_linear = Colour::is_linear;
+static constexpr bool has_alpha = CT::has_alpha;
+static constexpr bool is_hdr = CT::is_hdr;
+static constexpr bool is_linear = CT::is_linear;
 ```
 
 Properties of the pixel type.
@@ -181,9 +180,9 @@ The default constructor creates an empty image with zero width and height.
 
 ```c++
 explicit Image::Image(Point shape);
-Image::Image(Point shape, Colour c);
+Image::Image(Point shape, CT c);
 Image::Image(int w, int h);
-Image::Image(int w, int h, Colour c);
+Image::Image(int w, int h, CT c);
 ```
 
 Create an image with the specified dimensions. If a colour is supplied, the
@@ -204,10 +203,10 @@ Other life cycle functions.
 ### Pixel access functions
 
 ```c++
-Colour& Image::operator[](Point p) noexcept;
-const Colour& Image::operator[](Point p) const noexcept;
-Colour& Image::operator()(int x, int y) noexcept;
-const Colour& Image::operator()(int x, int y) const noexcept;
+CT& Image::operator[](Point p) noexcept;
+const CT& Image::operator[](Point p) const noexcept;
+CT& Image::operator()(int x, int y) noexcept;
+const CT& Image::operator()(int x, int y) const noexcept;
 ```
 
 Reference to a specific pixel. Behaviour is undefined if the coordinates are
@@ -238,8 +237,8 @@ These return iterators pointing to the pixel at one corner of the image.
 Behaviour is undefined if the image is empty.
 
 ```c++
-T* Image::data() noexcept;
-const T* Image::data() const noexcept;
+channel_type* Image::data() noexcept;
+const channel_type* Image::data() const noexcept;
 ```
 
 Pointers to the image data.
@@ -259,13 +258,13 @@ bottom-up. Behaviour is undefined if the coordinates are out of bounds.
 ### Conversion functions
 
 ```c++
-Image<Colour, [modified flags]> Image::multiply_alpha() const;
-Image<Colour, [modified flags]> Image::unmultiply_alpha() const;
+Image<CT, [modified flags]> Image::multiply_alpha() const;
+Image<CT, [modified flags]> Image::unmultiply_alpha() const;
 ```
 
 Convert a non-premultiplied image into a premultiplied-alpha image, or vice
 versa. The returned image type has the opposite premultiplication flag. These
-are only defined if `Colour::can_premultiply` is true.
+are only defined if `CT::can_premultiply` is true.
 
 ```c++
 template <typename C1, ImageFlags F1, typename C2, ImageFlags F2>
@@ -320,9 +319,9 @@ True if the image is empty (both dimensions are zero).
 
 ```c++
 void Image::reset(Point new_shape);
-void Image::reset(Point new_shape, Colour c);
+void Image::reset(Point new_shape, CT c);
 void Image::reset(int w, int h);
-void Image::reset(int w, int h, Colour c);
+void Image::reset(int w, int h, CT c);
 ```
 
 Replace the image with a new image with the specified dimensions, discarding
@@ -385,7 +384,7 @@ void Image::clear() noexcept;
 Resets the `Image` object to an empty image. Equivalent to `reset(0,0)`.
 
 ```c++
-void Image::fill(Colour c) noexcept;
+void Image::fill(CT c) noexcept;
 ```
 
 Fills all pixels with a uniform colour.

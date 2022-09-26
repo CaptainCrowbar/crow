@@ -20,7 +20,22 @@ constexpr size_t npos = std::string::npos;
 
 Imported for convenience.
 
-# Memory management types
+## Concepts
+
+```c++
+template <typename T> concept ArithmeticType;
+```
+
+Satisfied by any integral or floating point type, except `bool`.
+
+```c++
+template <typename T, typename U> concept SameBasicType;
+```
+
+Satisfied if `T` and `U` are the same type apart from any CV and reference
+qualifications.
+
+## Memory management types
 
 ```c++
 struct FreeMem {
@@ -49,6 +64,8 @@ template <typename T> constexpr bool dependent_false = false;
 Allows compile time failure in an `if constexpr` branch.
 
 ## Type traits
+
+[TODO - most of these will be replaced with concepts]
 
 ```c++
 template <typename T> constexpr bool is_iterator;

@@ -132,6 +132,14 @@ namespace Crow {
 
     constexpr size_t npos = std::string::npos;
 
+    // Concepts
+
+    template <typename T>
+    concept ArithmeticType = std::is_arithmetic_v<T> && ! std::is_same_v<T, bool>;
+
+    template <typename T, typename U>
+    concept SameBasicType = std::is_same_v<std::remove_cvref_t<T>, std::remove_cvref_t<U>>;
+
     // Memory management types
 
     struct FreeMem {

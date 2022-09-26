@@ -32,6 +32,23 @@ void test_crow_types_comparison() {
 
 }
 
+void test_crow_types_concepts() {
+
+    TEST(ArithmeticType<int>);
+    TEST(ArithmeticType<const int>);
+    TEST(ArithmeticType<float>);
+    TEST(ArithmeticType<const float>);
+    TEST(! ArithmeticType<void>);
+    TEST(! ArithmeticType<bool>);
+    TEST(! ArithmeticType<int*>);
+    TEST(! ArithmeticType<std::string>);
+
+    TEST((SameBasicType<int, int>));
+    TEST((SameBasicType<const int, int&>));
+    TEST((SameBasicType<const std::string, std::string&>));
+
+}
+
 void test_crow_types_traits() {
 
     TEST(! is_iterator<void>);

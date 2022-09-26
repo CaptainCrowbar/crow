@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <concepts>
 #include <numbers>
 #include <type_traits>
 
@@ -16,7 +17,24 @@ namespace Crow {
 
     namespace Detail {
 
-        template <typename T> constexpr Vector<T, 3> D65 = {T(0.950489), T(1), T(1.088840)};
+        template <ArithmeticType T> constexpr Vector<T, 3> D65 = {T(0.950489), T(1), T(1.088840)};
+
+        // Thanks to Randomnetcat and Léo on the #include<C++> Discord for
+        // help designing this concept.
+
+        template <typename CS, typename... Seen>
+        constexpr bool colour_space_graph_helper() noexcept {
+            if constexpr (! requires { typename CS::base; })
+                return false;
+            else if constexpr (std::is_same_v<CS, typename CS::base>)
+                return true;
+            else if constexpr ((std::is_same_v<CS, Seen> || ...))
+                return false;
+            else
+                return colour_space_graph_helper<typename CS::base, CS, Seen...>();
+        }
+
+        template <typename CS> concept ColourSpaceGraphHelper = colour_space_graph_helper<CS>();
 
     }
 
@@ -25,49 +43,52 @@ namespace Crow {
     enum class Csp: int {
         none    = 0,
         linear  = 1,  // Linear colour space
-        polar   = 2,  // Valid colours are restricted to the unit cube
+        polar   = 2,  // First channel is polar, not Cartesian
         rgb     = 4,  // Cartesian RGB-based colour space
-        unit    = 8,  // First channel is circular
+        unit    = 8,  // Valid colours are restricted to the unit cube
     };
 
     CROW_BITMASK_OPERATORS(Csp)
 
+    // Colour space concepts
+
+    template <typename CS>
+    concept ColourSpace = requires {
+        requires Detail::ColourSpaceGraphHelper<CS>;
+        { CS::count } -> std::convertible_to<int>;
+        { CS::channels } -> std::convertible_to<std::array<char, CS::count>>;
+        { CS::properties } -> std::convertible_to<Csp>;
+        { CS::from_base(Vector<float, CS::base::count>()) } -> std::convertible_to<Vector<float, CS::count>>;
+        { CS::to_base(Vector<float, CS::count>()) } -> std::convertible_to<Vector<float, CS::base::count>>;
+    };
+
+    template <typename CS> concept LinearColourSpace = ColourSpace<CS> && !! (CS::properties & Csp::linear);
+    template <typename CS> concept PolarColourSpace = ColourSpace<CS> && !! (CS::properties & Csp::polar);
+    template <typename CS> concept RgbColourSpace = ColourSpace<CS> && !! (CS::properties & Csp::rgb);
+    template <typename CS> concept UnitColourSpace = ColourSpace<CS> && !! (CS::properties & Csp::unit);
+
     // Utility functions
 
-    template <typename CS> constexpr bool cs_is_linear  = !! (CS::properties & Csp::linear);
-    template <typename CS> constexpr bool cs_is_polar   = !! (CS::properties & Csp::polar);
-    template <typename CS> constexpr bool cs_is_rgb     = !! (CS::properties & Csp::rgb);
-    template <typename CS> constexpr bool cs_is_unit    = !! (CS::properties & Csp::unit);
-
-    template <typename CS, typename T, int N>
-    constexpr bool is_colour_in_gamut(Vector<T, N> colour, T scale = 1) noexcept {
-        static_assert(std::is_arithmetic_v<T>);
-        static_assert(N == int(CS::channels.size()));
-        if constexpr (cs_is_unit<CS>) {
+    template <ColourSpace CS, ArithmeticType T>
+    constexpr bool is_colour_in_gamut(Vector<T, CS::count> colour, T scale = 1) noexcept {
+        if constexpr (UnitColourSpace<CS>) {
             for (auto t: colour)
                 if (t < 0 || t > scale)
                     return false;
-        } else if constexpr (cs_is_polar<CS>) {
+        } else if constexpr (PolarColourSpace<CS>) {
             if (colour[0] < 0 || colour[0] > scale)
                 return false;
         }
         return true;
     }
 
-    template <typename CS, typename T, int N>
-    constexpr void clamp_colour(Vector<T, N>& colour, T scale = 1) noexcept {
-        static_assert(std::is_arithmetic_v<T>);
-        static_assert(N == int(CS::channels.size()));
-        if constexpr (cs_is_polar<CS>)
+    template <ColourSpace CS, ArithmeticType T>
+    constexpr void clamp_colour(Vector<T, CS::count>& colour, T scale = 1) noexcept {
+        if constexpr (PolarColourSpace<CS>)
             colour[0] = euclidean_remainder(colour[0], scale);
-        if constexpr (cs_is_unit<CS>) {
-            for (int i = int(cs_is_polar<CS>); i < N; ++i) {
-                if (colour[i] < 0)
-                    colour[i] = 0;
-                else if (colour[i] > scale)
-                    colour[i] = scale;
-            }
-        }
+        if constexpr (UnitColourSpace<CS>)
+            for (int i = int(PolarColourSpace<CS>); i < CS::count; ++i)
+                colour[i] = std::clamp(colour[i], T(0), scale);
     }
 
     // Colour space classes
@@ -75,22 +96,24 @@ namespace Crow {
     class CIEXYZ {
     public:
         using base = CIEXYZ;
-        static constexpr std::array<char, 3> channels = {{ 'X', 'Y', 'Z' }};
+        static constexpr int count = 3;
+        static constexpr std::array<char, count> channels = {'X', 'Y', 'Z'};
         static constexpr Csp properties = Csp::linear | Csp::unit;
-        template <typename T> static constexpr Vector<T, 3> from_base(Vector<T, 3> colour) noexcept { return colour; }
-        template <typename T> static constexpr Vector<T, 3> to_base(Vector<T, 3> colour) noexcept { return colour; }
+        template <ArithmeticType T> static constexpr Vector<T, 3> from_base(Vector<T, 3> colour) noexcept { return colour; }
+        template <ArithmeticType T> static constexpr Vector<T, 3> to_base(Vector<T, 3> colour) noexcept { return colour; }
     };
 
     class CIExyY {
     public:
         using base = CIEXYZ;
-        static constexpr std::array<char, 3> channels = {{ 'x', 'y', 'Y' }};
+        static constexpr int count = 3;
+        static constexpr std::array<char, count> channels = {'x', 'y', 'Y'};
         static constexpr Csp properties = Csp::unit;
-        template <typename T> static constexpr Vector<T, 3> from_base(Vector<T, 3> colour) noexcept;
-        template <typename T> static constexpr Vector<T, 3> to_base(Vector<T, 3> colour) noexcept;
+        template <ArithmeticType T> static constexpr Vector<T, 3> from_base(Vector<T, 3> colour) noexcept;
+        template <ArithmeticType T> static constexpr Vector<T, 3> to_base(Vector<T, 3> colour) noexcept;
     };
 
-        template <typename T>
+        template <ArithmeticType T>
         constexpr Vector<T, 3> CIExyY::from_base(Vector<T, 3> colour) noexcept {
             auto out = Vector<T, 3>::null();
             T sum = colour.x() + colour.y() + colour.z();
@@ -102,7 +125,7 @@ namespace Crow {
             return out;
         }
 
-        template <typename T>
+        template <ArithmeticType T>
         constexpr Vector<T, 3> CIExyY::to_base(Vector<T, 3> colour) noexcept {
             Vector<T, 3> out;
             T scale = colour.z() / colour.y();
@@ -115,20 +138,21 @@ namespace Crow {
     class CIELab {
     public:
         using base = CIEXYZ;
-        static constexpr std::array<char, 3> channels = {{ 'L', 'a', 'b' }};
+        static constexpr int count = 3;
+        static constexpr std::array<char, count> channels = {'L', 'a', 'b'};
         static constexpr Csp properties = {};
-        template <typename T> static Vector<T, 3> from_base(Vector<T, 3> colour) noexcept;
-        template <typename T> static Vector<T, 3> to_base(Vector<T, 3> colour) noexcept;
+        template <ArithmeticType T> static Vector<T, 3> from_base(Vector<T, 3> colour) noexcept;
+        template <ArithmeticType T> static Vector<T, 3> to_base(Vector<T, 3> colour) noexcept;
     private:
-        template <typename T> static constexpr T delta = T(6) / T(29);
-        template <typename T> static constexpr T c1 = delta<T> * delta<T> * delta<T>;
-        template <typename T> static constexpr T c2 = 3 * delta<T> * delta<T>;
-        template <typename T> static constexpr T c3 = T(4) / T(29);
-        template <typename T> static T f(T t) noexcept;
-        template <typename T> static T inverse_f(T t) noexcept;
+        template <ArithmeticType T> static constexpr T delta = T(6) / T(29);
+        template <ArithmeticType T> static constexpr T c1 = delta<T> * delta<T> * delta<T>;
+        template <ArithmeticType T> static constexpr T c2 = 3 * delta<T> * delta<T>;
+        template <ArithmeticType T> static constexpr T c3 = T(4) / T(29);
+        template <ArithmeticType T> static T f(T t) noexcept;
+        template <ArithmeticType T> static T inverse_f(T t) noexcept;
     };
 
-        template <typename T>
+        template <ArithmeticType T>
         Vector<T, 3> CIELab::from_base(Vector<T, 3> colour) noexcept {
             using namespace Detail;
             Vector<T, 3> out;
@@ -139,7 +163,7 @@ namespace Crow {
             return out;
         }
 
-        template <typename T>
+        template <ArithmeticType T>
         Vector<T, 3> CIELab::to_base(Vector<T, 3> colour) noexcept {
             using namespace Detail;
             Vector<T, 3> out;
@@ -150,7 +174,7 @@ namespace Crow {
             return out * D65<T>;
         }
 
-        template <typename T>
+        template <ArithmeticType T>
         T CIELab::f(T t) noexcept {
             if (t <= c1<T>)
                 return t / c2<T> + c3<T>;
@@ -158,7 +182,7 @@ namespace Crow {
                 return std::cbrt(t);
         }
 
-        template <typename T>
+        template <ArithmeticType T>
         T CIELab::inverse_f(T t) noexcept {
             if (t <= delta<T>)
                 return c2<T> * (t - c3<T>);
@@ -169,23 +193,24 @@ namespace Crow {
     class CIELuv {
     public:
         using base = CIEXYZ;
-        static constexpr std::array<char, 3> channels = {{ 'L', 'u', 'v' }};
+        static constexpr int count = 3;
+        static constexpr std::array<char, count> channels = {'L', 'u', 'v'};
         static constexpr Csp properties = {};
-        template <typename T> static Vector<T, 3> from_base(Vector<T, 3> colour) noexcept;
-        template <typename T> static Vector<T, 3> to_base(Vector<T, 3> colour) noexcept;
+        template <ArithmeticType T> static Vector<T, 3> from_base(Vector<T, 3> colour) noexcept;
+        template <ArithmeticType T> static Vector<T, 3> to_base(Vector<T, 3> colour) noexcept;
     private:
-        template <typename T> static constexpr T delta = T(6) / T(29);
-        template <typename T> static constexpr T c1 = delta<T> * delta<T> * delta<T>;
-        template <typename T> static constexpr T c2 = T(29) / T(3);
-        template <typename T> static constexpr T c3 = c2<T> * c2<T> * c2<T>;
-        template <typename T> static constexpr T c4 = 1 / c3<T>;
-        template <typename T> static constexpr T u_prime(Vector<T, 3> xyz) noexcept;
-        template <typename T> static constexpr T v_prime(Vector<T, 3> xyz) noexcept;
-        template <typename T> static constexpr T u_prime_n = u_prime(Detail::D65<T>);
-        template <typename T> static constexpr T v_prime_n = v_prime(Detail::D65<T>);
+        template <ArithmeticType T> static constexpr T delta = T(6) / T(29);
+        template <ArithmeticType T> static constexpr T c1 = delta<T> * delta<T> * delta<T>;
+        template <ArithmeticType T> static constexpr T c2 = T(29) / T(3);
+        template <ArithmeticType T> static constexpr T c3 = c2<T> * c2<T> * c2<T>;
+        template <ArithmeticType T> static constexpr T c4 = 1 / c3<T>;
+        template <ArithmeticType T> static constexpr T u_prime(Vector<T, 3> xyz) noexcept;
+        template <ArithmeticType T> static constexpr T v_prime(Vector<T, 3> xyz) noexcept;
+        template <ArithmeticType T> static constexpr T u_prime_n = u_prime(Detail::D65<T>);
+        template <ArithmeticType T> static constexpr T v_prime_n = v_prime(Detail::D65<T>);
     };
 
-        template <typename T>
+        template <ArithmeticType T>
         Vector<T, 3> CIELuv::from_base(Vector<T, 3> colour) noexcept {
             using namespace Detail;
             Vector<T, 3> out;
@@ -199,7 +224,7 @@ namespace Crow {
             return out;
         }
 
-        template <typename T>
+        template <ArithmeticType T>
         Vector<T, 3> CIELuv::to_base(Vector<T, 3> colour) noexcept {
             using namespace Detail;
             if (colour[0] == 0)
@@ -217,12 +242,12 @@ namespace Crow {
             return out;
         }
 
-        template <typename T>
+        template <ArithmeticType T>
         constexpr T CIELuv::u_prime(Vector<T, 3> xyz) noexcept {
             return 4 * xyz.x() / (xyz.x() + 15 * xyz.y() + 3 * xyz.z());
         }
 
-        template <typename T>
+        template <ArithmeticType T>
         constexpr T CIELuv::v_prime(Vector<T, 3> xyz) noexcept {
             return 9 * xyz.y() / (xyz.x() + 15 * xyz.y() + 3 * xyz.z());
         }
@@ -231,14 +256,15 @@ namespace Crow {
     class HCLSpace {
     public:
         using base = Base;
-        static constexpr std::array<char, 3> channels = {{ 'H', 'C', 'L' }};
+        static constexpr int count = 3;
+        static constexpr std::array<char, count> channels = {'H', 'C', 'L'};
         static constexpr Csp properties = Csp::polar;
-        template <typename T> static Vector<T, 3> from_base(Vector<T, 3> colour) noexcept;
-        template <typename T> static Vector<T, 3> to_base(Vector<T, 3> colour) noexcept;
+        template <ArithmeticType T> static Vector<T, 3> from_base(Vector<T, 3> colour) noexcept;
+        template <ArithmeticType T> static Vector<T, 3> to_base(Vector<T, 3> colour) noexcept;
     };
 
         template <typename Base>
-        template <typename T>
+        template <ArithmeticType T>
         Vector<T, 3> HCLSpace<Base>::from_base(Vector<T, 3> colour) noexcept {
             using std::numbers::pi_v;
             Vector<T, 3> abl = {colour[1], colour[2], colour[0]};
@@ -248,7 +274,7 @@ namespace Crow {
         }
 
         template <typename Base>
-        template <typename T>
+        template <ArithmeticType T>
         Vector<T, 3> HCLSpace<Base>::to_base(Vector<T, 3> colour) noexcept {
             using std::numbers::pi_v;
             Vector<T, 3> chl = {colour[1], 2 * pi_v<T> * colour[0], colour[2]};
@@ -266,28 +292,30 @@ namespace Crow {
     class WorkingSpace {
     public:
         using base = CIEXYZ;
-        static constexpr std::array<char, 3> channels = {{ 'R', 'G', 'B' }};
+        static constexpr int count = 3;
+        static constexpr std::array<char, count> channels = {'R', 'G', 'B'};
         static constexpr Csp properties = Csp::linear | Csp::rgb | Csp::unit;
-        template <typename T> static constexpr Vector<T, 3> from_base(Vector<T, 3> colour) noexcept { return xyz_to_rgb_matrix<T> * colour; }
-        template <typename T> static constexpr Vector<T, 3> to_base(Vector<T, 3> colour) noexcept { return rgb_to_xyz_matrix<T> * colour; }
+        template <ArithmeticType T> static constexpr Vector<T, 3> from_base(Vector<T, 3> colour) noexcept { return xyz_to_rgb_matrix<T> * colour; }
+        template <ArithmeticType T> static constexpr Vector<T, 3> to_base(Vector<T, 3> colour) noexcept { return rgb_to_xyz_matrix<T> * colour; }
     private:
-        template <typename T> static constexpr auto rgb_to_xyz_matrix = Matrix<T, 3, MatrixLayout::row>
+        template <ArithmeticType T> static constexpr auto rgb_to_xyz_matrix = Matrix<T, 3, MatrixLayout::row>
             (T(M00), T(M01), T(M02), T(M10), T(M11), T(M12), T(M20), T(M21), T(M22)) / T(Divisor);
-        template <typename T> static constexpr auto xyz_to_rgb_matrix = rgb_to_xyz_matrix<T>.inverse();
+        template <ArithmeticType T> static constexpr auto xyz_to_rgb_matrix = rgb_to_xyz_matrix<T>.inverse();
     };
 
     template <typename WorkingSpace, int64_t GammaNumerator, int64_t GammaDenominator>
     class NonlinearSpace {
     public:
         using base = WorkingSpace;
-        static constexpr std::array<char, 3> channels = {{ 'R', 'G', 'B' }};
+        static constexpr int count = 3;
+        static constexpr std::array<char, count> channels = {'R', 'G', 'B'};
         static constexpr Csp properties = Csp::rgb | Csp::unit;
-        template <typename T> static Vector<T, 3> from_base(Vector<T, 3> colour) noexcept;
-        template <typename T> static Vector<T, 3> to_base(Vector<T, 3> colour) noexcept;
+        template <ArithmeticType T> static Vector<T, 3> from_base(Vector<T, 3> colour) noexcept;
+        template <ArithmeticType T> static Vector<T, 3> to_base(Vector<T, 3> colour) noexcept;
     };
 
         template <typename WS, int64_t GN, int64_t GD>
-        template <typename T>
+        template <ArithmeticType T>
         Vector<T, 3> NonlinearSpace<WS, GN, GD>::from_base(Vector<T, 3> colour) noexcept {
             static constexpr T inverse_gamma = T(GD) / T(GN);
             for (auto& c: colour)
@@ -296,7 +324,7 @@ namespace Crow {
         }
 
         template <typename WS, int64_t GN, int64_t GD>
-        template <typename T>
+        template <ArithmeticType T>
         Vector<T, 3> NonlinearSpace<WS, GN, GD>::to_base(Vector<T, 3> colour) noexcept {
             static constexpr T gamma = T(GN) / T(GD);
             for (auto& c: colour)
@@ -331,7 +359,7 @@ namespace Crow {
 
     namespace Detail {
 
-        template <typename T>
+        template <ArithmeticType T>
         T sRGB_function(T t) noexcept {
             static constexpr T a = T(0.003'130'8);
             static constexpr T b = T(12.92);
@@ -344,7 +372,7 @@ namespace Crow {
                 return d * std::pow(t, ig) - c;
         }
 
-        template <typename T>
+        template <ArithmeticType T>
         T sRGB_inverse(T t) noexcept {
             static constexpr T a = T(0.040'45);
             static constexpr T b = 1 / T(12.92);
@@ -362,13 +390,14 @@ namespace Crow {
     class sRGB {
     public:
         using base = LinearRGB;
-        static constexpr std::array<char, 3> channels = {{ 'R', 'G', 'B' }};
+        static constexpr int count = 3;
+        static constexpr std::array<char, count> channels = {'R', 'G', 'B'};
         static constexpr Csp properties = Csp::rgb | Csp::unit;
-        template <typename T> static Vector<T, 3> from_base(Vector<T, 3> colour) noexcept;
-        template <typename T> static Vector<T, 3> to_base(Vector<T, 3> colour) noexcept;
+        template <ArithmeticType T> static Vector<T, 3> from_base(Vector<T, 3> colour) noexcept;
+        template <ArithmeticType T> static Vector<T, 3> to_base(Vector<T, 3> colour) noexcept;
     };
 
-        template <typename T>
+        template <ArithmeticType T>
         Vector<T, 3> sRGB::from_base(Vector<T, 3> colour) noexcept {
             using namespace Detail;
             for (auto& x: colour)
@@ -376,7 +405,7 @@ namespace Crow {
             return colour;
         }
 
-        template <typename T>
+        template <ArithmeticType T>
         Vector<T, 3> sRGB::to_base(Vector<T, 3> colour) noexcept {
             using namespace Detail;
             for (auto& x: colour)
@@ -394,13 +423,14 @@ namespace Crow {
     class ProPhoto {
     public:
         using base = LinearProPhoto;
-        static constexpr std::array<char, 3> channels = {{ 'R', 'G', 'B' }};
+        static constexpr int count = 3;
+        static constexpr std::array<char, count> channels = {'R', 'G', 'B'};
         static constexpr Csp properties = Csp::rgb | Csp::unit;
-        template <typename T> static Vector<T, 3> from_base(Vector<T, 3> colour) noexcept;
-        template <typename T> static Vector<T, 3> to_base(Vector<T, 3> colour) noexcept;
+        template <ArithmeticType T> static Vector<T, 3> from_base(Vector<T, 3> colour) noexcept;
+        template <ArithmeticType T> static Vector<T, 3> to_base(Vector<T, 3> colour) noexcept;
     };
 
-        template <typename T>
+        template <ArithmeticType T>
         Vector<T, 3> ProPhoto::from_base(Vector<T, 3> colour) noexcept {
             static constexpr T et = 1 / T(512);
             static constexpr T ig = 1 / T(1.8);
@@ -413,7 +443,7 @@ namespace Crow {
             return colour;
         }
 
-        template <typename T>
+        template <ArithmeticType T>
         Vector<T, 3> ProPhoto::to_base(Vector<T, 3> colour) noexcept {
             static constexpr T etx = 1 / T(32);
             static constexpr T g = T(1.8);
@@ -428,7 +458,7 @@ namespace Crow {
 
     namespace Detail {
 
-        template <typename T>
+        template <ArithmeticType T>
         constexpr void rgb_to_hcv(T r, T g, T b, T& h, T& c, T& v) noexcept {
             v = std::max({r, g, b});
             c = v - std::min({r, g, b});
@@ -443,7 +473,7 @@ namespace Crow {
             h = euclidean_remainder(h, T(6)) / 6;
         }
 
-        template <typename T>
+        template <ArithmeticType T>
         constexpr void hcm_to_rgb(T h, T c, T m, T& r, T& g, T& b) noexcept {
             h *= 6;
             T x = c * (1 - const_abs(euclidean_remainder(h, T(2)) - 1));
@@ -463,13 +493,14 @@ namespace Crow {
     class HSL {
     public:
         using base = LinearRGB;
-        static constexpr std::array<char, 3> channels = {{ 'H', 'S', 'L' }};
+        static constexpr int count = 3;
+        static constexpr std::array<char, count> channels = {'H', 'S', 'L'};
         static constexpr Csp properties = Csp::polar | Csp::unit;
-        template <typename T> static constexpr Vector<T, 3> from_base(Vector<T, 3> colour) noexcept;
-        template <typename T> static constexpr Vector<T, 3> to_base(Vector<T, 3> colour) noexcept;
+        template <ArithmeticType T> static constexpr Vector<T, 3> from_base(Vector<T, 3> colour) noexcept;
+        template <ArithmeticType T> static constexpr Vector<T, 3> to_base(Vector<T, 3> colour) noexcept;
     };
 
-        template <typename T>
+        template <ArithmeticType T>
         constexpr Vector<T, 3> HSL::from_base(Vector<T, 3> colour) noexcept {
             using namespace Detail;
             Vector<T, 3> out;
@@ -481,7 +512,7 @@ namespace Crow {
             return out;
         }
 
-        template <typename T>
+        template <ArithmeticType T>
         constexpr Vector<T, 3> HSL::to_base(Vector<T, 3> colour) noexcept {
             using namespace Detail;
             Vector<T, 3> out;
@@ -494,13 +525,14 @@ namespace Crow {
     class HSV {
     public:
         using base = LinearRGB;
-        static constexpr std::array<char, 3> channels = {{ 'H', 'S', 'V' }};
+        static constexpr int count = 3;
+        static constexpr std::array<char, count> channels = {'H', 'S', 'V'};
         static constexpr Csp properties = Csp::polar | Csp::unit;
-        template <typename T> static constexpr Vector<T, 3> from_base(Vector<T, 3> colour) noexcept;
-        template <typename T> static constexpr Vector<T, 3> to_base(Vector<T, 3> colour) noexcept;
+        template <ArithmeticType T> static constexpr Vector<T, 3> from_base(Vector<T, 3> colour) noexcept;
+        template <ArithmeticType T> static constexpr Vector<T, 3> to_base(Vector<T, 3> colour) noexcept;
     };
 
-        template <typename T>
+        template <ArithmeticType T>
         constexpr Vector<T, 3> HSV::from_base(Vector<T, 3> colour) noexcept {
             using namespace Detail;
             Vector<T, 3> out;
@@ -511,7 +543,7 @@ namespace Crow {
             return out;
         }
 
-        template <typename T>
+        template <ArithmeticType T>
         constexpr Vector<T, 3> HSV::to_base(Vector<T, 3> colour) noexcept {
             using namespace Detail;
             Vector<T, 3> out;
@@ -524,18 +556,19 @@ namespace Crow {
     class Greyscale {
     public:
         using base = CIEXYZ;
-        static constexpr std::array<char, 1> channels = {{ 'Y' }};
+        static constexpr int count = 1;
+        static constexpr std::array<char, count> channels = {'Y'};
         static constexpr Csp properties = Csp::linear | Csp::unit;
-        template <typename T> static constexpr Vector<T, 1> from_base(Vector<T, 3> colour) noexcept;
-        template <typename T> static constexpr Vector<T, 3> to_base(Vector<T, 1> colour) noexcept;
+        template <ArithmeticType T> static constexpr Vector<T, 1> from_base(Vector<T, 3> colour) noexcept;
+        template <ArithmeticType T> static constexpr Vector<T, 3> to_base(Vector<T, 1> colour) noexcept;
     };
 
-        template <typename T>
+        template <ArithmeticType T>
         constexpr Vector<T, 1> Greyscale::from_base(Vector<T, 3> colour) noexcept {
             return Vector<T, 1>(colour.y());
         }
 
-        template <typename T>
+        template <ArithmeticType T>
         constexpr Vector<T, 3> Greyscale::to_base(Vector<T, 1> colour) noexcept {
             using namespace Detail;
             return colour[0] * D65<T>;
@@ -544,20 +577,21 @@ namespace Crow {
     class sGreyscale {
     public:
         using base = Greyscale;
-        static constexpr std::array<char, 1> channels = {{ 'Y' }};
+        static constexpr int count = 1;
+        static constexpr std::array<char, count> channels = {'Y'};
         static constexpr Csp properties = Csp::unit;
-        template <typename T> static constexpr Vector<T, 1> from_base(Vector<T, 1> colour) noexcept;
-        template <typename T> static constexpr Vector<T, 1> to_base(Vector<T, 1> colour) noexcept;
+        template <ArithmeticType T> static constexpr Vector<T, 1> from_base(Vector<T, 1> colour) noexcept;
+        template <ArithmeticType T> static constexpr Vector<T, 1> to_base(Vector<T, 1> colour) noexcept;
     };
 
-        template <typename T>
+        template <ArithmeticType T>
         constexpr Vector<T, 1> sGreyscale::from_base(Vector<T, 1> colour) noexcept {
             using namespace Detail;
             colour[0] = sRGB_function(colour[0]);
             return colour;
         }
 
-        template <typename T>
+        template <ArithmeticType T>
         constexpr Vector<T, 1> sGreyscale::to_base(Vector<T, 1> colour) noexcept {
             using namespace Detail;
             colour[0] = sRGB_inverse(colour[0]);
@@ -566,20 +600,20 @@ namespace Crow {
 
     // Conversion functions
 
-    template <typename CS1, typename CS2, typename T>
-    Vector<T, CS2::channels.size()> convert_colour_space(Vector<T, int(CS1::channels.size())> colour) {
-        using BCS1 = typename CS1::base;
-        using BCS2 = typename CS2::base;
+    template <ColourSpace CS1, ColourSpace CS2, ArithmeticType T>
+    Vector<T, CS2::channels.size()> convert_colour_space(Vector<T, CS1::count> colour) {
+        using Base1 = typename CS1::base;
+        using Base2 = typename CS2::base;
         if constexpr (std::is_same_v<CS1, CS2>)
             return colour;
         else if constexpr (std::is_same_v<CS1, CIEXYZ> && std::is_same_v<CS2, LinearRGB>)
             return CS2::from_base(colour);
         else if constexpr (std::is_same_v<CS1, LinearRGB> && std::is_same_v<CS2, CIEXYZ>)
             return CS1::to_base(colour);
-        else if constexpr (! std::is_same_v<CS1, BCS1>)
-            return convert_colour_space<BCS1, CS2>(CS1::to_base(colour));
+        else if constexpr (! std::is_same_v<CS1, Base1>)
+            return convert_colour_space<Base1, CS2>(CS1::to_base(colour));
         else
-            return CS2::from_base(convert_colour_space<CS1, BCS2>(colour));
+            return CS2::from_base(convert_colour_space<CS1, Base2>(colour));
     }
 
 }

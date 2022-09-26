@@ -12,52 +12,13 @@ namespace Crow;
 * TOC
 {:toc}
 
-## Colour space concept
+## Introduction
 
-### Requirements
-
-`CS` is the colour space; `N` is the number of channels in this colour space
-(not counting an alpha channel, which is handled separately); `NB` is the
-number of channels in its base space.
-
-```c++
-using CS::base = [some colour space];
-```
-
-Another colour space from which this one is defined. For the `CIEXYZ` space,
-the root of the colour space graph, `CIEXYZ::base` is itself. For all other
-colour space classes, the base must be another colour space that has already
-been defined. Circular dependencies are not allowed.
-
-```c++
-static constexpr std::array<char,N> CS::channels;
-```
-
-This is a list of letters representing the colour channels. All elements must
-be ASCII upper or lower case letters, with no duplicates. Channel IDs are
-case sensitive.
-
-```c++
-static constexpr Csp CS::properties;
-```
-
-A bitmask constant indicating the properties of the colour space (the values
-are explained below).
-
-```c++
-static Vector<T,N> CS::from_base(Vector<T,NB> colour);
-static Vector<T,NB> CS::to_base(Vector<T,N> colour);
-```
-
-Colour conversion functions between this space and its base space.
-
-### Notes
-
-The rest of this documentation assumes that the reader is familiar with the
-basic concepts of colour theory. As a general rule of thumb, if you don't
-know what colour space you should be using, you probably want `LinearRGB` for
-internal calculations (such as colour blending or interpolation), and `sRGB`
-for reading and writing image data. Your image I/O library may handle that
+This documentation assumes that the reader is familiar with the basic concepts
+of colour theory. As a general rule of thumb, if you don't know what colour
+space you should be using, you probably want `LinearRGB` for internal
+calculations (such as colour blending or interpolation), and `sRGB` for
+reading and writing image data. Your image I/O library may handle that
 conversion automatically, or it may require you to convert the colour space
 when reading or writing pixels.
 
@@ -92,17 +53,7 @@ XYZ.
 [Bruce Lindbloom's site](http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html)
 is my main source for the RGB/XYZ matrices.
 
-The following conditions are not checked, but behaviour is undefined if a
-colour space violates any of them:
-
-1. `CS::base` must not be the same as `CS` (apart from the CIE XYZ special case).
-2. The graph of colour spaces and their base spaces must be a directed acyclic graph, with no loops or disconnected subgraphs.
-3. The channel list must be the correct length for the colour space's number of channels.
-4. The channel list must contain only ASCII upper and lower case letters.
-5. The channel list must not contain any duplicates.
-6. If the properties include `rgb`, the channel list must contain exactly three entries.
-
-## Colour space properties
+## Supporting types
 
 ```c++
 enum class Csp: int {
@@ -118,14 +69,39 @@ Bitmask flags used to indicate the properties of a colour space. A linear
 colour space is one where operations like component-wise addition and scalar
 multiplication are well-defined.
 
+## Colour space concepts
+
 ```c++
-template <typename CS> constexpr bool cs_is_linear;
-template <typename CS> constexpr bool cs_is_polar;
-template <typename CS> constexpr bool cs_is_rgb;
-template <typename CS> constexpr bool cs_is_unit;
+template <typename CS> concept ColourSpace;
 ```
 
-Tests provided for convenience.
+This checks the following requirements:
+
+* Integer static member constant `CS::count`, indicating the number of
+  channels in the colour space(not counting the alpha channel).
+* Static member constant `CS::channels`, a `std::array<char,CS::count>`
+  identifying each channel with a unique letter.
+* Static member constant `CH::properties`, a bitmask of `Csp` values
+  indicating the colour space's properties.
+* Member type `CS::base`, which is another colour space from which this one is
+  defined. For the `CIEXYZ` space, the root of the colour space graph,
+  `CIEXYZ::base` is itself. For all other colour space classes, the base must
+  be another colour space that has already been defined. The dependency graph
+  between colour spaces must be a directed acyclic graph, with no loops or
+  disconnected subgraphs.
+* Static member functions performing conversions between this space and its
+  base space. The channel type `T` must be a floating point arithmetic type.
+    * `static Vector<T,CS::count> CS::from_base(Vector<T,CS::base::count> colour)`
+    * `static Vector<T,CS::base::count> CS::to_base(Vector<T,CS::count> colour)`
+
+```c++
+template <typename CS> concept LinearColourSpace;
+template <typename CS> concept PolarColourSpace;
+template <typename CS> concept RgbColourSpace;
+template <typename CS> concept UnitColourSpace;
+```
+
+These match colour spaces with the appropriate properties.
 
 ## Colour space classes
 
@@ -167,9 +143,9 @@ class CIEXYZ {
     using base = CIEXYZ;
     static constexpr std::array<char, 3> channels = { 'X', 'Y', 'Z' };
     static constexpr Csp properties = Csp::linear | Csp::unit;
-    template <typename T> static constexpr Vector<T, 3>
+    template <ArithmeticType T> static constexpr Vector<T, 3>
         from_base(Vector<T, 3> colour) noexcept { return colour; }
-    template <typename T> static constexpr Vector<T, 3>
+    template <ArithmeticType T> static constexpr Vector<T, 3>
         to_base(Vector<T, 3> colour) noexcept { return colour; }
 };
 ```
@@ -183,9 +159,9 @@ class CIExyY {
     using base = CIEXYZ;
     static constexpr std::array<char, 3> channels = { 'x', 'y', 'Y' };
     static constexpr Csp properties = Csp::unit;
-    template <typename T> static constexpr Vector<T, 3>
+    template <ArithmeticType T> static constexpr Vector<T, 3>
         from_base(Vector<T, 3> colour) noexcept;
-    template <typename T> static constexpr Vector<T, 3>
+    template <ArithmeticType T> static constexpr Vector<T, 3>
         to_base(Vector<T, 3> colour) noexcept;
 };
 ```
@@ -199,18 +175,18 @@ class CIELab {
     using base = CIEXYZ;
     static constexpr std::array<char, 3> channels = { 'L', 'a', 'b' };
     static constexpr Csp properties = Csp::none;
-    template <typename T> static Vector<T, 3>
+    template <ArithmeticType T> static Vector<T, 3>
         from_base(Vector<T, 3> colour) noexcept;
-    template <typename T> static Vector<T, 3>
+    template <ArithmeticType T> static Vector<T, 3>
         to_base(Vector<T, 3> colour) noexcept;
 };
 class CIELuv {
     using base = CIEXYZ;
     static constexpr std::array<char, 3> channels = { 'L', 'u', 'v' };
     static constexpr Csp properties = Csp::none;
-    template <typename T> static Vector<T, 3>
+    template <ArithmeticType T> static Vector<T, 3>
         from_base(Vector<T, 3> colour) noexcept;
-    template <typename T> static Vector<T, 3>
+    template <ArithmeticType T> static Vector<T, 3>
         to_base(Vector<T, 3> colour) noexcept;
 };
 ```
@@ -230,9 +206,9 @@ class WorkingSpace {
     using base = CIEXYZ;
     static constexpr std::array<char, 3> channels = { 'R', 'G', 'B' };
     static constexpr Csp properties = Csp::linear | Csp::rgb | Csp::unit;
-    template <typename T> static constexpr Vector<T, 3>
+    template <ArithmeticType T> static constexpr Vector<T, 3>
         from_base(Vector<T, 3> colour) noexcept;
-    template <typename T> static constexpr Vector<T, 3>
+    template <ArithmeticType T> static constexpr Vector<T, 3>
         to_base(Vector<T, 3> colour) noexcept;
 };
 ```
@@ -248,9 +224,9 @@ class NonlinearSpace {
     using base = WorkingSpace;
     static constexpr std::array<char, 3> channels = { 'R', 'G', 'B' };
     static constexpr Csp properties = Csp::rgb | Csp::unit;
-    template <typename T> static Vector<T, 3>
+    template <ArithmeticType T> static Vector<T, 3>
         from_base(Vector<T, 3> colour) noexcept;
-    template <typename T> static Vector<T, 3>
+    template <ArithmeticType T> static Vector<T, 3>
         to_base(Vector<T, 3> colour) noexcept;
 };
 ```
@@ -269,9 +245,9 @@ class sRGB {
     using base = LinearRGB;
     static constexpr std::array<char, 3> channels = { 'R', 'G', 'B' };
     static constexpr Csp properties = Csp::rgb | Csp::unit;
-    template <typename T> static Vector<T, 3>
+    template <ArithmeticType T> static Vector<T, 3>
         from_base(Vector<T, 3> colour) noexcept;
-    template <typename T> static Vector<T, 3>
+    template <ArithmeticType T> static Vector<T, 3>
         to_base(Vector<T, 3> colour) noexcept;
 };
 ```
@@ -295,9 +271,9 @@ class ProPhoto {
     using base = LinearProPhoto;
     static constexpr std::array<char, 3> channels = { 'R', 'G', 'B' };
     static constexpr Csp properties = Csp::rgb | Csp::unit;
-    template <typename T> static Vector<T, 3>
+    template <ArithmeticType T> static Vector<T, 3>
         from_base(Vector<T, 3> colour) noexcept;
-    template <typename T> static Vector<T, 3>
+    template <ArithmeticType T> static Vector<T, 3>
         to_base(Vector<T, 3> colour) noexcept;
 };
 ```
@@ -322,9 +298,9 @@ template <typename Base> class HCLSpace {
     using base = Base;
     static constexpr std::array<char, 3> channels = { 'H', 'C', 'L' };
     static constexpr Csp properties = Csp::polar;
-    template <typename T> static Vector<T, 3>
+    template <ArithmeticType T> static Vector<T, 3>
         from_base(Vector<T, 3> colour) noexcept;
-    template <typename T> static Vector<T, 3>
+    template <ArithmeticType T> static Vector<T, 3>
         to_base(Vector<T, 3> colour) noexcept;
 };
 using HCLab = HCLSpace<CIELab>;
@@ -345,18 +321,18 @@ class HSL {
     using base = LinearRGB;
     static constexpr std::array<char, 3> channels = { 'H', 'S', 'L' };
     static constexpr Csp properties = Csp::polar | Csp::unit;
-    template <typename T> static constexpr Vector<T, 3>
+    template <ArithmeticType T> static constexpr Vector<T, 3>
         from_base(Vector<T, 3> colour) noexcept;
-    template <typename T> static constexpr Vector<T, 3>
+    template <ArithmeticType T> static constexpr Vector<T, 3>
         to_base(Vector<T, 3> colour) noexcept;
 };
 class HSV {
     using base = LinearRGB;
     static constexpr std::array<char, 3> channels = { 'H', 'S', 'V' };
     static constexpr Csp properties = Csp::polar | Csp::unit;
-    template <typename T> static constexpr Vector<T, 3>
+    template <ArithmeticType T> static constexpr Vector<T, 3>
         from_base(Vector<T, 3> colour) noexcept;
-    template <typename T> static constexpr Vector<T, 3>
+    template <ArithmeticType T> static constexpr Vector<T, 3>
         to_base(Vector<T, 3> colour) noexcept;
 };
 ```
@@ -370,18 +346,18 @@ class Greyscale {
     using base = CIEXYZ;
     static constexpr std::array<char, 1> channels = { 'Y' };
     static constexpr Csp properties = Csp::linear | Csp::unit;
-    template <typename T> static constexpr Vector<T, 1>
+    template <ArithmeticType T> static constexpr Vector<T, 1>
         from_base(Vector<T, 3> colour) noexcept;
-    template <typename T> static constexpr Vector<T, 3>
+    template <ArithmeticType T> static constexpr Vector<T, 3>
         to_base(Vector<T, 1> colour) noexcept;
 };
 class sGreyscale {
     using base = Greyscale;
     static constexpr std::array<char, 1> channels = { 'Y' };
     static constexpr Csp properties = Csp::unit;
-    template <typename T> static constexpr Vector<T, 1>
+    template <ArithmeticType T> static constexpr Vector<T, 1>
         from_base(Vector<T, 1> colour) noexcept;
-    template <typename T> static constexpr Vector<T, 1>
+    template <ArithmeticType T> static constexpr Vector<T, 1>
         to_base(Vector<T, 1> colour) noexcept;
 };
 ```
@@ -395,9 +371,8 @@ greyscale after applying the sRGB transform to make it more visually uniform.
 ### Conversion functions
 
 ```c++
-template <typename CS1, typename CS2, typename T>
-    Vector<T, CS2::channels.size()>
-    convert_colour_space(Vector<T, int(CS1::channels.size())> colour);
+template <ColourSpace CS1, ColourSpace CS2, ArithmeticType T>
+    Vector<T, CS2::count> convert_colour_space(Vector<T, CS1::count> colour);
 ```
 
 Converts between any two colour spaces, passing through any intervening base
@@ -406,9 +381,12 @@ spaces along the way, by chaining the colour spaces' `to_base()` and
 
 ### Utility functions
 
+For any function that takes a `scale` argument, behaviour is undefined if
+`scale<=0`.
+
 ```c++
-template <typename CS, typename T, int N>
-    constexpr bool is_colour_in_gamut(Vector<T, N> colour,
+template <ColourSpace CS, ArithmeticType T>
+    constexpr bool is_colour_in_gamut(Vector<T, CS::count> colour,
         T scale = 1) noexcept;
 ```
 
@@ -416,11 +394,11 @@ True if the colour is in gamut for the colour space. For unit-cube or
 unit-polar spaces, this checks that all channels are in the range `[0,scale]`
 (or `[0,scale)` for the polar channel); for non-unit polar spaces, it just
 checks that the polar channel is in range. For other spaces, this has nothing
-to check and always returns true. Behaviour is undefined if `scale<=0`.
+to check and always returns true.
 
 ```c++
-template <typename CS, typename T, int N>
-    constexpr void clamp_colour(Vector<T, N>& colour,
+template <ColourSpace CS, ArithmeticType T>
+    constexpr void clamp_colour(Vector<T, CS::count>& colour,
         T scale = 1) noexcept;
 ```
 
@@ -429,6 +407,4 @@ gamut. For polar spaces, the first channel is reduced modulo `scale`,
 yielding a value in the range `[0,scale)`. Unit channels (all channels for
 unit-cube spaces, and all but the first channel for unit-polar spaces) are
 clamped to the range `[0,scale]`. For unbounded spaces, and for all but the
-first channel in non-unit polar spaces, this does nothing. Behaviour is
-undefined if `scale<=0`.
-
+first channel in non-unit polar spaces, this does nothing.

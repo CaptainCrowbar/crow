@@ -14,7 +14,30 @@ using namespace Crow::Test;
 
 using std::numbers::pi;
 
-using Grey = Vector<double, 1>;
+using Double1 = Vector<double, 1>;
+
+void test_crow_colour_space_concepts() {
+
+    TEST(LinearColourSpace<CIEXYZ>);           TEST(! PolarColourSpace<CIEXYZ>);           TEST(! RgbColourSpace<CIEXYZ>);         TEST(UnitColourSpace<CIEXYZ>);
+    TEST(! LinearColourSpace<CIExyY>);         TEST(! PolarColourSpace<CIExyY>);           TEST(! RgbColourSpace<CIExyY>);         TEST(UnitColourSpace<CIExyY>);
+    TEST(! LinearColourSpace<CIELab>);         TEST(! PolarColourSpace<CIELab>);           TEST(! RgbColourSpace<CIELab>);         TEST(! UnitColourSpace<CIELab>);
+    TEST(! LinearColourSpace<CIELuv>);         TEST(! PolarColourSpace<CIELuv>);           TEST(! RgbColourSpace<CIELuv>);         TEST(! UnitColourSpace<CIELuv>);
+    TEST(! LinearColourSpace<HCLab>);          TEST(PolarColourSpace<HCLab>);              TEST(! RgbColourSpace<HCLab>);          TEST(! UnitColourSpace<HCLab>);
+    TEST(! LinearColourSpace<HCLuv>);          TEST(PolarColourSpace<HCLuv>);              TEST(! RgbColourSpace<HCLuv>);          TEST(! UnitColourSpace<HCLuv>);
+    TEST(! LinearColourSpace<sRGB>);           TEST(! PolarColourSpace<sRGB>);             TEST(RgbColourSpace<sRGB>);             TEST(UnitColourSpace<sRGB>);
+    TEST(LinearColourSpace<LinearRGB>);        TEST(! PolarColourSpace<LinearRGB>);        TEST(RgbColourSpace<LinearRGB>);        TEST(UnitColourSpace<LinearRGB>);
+    TEST(! LinearColourSpace<AdobeRGB>);       TEST(! PolarColourSpace<AdobeRGB>);         TEST(RgbColourSpace<AdobeRGB>);         TEST(UnitColourSpace<AdobeRGB>);
+    TEST(LinearColourSpace<LinearAdobeRGB>);   TEST(! PolarColourSpace<LinearAdobeRGB>);   TEST(RgbColourSpace<LinearAdobeRGB>);   TEST(UnitColourSpace<LinearAdobeRGB>);
+    TEST(! LinearColourSpace<ProPhoto>);       TEST(! PolarColourSpace<ProPhoto>);         TEST(RgbColourSpace<ProPhoto>);         TEST(UnitColourSpace<ProPhoto>);
+    TEST(LinearColourSpace<LinearProPhoto>);   TEST(! PolarColourSpace<LinearProPhoto>);   TEST(RgbColourSpace<LinearProPhoto>);   TEST(UnitColourSpace<LinearProPhoto>);
+    TEST(! LinearColourSpace<WideGamut>);      TEST(! PolarColourSpace<WideGamut>);        TEST(RgbColourSpace<WideGamut>);        TEST(UnitColourSpace<WideGamut>);
+    TEST(LinearColourSpace<LinearWideGamut>);  TEST(! PolarColourSpace<LinearWideGamut>);  TEST(RgbColourSpace<LinearWideGamut>);  TEST(UnitColourSpace<LinearWideGamut>);
+    TEST(! LinearColourSpace<HSL>);            TEST(PolarColourSpace<HSL>);                TEST(! RgbColourSpace<HSL>);            TEST(UnitColourSpace<HSL>);
+    TEST(! LinearColourSpace<HSV>);            TEST(PolarColourSpace<HSV>);                TEST(! RgbColourSpace<HSV>);            TEST(UnitColourSpace<HSV>);
+    TEST(LinearColourSpace<Greyscale>);        TEST(! PolarColourSpace<Greyscale>);        TEST(! RgbColourSpace<Greyscale>);      TEST(UnitColourSpace<Greyscale>);
+    TEST(! LinearColourSpace<sGreyscale>);     TEST(! PolarColourSpace<sGreyscale>);       TEST(! RgbColourSpace<sGreyscale>);     TEST(UnitColourSpace<sGreyscale>);
+
+}
 
 void test_crow_colour_space_ciexyy() {
 
@@ -202,7 +225,7 @@ void test_crow_colour_space_greyscale() {
         { 1.0,  { 0.950489, 1.0, 1.088840 } },
     };
 
-    Grey g;
+    Double1 g;
     Double3 xyz1, xyz2;
 
     for (auto [y,xyz]: expect) {
@@ -232,10 +255,10 @@ void test_crow_colour_space_sgreyscale() {
         { 1.0, 1.000000 },
     };
 
-    Grey g1, g2, sg;
+    Double1 g1, g2, sg;
 
     for (auto [y,sy]: expect) {
-        g1 = Grey(y);
+        g1 = Double1(y);
         TRY(sg = sGreyscale::from_base(g1));
         TEST(is_colour_in_gamut<sGreyscale>(sg));
         TEST_NEAR(sg[0], sy, 1e-6);

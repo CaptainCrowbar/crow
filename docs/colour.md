@@ -43,7 +43,7 @@ colours involved have premultiplied alpha.
 ## Colour class
 
 ```c++
-template <typename T, typename CS = LinearRGB,
+template <ArithmeticType VT, ColourSpace CS = LinearRGB,
     ColourLayout CL = ColourLayout::forward_alpha> class Colour;
 ```
 
@@ -51,14 +51,19 @@ This class represents a colour, using a vector of some value type to represent
 the channels of a colour space, optionally with the addition of an alpha
 channel.
 
-The channel type `T` can be any primitive arithmetic type. If `T` is an
-integer, and the colour space is a unit-cube or polar type, then the channels
-are scaled up to the maximum value that can fit in the integer type. For
-example, if `T` is `uint8_t`, then a channel value of 255 corresponds to a
-value of 1 in the original abstract colour space. If `T` is floating point,
-or the colour space does not restrict its values to the unit cube, then no
-scaling is done; integer channel values are assumed to be integer
-approximations to the abstract colour space values.
+If `VT` is an integer, and the colour space is a unit-cube or polar type, then
+the channels are scaled up to the maximum value that can fit in the integer
+type. For example, if `VT` is `uint8_t`, then a channel value of 255
+corresponds to a value of 1 in the original abstract colour space. If `VT` is
+floating point, or the colour space does not restrict its values to the unit
+cube, then no scaling is done; integer channel values are assumed to be
+integer approximations to the abstract colour space values.
+
+```c++
+template <typename C> concept ColourType;
+```
+
+True if `C` is an instantiation of the `Colour` template.
 
 ### Colour type aliases
 
@@ -112,8 +117,8 @@ static constexpr int Colour::colour_space_channels;
 ```
 
 The number of channels in the colour, not including the alpha channel. This is
-equal to `CS::channels.size()`.
-
+equal to `CS::count`. It will be equal to `channels` if there is no alpha
+channel.
 
 ```c++
 static constexpr bool Colour::has_alpha;
@@ -140,7 +145,7 @@ static constexpr ColourLayout Colour::layout = CL;
 The colour layout parameter.
 
 ```c++
-static constexpr T Colour::scale;
+static constexpr VT Colour::scale;
 ```
 
 This is the channel value that corresponds to a value of 1 in the abstract
@@ -152,11 +157,11 @@ type. Otherwise, this is 1.
 
 ```c++
 using Colour::colour_space = CS;
-using Colour::iterator = T*;
-using Colour::const_iterator = const T*;
-using Colour::value_type = T;
-using Colour::vector_type = Vector<T, channels>;
-using Colour::partial_vector_type = Vector<T, colour_space_channels>;
+using Colour::iterator = VT*;
+using Colour::const_iterator = const VT*;
+using Colour::value_type = VT;
+using Colour::vector_type = Vector<VT, channels>;
+using Colour::partial_vector_type = Vector<VT, colour_space_channels>;
 ```
 
 Member types.
@@ -170,14 +175,14 @@ constexpr Colour::Colour() noexcept;
 The default constructor leaves the channel values uninitialized.
 
 ```c++
-explicit constexpr Colour::Colour(T x) noexcept;
+explicit constexpr Colour::Colour(VT x) noexcept;
 ```
 
 Sets all non-alpha channels to the given value. If the colour has an alpha
 channel, that channel is set equal to `scale` (i.e. fully opaque).
 
 ```c++
-constexpr Colour::Colour(T x, T a) noexcept;
+constexpr Colour::Colour(VT x, VT a) noexcept;
 ```
 
 Sets the non-alpha channels to one value, and the alpha channel to another.
@@ -206,9 +211,9 @@ explicit Colour::Colour(const std::string& str);
 ```
 
 Constructor from a string, which is expected to hold a hexadecimal RGB or RGBA
-colour; this will be converted to the current colour representation. This
-will only compile for RGB colour spaces. The string is always assumed to be
-in RGB or RGBA order regardless of the colour type's internal layout order.
+colour; this will be converted to the current colour representation. This is
+only defined for RGB colour spaces. The string is always assumed to be in RGB
+or RGBA order regardless of the colour type's internal layout order.
 
 Leading and trailing punctuation or whitespace is ignored; apart from that,
 this will throw `std::invalid_argument` if the argument contains anything
@@ -228,8 +233,8 @@ Other life cycle functions.
 ### Channel access functions
 
 ```c++
-constexpr T& Colour::alpha() noexcept;
-constexpr const T& Colour::alpha() const noexcept;
+constexpr VT& Colour::alpha() noexcept;
+constexpr const VT& Colour::alpha() const noexcept;
 ```
 
 Accessors for the alpha channel. If no alpha channel is present, the non-const
@@ -237,27 +242,27 @@ version is not defined, and the const version will always return `scale`.
 
 
 ```c++
-constexpr T& Colour::A() noexcept;
-constexpr const T& Colour::A() const noexcept;
-constexpr T& Colour::a() noexcept;
-constexpr const T& Colour::a() const noexcept;
-constexpr T& Colour::B() noexcept;
-constexpr const T& Colour::B() const noexcept;
-constexpr T& Colour::b() noexcept;
-constexpr const T& Colour::b() const noexcept;
+constexpr VT& Colour::A() noexcept;
+constexpr const VT& Colour::A() const noexcept;
+constexpr VT& Colour::a() noexcept;
+constexpr const VT& Colour::a() const noexcept;
+constexpr VT& Colour::B() noexcept;
+constexpr const VT& Colour::B() const noexcept;
+constexpr VT& Colour::b() noexcept;
+constexpr const VT& Colour::b() const noexcept;
 // ...
-constexpr T& Colour::Z() noexcept;
-constexpr const T& Colour::Z() const noexcept;
-constexpr T& Colour::z() noexcept;
-constexpr const T& Colour::z() const noexcept;
+constexpr VT& Colour::Z() noexcept;
+constexpr const VT& Colour::Z() const noexcept;
+constexpr VT& Colour::z() noexcept;
+constexpr const VT& Colour::z() const noexcept;
 ```
 
 Accessors for the colour space channels. These are only defined if the
 corresponding letter appears in the colour space's list of channels.
 
 ```c++
-T& Colour::operator[](int i) noexcept;
-const T& Colour::operator[](int i) const noexcept;
+VT& Colour::operator[](int i) noexcept;
+const VT& Colour::operator[](int i) const noexcept;
 ```
 
 Channel accessors by index. The channels are indexed by colour layout order,
@@ -274,10 +279,10 @@ channel, if present, is always last. Behaviour is undefined if the index is
 out of bounds.
 
 ```c++
-constexpr T* Colour::begin() noexcept;
-constexpr const T* Colour::begin() const noexcept;
-constexpr T* Colour::end() noexcept;
-constexpr const T* Colour::end() const noexcept;
+constexpr VT* Colour::begin() noexcept;
+constexpr const VT* Colour::begin() const noexcept;
+constexpr VT* Colour::end() noexcept;
+constexpr const VT* Colour::end() const noexcept;
 ```
 
 Iterators over the channel values (in colour layout order).
@@ -384,16 +389,16 @@ constexpr Colour operator+(Colour c) noexcept;
 constexpr Colour operator-(Colour c) noexcept;
 constexpr Colour operator+(Colour a, Colour b) noexcept;
 constexpr Colour operator-(Colour a, Colour b) noexcept;
-constexpr Colour operator*(Colour a, T b) noexcept;
-constexpr Colour operator*(T a, Colour b) noexcept;
-constexpr Colour operator/(Colour a, T b) noexcept;
+constexpr Colour operator*(Colour a, VT b) noexcept;
+constexpr Colour operator*(VT a, Colour b) noexcept;
+constexpr Colour operator/(Colour a, VT b) noexcept;
 constexpr Colour operator*(Colour a, vector_type b) noexcept;
 constexpr Colour operator*(vector_type a, Colour b) noexcept;
 constexpr Colour operator/(Colour a, vector_type b) noexcept;
 constexpr Colour& operator+=(Colour& a, Colour b) noexcept;
 constexpr Colour& operator-=(Colour& a, Colour b) noexcept;
-constexpr Colour& operator*=(Colour& a, T b) noexcept;
-constexpr Colour& operator/=(Colour& a, T b) noexcept;
+constexpr Colour& operator*=(Colour& a, VT b) noexcept;
+constexpr Colour& operator/=(Colour& a, VT b) noexcept;
 constexpr Colour& operator*=(Colour& a, vector_type b) noexcept;
 constexpr Colour& operator/=(Colour& a, vector_type b) noexcept;
 ```
@@ -403,7 +408,8 @@ These are only defined for linear RGB colour spaces. Division by zero is
 undefined behaviour.
 
 ```c++
-constexpr Colour alpha_blend(Colour a, Colour b, Pma flags = Pma::none) noexcept;
+constexpr Colour alpha_blend(Colour a, Colour b,
+    Pma flags = Pma::none) noexcept;
 ```
 
 Performs alpha blending (`a` over `b`). The flags indicate which of the
@@ -422,10 +428,8 @@ Comparison operators.
 ### Colour functions
 
 ```c++
-template <typename T1, typename CS1, ColourLayout CL1,
-        typename T2, typename CS2, ColourLayout CL2>
-    void convert_colour(Colour<T1, CS1, CL1> in,
-        Colour<T2, CS2, CL2>& out) noexcept;
+template <ColourType CT1, ColourType CT2>
+    void convert_colour(CT1 in, CT2& out) noexcept;
 ```
 
 This converts between any two colours. This will call `convert_colour_space()`
@@ -433,13 +437,11 @@ if the colour spaces are different, as well as converting between different
 channel types and internal layouts. Conversions from floating point to integer
 will round to the nearest integer. If the output contains an alpha channel but
 the input does not, the alpha channel will be set to its fully opaque value.
-If the input colour contains out-of-gamut values that are not representable in
-the output channel type, the output will be garbage if `T2` is an unsigned
-integer, otherwise behaviour is undefined.
+Behaviour is undefined if the input colour contains out-of-gamut values that
+are not representable in the output channel type.
 
 ```c++
-template <typename ColourType>
-    ColourType css_colour(const std::string& str);
+template <ColourType CT> CT css_colour(const std::string& str);
 ```
 
 This function looks up a string in the standard list of CSS colours, and
@@ -458,13 +460,12 @@ colour space (as CSS requires) and then convert to the target colour, while
 the constructor uses the target colour's native colour space.
 
 ```c++
-template <typename T, typename CS, ColourLayout CL, typename U>
-    constexpr Colour<T, CS, CL> lerp(const Colour<T, CS, CL>& c1,
-        const Colour<T, CS, CL>& c2, U x) noexcept;
+template <ColourType CT, std::floating_point FP>
+    constexpr CT lerp(const CT& c1, const CT& c2, FP x) noexcept;
 ```
 
-Performs linear interpolation between colours. The colour space must be
-linear, and `U` must be a floating point type; if `T` is floating point, `U`
-must be the same type. If `T` is an integer type, the results are rounded to
-the nearest integer (halves round toward positive infinity). Behaviour is
-undefined if the correct result would be out of range for `T`.
+Performs linear interpolation between colours. If the colour's channel type is
+floating point, `FP` must be the same type. If the channel type is an integer
+type, the results are rounded to the nearest integer (halves round toward
+positive infinity). Behaviour is undefined if the correct result would be out
+of range for the channel type.

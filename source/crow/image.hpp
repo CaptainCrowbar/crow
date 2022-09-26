@@ -11,6 +11,7 @@
 #include "crow/vector.hpp"
 #include <algorithm>
 #include <cmath>
+#include <concepts>
 #include <cstdlib>
 #include <cstring>
 #include <iterator>
@@ -66,8 +67,7 @@ namespace Crow {
     ImageInfo query_image(const Path& file) noexcept;
     inline std::ostream& operator<<(std::ostream& out, const ImageInfo& info) { return out << info.str(); }
 
-    template <typename Colour, ImageFlags Flags = ImageFlags::none>
-    class Image;
+    template <ColourType CT, ImageFlags Flags = ImageFlags::none> class Image;
 
     namespace Detail {
 
@@ -92,8 +92,8 @@ namespace Crow {
 
     }
 
-    template <typename T, typename CS, ColourLayout CL, ImageFlags Flags>
-    class Image<Colour<T, CS, CL>, Flags> {
+    template <ColourType CT, ImageFlags Flags>
+    class Image {
 
     private:
 
@@ -106,7 +106,7 @@ namespace Crow {
             using iterator_category = std::bidirectional_iterator_tag;
             using pointer = CC*;
             using reference = CC&;
-            using value_type = T;
+            using value_type = typename CT::value_type;
 
             basic_iterator() = default;
             basic_iterator(const basic_iterator<std::remove_const_t<CI>, std::remove_const_t<CC>>& i):
@@ -151,14 +151,14 @@ namespace Crow {
 
     public:
 
-        using channel_type = T;
-        using colour_space = CS;
-        using colour_type = Colour<T, CS, CL>;
+        using channel_type = typename CT::value_type;
+        using colour_space = typename CT::colour_space;
+        using colour_type = CT;
         using iterator = basic_iterator<Image, colour_type>;
         using const_iterator = basic_iterator<const Image, const colour_type>;
 
         static constexpr int channels = colour_type::channels;
-        static constexpr ColourLayout colour_layout = CL;
+        static constexpr ColourLayout colour_layout = CT::layout;
         static constexpr bool has_alpha = colour_type::has_alpha;
         static constexpr bool is_bottom_up = !! (Flags & ImageFlags::bottom_up);
         static constexpr bool is_top_down = ! is_bottom_up;
@@ -189,8 +189,8 @@ namespace Crow {
         const_iterator begin() const noexcept { return const_iterator(*this, 0); }
         iterator end() noexcept { return iterator(*this, int64_t(size())); }
         const_iterator end() const noexcept { return const_iterator(*this, int64_t(size())); }
-        T* data() noexcept { return reinterpret_cast<T*>(pix_.get()); }
-        const T* data() const noexcept { return reinterpret_cast<const T*>(pix_.get()); }
+        channel_type* data() noexcept { return reinterpret_cast<channel_type*>(pix_.get()); }
+        const channel_type* data() const noexcept { return reinterpret_cast<const channel_type*>(pix_.get()); }
 
         iterator bottom_left() noexcept { return locate(0, is_top_down ? height() - 1 : 0); }
         const_iterator bottom_left() const noexcept { return locate(0, is_top_down ? height() - 1 : 0); }
@@ -212,9 +212,9 @@ namespace Crow {
         iterator locate(int x, int y) noexcept { return iterator(*this, make_index(x, y)); }
         const_iterator locate(int x, int y) const noexcept { return const_iterator(*this, make_index(x, y)); }
 
-        template <typename U = T> Image<colour_type, Flags | ImageFlags::premultiplied>
+        template <typename U = channel_type> Image<colour_type, Flags | ImageFlags::premultiplied>
             multiply_alpha(std::enable_if<SfinaeTrue<U, colour_type::can_premultiply && ! is_premultiplied>::value>* = nullptr) const;
-        template <typename U = T> Image<colour_type, Flags & ~ ImageFlags::premultiplied>
+        template <typename U = channel_type> Image<colour_type, Flags & ~ ImageFlags::premultiplied>
             unmultiply_alpha(std::enable_if<SfinaeTrue<U, colour_type::can_premultiply && is_premultiplied>::value>* = nullptr) const;
 
         void reset(Point new_shape);
@@ -308,8 +308,8 @@ namespace Crow {
 
     }
 
-    template <typename T, typename CS, ColourLayout CL, ImageFlags Flags>
-    void Image<Colour<T, CS, CL>, Flags>::load(const Path& file) {
+    template <ColourType CT, ImageFlags Flags>
+    void Image<CT, Flags>::load(const Path& file) {
         Point shape;
         if constexpr (std::is_same_v<channel_type, uint8_t>) {
             auto image_ptr = Detail::load_image_8(file, shape);
@@ -329,8 +329,8 @@ namespace Crow {
         }
     }
 
-    template <typename T, typename CS, ColourLayout CL, ImageFlags Flags>
-    void Image<Colour<T, CS, CL>, Flags>::save(const Path& file, int quality) const {
+    template <ColourType CT, ImageFlags Flags>
+    void Image<CT, Flags>::save(const Path& file, int quality) const {
         auto format = ascii_lowercase(file.split_leaf().second);
         if (format == ".hdr" || format == ".rgbe") {
             Image<Rgbaf> image;
@@ -343,10 +343,10 @@ namespace Crow {
         }
     }
 
-    template <typename T, typename CS, ColourLayout CL, ImageFlags Flags>
+    template <ColourType CT, ImageFlags Flags>
     template <typename U>
-    Image<Colour<T, CS, CL>, Flags | ImageFlags::premultiplied>
-    Image<Colour<T, CS, CL>, Flags>::multiply_alpha(std::enable_if<SfinaeTrue<U, colour_type::can_premultiply
+    Image<CT, Flags | ImageFlags::premultiplied>
+    Image<CT, Flags>::multiply_alpha(std::enable_if<SfinaeTrue<U, colour_type::can_premultiply
             && ! is_premultiplied>::value>*) const {
         Image<colour_type, Flags | ImageFlags::premultiplied> result(shape());
         auto out = result.begin();
@@ -355,10 +355,10 @@ namespace Crow {
         return result;
     }
 
-    template <typename T, typename CS, ColourLayout CL, ImageFlags Flags>
+    template <ColourType CT, ImageFlags Flags>
     template <typename U>
-    Image<Colour<T, CS, CL>, Flags & ~ ImageFlags::premultiplied>
-    Image<Colour<T, CS, CL>, Flags>::unmultiply_alpha(std::enable_if<SfinaeTrue<U, colour_type::can_premultiply
+    Image<CT, Flags & ~ ImageFlags::premultiplied>
+    Image<CT, Flags>::unmultiply_alpha(std::enable_if<SfinaeTrue<U, colour_type::can_premultiply
             && is_premultiplied>::value>*) const {
         Image<colour_type, Flags & ~ ImageFlags::premultiplied> result(shape());
         auto out = result.begin();
@@ -367,8 +367,8 @@ namespace Crow {
         return result;
     }
 
-    template <typename T, typename CS, ColourLayout CL, ImageFlags Flags>
-    void Image<Colour<T, CS, CL>, Flags>::reset(Point new_shape) {
+    template <ColourType CT, ImageFlags Flags>
+    void Image<CT, Flags>::reset(Point new_shape) {
         if (new_shape == Point(0, 0)) {
             clear();
         } else if (new_shape.x() <= 0 || new_shape.y() <= 0) {
@@ -383,21 +383,20 @@ namespace Crow {
         }
     }
 
-    template <typename T, typename CS, ColourLayout CL, ImageFlags Flags>
-    void Image<Colour<T, CS, CL>, Flags>::resize(Point new_shape, ImageResize rflags) {
+    template <ColourType CT, ImageFlags Flags>
+    void Image<CT, Flags>::resize(Point new_shape, ImageResize rflags) {
         auto img = resized(new_shape, rflags);
         *this = std::move(img);
     }
 
-    template <typename T, typename CS, ColourLayout CL, ImageFlags Flags>
-    void Image<Colour<T, CS, CL>, Flags>::resize(double scale, ImageResize rflags) {
+    template <ColourType CT, ImageFlags Flags>
+    void Image<CT, Flags>::resize(double scale, ImageResize rflags) {
         auto img = resized(scale, rflags);
         *this = std::move(img);
     }
 
-    template <typename T, typename CS, ColourLayout CL, ImageFlags Flags>
-    Image<Colour<T, CS, CL>, Flags>
-    Image<Colour<T, CS, CL>, Flags>::resized(Point new_shape, ImageResize rflags) const {
+    template <ColourType CT, ImageFlags Flags>
+    Image<CT, Flags> Image<CT, Flags>::resized(Point new_shape, ImageResize rflags) const {
 
         static constexpr int stbir_flag_alpha_premultiplied  = 1;
         static constexpr int stbir_edge_clamp                = 1;
@@ -406,9 +405,10 @@ namespace Crow {
         static constexpr int stbir_colorspace_linear         = 0;
         static constexpr int stbir_colorspace_srgb           = 1;
 
-        using working_channel = std::conditional_t<std::is_same_v<T, uint8_t> || std::is_same_v<T, uint16_t>, T, float>;
-        using working_space = std::conditional_t<std::is_same_v<CS, sRGB>, sRGB, LinearRGB>;
-        using working_colour = Colour<working_channel, working_space, CL>;
+        using working_channel = std::conditional_t<std::is_same_v<channel_type, uint8_t>
+            || std::is_same_v<channel_type, uint16_t>, channel_type, float>;
+        using working_space = std::conditional_t<std::is_same_v<colour_space, sRGB>, sRGB, LinearRGB>;
+        using working_colour = Colour<working_channel, working_space, colour_layout>;
         using working_image = Image<working_colour, Flags>;
 
         bool use_unlock = !! (rflags & ImageResize::unlock);
@@ -449,7 +449,7 @@ namespace Crow {
         int stb_flags = is_premultiplied ? stbir_flag_alpha_premultiplied : 0;
         int stb_edge = use_wrap ? stbir_edge_wrap : stbir_edge_clamp;
         int stb_filter = stbir_filter_default;
-        int stb_space = std::is_same_v<CS, sRGB> ? stbir_colorspace_srgb : stbir_colorspace_linear;
+        int stb_space = std::is_same_v<colour_space, sRGB> ? stbir_colorspace_srgb : stbir_colorspace_linear;
 
         working_image working_input;
         convert_image(*this, working_input);
@@ -472,9 +472,8 @@ namespace Crow {
 
     }
 
-    template <typename T, typename CS, ColourLayout CL, ImageFlags Flags>
-    Image<Colour<T, CS, CL>, Flags>
-    Image<Colour<T, CS, CL>, Flags>::resized(double scale, ImageResize rflags) const {
+    template <ColourType CT, ImageFlags Flags>
+    Image<CT, Flags> Image<CT, Flags>::resized(double scale, ImageResize rflags) const {
         if (scale <= 0)
             throw std::invalid_argument(fmt("Invalid image scale factor: {0}", scale));
         int w = int(std::lround(scale * width()));
