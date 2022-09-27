@@ -12,11 +12,19 @@ namespace Crow;
 * TOC
 {:toc}
 
+## Concepts
+
+```c++
+template <typename T> concept Hashable;
+```
+
+Matches types with a valid specialization of `std::hash`.
+
 ## Hash mixing functions
 
 ```c++
-template <typename... Args> size_t hash_mix(const Args&... args);
-template <typename Range> size_t hash_mix(const Range& r);
+template <Hashable... Args> size_t hash_mix(const Args&... args);
+template <RangeType Range> size_t hash_mix(const Range& r);
 ```
 
 Hash mixing functions. These return the combined hash of a list or range of

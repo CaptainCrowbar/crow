@@ -3,12 +3,20 @@
 #include "crow/binary.hpp"
 #include "crow/types.hpp"
 #include <bit>
+#include <concepts>
 #include <functional>
 #include <iterator>
 #include <string>
 #include <type_traits>
 
 namespace Crow {
+
+    // Concepts
+
+    template <typename T>
+    concept Hashable = requires (T t) {
+        { std::hash<T>()(t) } -> std::convertible_to<size_t>;
+    };
 
     // Hash functions
 
@@ -20,7 +28,7 @@ namespace Crow {
 
     }
 
-    template <typename T1, typename T2, typename... Args>
+    template <Hashable T1, Hashable T2, Hashable... Args>
     size_t hash_mix(const T1& t1, const T2& t2, const Args&... args) {
         using namespace Detail;
         size_t h = std::hash<T1>()(t1);
@@ -31,10 +39,9 @@ namespace Crow {
         return h;
     }
 
-    template <typename Range>
+    template <RangeType Range>
     size_t hash_mix(const Range& r) {
-        using std::begin;
-        using T = std::decay_t<decltype(*begin(r))>;
+        using T = RangeValue<Range>;
         std::hash<T> t_hash;
         size_t h = 0;
         for (auto& x: r)

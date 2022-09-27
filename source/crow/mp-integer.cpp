@@ -215,6 +215,10 @@ namespace Crow {
         trim();
     }
 
+    size_t MPN::hash() const noexcept {
+        return hash_mix(rep_);
+    }
+
     MPN MPN::pow(const MPN& n) const {
         MPN x = *this, y = n, z = 1;
         while (y) {
@@ -461,6 +465,10 @@ namespace Crow {
             }
         }
         return *this;
+    }
+
+    size_t MPZ::hash() const noexcept {
+        return hash_mix(mag_, neg_);
     }
 
     MPZ MPZ::pow(const MPZ& n) const {

@@ -56,7 +56,7 @@ namespace Crow {
         void set_bit(size_t i, bool b = true);
         void set_byte(size_t i, uint8_t b);
         void flip_bit(size_t i);
-        size_t hash() const noexcept { return hash_mix(rep_); }
+        size_t hash() const noexcept;
         bool is_even() const noexcept { return rep_.empty() || (rep_.front() & 1) == 0; }
         bool is_odd() const noexcept { return ! is_even(); }
         MPN pow(const MPN& n) const;
@@ -150,7 +150,7 @@ namespace Crow {
         MPZ& operator%=(const MPZ& rhs) { MPZ q, r; do_divide(*this, rhs, q, r); std::swap(*this, r); return *this; }
 
         MPN abs() const { return mag_; }
-        size_t hash() const noexcept { return hash_mix(mag_, neg_); }
+        size_t hash() const noexcept;
         bool is_even() const noexcept { return mag_.is_even(); }
         bool is_odd() const noexcept { return mag_.is_odd(); }
         MPZ pow(const MPZ& n) const;
