@@ -8,6 +8,7 @@
 #include "crow/enum.hpp"
 #include "crow/types.hpp"
 #include <cmath>
+#include <concepts>
 #include <cstdlib>
 #include <limits>
 #include <numbers>
@@ -20,12 +21,10 @@ namespace Crow {
         common    // Use base 10 logs
     )
 
-    template <typename T>
+    template <std::floating_point T>
     class UniformReal {
 
     public:
-
-        static_assert(std::is_floating_point_v<T>);
 
         using result_type = T;
 
@@ -79,12 +78,10 @@ namespace Crow {
 
     };
 
-    template <typename T>
+    template <std::floating_point T>
     class NormalDistribution {
 
     public:
-
-        static_assert(std::is_floating_point_v<T>);
 
         using result_type = T;
 
@@ -154,12 +151,10 @@ namespace Crow {
 
     };
 
-    template <typename T>
+    template <std::floating_point T>
     class LogNormal {
 
     public:
-
-        static_assert(std::is_floating_point_v<T>);
 
         using result_type = T;
 
@@ -190,12 +185,10 @@ namespace Crow {
 
     };
 
-    template <typename T>
+    template <std::floating_point T>
     class LogUniform {
 
     public:
-
-        static_assert(std::is_floating_point_v<T>);
 
         using result_type = T;
 

@@ -8,17 +8,16 @@
 #include "crow/rational.hpp"
 #include "crow/types.hpp"
 #include <cmath>
+#include <concepts>
 #include <numbers>
 #include <type_traits>
 
 namespace Crow {
 
-    template <typename T>
+    template <std::integral T>
     class UniformInteger {
 
     public:
-
-        static_assert(std::is_integral_v<T>);
 
         using result_type = T;
 
@@ -151,12 +150,10 @@ namespace Crow {
 
     };
 
-    template <typename T>
+    template <std::integral T>
     class DiscreteNormal {
 
     public:
-
-        static_assert(std::is_integral_v<T>);
 
         using result_type = T;
 
@@ -177,12 +174,10 @@ namespace Crow {
 
     };
 
-    template <typename T>
+    template <std::integral T>
     class PoissonDistribution {
 
     public:
-
-        static_assert(std::is_integral_v<T>);
 
         using result_type = T;
 

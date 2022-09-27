@@ -161,7 +161,7 @@ significant figures.
 #### Uniform integer distribution
 
 ```c++
-template <typename T> class UniformInteger {
+template <std::integral T> class UniformInteger {
     using result_type = T;
     constexpr UniformInteger() noexcept;
         // range=[0,1]
@@ -203,7 +203,7 @@ class BernoulliDistribution {
 #### Discrete normal distribution
 
 ```c++
-template <typename T> class DiscreteNormal {
+template <std::integral T> class DiscreteNormal {
     using result_type = T;
     DiscreteNormal() noexcept; // mean=0,sd=1
     DiscreteNormal(double mean, double sd) noexcept;
@@ -217,7 +217,7 @@ template <typename T> class DiscreteNormal {
 #### Poisson distribution
 
 ```c++
-template <typename T> class PoissonDistribution {
+template <std::integral T> class PoissonDistribution {
     using result_type = T;
     PoissonDistribution() noexcept;
         // lambda=1
@@ -239,7 +239,7 @@ template <typename T> class PoissonDistribution {
 #### Uniform real distribution
 
 ```c++
-template <typename T> class UniformReal {
+template <std::floating_point T> class UniformReal {
     using result_type = T;
     constexpr UniformReal() noexcept;
         // range=[0,1]
@@ -265,7 +265,7 @@ template <typename T> class UniformReal {
 #### Normal distribution
 
 ```c++
-template <typename T> class NormalDistribution {
+template <std::floating_point T> class NormalDistribution {
     using result_type = T;
     NormalDistribution() noexcept; // mean=0, sd=1
     NormalDistribution(T mean, T sd) noexcept;
@@ -285,7 +285,7 @@ template <typename T> class NormalDistribution {
 #### Log uniform distribution
 
 ```c++
-template <typename T> class LogUniform {
+template <std::floating_point T> class LogUniform {
     using result_type = T;
     constexpr LogUniform() noexcept; // range=[0,e)
     constexpr LogUniform(T min, T max) noexcept; // UB if min>max
@@ -299,7 +299,7 @@ template <typename T> class LogUniform {
 #### Log normal distribution
 
 ```c++
-template <typename T> class LogNormal {
+template <std::floating_point T> class LogNormal {
     using result_type = T;
     LogNormal() noexcept; // m=0, s=1
     LogNormal(T m, T s, LogMode mode = LogMode::natural) noexcept;
