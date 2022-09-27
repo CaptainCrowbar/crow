@@ -3,6 +3,7 @@
 #include <atomic>
 #include <chrono>
 #include <cmath>
+#include <concepts>
 #include <cstdio>
 #include <ctime>
 #include <functional>
@@ -24,21 +25,13 @@ namespace Crow {
 
     namespace Detail {
 
-        template <typename T, typename = void> struct HasStrMethod: std::false_type {};
-        template <typename T> struct HasStrMethod<T,
-            std::void_t<decltype(std::declval<std::string&>() = std::declval<const T&>().str())>>: std::true_type {};
-
-        template <typename T, typename = void> struct HasOutputOperator: std::false_type {};
-        template <typename T> struct HasOutputOperator<T,
-            std::void_t<decltype(std::declval<std::ostream&>() << std::declval<const T&>())>>: std::true_type {};
-
         template <typename T>
         std::string log_format(const T& t) {
             if constexpr (std::is_same_v<T, bool>) {
                 return t ? " true" : " false";
             } else if constexpr (std::is_arithmetic_v<T>) {
                 return ' ' + std::to_string(t);
-            } else if constexpr (HasStrMethod<T>::value) {
+            } else if constexpr (requires (T t) { { t.str() } -> std::convertible_to<std::string>; }) {
                 return ' ' + t.str();
             } else {
                 std::ostringstream out;

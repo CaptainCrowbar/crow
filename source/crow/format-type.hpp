@@ -79,11 +79,11 @@ namespace Crow {
         || ArithmeticType<std::decay_t<T>>
         || RangeType<std::decay_t<T>>
         || Detail::DurationType<std::decay_t<T>>
-        || Detail::has_str_method<std::decay_t<T>>
-        || Detail::has_extended_str_method<std::decay_t<T>>
-        || Detail::has_adl_to_string_function<std::decay_t<T>>
-        || Detail::has_std_to_string_function<std::decay_t<T>>
-        || Detail::has_output_operator<std::decay_t<T>>;
+        || Detail::StrMethodType<std::decay_t<T>>
+        || Detail::ExtendedStrMethodType<std::decay_t<T>>
+        || Detail::AdlToStringType<std::decay_t<T>>
+        || Detail::StdToStringType<std::decay_t<T>>
+        || Detail::OutputOperatorType<std::decay_t<T>>;
 
     template <typename T>
     concept VariableFormatType =
@@ -109,7 +109,7 @@ namespace Crow {
         || ArithmeticType<std::decay_t<T>>
         || RangeType<std::decay_t<T>>
         || Detail::DurationType<std::decay_t<T>>
-        || Detail::has_extended_str_method<std::decay_t<T>>;
+        || Detail::ExtendedStrMethodType<std::decay_t<T>>;
 
     template <typename T>
     struct FormatType {
@@ -117,17 +117,17 @@ namespace Crow {
             using U = std::decay_t<T>;
             if (spec.mode() == 'T')
                 return type_name<U>();
-            if constexpr (std::is_same_v<U, std::nullptr_t>)
+            if constexpr (std::same_as<U, std::nullptr_t>)
                 return spec.option('Z') ? "--" : "<null>";
-            else if constexpr (std::is_same_v<U, bool>)
+            else if constexpr (std::same_as<U, bool>)
                 return format_boolean(t, spec);
-            else if constexpr (std::is_same_v<U, char>)
+            else if constexpr (std::same_as<U, char>)
                 return t == 0 && spec.option('Z') ? "--" : format_string(std::string{t}, spec);
-            else if constexpr (std::is_same_v<U, char16_t>)
+            else if constexpr (std::same_as<U, char16_t>)
                 return t == 0 && spec.option('Z') ? "--" : format_string(to_utf8(decode_string(std::u16string{t})), spec);
-            else if constexpr (std::is_same_v<U, char32_t>)
+            else if constexpr (std::same_as<U, char32_t>)
                 return t == 0 && spec.option('Z') ? "--" : format_string(to_utf8(std::u32string{t}), spec);
-            else if constexpr (std::is_same_v<U, wchar_t>)
+            else if constexpr (std::same_as<U, wchar_t>)
                 return t == 0 && spec.option('Z') ? "--" : format_string(to_utf8(decode_string(std::wstring{t})), spec);
             else if constexpr (std::is_integral_v<U>)
                 return format_integer(t, spec);
@@ -135,17 +135,17 @@ namespace Crow {
                 return format_floating_point(t, spec);
             else if constexpr (Detail::DurationType<U>)
                 return format_duration(t, spec);
-            else if constexpr (std::is_same_v<U, std::chrono::system_clock::time_point>)
+            else if constexpr (std::same_as<U, std::chrono::system_clock::time_point>)
                 return format_time_point(t, spec);
             else if constexpr (std::is_base_of_v<Formatted, U>)
                 return t.str(spec);
-            else if constexpr (Detail::has_extended_str_method<U>)
+            else if constexpr (Detail::ExtendedStrMethodType<U>)
                 return t.str(spec);
-            else if constexpr (Detail::has_str_method<U>)
+            else if constexpr (Detail::StrMethodType<U>)
                 return t.str();
-            else if constexpr (Detail::has_adl_to_string_function<U>)
+            else if constexpr (Detail::AdlToStringType<U>)
                 return to_string(t);
-            else if constexpr (Detail::has_std_to_string_function<U>)
+            else if constexpr (Detail::StdToStringType<U>)
                 return std::to_string(t);
             else if constexpr (std::is_convertible_v<U, const char*>)
                 return format_string(static_cast<const char*>(t), spec);
@@ -181,7 +181,7 @@ namespace Crow {
                 return format_range(t, spec);
             else if constexpr (std::is_pointer_v<U>)
                 return format_pointer(t, spec);
-            else if constexpr (Detail::has_output_operator<U>)
+            else if constexpr (Detail::OutputOperatorType<U>)
                 return format_via_stream(t);
             else
                 return type_name<U>() + ":" + format_pointer(&t, spec);

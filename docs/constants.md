@@ -12,7 +12,7 @@ All of the constants defined here follow the conventions of the standard
 
 ```c++
 constexpr double name = value_as_double;
-template <typename T> constexpr T name_v = value_as_T;
+template <std::floating_point T> constexpr T name_v = value_as_T;
 ```
 
 For the physical and astronomical constants, long and short versions of the

@@ -1,17 +1,18 @@
 #pragma once
 
 #include "crow/types.hpp"
+#include <concepts>
 #include <numbers>
 
 #define CROW_MATHS_CONSTANT(name, value) \
-    template <typename T> constexpr T name ## _v = T(value ## l); \
+    template <std::floating_point T> constexpr T name ## _v = T(value ## l); \
     constexpr double name = name ## _v<double>;
 
 #define CROW_PHYSICS_CONSTANT(name, symbol, value) \
-    template <typename T> constexpr T name ## _v = T(value ## l); \
+    template <std::floating_point T> constexpr T name ## _v = T(value ## l); \
     constexpr double name = name ## _v<double>; \
     namespace Constants { \
-        template <typename T> constexpr T symbol ## _v = name ## _v<T>; \
+        template <std::floating_point T> constexpr T symbol ## _v = name ## _v<T>; \
         constexpr double symbol = symbol ## _v<double>; \
     }
 

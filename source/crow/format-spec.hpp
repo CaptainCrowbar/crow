@@ -46,11 +46,10 @@ namespace Crow {
 
     namespace Detail {
 
-        template <typename T, typename = void> struct HasExtendedStrMethod: std::false_type {};
-        template <typename T> struct HasExtendedStrMethod<T,
-            std::void_t<decltype(std::declval<std::string&>() = std::declval<const T&>().str(std::declval<FormatSpec>()))>>:
-            std::true_type {};
-        template <typename T> constexpr bool has_extended_str_method = HasExtendedStrMethod<T>::value;
+        template <typename T>
+        concept ExtendedStrMethodType = requires (T t, FormatSpec fs) {
+            { t.str(fs) } -> std::convertible_to<std::string>;
+        };
 
     }
 
