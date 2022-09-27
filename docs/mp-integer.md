@@ -384,11 +384,11 @@ Converts a `double` to an integer. Fractions are rounded down.
 
 ```c++
 namespace Literals {
-    MPZ operator""_mpi(const char* raw);
-    MPN operator""_mpu(const char* raw);
+    MPN operator""_mpn(const char* raw);
+    MPZ operator""_mpz(const char* raw);
 }
 ```
 
-Multiple precision integer literals. These allow literals such as `12345_mpi`
-or `0xabcdef_mpu`. They perform the same conversions as the constructors with
+Multiple precision integer literals. These allow literals such as `12345_mpz`
+or `0xabcdef_mpn`. They perform the same conversions as the constructors with
 base 0.

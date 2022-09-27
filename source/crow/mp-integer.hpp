@@ -198,8 +198,8 @@ namespace Crow {
 
     namespace Literals {
 
-        inline MPN operator""_mpu(const char* raw) { return MPN(raw); }
-        inline MPZ operator""_mpi(const char* raw) { return MPZ(raw); }
+        inline MPN operator""_mpn(const char* raw) { return MPN(raw); }
+        inline MPZ operator""_mpz(const char* raw) { return MPZ(raw); }
 
     }
 
