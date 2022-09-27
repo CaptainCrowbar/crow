@@ -3,6 +3,7 @@
 #include "crow/iterator.hpp"
 #include "crow/types.hpp"
 #include <algorithm>
+#include <concepts>
 #include <functional>
 #include <initializer_list>
 #include <set>
@@ -11,7 +12,9 @@
 
 namespace Crow {
 
-    template <typename K1, typename K2, typename C1 = std::less<K1>, typename C2 = std::less<K2>>
+    template <typename K1, typename K2,
+        std::strict_weak_order<K1, K1> C1 = std::less<K1>,
+        std::strict_weak_order<K2, K2> C2 = std::less<K2>>
     class MirrorMap {
 
     public:
@@ -87,7 +90,7 @@ namespace Crow {
 
     };
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         struct MirrorMap<K1, K2, C1, C2>::left_order {
 
             using is_transparent = void;
@@ -109,7 +112,7 @@ namespace Crow {
 
         };
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         struct MirrorMap<K1, K2, C1, C2>::right_order {
 
             using is_transparent = void;
@@ -134,7 +137,7 @@ namespace Crow {
 
         };
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         class MirrorMap<K1, K2, C1, C2>::left_iterator:
         public BidirectionalIterator<left_iterator, const value_type> {
 
@@ -153,7 +156,7 @@ namespace Crow {
 
         };
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         class MirrorMap<K1, K2, C1, C2>::right_iterator:
         public BidirectionalIterator<right_iterator, const value_type> {
 
@@ -172,26 +175,26 @@ namespace Crow {
 
         };
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         MirrorMap<K1, K2, C1, C2>::MirrorMap(C1 c1, C2 c2):
         left_set_(left_order{c1, c2}),
         right_set_(right_order{c1, c2}) {}
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         MirrorMap<K1, K2, C1, C2>::MirrorMap(std::initializer_list<value_type> list):
         left_set_{list},
         right_set_() {
             build_right_set();
         }
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         template <typename Iterator>
         MirrorMap<K1, K2, C1, C2>::MirrorMap(Iterator i, Iterator j, C1 c1, C2 c2):
         left_set_(i, j, left_order{c1, c2}), right_set_(right_order{c1, c2}) {
             build_right_set();
         }
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         typename MirrorMap<K1, K2, C1, C2>::left_range MirrorMap<K1, K2, C1, C2>::equal_left(const K1& key) const {
             auto eqr = std::equal_range(left_set_.begin(), left_set_.end(), key, left_set_.key_comp());
             left_range range;
@@ -200,7 +203,7 @@ namespace Crow {
             return range;
         }
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         typename MirrorMap<K1, K2, C1, C2>::right_range MirrorMap<K1, K2, C1, C2>::equal_right(const K2& key) const {
             auto eqr = std::equal_range(right_set_.begin(), right_set_.end(), key, right_set_.key_comp());
             right_range range;
@@ -209,20 +212,20 @@ namespace Crow {
             return range;
         }
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         void MirrorMap<K1, K2, C1, C2>::erase(left_iterator i) noexcept {
             right_set_.erase(i.iter);
             left_set_.erase(i.iter);
         }
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         void MirrorMap<K1, K2, C1, C2>::erase(right_iterator i) noexcept {
             auto j = *i.iter;
             right_set_.erase(i.iter);
             left_set_.erase(j);
         }
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         bool MirrorMap<K1, K2, C1, C2>::erase(const value_type& pair) noexcept {
             auto i = left_set_.find(pair);
             if (i == left_set_.end())
@@ -232,7 +235,7 @@ namespace Crow {
             return true;
         }
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         size_t MirrorMap<K1, K2, C1, C2>::erase_left(const K1& key) noexcept {
             auto eqr = std::equal_range(left_set_.begin(), left_set_.end(), key, left_set_.key_comp());
             size_t n = 0;
@@ -242,7 +245,7 @@ namespace Crow {
             return n;
         }
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         size_t MirrorMap<K1, K2, C1, C2>::erase_right(const K2& key) noexcept {
             auto eqr = std::equal_range(right_set_.begin(), right_set_.end(), key, right_set_.key_comp());
             size_t n = 0;
@@ -252,35 +255,35 @@ namespace Crow {
             return n;
         }
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         typename MirrorMap<K1, K2, C1, C2>::left_iterator MirrorMap<K1, K2, C1, C2>::find_left(const K1& key) const {
             left_iterator i;
             i.iter = left_set_.find(key);
             return i;
         }
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         typename MirrorMap<K1, K2, C1, C2>::left_iterator MirrorMap<K1, K2, C1, C2>::find_left(const value_type& pair) const {
             left_iterator i;
             i.iter = left_set_.find(pair);
             return i;
         }
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         typename MirrorMap<K1, K2, C1, C2>::right_iterator MirrorMap<K1, K2, C1, C2>::find_right(const K2& key) const {
             right_iterator i;
             i.iter = right_set_.find(key);
             return i;
         }
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         typename MirrorMap<K1, K2, C1, C2>::right_iterator MirrorMap<K1, K2, C1, C2>::find_right(const value_type& pair) const {
             right_iterator i;
             i.iter = right_set_.find(pair);
             return i;
         }
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         typename MirrorMap<K1, K2, C1, C2>::insert_result MirrorMap<K1, K2, C1, C2>::insert(const value_type& pair) {
             insert_result res;
             std::tie(res.left.iter, res.inserted) = left_set_.insert(pair);
@@ -288,62 +291,62 @@ namespace Crow {
             return res;
         }
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         template <typename Iterator>
         void MirrorMap<K1, K2, C1, C2>::insert(Iterator i, Iterator j) {
             for (; i != j; ++i)
                 insert(*i);
         }
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         typename MirrorMap<K1, K2, C1, C2>::left_iterator MirrorMap<K1, K2, C1, C2>::begin_left() const {
             left_iterator i;
             i.iter = left_set_.begin();
             return i;
         }
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         typename MirrorMap<K1, K2, C1, C2>::left_iterator MirrorMap<K1, K2, C1, C2>::end_left() const {
             left_iterator i;
             i.iter = left_set_.end();
             return i;
         }
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         typename MirrorMap<K1, K2, C1, C2>::right_iterator MirrorMap<K1, K2, C1, C2>::begin_right() const {
             right_iterator i;
             i.iter = right_set_.begin();
             return i;
         }
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         typename MirrorMap<K1, K2, C1, C2>::right_iterator MirrorMap<K1, K2, C1, C2>::end_right() const {
             right_iterator i;
             i.iter = right_set_.end();
             return i;
         }
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         typename MirrorMap<K1, K2, C1, C2>::left_iterator MirrorMap<K1, K2, C1, C2>::mirror(right_iterator i) const {
             left_iterator j;
             j.iter = i.iter == right_set_.end() ? left_set_.end() : *i.iter;
             return j;
         }
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         typename MirrorMap<K1, K2, C1, C2>::right_iterator MirrorMap<K1, K2, C1, C2>::mirror(left_iterator i) const {
             right_iterator j;
             j.iter = i.iter == left_set_.end() ? right_set_.end() : right_set_.find(i.iter);
             return j;
         }
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         void MirrorMap<K1, K2, C1, C2>::swap(MirrorMap& mm) noexcept {
             left_set_.swap(mm.left_set_);
             right_set_.swap(mm.right_set_);
         }
 
-        template <typename K1, typename K2, typename C1, typename C2>
+        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         void MirrorMap<K1, K2, C1, C2>::build_right_set() {
             for (auto i = left_set_.begin(); i != left_set_.end(); ++i)
                 right_set_.insert(i);

@@ -10,8 +10,9 @@ namespace Crow;
 ## Mirror map class
 
 ```c++
-template <typename K1, typename K2, typename C1 = std::less<K1>,
-    typename C2 = std::less<K2>>
+template <typename K1, typename K2,
+    std::strict_weak_order<K1, K1> C1 = std::less<K1>,
+    std::strict_weak_order<K2, K2> C2 = std::less<K2>>
 class MirrorMap;
 ```
 

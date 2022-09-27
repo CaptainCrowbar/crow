@@ -153,8 +153,7 @@ is only defined for underlying types for which the interval category is not
 `none`.
 
 To be usable as the template parameter to `Interval` and related types, a type
-must at the very least be default constructible, copyable, and totally
-ordered (defining all six comparison operators).
+must at the very least be default constructible, copyable, and ordered.
 
 The interval may be a finite interval with upper and lower bounds, bounded on
 one side but unbounded on the other, an empty interval (containing no
