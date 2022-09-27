@@ -1,6 +1,7 @@
 #pragma once
 
 #include "crow/types.hpp"
+#include <concepts>
 #include <exception>
 #include <utility>
 
@@ -12,7 +13,7 @@ namespace Crow {
         success  // Invoke callback on normal exit, but not when unwinding due to exception
     };
 
-    template <typename F, ScopeState S>
+    template <std::invocable F, ScopeState S>
     class BasicScopeGuard {
     public:
         BasicScopeGuard() = default;
@@ -64,8 +65,8 @@ namespace Crow {
         }
     };
 
-    template <typename F> inline auto on_scope_exit(F&& f) { return BasicScopeGuard<F, ScopeState::exit>(std::forward<F>(f)); }
-    template <typename F> inline auto on_scope_fail(F&& f) { return BasicScopeGuard<F, ScopeState::fail>(std::forward<F>(f)); }
-    template <typename F> inline auto on_scope_success(F&& f) { return BasicScopeGuard<F, ScopeState::success>(std::forward<F>(f)); }
+    template <std::invocable F> inline auto on_scope_exit(F&& f) { return BasicScopeGuard<F, ScopeState::exit>(std::forward<F>(f)); }
+    template <std::invocable F> inline auto on_scope_fail(F&& f) { return BasicScopeGuard<F, ScopeState::fail>(std::forward<F>(f)); }
+    template <std::invocable F> inline auto on_scope_success(F&& f) { return BasicScopeGuard<F, ScopeState::success>(std::forward<F>(f)); }
 
 }
