@@ -25,7 +25,7 @@ Exceptions reporting errors in topological order operations.
 ## Topological order container
 
 ```c++
-template <typename T, typename Compare = std::less<T>> class TopologicalOrder;
+template <typename T, std::strict_weak_order<T, T> Compare = std::less<T>> class TopologicalOrder;
 ```
 
 A container that sorts its elements according to a caller-supplied topological

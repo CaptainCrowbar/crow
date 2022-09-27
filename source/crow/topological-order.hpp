@@ -3,6 +3,7 @@
 #include "crow/iterator.hpp"
 #include "crow/types.hpp"
 #include <algorithm>
+#include <concepts>
 #include <functional>
 #include <initializer_list>
 #include <iterator>
@@ -16,13 +17,13 @@
 
 namespace Crow {
 
-    template <typename T, typename Compare> class TopologicalOrder;
+    template <typename T, std::strict_weak_order<T, T> Compare> class TopologicalOrder;
 
     namespace Detail {
 
         // Inspectors for debugging
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         std::string format_by_node(const TopologicalOrder<T, Compare>& topo) {
             std::ostringstream out;
             for (auto& node: topo.graph_) {
@@ -41,7 +42,7 @@ namespace Crow {
             return out.str();
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         std::string format_by_set(const TopologicalOrder<T, Compare>& topo) {
             auto work = topo;
             std::ostringstream out;
@@ -81,7 +82,7 @@ namespace Crow {
             TopologicalOrderError("Empty graph_") {}
     };
 
-    template <typename T, typename Compare = std::less<T>>
+    template <typename T, std::strict_weak_order<T, T> Compare = std::less<T>>
     class TopologicalOrder {
 
     public:
@@ -142,7 +143,7 @@ namespace Crow {
 
     };
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         bool TopologicalOrder<T, Compare>::erase(const T& t) {
             auto i = graph_.find(t);
             if (i == graph_.end())
@@ -155,7 +156,7 @@ namespace Crow {
             return true;
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         T TopologicalOrder<T, Compare>::front() const {
             if (graph_.empty())
                 throw TopologicalOrderEmpty();
@@ -165,7 +166,7 @@ namespace Crow {
             throw TopologicalOrderCycle();
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         std::vector<T> TopologicalOrder<T, Compare>::front_set() const {
             std::vector<T> v;
             if (graph_.empty())
@@ -178,7 +179,7 @@ namespace Crow {
             return v;
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         T TopologicalOrder<T, Compare>::back() const {
             if (graph_.empty())
                 throw TopologicalOrderEmpty();
@@ -188,7 +189,7 @@ namespace Crow {
             throw TopologicalOrderCycle();
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         std::vector<T> TopologicalOrder<T, Compare>::back_set() const {
             std::vector<T> v;
             if (graph_.empty())
@@ -201,14 +202,14 @@ namespace Crow {
             return v;
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         template <typename... Args>
         void TopologicalOrder<T, Compare>::insert(const T& t1, const T& t2, const Args&... args) {
             std::vector<T> v{t1, t2, args...};
             insert_vector(v);
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         template <typename Range>
         void TopologicalOrder<T, Compare>::insert_n(const Range& r) {
             using std::begin;
@@ -217,52 +218,52 @@ namespace Crow {
             insert_vector(v);
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         template <typename Range>
         void TopologicalOrder<T, Compare>::insert_1n(const T& t1, const Range& r2) {
             insert_ranges(array_range(&t1, 1), r2);
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         void TopologicalOrder<T, Compare>::insert_1n(const T& t1, std::initializer_list<T> r2) {
             insert_ranges(array_range(&t1, 1), r2);
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         template <typename Range>
         void TopologicalOrder<T, Compare>::insert_n1(const Range& r1, const T& t2) {
             insert_ranges(r1, array_range(&t2, 1));
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         void TopologicalOrder<T, Compare>::insert_n1(std::initializer_list<T> r1, const T& t2) {
             insert_ranges(r1, array_range(&t2, 1));
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         template <typename Range1, typename Range2>
         void TopologicalOrder<T, Compare>::insert_mn(const Range1& r1, const Range2& r2) {
             insert_ranges(r1, r2);
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         void TopologicalOrder<T, Compare>::insert_mn(std::initializer_list<T> r1, std::initializer_list<T> r2) {
             insert_ranges(r1, r2);
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         bool TopologicalOrder<T, Compare>::is_front(const T& t) const {
             auto i = graph_.find(t);
             return i != graph_.end() && i->second.left.empty();
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         bool TopologicalOrder<T, Compare>::is_back(const T& t) const {
             auto i = graph_.find(t);
             return i != graph_.end() && i->second.right.empty();
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         T TopologicalOrder<T, Compare>::pop_front() {
             if (graph_.empty())
                 throw TopologicalOrderEmpty();
@@ -278,7 +279,7 @@ namespace Crow {
             return t;
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         std::vector<T> TopologicalOrder<T, Compare>::pop_front_set() {
             std::vector<T> v;
             if (graph_.empty())
@@ -303,7 +304,7 @@ namespace Crow {
             return v;
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         T TopologicalOrder<T, Compare>::pop_back() {
             if (graph_.empty())
                 throw TopologicalOrderEmpty();
@@ -319,7 +320,7 @@ namespace Crow {
             return t;
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         std::vector<T> TopologicalOrder<T, Compare>::pop_back_set() {
             std::vector<T> v;
             if (graph_.empty())
@@ -344,7 +345,7 @@ namespace Crow {
             return v;
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         typename TopologicalOrder<T, Compare>::map_iterator TopologicalOrder<T, Compare>::ensure_key(const T& t) {
             auto i = graph_.find(t);
             if (i == graph_.end())
@@ -352,7 +353,7 @@ namespace Crow {
             return i;
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         template <typename Range1, typename Range2>
         void TopologicalOrder<T, Compare>::insert_ranges(const Range1& r1, const Range2& r2) {
             using std::begin;
@@ -369,7 +370,7 @@ namespace Crow {
             }
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         void TopologicalOrder<T, Compare>::insert_vector(const std::vector<T>& v) {
             if (v.empty())
                 return;
@@ -386,7 +387,7 @@ namespace Crow {
             }
         }
 
-        template <typename T, typename Compare>
+        template <typename T, std::strict_weak_order<T, T> Compare>
         typename TopologicalOrder<T, Compare>::link_sets TopologicalOrder<T, Compare>::make_link_sets() const {
             return {set_type(graph_.key_comp()), set_type(graph_.key_comp())};
         }
