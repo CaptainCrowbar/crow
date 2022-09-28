@@ -1,5 +1,6 @@
 #include "crow/types.hpp"
 #include "crow/unit-test.hpp"
+#include <array>
 #include <complex>
 #include <forward_list>
 #include <iterator>
@@ -23,6 +24,24 @@ void test_crow_types_concepts() {
     TEST(! ArithmeticType<bool>);
     TEST(! ArithmeticType<int*>);
     TEST(! ArithmeticType<std::string>);
+
+    TEST(PrimitiveScalarType<int>);
+    TEST(PrimitiveScalarType<const int>);
+    TEST(PrimitiveScalarType<float>);
+    TEST(PrimitiveScalarType<const float>);
+    TEST(! PrimitiveScalarType<void>);
+    TEST(PrimitiveScalarType<bool>);
+    TEST(PrimitiveScalarType<int*>);
+    TEST(! PrimitiveScalarType<int[10]>);
+    TEST(! PrimitiveScalarType<std::string>);
+
+    TEST((SameBasicType<int, int>));
+    TEST((SameBasicType<const int, int&>));
+    TEST((SameBasicType<const std::string, std::string&>));
+
+    TEST(ThreeWayComparable<int>);
+    TEST(ThreeWayComparable<int*>);
+    TEST(! ThreeWayComparable<std::complex<double>>);
 
     TEST(! IteratorType<void>);
     TEST(! IteratorType<void*>);
@@ -165,13 +184,27 @@ void test_crow_types_concepts() {
     TEST(BidirectionalRangeType<std::list<int>>);
     TEST(! RandomAccessRangeType<std::list<int>>);
 
-    TEST((SameBasicType<int, int>));
-    TEST((SameBasicType<const int, int&>));
-    TEST((SameBasicType<const std::string, std::string&>));
+    TEST(! SimpleContainerType<void>);
+    TEST(! SimpleContainerType<int>);
+    TEST(! SimpleContainerType<int[10]>);
+    TEST(SimpleContainerType<std::string>);
+    TEST(! (SimpleContainerType<std::array<int, 10>>));
+    TEST(! SimpleContainerType<std::forward_list<int>>);
+    TEST(SimpleContainerType<std::list<int>>);
+    TEST(SimpleContainerType<std::vector<int>>);
+    TEST((SimpleContainerType<std::map<int, std::string>>));
+    TEST((SimpleContainerType<std::unordered_map<int, std::string>>));
 
-    TEST(ThreeWayComparable<int>);
-    TEST(ThreeWayComparable<int*>);
-    TEST(! ThreeWayComparable<std::complex<double>>);
+    TEST(! AssociativeContainerType<void>);
+    TEST(! AssociativeContainerType<int>);
+    TEST(! AssociativeContainerType<int[10]>);
+    TEST(! AssociativeContainerType<std::string>);
+    TEST(! (AssociativeContainerType<std::array<int, 10>>));
+    TEST(! AssociativeContainerType<std::forward_list<int>>);
+    TEST(! AssociativeContainerType<std::list<int>>);
+    TEST(! AssociativeContainerType<std::vector<int>>);
+    TEST((AssociativeContainerType<std::map<int, std::string>>));
+    TEST((AssociativeContainerType<std::unordered_map<int, std::string>>));
 
 }
 

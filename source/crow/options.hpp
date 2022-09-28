@@ -22,27 +22,22 @@ namespace Crow {
     namespace Detail {
 
         template <typename T>
-        concept AppendableContainer = requires (T t) {
-            t.insert(t.end(), *t.begin());
-        };
-
-        template <typename T>
-        concept ScalarArgumentType =
+        concept ScalarOptionType =
             ArithmeticType<T>
             || std::is_enum_v<T>
             || std::same_as<T, std::string>
-            || (! AppendableContainer<T>
+            || (! SimpleContainerType<T>
                 && (std::constructible_from<T, int>
                     || std::constructible_from<T, std::string>));
 
         template <typename T>
-        concept ContainerArgumentType =
-            AppendableContainer<T>
-            && ScalarArgumentType<typename T::value_type>
+        concept ContainerOptionType =
+            SimpleContainerType<T>
+            && ScalarOptionType<typename T::value_type>
             && ! std::same_as<T, std::string>;
 
         template <typename T>
-        concept ValidArgumentType = ScalarArgumentType<T> || ContainerArgumentType<T>;
+        concept OptionArgumentType = ScalarOptionType<T> || ContainerOptionType<T>;
 
         template <typename T>
         T parse_enum_unchecked(const std::string& arg) {
@@ -80,7 +75,7 @@ namespace Crow {
         Options(const std::string& app, const std::string& version,
             const std::string& description, const std::string& extra = {});
 
-        template <Detail::ValidArgumentType T> Options& add(T& var, const std::string& name, char abbrev,
+        template <Detail::OptionArgumentType T> Options& add(T& var, const std::string& name, char abbrev,
             const std::string& description, int flags = 0, const std::string& group = {}, const std::string& pattern = {});
         void auto_help() noexcept { auto_help_ = true; }
         void set_colour(bool b) noexcept { colour_ = int(b); }
@@ -128,13 +123,13 @@ namespace Crow {
         size_t option_index(const std::string& name) const;
         size_t option_index(char abbrev) const;
 
-        template <Detail::ScalarArgumentType T> static T parse_argument(const std::string& arg);
-        template <Detail::ScalarArgumentType T> static validator_type type_validator(const std::string& name, std::string pattern);
-        template <Detail::ScalarArgumentType T> static std::string type_placeholder();
+        template <Detail::ScalarOptionType T> static T parse_argument(const std::string& arg);
+        template <Detail::ScalarOptionType T> static validator_type type_validator(const std::string& name, std::string pattern);
+        template <Detail::ScalarOptionType T> static std::string type_placeholder();
 
     };
 
-        template <Detail::ValidArgumentType T>
+        template <Detail::OptionArgumentType T>
         Options& Options::add(T& var, const std::string& name, char abbrev,
                 const std::string& description, int flags, const std::string& group, const std::string& pattern) {
 
@@ -151,7 +146,7 @@ namespace Crow {
                 setter = [&var] (const std::string& str) { var = to_boolean(str); };
                 kind = mode::boolean;
 
-            } else if constexpr (ScalarArgumentType<T>) {
+            } else if constexpr (ScalarOptionType<T>) {
 
                 setter = [&var] (const std::string& str) { var = parse_argument<T>(str); };
                 validator = type_validator<T>(name, pattern);
@@ -189,7 +184,7 @@ namespace Crow {
 
         }
 
-        template <Detail::ScalarArgumentType T>
+        template <Detail::ScalarOptionType T>
         T Options::parse_argument(const std::string& arg) {
             using namespace Detail;
             if constexpr (std::is_enum_v<T>)
@@ -208,7 +203,7 @@ namespace Crow {
                 return static_cast<T>(arg);
         }
 
-        template <Detail::ScalarArgumentType T>
+        template <Detail::ScalarOptionType T>
         Options::validator_type Options::type_validator(const std::string& name, std::string pattern) {
 
             using namespace Literals;
@@ -246,7 +241,7 @@ namespace Crow {
 
         }
 
-        template <Detail::ScalarArgumentType T>
+        template <Detail::ScalarOptionType T>
         std::string Options::type_placeholder() {
             if constexpr (std::signed_integral<T>)
                 return "<int>";

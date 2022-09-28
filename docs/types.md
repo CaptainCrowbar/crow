@@ -32,6 +32,25 @@ template <typename T> concept ArithmeticType;
 Satisfied by any integral or floating point type, except `bool`.
 
 ```c++
+template <typename T> concept PrimitiveScalarType;
+```
+
+Satisfied if `T` is a primitive scalar type.
+
+```c++
+template <typename T, typename U> concept SameBasicType;
+```
+
+Satisfied if `T` and `U` are the same type apart from any CV and reference
+qualifications.
+
+```c++
+template <typename T> concept ThreeWayComparable;
+```
+
+Satisfied if `T` supports the `<=>` operator.
+
+```c++
 template <typename T> concept IteratorType;
 ```
 
@@ -70,23 +89,31 @@ these will be satisfied if the iterator's category is at least equal to the
 named category.
 
 ```c++
-template <typename T> concept PrimitiveScalarType;
+template <typename T> concept SimpleContainerType;
+template <typename T> concept AssociativeContainerType;
 ```
 
-Satisfied if `T` is a primitive scalar type.
+Simplified container concepts. These do not attempt to match all the formal
+requirements of the standard container concepts. `SimpleContainerType` checks
+for:
 
-```c++
-template <typename T, typename U> concept SameBasicType;
-```
+* `T::value_type, T::iterator, T::const_iterator`
+* `t.empty(), t.size()`
+* `t.begin(), t.end()`
+* `t.clear()`
+* `t.insert(it, value)`
+* `t.erase(it)`
 
-Satisfied if `T` and `U` are the same type apart from any CV and reference
-qualifications.
+`AssociativeContainerType` is a refinement of `SimpleContainerType` that also
+checks for:
 
-```c++
-template <typename T> concept ThreeWayComparable;
-```
+* `T::key_type, T::mapped_type`
+* `value.first, value.second`
+* `t[key]`
+* `t.contains(key), t.count(key), t.find(key)`
 
-Satisfied if `T` supports the `<=>` operator.
+(Note that `SimpleContainerType` does not match `std::array` or
+`std::forward_list`.)
 
 ## Comparison functions
 

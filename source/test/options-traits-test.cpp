@@ -13,45 +13,39 @@ CROW_ENUM_CLASS(MyEnum, int, 0, alpha, bravo, charlie)
 
 void test_crow_options_concepts() {
 
-    TEST(! AppendableContainer<void>);
-    TEST(! AppendableContainer<int>);
-    TEST(AppendableContainer<std::string>);
-    TEST(AppendableContainer<std::vector<int>>);
-    TEST(AppendableContainer<std::set<int>>);
+    TEST(! ScalarOptionType<void>);
+    TEST(ScalarOptionType<bool>);
+    TEST(ScalarOptionType<char>);
+    TEST(ScalarOptionType<signed char>);
+    TEST(ScalarOptionType<unsigned char>);
+    TEST(ScalarOptionType<short>);
+    TEST(ScalarOptionType<unsigned short>);
+    TEST(ScalarOptionType<int>);
+    TEST(ScalarOptionType<unsigned>);
+    TEST(ScalarOptionType<long>);
+    TEST(ScalarOptionType<unsigned long>);
+    TEST(ScalarOptionType<long long>);
+    TEST(ScalarOptionType<unsigned long long>);
+    TEST(ScalarOptionType<float>);
+    TEST(ScalarOptionType<double>);
+    TEST(ScalarOptionType<long double>);
+    TEST(ScalarOptionType<std::string>);
+    TEST(ScalarOptionType<MyEnum>);
+    TEST(! ScalarOptionType<std::vector<int>>);
+    TEST(! ScalarOptionType<std::vector<std::string>>);
 
-    TEST(! ScalarArgumentType<void>);
-    TEST(ScalarArgumentType<bool>);
-    TEST(ScalarArgumentType<char>);
-    TEST(ScalarArgumentType<signed char>);
-    TEST(ScalarArgumentType<unsigned char>);
-    TEST(ScalarArgumentType<short>);
-    TEST(ScalarArgumentType<unsigned short>);
-    TEST(ScalarArgumentType<int>);
-    TEST(ScalarArgumentType<unsigned>);
-    TEST(ScalarArgumentType<long>);
-    TEST(ScalarArgumentType<unsigned long>);
-    TEST(ScalarArgumentType<long long>);
-    TEST(ScalarArgumentType<unsigned long long>);
-    TEST(ScalarArgumentType<float>);
-    TEST(ScalarArgumentType<double>);
-    TEST(ScalarArgumentType<long double>);
-    TEST(ScalarArgumentType<std::string>);
-    TEST(ScalarArgumentType<MyEnum>);
-    TEST(! ScalarArgumentType<std::vector<int>>);
-    TEST(! ScalarArgumentType<std::vector<std::string>>);
+    TEST(! ContainerOptionType<void>);
+    TEST(! ContainerOptionType<int>);
+    TEST(! ContainerOptionType<std::string>);
+    TEST(! ContainerOptionType<MyEnum>);
+    TEST(ContainerOptionType<std::vector<int>>);
+    TEST(ContainerOptionType<std::vector<std::string>>);
 
-    TEST(! ContainerArgumentType<void>);
-    TEST(! ContainerArgumentType<int>);
-    TEST(! ContainerArgumentType<std::string>);
-    TEST(! ContainerArgumentType<MyEnum>);
-    TEST(ContainerArgumentType<std::vector<int>>);
-    TEST(ContainerArgumentType<std::vector<std::string>>);
-
-    TEST(! ValidArgumentType<void>);
-    TEST(ValidArgumentType<int>);
-    TEST(ValidArgumentType<std::string>);
-    TEST(ValidArgumentType<MyEnum>);
-    TEST(ValidArgumentType<std::vector<int>>);
-    TEST(ValidArgumentType<std::vector<std::string>>);
+    TEST(! OptionArgumentType<void>);
+    TEST(OptionArgumentType<int>);
+    TEST(OptionArgumentType<std::string>);
+    TEST(OptionArgumentType<MyEnum>);
+    TEST(OptionArgumentType<std::vector<int>>);
+    TEST(OptionArgumentType<std::vector<std::string>>);
 
 }

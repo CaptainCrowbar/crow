@@ -178,11 +178,11 @@ following types:
 * A container of any of the above types. The type can be any STL compatible
   container (except `std::basic_string`) that accepts insertion of one of
   these types. Any of the standard sequential containers (`vector`, `deque`,
-  `list`, `forward_list`) will work, as will `set` and other set-like
-  containers, but `map` and other map-like containers will not. Using a
-  container as the output variable implies that the option can accept
-  multiple arguments; all arguments following the option name, up to the next
-  option, are added to the container.
+  `list`) will work, as will `set` and other set-like containers, but `map`
+  and other map-like containers will not. Using a container as the output
+  variable implies that the option can accept multiple arguments; all
+  arguments following the option name, up to the next option, are added to
+  the container.
 
 The initial value of the variable is used as a default if the option is not
 present on the command line. Behaviour is undefined if the variable's value

@@ -15,14 +15,14 @@ namespace Crow;
 ## Iterator classes
 
 ```c++
-template <typename Container> class AppendIterator;
+template <SimpleContainerType Container> class AppendIterator;
 ```
 
 An output iterator that appends items to the container.
 
 ```c++
-template <typename Container> AppendIterator<Container> append(Container& c);
-template <typename Container> AppendIterator<Container> overwrite(Container& c);
+template <SimpleContainerType Container> AppendIterator<Container> append(Container& c);
+template <SimpleContainerType Container> AppendIterator<Container> overwrite(Container& c);
 ```
 
 The `append()` function returns an append iterator for the container. The

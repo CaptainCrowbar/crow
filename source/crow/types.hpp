@@ -51,6 +51,17 @@ namespace Crow {
     concept ArithmeticType = std::is_arithmetic_v<T> && ! std::is_same_v<T, bool>;
 
     template <typename T>
+    concept PrimitiveScalarType = std::is_scalar_v<T>;
+
+    template <typename T, typename U>
+    concept SameBasicType = std::is_same_v<std::remove_cvref_t<T>, std::remove_cvref_t<U>>;
+
+    template <typename T>
+    concept ThreeWayComparable = requires (T t) {
+        { t <=> t };
+    };
+
+    template <typename T>
     concept IteratorType = requires {
         typename std::iterator_traits<T>::iterator_category;
     };
@@ -154,15 +165,29 @@ namespace Crow {
         });
 
     template <typename T>
-    concept PrimitiveScalarType = std::is_scalar_v<T>;
-
-    template <typename T, typename U>
-    concept SameBasicType = std::is_same_v<std::remove_cvref_t<T>, std::remove_cvref_t<U>>;
+    concept SimpleContainerType = requires (T t) {
+        typename T::value_type;
+        typename T::iterator;
+        typename T::const_iterator;
+        { t.empty() } -> std::convertible_to<bool>;
+        { t.size() } -> std::convertible_to<size_t>;
+        { t.begin() } -> IteratorType;
+        { t.end() } -> IteratorType;
+        { t.clear() };
+        { t.insert(t.end(), *t.begin()) };
+        { t.erase(t.begin()) };
+    };
 
     template <typename T>
-    concept ThreeWayComparable = requires (T t) {
-        { t <=> t };
-    };
+    concept AssociativeContainerType = SimpleContainerType<T>
+        && requires (T t, typename T::value_type v, typename T::key_type k) {
+            { v.first } -> std::convertible_to<typename T::key_type>;
+            { v.second } -> std::convertible_to<typename T::mapped_type>;
+            { t[k] } -> std::convertible_to<typename T::mapped_type&>;
+            { t.contains(k) } -> std::convertible_to<bool>;
+            { t.count(k) } -> std::convertible_to<size_t>;
+            { t.find(k) } -> std::convertible_to<typename T::iterator>;
+        };
 
     // Comparison functions
 

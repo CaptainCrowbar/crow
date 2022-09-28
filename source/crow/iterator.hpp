@@ -141,7 +141,7 @@ namespace Crow {
 
     // Iterator classes
 
-    template <typename Container>
+    template <SimpleContainerType Container>
     class AppendIterator:
     public OutputIterator<AppendIterator<Container>> {
     public:
@@ -155,12 +155,12 @@ namespace Crow {
         Container* con_;
     };
 
-    template <typename Container>
+    template <SimpleContainerType Container>
     AppendIterator<Container> append(Container& c) {
         return AppendIterator<Container>(c);
     }
 
-    template <typename Container>
+    template <SimpleContainerType Container>
     AppendIterator<Container> overwrite(Container& c) {
         c.clear();
         return AppendIterator<Container>(c);
