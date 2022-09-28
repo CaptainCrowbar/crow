@@ -256,7 +256,7 @@ namespace Crow {
             static const Regex pattern(R"(
                 ^ ( \\{2}\?\\ ) ?
                 ( [A-Z] :\\ | \\{2,} (?= [^?\\] ))
-            )", Regex::extended | Regex::icase | Regex::no_capture | Regex::optimize);
+            )", Regex::extended | Regex::icase | Regex::no_capture);
             auto ascii_name = dumb_ascii_conversion(filename_);
             return pattern(ascii_name).matched();
         #endif
@@ -948,14 +948,15 @@ namespace Crow {
             #else
                 // Windows: [\\?\]drive:\path or [\\?\]\\server\path
                 // if allow_drive_special: [\\?\]\path or [\\?\]drive:path
+                static constexpr auto regex_flags = Regex::extended | Regex::icase | Regex::no_capture;
                 static const Regex pattern1(R"(
                     ^ ( \\{2}\?\\ ) ?
                     ( [A-Z] :\\ | \\{2,} [^?\\]+ \\? )
-                )", Regex::extended | Regex::icase | Regex::no_capture | Regex::optimize);
+                )", regex_flags);
                 static const Regex pattern2(R"(
                     ^ ( \\{2}\?\\ ) ?
                     ( [A-Z] :\\? | \\{2,} [^?\\]+ \\? | \\+ )
-                )", Regex::extended | Regex::icase | Regex::no_capture | Regex::optimize);
+                )", regex_flags);
                 auto& pattern = allow_drive_special ? pattern2 : pattern1;
                 auto ascii_name = dumb_ascii_conversion(filename_);
                 auto match = pattern(ascii_name);

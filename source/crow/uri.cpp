@@ -42,7 +42,7 @@ namespace Crow {
 
     void Uri::set_scheme(const std::string& new_scheme, bool smart) {
 
-        static const Regex pattern("[a-z][a-z0-9.+-]*(:(//)?)?", Regex::full | Regex::optimize);
+        static const Regex pattern("[a-z][a-z0-9.+-]*(:(//)?)?", Regex::full);
 
         std::string scheme_text = ascii_lowercase(new_scheme);
         auto match = pattern(scheme_text);
@@ -388,7 +388,7 @@ namespace Crow {
             (/[^#?]*)?                   # path
             (\?[^#]*)?                   # query
             (\#.*)?                      # fragment
-        )", Regex::extended | Regex::full | Regex::icase | Regex::optimize);
+        )", Regex::extended | Regex::full | Regex::icase);
 
         if (std::find_if(s.begin(), s.end(), ascii_iscntrl) != s.end())
             return false;

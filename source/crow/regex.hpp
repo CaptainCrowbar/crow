@@ -39,20 +39,18 @@ namespace Crow {
         static constexpr flag_type line             = flag_type(1) << 8;   // Match whole line                     PCRE2_EXTRA_MATCH_LINE
         static constexpr flag_type multiline        = flag_type(1) << 9;   // ^/$ match beginning/end of line      PCRE2_MULTILINE
         static constexpr flag_type no_capture       = flag_type(1) << 10;  // No automatic capture                 PCRE2_NO_AUTO_CAPTURE
-        static constexpr flag_type optimize         = flag_type(1) << 11;  // Optimize using JIT compiler          --
-        static constexpr flag_type word             = flag_type(1) << 12;  // Match whole word                     PCRE2_EXTRA_MATCH_WORD
-        static constexpr flag_type compile_mask     = (flag_type(1) << 13) - 1;
+        static constexpr flag_type word             = flag_type(1) << 11;  // Match whole word                     PCRE2_EXTRA_MATCH_WORD
+        static constexpr flag_type compile_mask     = (flag_type(1) << 16) - 1;
         static constexpr flag_type anchor           = flag_type(1) << 16;  // Anchor match at start                PCRE2_ANCHORED
         static constexpr flag_type full             = flag_type(1) << 17;  // Match complete string                PCRE2_ANCHORED|PCRE2_ENDANCHORED
         static constexpr flag_type global           = flag_type(1) << 18;  // Replace all matches                  --
         static constexpr flag_type hard_fail        = flag_type(1) << 19;  // Throw on failed match                --
-        static constexpr flag_type no_utf_check     = flag_type(1) << 20;  // Assume valid UTF-8                   PCRE2_NO_UTF_CHECK
-        static constexpr flag_type not_empty        = flag_type(1) << 21;  // Do not match empty string            PCRE2_NOTEMPTY
-        static constexpr flag_type not_empty_start  = flag_type(1) << 22;  // Do not match empty string at start   PCRE2_NOTEMPTY_ATSTART
-        static constexpr flag_type not_line         = flag_type(1) << 23;  // Do not match ^/$ at start/end        PCRE2_NOTBOL|PCRE2_NOTEOL
-        static constexpr flag_type partial_hard     = flag_type(1) << 24;  // Hard partial match (partial>full)    PCRE2_PARTIAL_HARD
-        static constexpr flag_type partial_soft     = flag_type(1) << 25;  // Soft partial match (full>partial)    PCRE2_PARTIAL_SOFT
-        static constexpr flag_type runtime_mask     = ((flag_type(1) << 10) - 1) << 16;
+        static constexpr flag_type not_empty        = flag_type(1) << 20;  // Do not match empty string            PCRE2_NOTEMPTY
+        static constexpr flag_type not_empty_start  = flag_type(1) << 21;  // Do not match empty string at start   PCRE2_NOTEMPTY_ATSTART
+        static constexpr flag_type not_line         = flag_type(1) << 22;  // Do not match ^/$ at start/end        PCRE2_NOTBOL|PCRE2_NOTEOL
+        static constexpr flag_type partial_hard     = flag_type(1) << 23;  // Hard partial match (partial>full)    PCRE2_PARTIAL_HARD
+        static constexpr flag_type partial_soft     = flag_type(1) << 24;  // Soft partial match (full>partial)    PCRE2_PARTIAL_SOFT
+        static constexpr flag_type runtime_mask     = ((flag_type(1) << 16) - 1) << 16;
         static constexpr flag_type flags_mask       = compile_mask | runtime_mask;
 
         struct partition_type {

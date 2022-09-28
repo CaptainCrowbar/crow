@@ -27,7 +27,7 @@ namespace Crow {
                 (\d+)               # [6] fixed modifier
             )
             (?: / (\d+) ) ?         # [7] divisor
-        )", Regex::anchor | Regex::extended | Regex::icase | Regex::optimize);
+        )", Regex::anchor | Regex::extended | Regex::icase);
 
         std::string text(str);
         std::erase_if(text, ascii_isspace);

@@ -111,11 +111,9 @@ Returns the version numbers as a string (e.g. `"1.23.456"`).
 | `line`             | Only match a complete line                                          | Compile      |
 | `multiline`        | `^` and `$` match the beginning and end of every line               | Compile      |
 | `no_capture`       | Parenthesized groups are not captured (named captures still work)   | Compile      |
-| `no_utf_check`     | Assume the pattern or subject string is valid UTF-8                 | Compile      |
 | `not_empty`        | Do not match an empty string                                        | Match        |
 | `not_empty_start`  | Do not match an empty string at the start of the subject string     | Match        |
 | `not_line`         | Do not match `^` or `$` at the start or end of the subject string   | Match        |
-| `optimize`         | Optimize the regex using PCRE's JIT compiler                        | Compile      |
 | `partial_hard`     | Enable hard partial matching (prefer partial match to full match)   | Match        |
 | `partial_soft`     | Enable soft partial matching (prefer full match to partial match)   | Match        |
 | `word`             | Only match a complete word                                          | Compile      |
@@ -146,19 +144,8 @@ Notes on specific flags:
 some Posix character classes, to match only ASCII characters instead of
 matching Unicode properties. This has no effect when combined with the `byte`
 flag, since only ASCII characters are matched in byte mode anyway.
-* The `optimize` flag will enable PCRE2's JIT compiler if possible, but this
-can be silently blocked under some circumstances (see the PCRE2 documentation
-for details). In particular, specifying any of the partial matching flags at
-match time will disable the optimizer if the same flag was not present at
-compile time.
 * The `global` flag causes all matches to be replaced in `Regex::replace()`
 and `Regex::transform::operator()`. It has no effect in any other context.
-* The `no_utf_check` flag has a slightly different effect depending on where
-it is used: it skips the normal UTF-8 validity check for the pattern string
-when used at compile time, for the subject string at match time, and for the
-subject and replacement strings at replacement time. In all cases, behaviour
-is undefined if the string is not valid UTF-8. This flag has no effect in byte
-mode.
 
 ### Member types
 
@@ -297,9 +284,8 @@ if it is at the end and the pattern can match an empty substring).
 
 This will throw `Regex::error` if the flags are inconsistent, if the starting
 offset is not at a character boundary in a UTF-8 string (in the absence of
-either the `byte` or `no_utf_check` flags), if the match fails and the
-`hard_error` flag was set, or if a very complicated matching task exceeds
-PCRE2's internal limits.
+the `byte` flag), if the match fails and the `hard_error` flag was set, or if
+a very complicated matching task exceeds PCRE2's internal limits.
 
 ```c++
 size_t Regex::count(std::string_view str, size_t pos = 0,

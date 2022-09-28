@@ -59,16 +59,15 @@ namespace Crow {
                     options |= PCRE2_UCP;
             }
 
-            if (flags & Regex::anchor)        options |= PCRE2_ANCHORED;
-            if (flags & Regex::dollar_end)    options |= PCRE2_DOLLAR_ENDONLY;
-            if (flags & Regex::dot_all)       options |= PCRE2_DOTALL;
-            if (flags & Regex::extended)      options |= PCRE2_EXTENDED;
-            if (flags & Regex::first_line)    options |= PCRE2_FIRSTLINE;
-            if (flags & Regex::full)          options |= PCRE2_ANCHORED | PCRE2_ENDANCHORED;
-            if (flags & Regex::icase)         options |= PCRE2_CASELESS;
-            if (flags & Regex::multiline)     options |= PCRE2_MULTILINE;
-            if (flags & Regex::no_capture)    options |= PCRE2_NO_AUTO_CAPTURE;
-            if (flags & Regex::no_utf_check)  options |= PCRE2_NO_UTF_CHECK;
+            if (flags & Regex::anchor)      options |= PCRE2_ANCHORED;
+            if (flags & Regex::dollar_end)  options |= PCRE2_DOLLAR_ENDONLY;
+            if (flags & Regex::dot_all)     options |= PCRE2_DOTALL;
+            if (flags & Regex::extended)    options |= PCRE2_EXTENDED;
+            if (flags & Regex::first_line)  options |= PCRE2_FIRSTLINE;
+            if (flags & Regex::full)        options |= PCRE2_ANCHORED | PCRE2_ENDANCHORED;
+            if (flags & Regex::icase)       options |= PCRE2_CASELESS;
+            if (flags & Regex::multiline)   options |= PCRE2_MULTILINE;
+            if (flags & Regex::no_capture)  options |= PCRE2_NO_AUTO_CAPTURE;
 
             return options;
 
@@ -80,7 +79,6 @@ namespace Crow {
 
             if (flags & Regex::anchor)           options |= PCRE2_ANCHORED;
             if (flags & Regex::full)             options |= PCRE2_ANCHORED | PCRE2_ENDANCHORED;
-            if (flags & Regex::no_utf_check)     options |= PCRE2_NO_UTF_CHECK;
             if (flags & Regex::not_empty)        options |= PCRE2_NOTEMPTY;
             if (flags & Regex::not_empty_start)  options |= PCRE2_NOTEMPTY_ATSTART;
             if (flags & Regex::not_line)         options |= PCRE2_NOTBOL | PCRE2_NOTEOL;
@@ -129,15 +127,6 @@ namespace Crow {
             handle_error(error_code);
 
         code_.reset(code_ptr, pcre2_code_free);
-
-        if (flags & optimize) {
-            uint32_t jit_options = PCRE2_JIT_COMPLETE;
-            if (flags & partial_hard)
-                jit_options |= PCRE2_PARTIAL_HARD;
-            else if (flags & partial_soft)
-                jit_options |= PCRE2_PARTIAL_SOFT;
-            pcre2_jit_compile(code_ptr, jit_options);
-        }
 
     }
 
