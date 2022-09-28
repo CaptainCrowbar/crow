@@ -1,5 +1,6 @@
 #include "crow/types.hpp"
 #include "crow/unit-test.hpp"
+#include <complex>
 #include <forward_list>
 #include <iterator>
 #include <list>
@@ -24,7 +25,9 @@ void test_crow_types_concepts() {
     TEST(! ArithmeticType<std::string>);
 
     TEST(! IteratorType<void>);
+    TEST(! IteratorType<void*>);
     TEST(! IteratorType<int>);
+    TEST(IteratorType<int*>);
     TEST(! IteratorType<std::string>);
     TEST(IteratorType<std::string::iterator>);
     TEST(IteratorType<std::string::const_iterator>);
@@ -34,7 +37,9 @@ void test_crow_types_concepts() {
     TEST(IteratorType<std::vector<std::string>::const_iterator>);
 
     TEST((! RangeType<void>));
+    TEST((! RangeType<void*>));
     TEST((! RangeType<int>));
+    TEST((! RangeType<int*>));
     TEST((RangeType<std::string>));
     TEST((RangeType<std::vector<int>>));
     TEST((RangeType<std::vector<std::string>>));
@@ -43,7 +48,9 @@ void test_crow_types_concepts() {
     TEST((RangeType<std::unordered_map<int, std::string>>));
 
     TEST((! MaplikeRangeType<void>));
+    TEST((! MaplikeRangeType<void*>));
     TEST((! MaplikeRangeType<int>));
+    TEST((! MaplikeRangeType<int*>));
     TEST((! MaplikeRangeType<std::string>));
     TEST((! MaplikeRangeType<std::vector<int>>));
     TEST((! MaplikeRangeType<std::vector<std::string>>));
@@ -161,6 +168,10 @@ void test_crow_types_concepts() {
     TEST((SameBasicType<int, int>));
     TEST((SameBasicType<const int, int&>));
     TEST((SameBasicType<const std::string, std::string&>));
+
+    TEST(ThreeWayComparable<int>);
+    TEST(ThreeWayComparable<int*>);
+    TEST(! ThreeWayComparable<std::complex<double>>);
 
 }
 
