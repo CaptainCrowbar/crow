@@ -900,6 +900,10 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_floating_vector_arithmetic)
     UNIT_TEST(crow_floating_vector_interpolation)
 
+    // web-client-test.cpp
+    UNIT_TEST(crow_web_client_http_get)
+    UNIT_TEST(crow_web_client_http_head)
+
     // version-test.cpp
     UNIT_TEST(crow_version)
 

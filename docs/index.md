@@ -21,6 +21,7 @@ be included using the full library header.
 Other libraries required:
 
 * [PCRE2](http://www.pcre.org/) - Required by the Regex module and anything that uses it
+* [Libcurl](https://curl.se) - Required by the Web Client module
 * [Sqlite3](https://www.sqlite.org/index.html) - Required by the Sqlite module
 
 ## Index
@@ -78,8 +79,10 @@ Other libraries required:
     * [Thread](thread.html)
     * [Thread pool](thread-pool.html)
 * Networking
+    * [HTTP status codes](http.html)
     * [TCP/IP networking](net.html)
     * [URI](uri.html)
+    * [Web client](web-client.html)
 * Numerics
     * [Bitwise operations](binary.html)
     * [Constants](constants.html)

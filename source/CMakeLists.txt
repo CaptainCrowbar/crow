@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.16)
 # and propagate the new version to version.hpp.
 
 project(Crow
-    VERSION 2.0.44
+    VERSION 2.0.45
     LANGUAGES CXX
 )
 
@@ -37,6 +37,7 @@ endif()
 set(library crow)
 set(unittest test-${library})
 include_directories(.)
+find_package(CURL REQUIRED)
 find_package(Threads REQUIRED)
 
 set(executable PERMISSIONS
@@ -49,6 +50,7 @@ add_library(${library} STATIC
 
     ${library}/channel.cpp
     ${library}/colour.cpp
+    ${library}/curl-api.cpp
     ${library}/dice.cpp
     ${library}/dso.cpp
     ${library}/encoding.cpp
@@ -61,6 +63,7 @@ add_library(${library} STATIC
     ${library}/format-type.cpp
     ${library}/hash.cpp
     ${library}/hexmap.cpp
+    ${library}/http.cpp
     ${library}/image.cpp
     ${library}/interval.cpp
     ${library}/markup.cpp
@@ -85,6 +88,7 @@ add_library(${library} STATIC
     ${library}/unicode.cpp
     ${library}/uri.cpp
     ${library}/uuid.cpp
+    ${library}/web-client.cpp
 
 )
 
@@ -255,6 +259,7 @@ add_executable(${unittest}
     test/uri-schemes-test.cpp
     test/uuid-test.cpp
     test/vector-test.cpp
+    test/web-client-test.cpp
 
     test/version-test.cpp
     test/unit-test.cpp
@@ -265,6 +270,7 @@ target_link_libraries(${unittest}
     PRIVATE ${library}
     PRIVATE pcre2-8
     PRIVATE sqlite3
+    PRIVATE CURL::libcurl
     PRIVATE Threads::Threads
 )
 
