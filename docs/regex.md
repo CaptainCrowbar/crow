@@ -27,11 +27,11 @@ Refer to the PCRE2 documentation for details of the regular expression
 syntax.
 
 The `Regex` class supports both UTF-8 and byte oriented matching. UTF-8 is the
-default. Byte regexes(selected with the `Regex::byte` flag) simply treat a
+default. Byte regexes (selected with the `Regex::byte` flag) simply treat a
 string as a sequence of arbitrary bytes, with no assumptions about content
 encoding, and will work with non-Unicode strings. The `\xHH` escape code
 (where H is a hexadecimal digit) always matches a single byte even if the
-value is greater than `\x7f`(in a UTF-8 regex this would match a multibyte
+value is greater than `\x7f` (in a UTF-8 regex this would match a multibyte
 encoded character); the extended `\x{hex}` escape code can still be used, but
 it will be treated as a syntax error if the value is greater than `\x{ff}`.
 
@@ -68,8 +68,7 @@ impossible to match multi-unit characters to non-literal regex elements; for
 example, even if the system encoding is UTF-8, `std::regex(".")` will still
 not match `"€"` (which is three bytes long). For the same reason, it is
 impossible to specify a character range that includes multibyte characters;
-for example, `std::regex("[à-ÿ]")` will not do what you probably expected,
-regardless of encoding.
+for example, `std::regex("[à-ÿ]")` will not do what you probably expected.
 
 Finally, standard regexes don't support the `\p{...}` and `\P{...}` character
 classes, which match on Unicode properties. This may be a minor obstacle
@@ -367,6 +366,10 @@ delimiters are allowed only if the token regex can match an empty string. The
 `tokenize()` function, or the iterator's increment operator, will throw
 `Regex::error` if token or delimiter matching fails.
 
+The token iterators carry references to both of the `Regex` objects it was
+created from. Behaviour is undefined if a token iterator is used after either
+of the `Regex` objects is modified or destroyed.
+
 ### Exceptions
 
 ```c++
@@ -386,7 +389,9 @@ class Regex::match;
 ```
 
 The regex matching functions return a `Regex::match` object to report the
-result of a matching attempt.
+result of a matching attempt. Behaviour is undefined if a `Regex::match`
+object is used after the `Regex` it was created from is modified or
+destroyed.
 
 ```c++
 match::match() noexcept;

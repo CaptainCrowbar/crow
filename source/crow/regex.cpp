@@ -455,17 +455,48 @@ namespace Crow {
         if (current_.endpos() >= current_.subject_.size()) {
             current_ = {};
         } else {
-            auto next_delimiter = delimiter_(current_.subject_, current_.endpos(), flags_ | Regex::not_empty);
-            current_ = token_(current_.subject_, next_delimiter.endpos(), flags_);
+            auto next_delimiter = delimiter_->search(current_.subject_, current_.endpos(), flags_ | Regex::not_empty);
+            current_ = token_->search(current_.subject_, next_delimiter.endpos(), flags_);
         }
         return *this;
     }
 
     Regex::token_iterator::token_iterator(const Regex& token, const Regex& delimiter, std::string_view str, size_t pos, flag_type flags):
-    token_(token), delimiter_(delimiter), current_(), flags_(flags | Regex::anchor | Regex::hard_fail) {
-        if (pos >= str.size())
-            return;
-        current_ = token_(str, pos, flags_);
+    token_(&token), delimiter_(&delimiter), current_(), flags_(flags | Regex::anchor | Regex::hard_fail) {
+        if (pos < str.size())
+            current_ = token_->search(str, pos, flags_);
+    }
+
+    // Class Regex::transform
+
+    Regex::transform::transform(const Regex& pattern, std::string_view fmt, flag_type flags):
+    regex_(std::make_shared<Regex>(pattern)), format_(fmt), flags_(flags) {}
+
+    Regex::transform::transform(std::string_view pattern, std::string_view fmt, flag_type flags):
+    regex_(std::make_shared<Regex>(pattern, flags)), format_(fmt), flags_(flags & runtime_mask) {}
+
+    std::string Regex::transform::pattern() const {
+        return regex_ ? regex_->pattern() : std::string();
+    }
+
+    Regex::flag_type Regex::transform::flags() const noexcept {
+        return regex_ ? regex_->flags() | flags_ : 0;
+    }
+
+    std::string Regex::transform::replace(std::string_view str, size_t pos, flag_type flags) const {
+        if (regex_)
+            return regex_->replace(str, format_, pos, flags | flags_);
+        else
+            return std::string(str);
+    }
+
+    void Regex::transform::replace_in(std::string& str, size_t pos, flag_type flags) const {
+        if (regex_)
+            regex_->replace_in(str, format_, pos, flags | flags_);
+    }
+
+    std::string Regex::transform::operator()(std::string_view str, size_t pos, flag_type flags) const {
+        return replace(str, pos, flags);
     }
 
 }

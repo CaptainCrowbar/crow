@@ -23,9 +23,6 @@ namespace Crow {
         class transform;
 
         using flag_type = uint32_t;
-        using match_range = Irange<match_iterator>;
-        using split_range = Irange<split_iterator>;
-        using token_range = Irange<token_iterator>;
         using version_type = std::vector<int>;
 
         static constexpr flag_type ascii            = flag_type(1) << 0;   // ASCII character properties           ~PCRE2_UCP
@@ -58,6 +55,126 @@ namespace Crow {
             std::string_view mid;
             std::string_view right;
         };
+
+        class error:
+        public std::runtime_error {
+        public:
+            explicit error(int code): std::runtime_error(message(code)), code_(code) {}
+            int code() const noexcept { return code_; }
+        private:
+            int code_;
+            static std::string message(int code);
+        };
+
+        class match {
+        public:
+            match() = default;
+            bool full() const noexcept { return result_ >= 0; }
+            bool partial() const noexcept;
+            explicit operator bool() const noexcept { return full() || partial(); }
+            bool matched(size_t i = 0) const noexcept;
+            const char* begin(size_t i = 0) const noexcept;
+            const char* end(size_t i = 0) const noexcept;
+            size_t offset(size_t i = 0) const noexcept;
+            size_t endpos(size_t i = 0) const noexcept;
+            size_t count(size_t i = 0) const noexcept;
+            std::string_view str(size_t i = 0) const noexcept;
+            std::string_view operator[](size_t i) const noexcept { return str(i); }
+            operator std::string_view() const noexcept { return str(); }
+            bool matched(std::string_view name) const { return matched(index_by_name(name)); }
+            const char* begin(std::string_view name) const { return begin(index_by_name(name)); }
+            const char* end(std::string_view name) const { return end(index_by_name(name)); }
+            size_t offset(std::string_view name) const { return offset(index_by_name(name)); }
+            size_t endpos(std::string_view name) const { return endpos(index_by_name(name)); }
+            size_t count(std::string_view name) const { return count(index_by_name(name)); }
+            std::string_view str(std::string_view name) const { return str(index_by_name(name)); }
+            std::string_view operator[](std::string_view name) const { return str(name); }
+            size_t first() const noexcept;
+            size_t last() const noexcept;
+            std::string_view last_mark() const noexcept;
+        private:
+            friend class Regex;
+            friend class Regex::match_iterator;
+            friend class Regex::split_iterator;
+            friend class Regex::token_iterator;
+            std::shared_ptr<void> data_; // pcre2_match_data
+            std::string_view subject_;
+            const Regex* regex_ = nullptr;
+            flag_type flags_ = 0;
+            uint32_t options_ = 0;
+            int result_ = -1; // PCRE2_ERROR_NOMATCH
+            size_t offset_count_ = 0;
+            size_t* offset_vector_ = nullptr;
+            match(const Regex& re, std::string_view str, flag_type flags);
+            size_t index_by_name(std::string_view name) const { return regex_ ? regex_->named(name) : npos; }
+            void next() { next(endpos()); }
+            void next(size_t pos);
+        };
+
+        class match_iterator:
+        public ForwardIterator<Regex::match_iterator, const Regex::match> {
+        public:
+            match_iterator() = default;
+            const match& operator*() const noexcept { return current_; }
+            match_iterator& operator++() { current_.next(); return *this; }
+            bool operator==(const match_iterator& rhs) const noexcept { return current_.offset() == rhs.current_.offset(); }
+        private:
+            friend class Regex;
+            match current_;
+            match_iterator(const Regex& re, std::string_view str, size_t pos, flag_type flags): current_(re, str, flags) { current_.next(pos); }
+        };
+
+        class split_iterator:
+        public ForwardIterator<Regex::split_iterator, const std::string_view> {
+        public:
+            split_iterator() = default;
+            const std::string_view& operator*() const noexcept { return span_; }
+            split_iterator& operator++();
+            bool operator==(const split_iterator& rhs) const noexcept { return span_.data() == rhs.span_.data(); }
+        private:
+            friend class Regex;
+            Regex::match after_;
+            const char* end_ = nullptr;
+            std::string_view span_;
+            split_iterator(const Regex& re, std::string_view str, size_t pos, flag_type flags);
+        };
+
+        class token_iterator:
+        public ForwardIterator<Regex::token_iterator, const Regex::match> {
+        public:
+            token_iterator() = default;
+            const match& operator*() const noexcept { return current_; }
+            token_iterator& operator++();
+            bool operator==(const token_iterator& rhs) const noexcept { return current_.offset() == rhs.current_.offset(); }
+        private:
+            friend class Regex;
+            const Regex* token_ = nullptr;
+            const Regex* delimiter_ = nullptr;
+            match current_;
+            flag_type flags_;
+            token_iterator(const Regex& token, const Regex& delimiter, std::string_view str, size_t pos, flag_type flags);
+        };
+
+        class transform {
+        public:
+            transform() = default;
+            explicit transform(const Regex& pattern, std::string_view fmt, flag_type flags = 0);
+            explicit transform(std::string_view pattern, std::string_view fmt, flag_type flags = 0);
+            std::string pattern() const;
+            std::string format() const { return format_; }
+            flag_type flags() const noexcept;
+            std::string replace(std::string_view str, size_t pos = 0, flag_type flags = 0) const;
+            void replace_in(std::string& str, size_t pos = 0, flag_type flags = 0) const;
+            std::string operator()(std::string_view str, size_t pos = 0, flag_type flags = 0) const;
+        private:
+            std::shared_ptr<Regex> regex_;
+            std::string format_;
+            flag_type flags_ = 0;
+        };
+
+        using match_range = Irange<match_iterator>;
+        using split_range = Irange<split_iterator>;
+        using token_range = Irange<token_iterator>;
 
         Regex() = default;
         explicit Regex(std::string_view pattern, flag_type flags = 0);
@@ -93,169 +210,6 @@ namespace Crow {
         flag_type flags_ = 0;
 
         void do_replace(std::string_view src, std::string& dst, std::string_view fmt, size_t pos, flag_type flags) const;
-
-    };
-
-    class Regex::error:
-    public std::runtime_error {
-    public:
-        explicit error(int code): std::runtime_error(message(code)), code_(code) {}
-        int code() const noexcept { return code_; }
-    private:
-        int code_;
-        static std::string message(int code);
-    };
-
-    class Regex::match {
-
-    public:
-
-        match() = default;
-
-        bool full() const noexcept { return result_ >= 0; }
-        bool partial() const noexcept;
-        explicit operator bool() const noexcept { return full() || partial(); }
-
-        bool matched(size_t i = 0) const noexcept;
-        const char* begin(size_t i = 0) const noexcept;
-        const char* end(size_t i = 0) const noexcept;
-        size_t offset(size_t i = 0) const noexcept;
-        size_t endpos(size_t i = 0) const noexcept;
-        size_t count(size_t i = 0) const noexcept;
-        std::string_view str(size_t i = 0) const noexcept;
-        std::string_view operator[](size_t i) const noexcept { return str(i); }
-        operator std::string_view() const noexcept { return str(); }
-
-        bool matched(std::string_view name) const { return matched(index_by_name(name)); }
-        const char* begin(std::string_view name) const { return begin(index_by_name(name)); }
-        const char* end(std::string_view name) const { return end(index_by_name(name)); }
-        size_t offset(std::string_view name) const { return offset(index_by_name(name)); }
-        size_t endpos(std::string_view name) const { return endpos(index_by_name(name)); }
-        size_t count(std::string_view name) const { return count(index_by_name(name)); }
-        std::string_view str(std::string_view name) const { return str(index_by_name(name)); }
-        std::string_view operator[](std::string_view name) const { return str(name); }
-
-        size_t first() const noexcept;
-        size_t last() const noexcept;
-        std::string_view last_mark() const noexcept;
-
-    private:
-
-        friend class Regex;
-        friend class Regex::match_iterator;
-        friend class Regex::split_iterator;
-        friend class Regex::token_iterator;
-
-        std::shared_ptr<void> data_; // pcre2_match_data
-        std::string_view subject_;
-        const Regex* regex_ = nullptr;
-        flag_type flags_ = 0;
-        uint32_t options_ = 0;
-        int result_ = -1; // PCRE2_ERROR_NOMATCH
-        size_t offset_count_ = 0;
-        size_t* offset_vector_ = nullptr;
-
-        match(const Regex& re, std::string_view str, flag_type flags);
-
-        size_t index_by_name(std::string_view name) const { return regex_ ? regex_->named(name) : npos; }
-        void next() { next(endpos()); }
-        void next(size_t pos);
-
-    };
-
-    class Regex::match_iterator:
-    public ForwardIterator<Regex::match_iterator, const Regex::match> {
-
-    public:
-
-        match_iterator() = default;
-
-        const match& operator*() const noexcept { return current_; }
-        match_iterator& operator++() { current_.next(); return *this; }
-        bool operator==(const match_iterator& rhs) const noexcept { return current_.offset() == rhs.current_.offset(); }
-
-    private:
-
-        friend class Regex;
-
-        match current_;
-
-        match_iterator(const Regex& re, std::string_view str, size_t pos, flag_type flags): current_(re, str, flags) { current_.next(pos); }
-
-    };
-
-    class Regex::split_iterator:
-    public ForwardIterator<Regex::split_iterator, const std::string_view> {
-
-    public:
-
-        split_iterator() = default;
-
-        const std::string_view& operator*() const noexcept { return span_; }
-        split_iterator& operator++();
-        bool operator==(const split_iterator& rhs) const noexcept { return span_.data() == rhs.span_.data(); }
-
-    private:
-
-        friend class Regex;
-
-        Regex::match after_;
-        const char* end_ = nullptr;
-        std::string_view span_;
-
-        split_iterator(const Regex& re, std::string_view str, size_t pos, flag_type flags);
-
-    };
-
-    class Regex::token_iterator:
-    public ForwardIterator<Regex::token_iterator, const Regex::match> {
-
-    public:
-
-        token_iterator() = default;
-
-        const match& operator*() const noexcept { return current_; }
-        token_iterator& operator++();
-        bool operator==(const token_iterator& rhs) const noexcept { return current_.offset() == rhs.current_.offset(); }
-
-    private:
-
-        friend class Regex;
-
-        Regex token_;
-        Regex delimiter_;
-        match current_;
-        flag_type flags_;
-
-        token_iterator(const Regex& token, const Regex& delimiter, std::string_view str, size_t pos, flag_type flags);
-
-    };
-
-    class Regex::transform {
-
-    public:
-
-        transform() = default;
-        explicit transform(const Regex& pattern, std::string_view fmt, flag_type flags = 0):
-            regex_(pattern), format_(fmt), flags_(flags) {}
-        explicit transform(std::string_view pattern, std::string_view fmt, flag_type flags = 0):
-            regex_(pattern, flags), format_(fmt), flags_(flags & runtime_mask) {}
-
-        std::string pattern() const { return regex_.pattern(); }
-        std::string format() const { return format_; }
-        flag_type flags() const noexcept { return regex_.flags() | flags_; }
-        std::string replace(std::string_view str, size_t pos = 0, flag_type flags = 0) const
-            { return regex_.replace(str, format_, pos, flags | flags_); }
-        void replace_in(std::string& str, size_t pos = 0, flag_type flags = 0) const
-            { regex_.replace_in(str, format_, pos, flags | flags_); }
-        std::string operator()(std::string_view str, size_t pos = 0, flag_type flags = 0) const
-            { return replace(str, pos, flags); }
-
-    private:
-
-        Regex regex_;
-        std::string format_;
-        flag_type flags_ = 0;
 
     };
 
