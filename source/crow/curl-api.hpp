@@ -4,6 +4,7 @@
 #pragma once
 
 #include "crow/curl-utility.hpp"
+#include <concepts>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -33,34 +34,31 @@ namespace Crow {
         template <CURLoption CO, typename T, typename Ctype = typename RemoveIndirectConst<T>::type, int TypeMask = CO - CO % 10'000>
             struct CheckOptionType: std::false_type {};
 
-        // We have to use variadic macros here because the preprocessor doesn't
-        // understand templates, so macro arguments can't have commas in them.
-
-        #define CROW_CURL_CHECK_INFO_TYPE(TypeMask, ParameterType, ...) \
+        #define CROW_CURL_CHECK_INFO_TYPE(TypeMask, ParameterType, Condition) \
             template <CURLINFO CI, typename T> \
             struct CurlCheckInfoType<CI, T, TypeMask> { \
                 using type = ParameterType; \
-                static constexpr bool value = __VA_ARGS__; \
+                static constexpr bool value = Condition; \
             };
 
-        #define CROW_CURL_CHECK_OPTION_TYPE(TypeMask, ParameterType, ...) \
+        #define CROW_CURL_CHECK_OPTION_TYPE(TypeMask, ParameterType, Condition) \
             template <CURLoption CO, typename T, typename Ctype> \
             struct CheckOptionType<CO, T, Ctype, TypeMask> { \
                 using type = ParameterType; \
-                static constexpr bool value = __VA_ARGS__; \
+                static constexpr bool value = Condition; \
             };
 
-        CROW_CURL_CHECK_INFO_TYPE    (CURLINFO_STRING,            T,       std::is_same_v<T, char*>)
-        CROW_CURL_CHECK_INFO_TYPE    (CURLINFO_LONG,              long,    std::is_integral_v<T>)
-        CROW_CURL_CHECK_INFO_TYPE    (CURLINFO_DOUBLE,            double,  std::is_floating_point_v<T>)
+        CROW_CURL_CHECK_INFO_TYPE    (CURLINFO_DOUBLE,            double,  std::floating_point<T>)
+        CROW_CURL_CHECK_INFO_TYPE    (CURLINFO_LONG,              long,    std::integral<T>)
+        CROW_CURL_CHECK_INFO_TYPE    (CURLINFO_OFF_T,             T,       (std::same_as<T, curl_off_t>))
         CROW_CURL_CHECK_INFO_TYPE    (CURLINFO_PTR,               T,       std::is_pointer_v<T>)
-        CROW_CURL_CHECK_INFO_TYPE    (CURLINFO_SOCKET,            T,       std::is_same_v<T, curl_socket_t>)
-        CROW_CURL_CHECK_INFO_TYPE    (CURLINFO_OFF_T,             T,       std::is_same_v<T, curl_off_t>)
-        CROW_CURL_CHECK_OPTION_TYPE  (CURLOPTTYPE_LONG,           long,    std::is_integral_v<T>)
-        CROW_CURL_CHECK_OPTION_TYPE  (CURLOPTTYPE_OBJECTPOINT,    T,       std::is_pointer_v<T>)
+        CROW_CURL_CHECK_INFO_TYPE    (CURLINFO_SOCKET,            T,       (std::same_as<T, curl_socket_t>))
+        CROW_CURL_CHECK_INFO_TYPE    (CURLINFO_STRING,            T,       (std::same_as<T, char*>))
+        CROW_CURL_CHECK_OPTION_TYPE  (CURLOPTTYPE_BLOB,           T,       (std::same_as<Ctype, curl_blob*>))
         CROW_CURL_CHECK_OPTION_TYPE  (CURLOPTTYPE_FUNCTIONPOINT,  T,       IsFunctionPointer<T>::value)
-        CROW_CURL_CHECK_OPTION_TYPE  (CURLOPTTYPE_OFF_T,          T,       std::is_same_v<T, curl_off_t>)
-        CROW_CURL_CHECK_OPTION_TYPE  (CURLOPTTYPE_BLOB,           T,       std::is_same_v<Ctype, curl_blob*>)
+        CROW_CURL_CHECK_OPTION_TYPE  (CURLOPTTYPE_LONG,           long,    std::integral<T>)
+        CROW_CURL_CHECK_OPTION_TYPE  (CURLOPTTYPE_OBJECTPOINT,    T,       std::is_pointer_v<T>)
+        CROW_CURL_CHECK_OPTION_TYPE  (CURLOPTTYPE_OFF_T,          T,       (std::same_as<T, curl_off_t>))
 
         template <typename T> using CurlLookupFunction = const char* (*)(T);
 
@@ -86,32 +84,32 @@ namespace Crow {
         }
 
         template <CURLINFO CI, typename C, typename T>
+        requires CurlCheckInfoType<CI, T>::value
         void get_curl_info(const C& client, T& result) {
-            static_assert(CurlCheckInfoType<CI, T>::value, "Wrong argument type for curl_easy_getinfo()");
             using U = typename CurlCheckInfoType<CI, T>::type;
             U temp_result = {};
-            check_curl_lookup(client, curl_easy_getinfo(client.native_handle(), CI, &temp_result), "curl_easy_getinfo()", CI, Detail::get_curl_info_name);
+            check_curl_lookup(client, curl_easy_getinfo(client.native_handle(), CI, &temp_result), "curl_easy_getinfo()", CI, get_curl_info_name);
             result = temp_result;
         }
 
         template <CURLINFO CI, typename C>
+        requires CurlCheckInfoType<CI, char*>::value
         void get_curl_info(const C& client, std::string& result) {
-            static_assert(CurlCheckInfoType<CI, char*>::value, "Wrong argument type for curl_easy_getinfo()");
             char* cptr = nullptr;
             get_curl_info<CI>(client, cptr);
             result = cptr == nullptr ? "" : cptr;
         }
 
         template <CURLoption CO, typename C, typename T>
+        requires CheckOptionType<CO, T>::value
         void set_curl_option(const C& client, T arg) {
-            static_assert(CheckOptionType<CO, T>::value, "Wrong argument type for curl_easy_setopt()");
             using U = typename CheckOptionType<CO, T>::type;
             check_curl_lookup(client, curl_easy_setopt(client.native_handle(), CO, U(arg)), "curl_easy_setopt()", CO, get_curl_option_name);
         }
 
         template <CURLoption CO, typename C>
+        requires CheckOptionType<CO, const char*>::value
         void set_curl_option(const C& client, const std::string& arg) {
-            static_assert(CheckOptionType<CO, const char*>::value, "Wrong argument type for curl_easy_setopt()");
             set_curl_option<CO>(client, arg.data());
         }
 
