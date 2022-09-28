@@ -96,7 +96,7 @@ namespace Crow {
 
     // Range classes
 
-    template <typename Iterator>
+    template <IteratorType Iterator>
     struct Irange {
         Iterator first, second;
         Iterator begin() const { return first; }
@@ -104,17 +104,17 @@ namespace Crow {
         bool empty() const noexcept { return first == second; }
     };
 
-    template <typename Iterator>
+    template <IteratorType Iterator>
     Irange<Iterator> irange(Iterator i, Iterator j) {
         return {i, j};
     }
 
-    template <typename Iterator>
+    template <IteratorType Iterator>
     Irange<Iterator> irange(std::pair<Iterator, Iterator> p) {
         return {p.first, p.second};
     }
 
-    template <typename Range>
+    template <RangeType Range>
     Irange<RangeIterator<Range>> subrange(Range& range, int offset) {
         using std::begin;
         using std::end;
@@ -132,7 +132,7 @@ namespace Crow {
         return {i, j};
     }
 
-    template <typename Range>
+    template <RangeType Range>
     Irange<RangeIterator<Range>> subrange(Range& range, int offset, int offset2) {
         auto sub1 = subrange(range, offset);
         auto sub2 = subrange(sub1, offset2);
@@ -166,7 +166,7 @@ namespace Crow {
         return AppendIterator<Container>(c);
     }
 
-    template <typename Iterator>
+    template <IteratorType Iterator>
     class DereferenceIterator:
     public FlexibleIterator<
         DereferenceIterator<Iterator>,
@@ -186,12 +186,12 @@ namespace Crow {
         Iterator iter_;
     };
 
-    template <typename Iterator>
+    template <IteratorType Iterator>
     auto dereference_iterator(Iterator i) {
         return DereferenceIterator<Iterator>(i);
     }
 
-    template <typename Range>
+    template <RangeType Range>
     auto dereference_range(Range& r) {
         using DI = DereferenceIterator<RangeIterator<Range>>;
         using std::begin;
@@ -199,7 +199,7 @@ namespace Crow {
         return irange(DI(begin(r)), DI(end(r)));
     }
 
-    template <typename T>
+    template <ArithmeticType T>
     class IotaIterator:
     public ForwardIterator<IotaIterator<T>, const T> {
     public:
@@ -214,18 +214,18 @@ namespace Crow {
         T delta_ = T(1);
     };
 
-    template <typename T>
+    template <ArithmeticType T>
     Irange<IotaIterator<T>> iota_range(T stop) {
         return {{T(0), T(1)}, {stop, T(1)}};
     }
 
-    template <typename T>
+    template <ArithmeticType T>
     Irange<IotaIterator<T>> iota_range(T start, T stop) {
         T delta = stop < start ? T(-1) : T(1);
         return {{start, delta}, {stop, delta}};
     }
 
-    template <typename T>
+    template <ArithmeticType T>
     Irange<IotaIterator<T>> iota_range(T start, T stop, T delta) {
         return {{start, delta}, {stop, delta}};
     }

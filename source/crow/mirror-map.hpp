@@ -25,8 +25,60 @@ namespace Crow {
         using right_compare = C2;
         using value_type = std::pair<K1, K2>;
 
-        class left_iterator;
-        class right_iterator;
+    private:
+
+        struct left_order {
+            using is_transparent = void;
+            C1 cmp1;
+            C2 cmp2;
+            bool operator()(const value_type& lhs, const value_type& rhs) const;
+            bool operator()(const value_type& lhs, const K1& rhs) const { return cmp1(lhs.first, rhs); }
+            bool operator()(const K1& lhs, const value_type& rhs) const { return cmp1(lhs, rhs.first); }
+        };
+
+        using left_set_type = std::set<value_type, left_order>;
+        using left_position = typename left_set_type::const_iterator;
+
+        struct right_order {
+            using is_transparent = void;
+            C1 cmp1;
+            C2 cmp2;
+            bool operator()(const value_type& lhs, const value_type& rhs) const;
+            bool operator()(const left_position& lhs, const left_position& rhs) const { return (*this)(*lhs, *rhs); }
+            bool operator()(const left_position& lhs, const value_type& rhs) const { return (*this)(*lhs, rhs); }
+            bool operator()(const value_type& lhs, const left_position& rhs) const { return (*this)(lhs, *rhs); }
+            bool operator()(const left_position& lhs, const K2& rhs) const { return cmp2(lhs->second, rhs); }
+            bool operator()(const K2& lhs, const left_position& rhs) const { return cmp2(lhs, rhs->second); }
+        };
+
+        using right_set_type = std::set<left_position, right_order>;
+        using right_position = typename right_set_type::const_iterator;
+
+    public:
+
+        class left_iterator:
+        public BidirectionalIterator<left_iterator, const value_type> {
+        public:
+            const value_type& operator*() const noexcept { return *iter; }
+            left_iterator& operator++() { ++iter; return *this; }
+            left_iterator& operator--() { --iter; return *this; }
+            bool operator==(const left_iterator& rhs) const noexcept { return iter == rhs.iter; }
+        private:
+            friend class MirrorMap;
+            left_position iter;
+        };
+
+        class right_iterator:
+        public BidirectionalIterator<right_iterator, const value_type> {
+        public:
+            const value_type& operator*() const noexcept { return **iter; }
+            right_iterator& operator++() { ++iter; return *this; }
+            right_iterator& operator--() { --iter; return *this; }
+            bool operator==(const right_iterator& rhs) const noexcept { return iter == rhs.iter; }
+        private:
+            friend class MirrorMap;
+            right_position iter;
+        };
 
         struct insert_result {
             left_iterator left;
@@ -76,13 +128,6 @@ namespace Crow {
 
     private:
 
-        struct left_order;
-        using left_set_type = std::set<value_type, left_order>;
-        using left_position = typename left_set_type::const_iterator;
-        struct right_order;
-        using right_set_type = std::set<left_position, right_order>;
-        using right_position = typename right_set_type::const_iterator;
-
         left_set_type left_set_;
         right_set_type right_set_;
 
@@ -91,89 +136,24 @@ namespace Crow {
     };
 
         template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
-        struct MirrorMap<K1, K2, C1, C2>::left_order {
-
-            using is_transparent = void;
-
-            C1 cmp1;
-            C2 cmp2;
-
-            bool operator()(const value_type& lhs, const value_type& rhs) const {
-                if (cmp1(lhs.first, rhs.first))
-                    return true;
-                else if (cmp1(rhs.first, lhs.first))
-                    return false;
-                else
-                    return cmp2(lhs.second, rhs.second);
-            }
-
-            bool operator()(const value_type& lhs, const K1& rhs) const { return cmp1(lhs.first, rhs); }
-            bool operator()(const K1& lhs, const value_type& rhs) const { return cmp1(lhs, rhs.first); }
-
-        };
+        bool MirrorMap<K1, K2, C1, C2>::left_order::operator()(const value_type& lhs, const value_type& rhs) const {
+            if (cmp1(lhs.first, rhs.first))
+                return true;
+            else if (cmp1(rhs.first, lhs.first))
+                return false;
+            else
+                return cmp2(lhs.second, rhs.second);
+        }
 
         template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
-        struct MirrorMap<K1, K2, C1, C2>::right_order {
-
-            using is_transparent = void;
-
-            C1 cmp1;
-            C2 cmp2;
-
-            bool operator()(const value_type& lhs, const value_type& rhs) const {
-                if (cmp2(lhs.second, rhs.second))
-                    return true;
-                else if (cmp2(rhs.second, lhs.second))
-                    return false;
-                else
-                    return cmp1(lhs.first, rhs.first);
-            }
-
-            bool operator()(const left_position& lhs, const left_position& rhs) const { return (*this)(*lhs, *rhs); }
-            bool operator()(const left_position& lhs, const value_type& rhs) const { return (*this)(*lhs, rhs); }
-            bool operator()(const value_type& lhs, const left_position& rhs) const { return (*this)(lhs, *rhs); }
-            bool operator()(const left_position& lhs, const K2& rhs) const { return cmp2(lhs->second, rhs); }
-            bool operator()(const K2& lhs, const left_position& rhs) const { return cmp2(lhs, rhs->second); }
-
-        };
-
-        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
-        class MirrorMap<K1, K2, C1, C2>::left_iterator:
-        public BidirectionalIterator<left_iterator, const value_type> {
-
-        public:
-
-            const value_type& operator*() const noexcept { return *iter; }
-            left_iterator& operator++() { ++iter; return *this; }
-            left_iterator& operator--() { --iter; return *this; }
-            bool operator==(const left_iterator& rhs) const noexcept { return iter == rhs.iter; }
-
-        private:
-
-            friend class MirrorMap;
-
-            left_position iter;
-
-        };
-
-        template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
-        class MirrorMap<K1, K2, C1, C2>::right_iterator:
-        public BidirectionalIterator<right_iterator, const value_type> {
-
-        public:
-
-            const value_type& operator*() const noexcept { return **iter; }
-            right_iterator& operator++() { ++iter; return *this; }
-            right_iterator& operator--() { --iter; return *this; }
-            bool operator==(const right_iterator& rhs) const noexcept { return iter == rhs.iter; }
-
-        private:
-
-            friend class MirrorMap;
-
-            right_position iter;
-
-        };
+        bool MirrorMap<K1, K2, C1, C2>::right_order::operator()(const value_type& lhs, const value_type& rhs) const {
+            if (cmp2(lhs.second, rhs.second))
+                return true;
+            else if (cmp2(rhs.second, lhs.second))
+                return false;
+            else
+                return cmp1(lhs.first, rhs.first);
+        }
 
         template <typename K1, typename K2, std::strict_weak_order<K1, K1> C1, std::strict_weak_order<K2, K2> C2>
         MirrorMap<K1, K2, C1, C2>::MirrorMap(C1 c1, C2 c2):
