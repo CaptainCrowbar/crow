@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.16)
 # and propagate the new version to version.hpp.
 
 project(Crow
-    VERSION 2.0.43
+    VERSION 2.0.44
     LANGUAGES CXX
 )
 
@@ -74,6 +74,7 @@ add_library(${library} STATIC
     ${library}/rational.cpp
     ${library}/regex.cpp
     ${library}/signal.cpp
+    ${library}/sqlite.cpp
     ${library}/stdio.cpp
     ${library}/string.cpp
     ${library}/table.cpp
@@ -229,6 +230,7 @@ add_executable(${unittest}
     test/regex-runtime-flags-test.cpp
     test/root-finding-test.cpp
     test/signal-test.cpp
+    test/sqlite-test.cpp
     test/stack-test.cpp
     test/statistics-test.cpp
     test/stdio-test.cpp
@@ -262,6 +264,7 @@ add_executable(${unittest}
 target_link_libraries(${unittest}
     PRIVATE ${library}
     PRIVATE pcre2-8
+    PRIVATE sqlite3
     PRIVATE Threads::Threads
 )
 

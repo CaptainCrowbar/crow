@@ -753,6 +753,9 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_signal_channel)
     UNIT_TEST(crow_signal_name)
 
+    // sqlite-test.cpp
+    UNIT_TEST(crow_sqlite_connection)
+
     // stack-test.cpp
     UNIT_TEST(crow_stack)
 

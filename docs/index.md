@@ -20,7 +20,8 @@ be included using the full library header.
 
 Other libraries required:
 
-* [PCRE2](http://www.pcre.org/)
+* [PCRE2](http://www.pcre.org/) - Required by the Regex module and anything that uses it
+* [Sqlite3](https://www.sqlite.org/index.html) - Required by the Sqlite module
 
 ## Index
 
@@ -45,6 +46,8 @@ Other libraries required:
     * [Map with two-way lookup](mirror-map.html)
     * [Multi-dimensional array](multi-array.html)
     * [Stack](stack.html)
+* Database
+    * [Sqlite](sqlite.html)
 * Graphics
     * [Colour](colour.html)
     * [Colour space](colour-space.html)
