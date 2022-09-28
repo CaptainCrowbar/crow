@@ -286,7 +286,6 @@ if(WIN32)
     )
 endif()
 
-install(FILES ${library}.hpp DESTINATION include)
 install(DIRECTORY ${library} DESTINATION include PATTERN "*.cpp" EXCLUDE)
 install(TARGETS ${library} LIBRARY DESTINATION lib)
 install(FILES ../bin/rs-bump-version DESTINATION bin ${executable})
