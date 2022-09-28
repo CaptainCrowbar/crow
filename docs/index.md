@@ -6,17 +6,10 @@ _[GitHub repository](https://github.com/CaptainCrowbar/crow)_
 
 ## Overview
 
-This is my unified utility library.
-
-```c++
-#include "crow.hpp"
-namespace Crow;
-```
-
-The CMake file includes an `install` target to copy the headers and static
-library into `/usr/local/include` and `/usr/local/bin` or the equivalent.
-Headers can be included individually as required, or the entire library can
-be included using the full library header.
+This is my unified utility library. Everything here is in `namespace Crow`.
+The `CMakeLists.txt` includes an `install` target to copy the headers and
+static library into `/usr/local/include` and `/usr/local/bin` or the
+equivalent.
 
 Other libraries required:
 
