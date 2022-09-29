@@ -10,6 +10,7 @@
 #include "crow/uuid.hpp"
 #include <algorithm>
 #include <array>
+#include <concepts>
 #include <initializer_list>
 #include <iterator>
 #include <limits>
@@ -23,17 +24,24 @@ namespace Crow {
 
     namespace Detail {
 
-        template <typename T, typename = void> struct HasMinMethod: std::false_type {};
-        template <typename T> struct HasMinMethod<T, std::void_t<decltype(std::declval<const T&>().min())>>: std::true_type {};
-        template <typename T> constexpr bool has_min_method = HasMinMethod<T>::value;
+        template <typename T>
+        concept DistributionBoundedBelow =
+            RandomDistributionType<T>
+            && requires(T t) {
+                { t.min() } -> std::convertible_to<typename T::result_type>;
+            };
 
-        template <typename T, typename = void> struct HasMaxMethod: std::false_type {};
-        template <typename T> struct HasMaxMethod<T, std::void_t<decltype(std::declval<const T&>().min())>>: std::true_type {};
-        template <typename T> constexpr bool has_max_method = HasMaxMethod<T>::value;
+        template <typename T>
+        concept DistributionBoundedAbove =
+            RandomDistributionType<T>
+            && requires(T t) {
+                { t.max() } -> std::convertible_to<typename T::result_type>;
+            };
 
     }
 
     template <typename Base>
+    requires (ArithmeticType<typename Base::result_type>)
     class ConstrainedDistribution {
 
     public:
@@ -60,12 +68,14 @@ namespace Crow {
     };
 
         template <typename Base>
+        requires (ArithmeticType<typename Base::result_type>)
         ConstrainedDistribution<Base>::ConstrainedDistribution(const Base& dist, result_type min, result_type max):
         dist_(dist), min_(min), max_(max) {
             check_range();
         }
 
         template <typename Base>
+        requires (ArithmeticType<typename Base::result_type>)
         template <typename... Args>
         ConstrainedDistribution<Base>::ConstrainedDistribution(result_type min, result_type max, Args&&... args):
         dist_(std::forward<Args>(args)...), min_(min), max_(max) {
@@ -73,6 +83,7 @@ namespace Crow {
         }
 
         template <typename Base>
+        requires (ArithmeticType<typename Base::result_type>)
         template <RandomEngineType RNG>
         typename ConstrainedDistribution<Base>::result_type
         ConstrainedDistribution<Base>::operator()(RNG& rng) const {
@@ -83,10 +94,11 @@ namespace Crow {
         }
 
         template <typename Base>
+        requires (ArithmeticType<typename Base::result_type>)
         void ConstrainedDistribution<Base>::check_range() {
-            if constexpr (Detail::has_min_method<Base>)
+            if constexpr (Detail::DistributionBoundedBelow<Base>)
                 min_ = std::max(min_, dist_.min());
-            if constexpr (Detail::has_max_method<Base>)
+            if constexpr (Detail::DistributionBoundedAbove<Base>)
                 max_ = std::min(max_, dist_.max());
             if (min_ > max_)
                 throw std::invalid_argument("Constrained distribution has no possible values");

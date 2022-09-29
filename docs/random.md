@@ -34,6 +34,16 @@ A simplified concept to match random engine types. This tests for an unsigned
 integral `result_type`, a call operator that returns `result_type`, and
 `min()` and `max()` functions.
 
+```c++
+template <typename T> concept RandomDistributionType;
+template <typename T, typename RT> concept SpecificDistributionType;
+```
+
+`RandomDistributionType` matches a random distribution class with
+`result_type` and `operator()(RNG&)`. `SpecificDistributionType` is a
+refinement of `RandomDistributionType` that also requires `result_type` to be
+convertible to `RT`.
+
 ## Primitive random engines
 
 ### Linear congruential generators
@@ -317,7 +327,9 @@ template <std::floating_point T> class LogNormal {
 ### Constrained distribution
 
 ```c++
-template <typename Base> class ConstrainedDistribution {
+template <typename Base>
+requires (ArithmeticType<typename Base::result_type>)
+class ConstrainedDistribution {
     using base_distribution = Base;
     using result_type = typename Base::result_type;
     ConstrainedDistribution(const Base& dist,
@@ -332,8 +344,7 @@ template <typename Base> class ConstrainedDistribution {
 };
 ```
 
-Distribution with resampling from a constrained range. The underlying base
-distribution can be any distribution with a totally ordered result type.
+Distribution with resampling from a constrained range.
 
 The first constructor takes an underlying distribution (which is copied) and
 the permitted range; the second takes the permitted range and a set of

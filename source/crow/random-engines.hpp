@@ -17,14 +17,27 @@ namespace Crow {
     // Concepts
 
     template <typename T>
-    concept RandomEngineType = requires {
-        typename T::result_type;
-        requires std::unsigned_integral<typename T::result_type>;
-        requires std::invocable<T&>;
-        requires std::convertible_to<std::invoke_result_t<T&>, typename T::result_type>;
-        { T::min() } -> std::convertible_to<typename T::result_type>;
-        { T::max() } -> std::convertible_to<typename T::result_type>;
-    };
+    concept RandomEngineType =
+        std::unsigned_integral<typename T::result_type>
+        && std::invocable<T&>
+        && std::convertible_to<std::invoke_result_t<T&>, typename T::result_type>
+        && requires (T t) {
+            { t.min() } -> std::convertible_to<typename T::result_type>;
+            { t.max() } -> std::convertible_to<typename T::result_type>;
+        };
+
+    template <typename T>
+    concept RandomDistributionType =
+        requires { typename T::result_type; }
+        && std::invocable<T&, std::minstd_rand&>
+        && std::invocable<T&, std::random_device&>
+        && std::convertible_to<std::invoke_result_t<T&, std::minstd_rand&>, typename T::result_type>
+        && std::convertible_to<std::invoke_result_t<T&, std::random_device&>, typename T::result_type>;
+
+    template <typename T, typename RT>
+    concept SpecificDistributionType =
+        RandomDistributionType<T>
+        && std::convertible_to<typename T::result_type, RT>;
 
     // Good LCG transformations for 32 and 64 bit integers
     // Pierre L'Ecuyer (1999), "Tables of Linear Congruential Generators of Different Sizes and Good Lattice Structure"
