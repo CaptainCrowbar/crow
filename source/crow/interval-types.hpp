@@ -13,81 +13,31 @@
 #include <type_traits>
 #include <utility>
 
-// TODO - replace these with concepts
-
-#define CROW_INTERVAL_DETECT_PREFIX_OPERATOR_(name, op) \
-    template <typename T, typename = void> \
-        struct HasPrefixOperator_ ## name: \
-        std::false_type {}; \
-    template <typename T> \
-        struct HasPrefixOperator_ ## name<T, std::void_t<decltype(op std::declval<T&>())>>: \
-        std::true_type {}; \
-    template <typename T> \
-        constexpr bool has_prefix_ ## name ## _operator = HasPrefixOperator_ ## name<T>::value;
-
-#define CROW_INTERVAL_DETECT_POSTFIX_OPERATOR_(name, op) \
-    template <typename T, typename = void> \
-        struct HasPostfixOperator_ ## name: \
-        std::false_type {}; \
-    template <typename T> \
-        struct HasPostfixOperator_ ## name<T, std::void_t<decltype(std::declval<T&>() op)>>: \
-        std::true_type {}; \
-    template <typename T> \
-        constexpr bool has_postfix_ ## name ## _operator = HasPostfixOperator_ ## name<T>::value;
-
-#define CROW_INTERVAL_DETECT_BINARY_OPERATOR_(name, op) \
-    template <typename T, typename U = T, typename = void> \
-        struct HasBinaryOperator ## name: \
-        std::false_type {}; \
-    template <typename T, typename U> \
-        struct HasBinaryOperator ## name<T, U, std::void_t<decltype(std::declval<T>() op std::declval<U>())>>: \
-        std::true_type {}; \
-    template <typename T, typename U = T> \
-        constexpr bool has_ ## name ## _operator = HasBinaryOperator ## name<T, U>::value;
-
 namespace Crow {
 
     namespace Detail {
 
-        CROW_INTERVAL_DETECT_PREFIX_OPERATOR_(increment, ++)
-        CROW_INTERVAL_DETECT_PREFIX_OPERATOR_(decrement, --)
-        CROW_INTERVAL_DETECT_POSTFIX_OPERATOR_(increment, ++)
-        CROW_INTERVAL_DETECT_POSTFIX_OPERATOR_(decrement, --)
-        CROW_INTERVAL_DETECT_BINARY_OPERATOR_(plus, +)
-        CROW_INTERVAL_DETECT_BINARY_OPERATOR_(minus, -)
-        CROW_INTERVAL_DETECT_BINARY_OPERATOR_(multiply, *)
-        CROW_INTERVAL_DETECT_BINARY_OPERATOR_(divide, /)
-        CROW_INTERVAL_DETECT_BINARY_OPERATOR_(remainder, %)
-        CROW_INTERVAL_DETECT_BINARY_OPERATOR_(equality, ==)
-        CROW_INTERVAL_DETECT_BINARY_OPERATOR_(inequality, !=)
-        CROW_INTERVAL_DETECT_BINARY_OPERATOR_(less_than, <)
-        CROW_INTERVAL_DETECT_BINARY_OPERATOR_(greater_than, >)
-        CROW_INTERVAL_DETECT_BINARY_OPERATOR_(less_or_equal, <=)
-        CROW_INTERVAL_DETECT_BINARY_OPERATOR_(greater_or_equal, >=)
-
-        template <typename T> constexpr bool has_stepwise_operators =
-            (has_prefix_increment_operator<T> && has_prefix_decrement_operator<T>
-            && has_postfix_increment_operator<T> && has_postfix_decrement_operator<T>);
-
-        template <typename T> constexpr bool has_basic_arithmetic_operators =
-            (has_plus_operator<T> && has_minus_operator<T>
-            && has_multiply_operator<T> && has_divide_operator<T>);
-
-        template <typename T> constexpr bool is_totally_ordered =
-            (has_equality_operator<T> && has_inequality_operator<T>
-            && has_less_than_operator<T> && has_greater_than_operator<T>
-            && has_less_or_equal_operator<T> && has_greater_or_equal_operator<T>);
-
-        template <typename T, typename = void> struct HasInputOperator: std::false_type {};
         template <typename T>
-            struct HasInputOperator<T, std::void_t<decltype(std::declval<std::istream&&>() >> std::declval<T&>())>>:
-            std::true_type {};
+        concept StepwiseOperatorsIntervalType = requires (T t) {
+            { ++t } -> std::convertible_to<T>;
+            { --t } -> std::convertible_to<T>;
+            { t++ } -> std::convertible_to<T>;
+            { t-- } -> std::convertible_to<T>;
+        };
+
+        template <typename T>
+        concept ArithmeticOperatorsIntervalType = requires (T t) {
+            { t + t } -> std::convertible_to<T>;
+            { t - t } -> std::convertible_to<T>;
+            { t * t } -> std::convertible_to<T>;
+            { t / t } -> std::convertible_to<T>;
+        };
 
         template <typename T>
         T from_string(const std::string& s) {
             if constexpr (std::is_constructible_v<T, std::string>) {
                 return T(s);
-            } else if constexpr (HasInputOperator<T>::value) {
+            } else if constexpr (requires (T& t, std::istream& in) { { in >> t }; }) {
                 T t;
                 std::istringstream in(s);
                 in >> t;
@@ -147,21 +97,19 @@ namespace Crow {
     struct IntervalTraits {
         using type = std::remove_cv_t<T>;
         static constexpr IntervalCategory category =
-            std::is_same_v<type, bool> || ! std::is_default_constructible_v<type>
-                    || ! std::is_copy_constructible_v<type> || ! std::is_copy_assignable_v<type>
-                    || ! Detail::is_totally_ordered<type> ?
+            std::same_as<type, bool> || ! std::regular<type> || ! std::totally_ordered<type> ?
                 IntervalCategory::none :
-            std::is_floating_point_v<T>
+            std::floating_point<T>
                     || (std::numeric_limits<type>::is_specialized && ! std::numeric_limits<type>::is_integer) ?
                 IntervalCategory::continuous :
-            std::is_integral_v<T>
+            std::integral<T>
                     || (std::numeric_limits<type>::is_specialized && std::numeric_limits<type>::is_integer) ?
                 IntervalCategory::integral :
-            Detail::has_basic_arithmetic_operators<type> && Detail::has_stepwise_operators<type> ?
+            Detail::ArithmeticOperatorsIntervalType<type> && Detail::StepwiseOperatorsIntervalType<type> ?
                 IntervalCategory::integral :
-            Detail::has_basic_arithmetic_operators<type> ?
+            Detail::ArithmeticOperatorsIntervalType<type> ?
                 IntervalCategory::continuous :
-            Detail::has_stepwise_operators<type> ?
+            Detail::StepwiseOperatorsIntervalType<type> ?
                 IntervalCategory::stepwise :
                 IntervalCategory::ordered;
     };

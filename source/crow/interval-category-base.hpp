@@ -4,11 +4,39 @@
 #include "crow/interval-types.hpp"
 #include "crow/types.hpp"
 #include <compare>
+#include <concepts>
 #include <iterator>
 #include <string>
 #include <type_traits>
 
 namespace Crow {
+
+    namespace Detail {
+
+        template <typename T>
+        concept SelfArithmeticIntervalType = requires (T t) {
+            { t + t } -> std::convertible_to<T>;
+            { t - t } -> std::convertible_to<T>;
+        };
+
+        template <typename T>
+        concept IntArithmeticIntervalType = requires (T t) {
+            { t + 1 } -> std::convertible_to<T>;
+            { t - 1 } -> std::convertible_to<T>;
+        };
+
+        template <typename T>
+        concept PtrdiffArithmeticIntervalType = IntArithmeticIntervalType<T> && (sizeof(T) > sizeof(int));
+
+        template <typename T>
+        concept RandomAccessIntervalType = SelfArithmeticIntervalType<T> || IntArithmeticIntervalType<T>;
+
+        template <typename T>
+        concept DifferenceIntervalType = requires (T t) {
+            { t - t } -> std::convertible_to<size_t>;
+        };
+
+    }
 
     // Base class for intervals in the same category
 
@@ -25,19 +53,18 @@ namespace Crow {
 
     private:
 
-        static constexpr bool has_t_arithmetic = Detail::has_plus_operator<T> && Detail::has_minus_operator<T>;
-        static constexpr bool has_int_arithmetic = Detail::has_plus_operator<T, int> && Detail::has_minus_operator<T, int>;
-        static constexpr bool has_random_access = has_t_arithmetic || has_int_arithmetic;
-        static constexpr bool prefer_ptrdiff_arithmetic = has_int_arithmetic && sizeof(T) > sizeof(int);
-
-        using delta_type = std::conditional_t<has_t_arithmetic, T, std::conditional_t<prefer_ptrdiff_arithmetic, ptrdiff_t, int>>;
+        using delta_type = std::conditional_t<
+            Detail::SelfArithmeticIntervalType<T>, T,
+            std::conditional_t<Detail::PtrdiffArithmeticIntervalType<T>, ptrdiff_t, int>
+        >;
 
     public:
 
         class iterator {
         public:
             using difference_type = delta_type;
-            using iterator_category = std::conditional_t<has_random_access, std::random_access_iterator_tag, std::bidirectional_iterator_tag>;
+            using iterator_category = std::conditional_t<Detail::RandomAccessIntervalType<T>,
+                std::random_access_iterator_tag, std::bidirectional_iterator_tag>;
             using pointer = const T*;
             using reference = const T&;
             using value_type = T;
@@ -76,8 +103,8 @@ namespace Crow {
                 return 0;
             if (this->is_infinite())
                 return std::string::npos;
-            if constexpr (Detail::has_minus_operator<T> && std::is_constructible_v<size_t, T>) {
-                return static_cast<size_t>(this->max_ - this->min_) + 1;
+            if constexpr (Detail::DifferenceIntervalType<T>) {
+                return size_t(this->max_ - this->min_) + 1;
             } else {
                 size_t n = 1;
                 for (T t = this->min_; t != this->max_; ++t, ++n) {}
@@ -104,19 +131,18 @@ namespace Crow {
 
     private:
 
-        static constexpr bool has_t_arithmetic = Detail::has_plus_operator<T> && Detail::has_minus_operator<T>;
-        static constexpr bool has_int_arithmetic = Detail::has_plus_operator<T, int> && Detail::has_minus_operator<T, int>;
-        static constexpr bool has_random_access = has_t_arithmetic || has_int_arithmetic;
-        static constexpr bool prefer_ptrdiff_arithmetic = has_int_arithmetic && sizeof(T) > sizeof(int);
-
-        using delta_type = std::conditional_t<has_t_arithmetic, T, std::conditional_t<prefer_ptrdiff_arithmetic, ptrdiff_t, int>>;
+        using delta_type = std::conditional_t<
+            Detail::SelfArithmeticIntervalType<T>, T,
+            std::conditional_t<Detail::PtrdiffArithmeticIntervalType<T>, ptrdiff_t, int>
+        >;
 
     public:
 
         class iterator {
         public:
             using difference_type = delta_type;
-            using iterator_category = std::conditional_t<has_random_access, std::random_access_iterator_tag, std::bidirectional_iterator_tag>;
+            using iterator_category = std::conditional_t<Detail::RandomAccessIntervalType<T>,
+                std::random_access_iterator_tag, std::bidirectional_iterator_tag>;
             using pointer = const T*;
             using reference = const T&;
             using value_type = T;
@@ -155,8 +181,8 @@ namespace Crow {
                 return 0;
             if (this->is_infinite())
                 return std::string::npos;
-            if constexpr (Detail::has_minus_operator<T> && std::is_constructible_v<size_t, T>) {
-                return static_cast<size_t>(this->max_ - this->min_) + 1;
+            if constexpr (Detail::DifferenceIntervalType<T>) {
+                return size_t(this->max_ - this->min_) + 1;
             } else {
                 size_t n = 1;
                 for (T t = this->min_; t != this->max_; ++t, ++n) {}
