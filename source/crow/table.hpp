@@ -29,9 +29,6 @@ namespace Crow {
 
     private:
 
-        static constexpr const char* body_null = "--";
-        static constexpr const char* header_null = "..";
-
         std::vector<FormatSpec> formats_;
         std::vector<std::string> headers_;
         std::vector<std::vector<std::string>> cells_ = {{}};

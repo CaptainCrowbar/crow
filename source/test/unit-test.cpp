@@ -818,7 +818,6 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_table_layout)
     UNIT_TEST(crow_table_formatting)
     UNIT_TEST(crow_table_piecewise)
-    UNIT_TEST(crow_table_no_header)
 
     // terminal-test.cpp
     UNIT_TEST(crow_terminal_control)

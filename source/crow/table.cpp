@@ -1,18 +1,86 @@
 #include "crow/table.hpp"
+#include <cstring>
+#include <map>
+#include <stdexcept>
 #include <utility>
 
 namespace Crow {
 
+    namespace {
+
+        constexpr const char* body_null = "--";
+        constexpr const char* header_null = "..";
+
+        char get_mode(const FormatSpec& spec) noexcept {
+            char m = spec.mode();
+            if (m == 0)
+                m = 'T';
+            return m;
+        }
+
+        struct RuleSpec {
+            const char* left;
+            const char* lpad;
+            const char* cell;
+            const char* rpad;
+            const char* cross;
+            const char* right;
+        };
+
+        constexpr RuleSpec t_mid = { "", "", "=", "  ", "", "" };
+        constexpr RuleSpec m_mid = { "|", " ", "-", "  ", "|", "|" };
+        constexpr RuleSpec b_top = { "╭", "─", "─", "──", "┬", "╮" };
+        constexpr RuleSpec b_mid = { "╞", "═", "═", "══", "╪", "╡" };
+        constexpr RuleSpec b_bot = { "╰", "─", "─", "──", "┴", "╯" };
+
+        std::string make_rule(const std::vector<size_t>& widths, const RuleSpec& spec) {
+            std::string rule = spec.left;
+            for (auto w: widths) {
+                rule += spec.lpad;
+                rule += repeat(spec.cell, w);
+                rule += spec.rpad;
+                rule += spec.cross;
+            }
+            rule.resize(rule.size() - std::strlen(spec.cross));
+            rule += spec.right;
+            rule = trim_right(rule) + '\n';
+            return rule;
+        }
+
+    }
+
     // Class Table
 
     std::string Table::str(const FormatSpec& spec) const {
+
+        char mode = get_mode(spec);
+
+        if (mode != 'B' && mode != 'M' && mode != 'T')
+            throw std::invalid_argument("Invalid table format: " + quote(spec.str()));
+
         auto widths = get_widths(spec);
         std::string result;
-        if (! headers_.empty())
+
+        if (mode == 'B')
+            result += make_rule(widths, b_top);
+
+        if (! headers_.empty()) {
             format_header(result, headers_, widths, spec);
+            switch (mode) {
+                case 'B':  result += make_rule(widths, b_mid); break;
+                case 'M':  result += make_rule(widths, m_mid); break;
+                default:   result += make_rule(widths, t_mid); break;
+            }
+        }
+
         for (auto& row: cells_)
             format_row(result, row, widths, spec, false);
+
+        if (mode == 'B')
+            result += make_rule(widths, b_bot);
+
         return result;
+
     }
 
     void Table::do_add(const std::vector<std::string>& row) {
@@ -39,9 +107,10 @@ namespace Crow {
 
         static const size_t min_width = std::max(utf_width(std::string(body_null)), utf_width(std::string(header_null)));
 
+        char mode = get_mode(spec);
         std::vector<size_t> widths(columns_, min_width);
 
-        if (spec.mode() == 'm') {
+        if (mode == 'M') {
 
             for (size_t c = 0; c < headers_.size(); ++c) {
                 size_t n = std::count(headers_[c].begin(), headers_[c].end(), '\n');
@@ -71,9 +140,10 @@ namespace Crow {
     void Table::format_header(std::string& out, const std::vector<std::string>& header,
             const std::vector<size_t>& widths, const FormatSpec& spec) const {
 
+        char mode = get_mode(spec);
         std::vector<std::vector<std::string>> headers;
 
-        if (spec.mode() == 'm') {
+        if (mode == 'M') {
 
             headers.push_back(header);
 
@@ -106,24 +176,6 @@ namespace Crow {
         for (auto& row: headers)
             format_row(out, row, widths, spec, true);
 
-        char underline = spec.mode() == 'm' ? '-' : '=';
-        std::string line;
-
-        for (auto w: widths) {
-            if (spec.mode() == 'm')
-                line += "| ";
-            line.append(w, underline);
-            line += "  ";
-        }
-
-        if (spec.mode() == 'm')
-            line += '|';
-        else
-            line = trim_right(line);
-
-        out += line;
-        out += '\n';
-
     }
 
     void Table::format_row(std::string& out, const std::vector<std::string>& row,
@@ -132,20 +184,26 @@ namespace Crow {
         if (row.empty())
             return;
 
-        size_t padding = spec.mode() == 'm' ? 4 : 2;
-        std::string line;
-        size_t c = 0;
+        char mode = get_mode(spec);
+        std::string delimiter, line;
+        size_t c = 0, padding = 0;
+
+        switch (mode) {
+            case 'B':  delimiter = "│ "; padding = 4; break;
+            case 'M':  delimiter = "| "; padding = 4; break;
+            default:   delimiter = ""; padding = 2; break;
+        }
 
         for (; c < row.size(); ++c) {
             size_t old_len = utf_width(line);
-            std::string extra;
-            if (spec.mode() == 'm')
-                extra = "| ";
+            std::string extra = delimiter;
+            // if (mode == 'M')
+            //     extra = "| ";
             if (! row[c].empty())
                 extra += row[c];
-            else if (spec.mode() != 'm' && is_header)
+            else if (mode == 'T' && is_header)
                 extra += header_null;
-            else if (spec.mode() != 'm' && ! is_header)
+            else if (mode == 'T' && ! is_header)
                 extra += body_null;
             line += extra;
             size_t new_len = old_len + widths[c] + padding;
@@ -155,22 +213,26 @@ namespace Crow {
 
         for (; c < widths.size(); ++c) {
             size_t old_len = utf_width(line);
-            std::string extra;
-            if (spec.mode() == 'm')
-                extra = "| ";
-            else if (is_header)
-                extra = header_null;
-            else
-                extra = body_null;
+            std::string extra = delimiter;
+            // if (mode == 'M')
+            //     extra = "| ";
+            //else
+            if (mode == 'T') {
+                if (is_header)
+                    extra = header_null;
+                else
+                    extra = body_null;
+            }
             line += extra;
             size_t new_len = old_len + widths[c] + padding;
             size_t extra_len = utf_width(extra);
             line.append(new_len - old_len - extra_len, ' ');
         }
 
-        if (spec.mode() == 'm')
-            line += '|';
-        else
+        line += delimiter;
+        // if (mode == 'M')
+        //     line += '|';
+        // else
             line = trim_right(line);
 
         out += line;
