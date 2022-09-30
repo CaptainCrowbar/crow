@@ -94,6 +94,9 @@ add_library(${library} STATIC
 
 add_executable(${unittest}
 
+    test/unit-test.cpp
+    test/version-test.cpp
+
     test/log-test.cpp
     test/types-test.cpp
 
@@ -260,9 +263,6 @@ add_executable(${unittest}
     test/uuid-test.cpp
     test/vector-test.cpp
     test/web-client-test.cpp
-
-    test/version-test.cpp
-    test/unit-test.cpp
 
 )
 

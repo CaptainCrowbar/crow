@@ -44,7 +44,7 @@ namespace Crow {
             auto ac = c < 0 ? - c : c;
             auto ad = T(ac + U(0.5));
             auto d = c < 0 ? T(0) - ad : ad;
-            return d;
+            return T(d);
         }
 
     }
