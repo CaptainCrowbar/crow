@@ -94,14 +94,18 @@ present) or rows (not counting the headers) in the table.
 std::string Table::str(const FormatSpec& spec) const override;
 ```
 
-Formats the table as plain text or Markdown. Markdown is selected by using a
-format spec with mode `"m"`; no other table-wide formatting control is
-supported.
+Formats the table as a multiline string. Formatting modes:
+
+* `T` - Plain text (default)
+* `B` - Box art
+* `M` - Markdown
 
 Cell widths are measured, for alignment purposes, using `utf_width()`. In
 plain text mode, columns are separated with two spaces, and empty cells are
 represented by `"--"` (`".."` in headers). If headers are present, they are
 separated from the data cells by a row of `"="` signs in each column.
+
+This will throw `std::invalid_argument` if the format spec is invalid.
 
 Example:
 
