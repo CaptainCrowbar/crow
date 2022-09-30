@@ -64,9 +64,6 @@ template <typename... TS> struct Typelist {};
 using Nil = Typelist<>;
 ```
 
-* `template <typename... TS> struct` **`Typelist`**
-* `using` **`Nil`** `= Typelist<>`
-
 ## Type-valued metafunctions
 
 ### Typelist composition and decomposition
