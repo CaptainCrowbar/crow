@@ -6,6 +6,11 @@ int main(int argc, char** argv) {
 
     Crow::UnitTest::begin_tests(argc, argv);
 
+    // unit-test.cpp
+
+    // version-test.cpp
+    UNIT_TEST(crow_version)
+
     // log-test.cpp
     UNIT_TEST(crow_logging)
     UNIT_TEST(crow_logging_output)
@@ -902,11 +907,6 @@ int main(int argc, char** argv) {
     // web-client-test.cpp
     UNIT_TEST(crow_web_client_http_get)
     UNIT_TEST(crow_web_client_http_head)
-
-    // version-test.cpp
-    UNIT_TEST(crow_version)
-
-    // unit-test.cpp
 
     return Crow::UnitTest::end_tests();
 
