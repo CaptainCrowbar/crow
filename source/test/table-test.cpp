@@ -43,14 +43,14 @@ void test_crow_table_layout() {
     TRY(s = to_string(tab, "B"));
 
     TEST_EQUAL(s,
-        "╭────────────┬─────────┬──────────╮\n"
-        "│ X-ray      │ Yankee  │ Zulu     │\n"
-        "│ °C         │         │          │\n"
-        "╞════════════╪═════════╪══════════╡\n"
-        "│ Alpha      │ Bravo   │ Charlie  │\n"
-        "│ 123        │ 456     │ 789      │\n"
-        "│ Something  │         │          │\n"
-        "╰────────────┴─────────┴──────────╯\n"
+        "╭───────────┬────────┬─────────╮\n"
+        "│ X-ray     │ Yankee │ Zulu    │\n"
+        "│ °C        │        │         │\n"
+        "╞═══════════╪════════╪═════════╡\n"
+        "│ Alpha     │ Bravo  │ Charlie │\n"
+        "│ 123       │ 456    │ 789     │\n"
+        "│ Something │        │         │\n"
+        "╰───────────┴────────┴─────────╯\n"
     );
 
     TRY(s = to_string(tab, "M"));
@@ -89,14 +89,14 @@ void test_crow_table_formatting() {
     TRY(s = to_string(tab, "B"));
 
     TEST_EQUAL(s,
-        "╭────────────┬───────────┬──────────╮\n"
-        "│ X-ray      │ Yankee    │ Zulu     │\n"
-        "│ °C         │           │          │\n"
-        "╞════════════╪═══════════╪══════════╡\n"
-        "│ Alpha      │ Bravo     │ Charlie  │\n"
-        "│ 123        │ 00000456  │ 7.9e2    │\n"
-        "│ Something  │           │          │\n"
-        "╰────────────┴───────────┴──────────╯\n"
+        "╭───────────┬──────────┬─────────╮\n"
+        "│ X-ray     │ Yankee   │ Zulu    │\n"
+        "│ °C        │          │         │\n"
+        "╞═══════════╪══════════╪═════════╡\n"
+        "│ Alpha     │ Bravo    │ Charlie │\n"
+        "│ 123       │ 00000456 │ 7.9e2   │\n"
+        "│ Something │          │         │\n"
+        "╰───────────┴──────────┴─────────╯\n"
     );
 
     TRY(s = to_string(tab, "M"));

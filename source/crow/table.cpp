@@ -27,11 +27,11 @@ namespace Crow {
             const char* right;
         };
 
-        constexpr RuleSpec t_mid = { "", "", "=", "  ", "", "" };
+        constexpr RuleSpec b_top = { "╭", "─", "─", "─", "┬", "╮" };
+        constexpr RuleSpec b_mid = { "╞", "═", "═", "═", "╪", "╡" };
+        constexpr RuleSpec b_bot = { "╰", "─", "─", "─", "┴", "╯" };
         constexpr RuleSpec m_mid = { "|", " ", "-", "  ", "|", "|" };
-        constexpr RuleSpec b_top = { "╭", "─", "─", "──", "┬", "╮" };
-        constexpr RuleSpec b_mid = { "╞", "═", "═", "══", "╪", "╡" };
-        constexpr RuleSpec b_bot = { "╰", "─", "─", "──", "┴", "╯" };
+        constexpr RuleSpec t_mid = { "", "", "=", "  ", "", "" };
 
         std::string make_rule(const std::vector<size_t>& widths, const RuleSpec& spec) {
             std::string rule = spec.left;
@@ -189,7 +189,7 @@ namespace Crow {
         size_t c = 0, padding = 0;
 
         switch (mode) {
-            case 'B':  delimiter = "│ "; padding = 4; break;
+            case 'B':  delimiter = "│ "; padding = 3; break;
             case 'M':  delimiter = "| "; padding = 4; break;
             default:   delimiter = ""; padding = 2; break;
         }
@@ -197,14 +197,10 @@ namespace Crow {
         for (; c < row.size(); ++c) {
             size_t old_len = utf_width(line);
             std::string extra = delimiter;
-            // if (mode == 'M')
-            //     extra = "| ";
             if (! row[c].empty())
                 extra += row[c];
-            else if (mode == 'T' && is_header)
-                extra += header_null;
-            else if (mode == 'T' && ! is_header)
-                extra += body_null;
+            else if (mode == 'T')
+                extra += is_header ? header_null : body_null;
             line += extra;
             size_t new_len = old_len + widths[c] + padding;
             size_t extra_len = utf_width(extra);
@@ -214,9 +210,6 @@ namespace Crow {
         for (; c < widths.size(); ++c) {
             size_t old_len = utf_width(line);
             std::string extra = delimiter;
-            // if (mode == 'M')
-            //     extra = "| ";
-            //else
             if (mode == 'T') {
                 if (is_header)
                     extra = header_null;
@@ -230,12 +223,7 @@ namespace Crow {
         }
 
         line += delimiter;
-        // if (mode == 'M')
-        //     line += '|';
-        // else
-            line = trim_right(line);
-
-        out += line;
+        out += trim_right(line);
         out += '\n';
 
     }
