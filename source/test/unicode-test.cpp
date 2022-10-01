@@ -279,3 +279,82 @@ void test_crow_unicode_width() {
     TEST_EQUAL(utf_width(LR"(¯\_(ツ)_/¯)"s),                        10u);  // katakana
 
 }
+
+void test_crow_unicode_canonical_combining_class() {
+
+    using namespace Crow::Detail;
+
+    TEST_EQUAL(canonical_combining_class(0), 0);
+    TEST_EQUAL(canonical_combining_class(U'A'), 0);
+    TEST_EQUAL(canonical_combining_class(0x300), 230);   // combining grave accent
+    TEST_EQUAL(canonical_combining_class(0x316), 220);   // combining grave accent below
+    TEST_EQUAL(canonical_combining_class(0x334), 1);     // combining tilde overlay
+    TEST_EQUAL(canonical_combining_class(0x94d), 9);     // devanagari sign virama
+    TEST_EQUAL(canonical_combining_class(0x10ffff), 0);
+
+}
+
+void test_crow_unicode_canonical_composition() {
+
+    using namespace Crow::Detail;
+
+    TEST_EQUAL(canonical_composition(0x41, 0x42), 0u);
+    TEST_EQUAL(canonical_composition(0x41, 0x300), 0xc0u);
+    TEST_EQUAL(canonical_composition(0x79, 0x308), 0xffu);
+    TEST_EQUAL(canonical_composition(0x1111, 0x1171), 0xd4ccu);
+    TEST_EQUAL(canonical_composition(0xd4cc, 0x11b6), 0xd4dbu);
+
+}
+
+void test_crow_unicode_canonical_decomposition() {
+
+    using namespace Crow::Detail;
+
+    std::pair<char32_t, char32_t> pair;
+
+    TRY(pair = canonical_decomposition(U'A'));    TEST_EQUAL(pair.first, 0u);       TEST_EQUAL(pair.second, 0u);
+    TRY(pair = canonical_decomposition(0xc0));    TEST_EQUAL(pair.first, U'A');     TEST_EQUAL(pair.second, 0x300u);
+    TRY(pair = canonical_decomposition(0xff));    TEST_EQUAL(pair.first, U'y');     TEST_EQUAL(pair.second, 0x308u);
+    TRY(pair = canonical_decomposition(0xd4cc));  TEST_EQUAL(pair.first, 0x1111u);  TEST_EQUAL(pair.second, 0x1171u);
+    TRY(pair = canonical_decomposition(0xd4db));  TEST_EQUAL(pair.first, 0xd4ccu);  TEST_EQUAL(pair.second, 0x11b6u);
+
+}
+
+void test_crow_unicode_hangul_syllable_type() {
+
+    using namespace Crow::Detail;
+
+    TEST_EQUAL(int(hangul_syllable_type(0)), int(Hangul_Syllable_Type::NA));
+    TEST_EQUAL(int(hangul_syllable_type(0x1100)), int(Hangul_Syllable_Type::L));
+    TEST_EQUAL(int(hangul_syllable_type(0x1160)), int(Hangul_Syllable_Type::V));
+    TEST_EQUAL(int(hangul_syllable_type(0x11a8)), int(Hangul_Syllable_Type::T));
+    TEST_EQUAL(int(hangul_syllable_type(0xac00)), int(Hangul_Syllable_Type::LV));
+    TEST_EQUAL(int(hangul_syllable_type(0xac01)), int(Hangul_Syllable_Type::LVT));
+    TEST_EQUAL(int(hangul_syllable_type(0xd4cc)), int(Hangul_Syllable_Type::LV));
+    TEST_EQUAL(int(hangul_syllable_type(0xd4db)), int(Hangul_Syllable_Type::LVT));
+
+}
+
+void test_crow_unicode_pattern_syntax() {
+
+    TEST(! is_pattern_syntax(0));
+    TEST(is_pattern_syntax(U'!'));
+    TEST(! is_pattern_syntax(U'0'));
+    TEST(! is_pattern_syntax(U'A'));
+    TEST(is_pattern_syntax(0xa1));        // inverted exclamation mark
+    TEST(! is_pattern_syntax(0x3a9));     // greek capital letter omega
+    TEST(! is_pattern_syntax(0x10ffff));
+
+}
+
+void test_crow_unicode_xid_properties() {
+
+    TEST(! is_xid_start(0));         TEST(! is_xid_nonstart(0));         TEST(! is_xid_continue(0));
+    TEST(! is_xid_start(U'!'));      TEST(! is_xid_nonstart(U'!'));      TEST(! is_xid_continue(U'!'));
+    TEST(! is_xid_start(U'0'));      TEST(is_xid_nonstart(U'0'));        TEST(is_xid_continue(U'0'));
+    TEST(is_xid_start(U'A'));        TEST(! is_xid_nonstart(U'A'));      TEST(is_xid_continue(U'A'));
+    TEST(! is_xid_start(0xa1));      TEST(! is_xid_nonstart(0xa1));      TEST(! is_xid_continue(0xa1));      // inverted exclamation mark
+    TEST(is_xid_start(0x3a9));       TEST(! is_xid_nonstart(0x3a9));     TEST(is_xid_continue(0x3a9));       // greek capital letter omega
+    TEST(! is_xid_start(0x10ffff));  TEST(! is_xid_nonstart(0x10ffff));  TEST(! is_xid_continue(0x10ffff));
+
+}

@@ -1,4 +1,5 @@
 #include "crow/unicode.hpp"
+#include "crow/unicode-data.hpp"
 #include <algorithm>
 
 namespace Crow {
@@ -428,6 +429,135 @@ namespace Crow {
                 return 1;
         }
 
+        namespace {
+
+            constexpr uint32_t sbase = 0xac00;
+            constexpr uint32_t lbase = 0x1100;
+            constexpr uint32_t vbase = 0x1161;
+            constexpr uint32_t tbase = 0x11a7;
+            constexpr uint32_t tcount = 28;
+            constexpr uint32_t ncount = 588;
+
+            std::pair<char32_t, char32_t> hangul_decomposition(char32_t c) {
+                std::pair<char32_t, char32_t> result = {0, 0};
+                auto hst = hangul_syllable_type(c);
+                if (hst != Hangul_Syllable_Type::LV && hst != Hangul_Syllable_Type::LVT)
+                    return result;
+                uint32_t sindex = c - sbase;
+                if (hst == Hangul_Syllable_Type::LV) {
+                    uint32_t lindex = sindex / ncount;
+                    uint32_t vindex = (sindex % ncount) / tcount;
+                    result.first = lbase + lindex;
+                    result.second = vbase + vindex;
+                } else {
+                    uint32_t lvindex = (sindex / tcount) * tcount;
+                    uint32_t tindex = sindex % tcount;
+                    result.first = sbase + lvindex;
+                    result.second = tbase + tindex;
+                }
+                return result;
+            }
+
+            char32_t hangul_composition(char32_t c1, char32_t c2) noexcept {
+                auto hst1 = hangul_syllable_type(c1);
+                auto hst2 = hangul_syllable_type(c2);
+                if (hst1 == Hangul_Syllable_Type::L && hst2 == Hangul_Syllable_Type::V) {
+                    uint32_t lindex = c1 - lbase;
+                    uint32_t vindex = c2 - vbase;
+                    uint32_t lvindex = lindex * ncount + vindex * tcount;
+                    return sbase + lvindex;
+                } else if (hst1 == Hangul_Syllable_Type::LV && hst2 == Hangul_Syllable_Type::T) {
+                    auto lv = hangul_decomposition(c1);
+                    uint32_t lindex = lv.first - lbase;
+                    uint32_t vindex = lv.second - vbase;
+                    uint32_t tindex = c2 - tbase;
+                    uint32_t lvindex = lindex * ncount + vindex * tcount;
+                    return sbase + lvindex + tindex;
+                } else {
+                    return 0;
+                }
+            }
+
+        }
+
+        int canonical_combining_class(char32_t c) {
+            auto it = property_map().upper_bound(c);
+            --it;
+            return int((it->second >> int(BitShift::Canonical_Combining_Class)) & 0xff);
+        }
+
+        char32_t canonical_composition(char32_t c1, char32_t c2) {
+            if (c1 == 0 || c2 == 0)
+                return 0;
+            char32_t hc = hangul_composition(c1, c2);
+            if (hc != 0)
+                return hc;
+            static const auto map = [] {
+                std::map<std::pair<char32_t, char32_t>, char32_t> map;
+                for (auto& [k,v]: decomposition_map())
+                    if (v.second != 0 && ! is_full_composition_exclusion(k))
+                        map.insert({v,k});
+                return map;
+            }();
+            auto it = map.find(std::make_pair(c1, c2));
+            if (it == map.end())
+                return 0;
+            else
+                return it->second;
+        }
+
+        std::pair<char32_t, char32_t> canonical_decomposition(char32_t c) {
+            auto pair = hangul_decomposition(c);
+            if (pair.first != 0)
+                return pair;
+            auto it = decomposition_map().find(c);
+            if (it == decomposition_map().end())
+                return {0,0};
+            else
+                return it->second;
+        }
+
+        Hangul_Syllable_Type hangul_syllable_type(char32_t c) noexcept {
+            if ((c >= 0x1100 && c <= 0x115f) || (c >= 0xa960 && c <= 0xa97c)) {
+                return Hangul_Syllable_Type::L;
+            } else if ((c >= 0x1160 && c <= 0x11a7) || (c >= 0xd7b0 && c <= 0xd7c6)) {
+                return Hangul_Syllable_Type::V;
+            } else if ((c >= 0x11a8 && c <= 0x11ff) || (c >= 0xd7cb && c <= 0xd7fb)) {
+                return Hangul_Syllable_Type::T;
+            } else if (c >= 0xac00 && c <= 0xd7a3) {
+                if ((c - 0xac00) % 28 == 0)
+                    return Hangul_Syllable_Type::LV;
+                else
+                    return Hangul_Syllable_Type::LVT;
+            } else {
+                return Hangul_Syllable_Type::NA;
+            }
+        }
+
+        bool is_full_composition_exclusion(char32_t c) {
+            return get_property(c, int(BitShift::Full_Composition_Exclusion));
+        }
+
+    }
+
+    bool is_control(char32_t c) {
+        using namespace Detail;
+        return get_property(c, int(BitShift::Control));
+    }
+
+    bool is_pattern_syntax(char32_t c) {
+        using namespace Detail;
+        return get_property(c, int(BitShift::Pattern_Syntax));
+    }
+
+    bool is_xid_continue(char32_t c) {
+        using namespace Detail;
+        return get_property(c, int(BitShift::XID_Continue));
+    }
+
+    bool is_xid_start(char32_t c) {
+        using namespace Detail;
+        return get_property(c, int(BitShift::XID_Start));
     }
 
 }

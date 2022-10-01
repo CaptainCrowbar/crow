@@ -13,17 +13,6 @@
 
 namespace Crow {
 
-    constexpr char32_t not_unicode = ~ char32_t(0);
-
-    constexpr bool is_unicode(char32_t c) noexcept { return c <= 0xd7ff || (c >= 0xe000 && c <= 0x10ffff); }
-
-    template <typename C>
-    concept CharacterType =
-        std::same_as<C, char>
-        || std::same_as<C, char16_t>
-        || std::same_as<C, char32_t>
-        || std::same_as<C, wchar_t>;
-
     namespace Detail {
 
         constexpr const char* hex_digits_lc = "0123456789abcdef";
@@ -73,6 +62,34 @@ namespace Crow {
         bool encode_char_impl(char32_t c, std::u32string& str);
         bool encode_char_impl(char32_t c, std::wstring& str);
 
+        enum class Hangul_Syllable_Type: int { NA, L, V, T, LV, LVT };
+
+        int canonical_combining_class(char32_t c);
+        char32_t canonical_composition(char32_t c1, char32_t c2);
+        std::pair<char32_t, char32_t> canonical_decomposition(char32_t c);
+        Hangul_Syllable_Type hangul_syllable_type(char32_t c) noexcept;
+        bool is_full_composition_exclusion(char32_t c);
+
+    }
+
+    template <typename C>
+    concept CharacterType =
+        std::same_as<C, char>
+        || std::same_as<C, char16_t>
+        || std::same_as<C, char32_t>
+        || std::same_as<C, wchar_t>;
+
+    constexpr char32_t not_unicode = ~ char32_t(0);
+
+    constexpr bool is_unicode(char32_t c) noexcept { return c <= 0xd7ff || (c >= 0xe000 && c <= 0x10ffff); }
+
+    bool is_control(char32_t c);
+    bool is_pattern_syntax(char32_t c);
+    bool is_xid_continue(char32_t c);
+    bool is_xid_start(char32_t c);
+
+    inline bool is_xid_nonstart(char32_t c) {
+        return is_xid_continue(c) && ! is_xid_start(c);
     }
 
     template <CharacterType C>
@@ -169,5 +186,10 @@ namespace Crow {
             width += Detail::character_width(check_decode_char(str, pos));
         return width;
     }
+
+    std::string to_nfc(std::string str);
+    std::u32string to_nfc(std::u32string str);
+    std::string to_nfd(std::string str);
+    std::u32string to_nfd(std::u32string str);
 
 }

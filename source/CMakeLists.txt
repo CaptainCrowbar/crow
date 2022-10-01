@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.16)
 # and propagate the new version to version.hpp.
 
 project(Crow
-    VERSION 2.0.55
+    VERSION 2.0.56
     LANGUAGES CXX
 )
 
@@ -86,6 +86,9 @@ add_library(${library} STATIC
     ${library}/thread-pool.cpp
     ${library}/time.cpp
     ${library}/unicode.cpp
+    ${library}/unicode-decomposition.cpp
+    ${library}/unicode-normalization.cpp
+    ${library}/unicode-properties.cpp
     ${library}/uri.cpp
     ${library}/uuid.cpp
     ${library}/web-client.cpp
@@ -257,6 +260,7 @@ add_executable(${unittest}
     test/time-test.cpp
     test/topological-order-test.cpp
     test/transform-test.cpp
+    test/unicode-normalization-test.cpp
     test/unicode-test.cpp
     test/uri-general-test.cpp
     test/uri-schemes-test.cpp

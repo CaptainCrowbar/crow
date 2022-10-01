@@ -871,6 +871,9 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_primitive_transforms)
     UNIT_TEST(crow_quaternion_transforms)
 
+    // unicode-normalization-test.cpp
+    UNIT_TEST(crow_unicode_normalization_forms)
+
     // unicode-test.cpp
     UNIT_TEST(crow_unicode_implementation_details)
     UNIT_TEST(crow_unicode_character_encoding)
@@ -878,6 +881,12 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_unicode_length)
     UNIT_TEST(crow_unicode_properties)
     UNIT_TEST(crow_unicode_width)
+    UNIT_TEST(crow_unicode_canonical_combining_class)
+    UNIT_TEST(crow_unicode_canonical_composition)
+    UNIT_TEST(crow_unicode_canonical_decomposition)
+    UNIT_TEST(crow_unicode_hangul_syllable_type)
+    UNIT_TEST(crow_unicode_pattern_syntax)
+    UNIT_TEST(crow_unicode_xid_properties)
 
     // uri-general-test.cpp
     UNIT_TEST(crow_uri_assembly)

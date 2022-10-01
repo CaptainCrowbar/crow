@@ -31,7 +31,7 @@ template <typename C> concept CharacterType;
 This is satisfied only for `char`, `char16_t`, `char32_t`, and `wchar_t`
 (`char8_t` is not supported yet).
 
-## Character functions
+## Character encoding functions
 
 ```c++
 constexpr bool is_unicode(char32_t c) noexcept;
@@ -85,7 +85,20 @@ template <CharacterType C>
 This performs the same operation as `encode_char()` above, but throws
 `std::invalid_argument` instead of returning false on failure.
 
-## String functions
+## Character property functions
+
+```c++
+bool is_control(char32_t c);
+bool is_pattern_syntax(char32_t c);
+bool is_xid_continue(char32_t c);
+bool is_xid_nonstart(char32_t c);
+bool is_xid_start(char32_t c);
+```
+
+Selected Unicode character properties. These will all return false if the
+argument is not a valid Unicode scalar value.
+
+## String encoding functions
 
 ```c++
 template <CharacterType C>
@@ -143,3 +156,15 @@ characters encountered in most Unicode text:
     * width = 1
 
 This will throw `std::invalid_argument` if invalid encoding is encountered.
+
+## Normalization functions
+
+```c++
+std::string to_nfc(std::string str);
+std::u32string to_nfc(std::u32string str);
+std::string to_nfd(std::string str);
+std::u32string to_nfd(std::u32string str);
+```
+
+Convert UTF-8 or UTF-32 strings to NFC and NFD forms. These will throw
+`std::invalid_argument` if invalid Unicode is encountered.
