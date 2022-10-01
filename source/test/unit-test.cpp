@@ -253,6 +253,8 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_scope_guards)
 
     // hash-test.cpp
+    UNIT_TEST(crow_hash_mix)
+    UNIT_TEST(crow_hash_multiplicative)
     UNIT_TEST(crow_hash_siphash)
     UNIT_TEST(crow_hash_md5)
     UNIT_TEST(crow_hash_sha1)
@@ -437,6 +439,11 @@ int main(int argc, char** argv) {
 
     // linear-map-test.cpp
     UNIT_TEST(crow_linear_map)
+
+    // lru-cache-test.cpp
+    UNIT_TEST(crow_lru_cache_traits)
+    UNIT_TEST(crow_lru_cache_hashed)
+    UNIT_TEST(crow_lru_cache_ordered)
 
     // markov-test.cpp
     UNIT_TEST(crow_markov_character_mode)

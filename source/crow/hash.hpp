@@ -7,7 +7,9 @@
 #include <functional>
 #include <iterator>
 #include <string>
+#include <tuple>
 #include <type_traits>
+#include <utility>
 
 namespace Crow {
 
@@ -15,47 +17,72 @@ namespace Crow {
 
     template <typename T>
     concept Hashable = requires (T t) {
-        { std::hash<T>()(t) } -> std::convertible_to<size_t>;
+        { std::hash<std::remove_cvref_t<T>>()(t) } -> std::convertible_to<size_t>;
     };
 
-    // Hash functions
+    // Hash mixing functions
 
     namespace Detail {
 
-        constexpr size_t mix_hashes(size_t h1, size_t h2) noexcept {
-            return h1 ^ ((h1 << 6) + (h1 >> 2) + h2 + 0x9e3779b9);
+        constexpr void hash_mix_helper(size_t& h1, size_t h2) noexcept {
+            h1 ^= (h1 << 6) + (h1 >> 2) + h2 + 0x9e37'79b9;
+        }
+
+        template <size_t Index, Hashable... TS>
+        void hash_mix_tuple_helper(size_t& h, const std::tuple<TS...>& t) {
+            using T = std::remove_cvref_t<typename std::tuple_element<Index, std::tuple<TS...>>::type>;
+            size_t h1 = std::hash<T>()(std::get<Index>(t));
+            hash_mix_helper(h, h1);
+            if constexpr (Index < sizeof...(TS) - 1)
+                hash_mix_tuple_helper<Index + 1>(h, t);
         }
 
     }
 
-    template <Hashable T1, Hashable T2, Hashable... Args>
-    size_t hash_mix(const T1& t1, const T2& t2, const Args&... args) {
+    template <Hashable... TS>
+    size_t hash_mix(const std::tuple<TS...>& t) {
         using namespace Detail;
-        size_t h = std::hash<T1>()(t1);
-        if constexpr (sizeof...(Args) == 0)
-            h = mix_hashes(h, std::hash<T2>()(t2));
-        else
-            h = mix_hashes(h, hash_mix(t2, args...));
+        size_t h = 0;
+        if constexpr (sizeof...(TS) > 0)
+            hash_mix_tuple_helper<0>(h, t);
         return h;
+    }
+
+    template <Hashable T1, Hashable T2, Hashable... Args>
+    size_t hash_mix(T1&& t1, T2&& t2, Args&&... args) {
+        return hash_mix(std::tie(std::forward<T1>(t1), std::forward<T2>(t2), std::forward<Args>(args)...));
     }
 
     template <RangeType Range>
     size_t hash_mix(const Range& r) {
+        using namespace Detail;
         using T = RangeValue<Range>;
         std::hash<T> t_hash;
         size_t h = 0;
         for (auto& x: r)
-            h = Detail::mix_hashes(h, t_hash(x));
+            hash_mix_helper(h, t_hash(x));
         return h;
     }
 
-    inline uint32_t bernstein_hash(const void* ptr, size_t len) noexcept {
-        auto bptr = static_cast<const uint8_t*>(ptr);
-        uint32_t h = 5381;
-        for (size_t i = 0; i < len; ++i)
-            h = 33 * h + bptr[i];
-        return h;
-    }
+    // Multiplicative hashes
+
+    template <uint32_t Initial, uint32_t Modulo>
+    class MultiplicativeHash {
+    public:
+        using result_type = uint32_t;
+        static constexpr uint32_t initial = Initial;
+        static constexpr uint32_t modulo = Modulo;
+        uint32_t operator()(const void* ptr, size_t len) const noexcept {
+            auto bptr = static_cast<const uint8_t*>(ptr);
+            uint32_t result = Initial;
+            for (size_t i = 0; i < len; ++i)
+                result = Modulo * result + bptr[i];
+            return result;
+        }
+    };
+
+    using BernsteinHash = MultiplicativeHash<5381, 33>;
+    using KernighanHash = MultiplicativeHash<0, 31>;
 
     // SipHash-2-4-64 by Jean-Philippe Aumasson and Daniel J. Bernstein
     // https://github.com/veorq/SipHash

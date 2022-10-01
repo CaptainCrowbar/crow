@@ -18,25 +18,39 @@ namespace Crow;
 template <typename T> concept Hashable;
 ```
 
-Matches types with a valid specialization of `std::hash`.
+Matches types with a valid specialization of `std::hash` (after stripping CV
+and reference qualifications from `T`).
 
 ## Hash mixing functions
 
 ```c++
 template <Hashable... Args> size_t hash_mix(const Args&... args);
+template <Hashable... TS> size_t hash_mix(const std::tuple<TS...>& t);
 template <RangeType Range> size_t hash_mix(const Range& r);
 ```
 
-Hash mixing functions. These return the combined hash of a list or range of
-objects, calling `std::hash` on each item.
+Hash mixing functions. These return the combined hash of a list, tuple, or
+range of objects, calling `std::hash` on each item. All of these will return
+the same result for the same sequence of values. The first version cannot be
+called with less than two arguments (to avoid overload resolution issues);
+the others will return zero if the argument list is empty.
 
-## Bernstein multiplicative hash
+## Multiplicative hashes
 
 ```c++
-uint32_t bernstein_hash(const void* ptr, size_t len) noexcept {
+template <uint32_t Initial, uint32_t Modulo>
+class MultiplicativeHash {
+    using result_type = uint32_t;
+    static constexpr uint32_t initial = Initial;
+    static constexpr uint32_t modulo = Modulo;
+    uint32_t operator()(const void* ptr, size_t len) const noexcept;
+};
+using BernsteinHash = MultiplicativeHash<5381, 33>;
+using KernighanHash = MultiplicativeHash<0, 31>;
 ```
 
-Daniel Bernstein's simple multiplicative hash.
+Generic multiplicative hash, and instantiations for the widely used Bernstein
+and K&R hash functions.
 
 ## SipHash
 

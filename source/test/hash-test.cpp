@@ -5,8 +5,50 @@
 #include <array>
 #include <numeric>
 #include <string>
+#include <tuple>
+#include <vector>
 
 using namespace Crow;
+
+void test_crow_hash_mix() {
+
+    uint32_t hash = 0;
+    int num = 42;
+    std::string str = "Hello world";
+    uint64_t big = 123'456'789;
+    auto tpl = std::make_tuple(num, str, big);
+
+    TRY(hash = hash_mix(num, str, big));
+    TEST_EQUAL(hash, 0x3da8'59f5ul);
+    TRY(hash = hash_mix(tpl));
+    TEST_EQUAL(hash, 0x3da8'59f5ul);
+
+    int i = 123;
+    int j = 456;
+    int k = 789;
+    auto it = std::make_tuple(i, j, k);
+    auto iv = std::vector{i, j, k};
+
+    TRY(hash = hash_mix(i, j, k));
+    TEST_EQUAL(hash, 0xfb57'6fa6ul);
+    TRY(hash = hash_mix(it));
+    TEST_EQUAL(hash, 0xfb57'6fa6ul);
+    TRY(hash = hash_mix(iv));
+    TEST_EQUAL(hash, 0xfb57'6fa6ul);
+
+}
+
+void test_crow_hash_multiplicative() {
+
+    std::string s;
+    uint32_t h = 0;
+
+    s = "";             TRY(h = BernsteinHash()(s.data(), s.size()));  TEST_EQUAL(h, 0x0000'1505ul);
+    s = "Hello world";  TRY(h = BernsteinHash()(s.data(), s.size()));  TEST_EQUAL(h, 0x89bb'20a1ul);
+    s = "";             TRY(h = KernighanHash()(s.data(), s.size()));  TEST_EQUAL(h, 0x0000'0000ul);
+    s = "Hello world";  TRY(h = KernighanHash()(s.data(), s.size()));  TEST_EQUAL(h, 0xce59'8aa4ul);
+
+}
 
 void test_crow_hash_siphash() {
 

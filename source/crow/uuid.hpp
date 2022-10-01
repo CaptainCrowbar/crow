@@ -1,5 +1,6 @@
 #pragma once
 
+#include "crow/hash.hpp"
 #include "crow/types.hpp"
 #include <array>
 #include <compare>
@@ -24,7 +25,7 @@ namespace Crow {
         constexpr const uint8_t* begin() const noexcept { return bytes_.data(); }
         constexpr uint8_t* end() noexcept { return begin() + 16; }
         constexpr const uint8_t* end() const noexcept { return begin() + 16; }
-        constexpr size_t hash() const noexcept { return bernstein_hash(begin(), 16); }
+        constexpr size_t hash() const noexcept { return BernsteinHash()(begin(), 16); }
         std::string str() const;
 
     private:
@@ -32,14 +33,6 @@ namespace Crow {
         std::array<uint8_t, 16> bytes_;
 
         static void add_byte(uint8_t b, std::string& str);
-
-        constexpr static uint32_t bernstein_hash(const void* ptr, size_t len) noexcept {
-            auto bptr = static_cast<const uint8_t*>(ptr);
-            uint32_t h = 5381;
-            for (size_t i = 0; i < len; ++i)
-                h = 33 * h + bptr[i];
-            return h;
-        }
 
         constexpr static bool is_alnum(char c) noexcept { return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'); }
         constexpr static bool is_xdigit(char c) noexcept { return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'); }

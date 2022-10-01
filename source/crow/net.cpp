@@ -1,5 +1,6 @@
 #include "crow/net.hpp"
 #include "crow/guard.hpp"
+#include "crow/hash.hpp"
 #include <algorithm>
 #include <cerrno>
 #include <chrono>
@@ -100,16 +101,6 @@ namespace Crow {
         NetResult<T> net_call(T t) noexcept {
             auto e = get_error();
             return {t, e};
-        }
-
-        uint32_t bernstein_hash(const void* ptr, size_t len) noexcept {
-            static constexpr uint32_t seed = 5381;
-            static constexpr uint32_t mod = 33;
-            uint32_t hash = seed;
-            auto bptr = static_cast<const uint8_t*>(ptr);
-            for (size_t i = 0; i < len; ++i)
-                hash = mod * hash + bptr[i];
-            return hash;
         }
 
         void control_blocking(NativeSocket sock, bool flag) {
@@ -242,7 +233,7 @@ namespace Crow {
     }
 
     size_t IPv6::hash() const noexcept {
-        return bernstein_hash(bytes_, size);
+        return BernsteinHash()(bytes_, size);
     }
 
     std::string IPv6::str() const {
@@ -343,7 +334,7 @@ namespace Crow {
     }
 
     size_t SocketAddress::hash() const noexcept {
-        return bernstein_hash(&sa_, current_size_);
+        return BernsteinHash()(&sa_, current_size_);
     }
 
     IPv4 SocketAddress::ipv4() const noexcept {
