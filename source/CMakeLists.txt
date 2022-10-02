@@ -109,6 +109,7 @@ add_executable(${unittest}
     test/bounded-array-insertion-test.cpp
     test/bounded-array-misc-test.cpp
     test/bounded-array-tracking-test.cpp
+    test/cache-test.cpp
     test/channel-classes-test.cpp
     test/channel-dispatch-test.cpp
     test/colour-alpha-test.cpp
@@ -181,7 +182,6 @@ add_executable(${unittest}
     test/interval-types-test.cpp
     test/iterator-test.cpp
     test/linear-map-test.cpp
-    test/lru-cache-test.cpp
     test/markov-test.cpp
     test/markup-test.cpp
     test/maths-test.cpp

@@ -34,10 +34,10 @@ Other libraries required:
     * [Command line options](options.html)
 * Containers
     * [Bounded array on the stack](bounded-array.html)
+    * [LRU cache](cache.html)
     * [Compact array optimized for small size](compact-array.html)
     * [Indexed table with multiple keys](index-table.html)
     * [Linear interpolated map](linear-map.html)
-    * [LRU cache](lru-cache.html)
     * [Map with two-way lookup](mirror-map.html)
     * [Multi-dimensional array](multi-array.html)
     * [Stack](stack.html)

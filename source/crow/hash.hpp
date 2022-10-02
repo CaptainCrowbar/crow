@@ -30,7 +30,7 @@ namespace Crow {
 
         template <size_t Index, Hashable... TS>
         void hash_mix_tuple_helper(size_t& h, const std::tuple<TS...>& t) {
-            using T = std::remove_cvref_t<typename std::tuple_element<Index, std::tuple<TS...>>::type>;
+            using T = std::remove_cvref_t<std::tuple_element_t<Index, std::tuple<TS...>>>;
             size_t h1 = std::hash<T>()(std::get<Index>(t));
             hash_mix_helper(h, h1);
             if constexpr (Index < sizeof...(TS) - 1)

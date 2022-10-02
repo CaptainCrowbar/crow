@@ -56,6 +56,11 @@ int main(int argc, char** argv) {
     // bounded-array-tracking-test.cpp
     UNIT_TEST(crow_bounded_array_tracking)
 
+    // cache-test.cpp
+    UNIT_TEST(crow_cache_hashed)
+    UNIT_TEST(crow_cache_ordered)
+    UNIT_TEST(crow_cache_function)
+
     // channel-classes-test.cpp
     UNIT_TEST(crow_channel_generator)
     UNIT_TEST(crow_channel_buffer)
@@ -439,11 +444,6 @@ int main(int argc, char** argv) {
 
     // linear-map-test.cpp
     UNIT_TEST(crow_linear_map)
-
-    // lru-cache-test.cpp
-    UNIT_TEST(crow_lru_cache_traits)
-    UNIT_TEST(crow_lru_cache_hashed)
-    UNIT_TEST(crow_lru_cache_ordered)
 
     // markov-test.cpp
     UNIT_TEST(crow_markov_character_mode)
