@@ -20,96 +20,96 @@ Other libraries required:
 ## Index
 
 * Basic types
-    * [Basic types](types.html)
-    * [Enumeration types](enum.html)
-    * [Iterator types and algorithms](iterator.html)
-    * [Metaprogramming utilities](meta.html)
-    * [Scope guards](guard.html)
-    * [UUID](uuid.html)
+    * [crow/types](types.html) - Basic types
+    * [crow/enum](enum.html) - Enumeration types
+    * [crow/iterator](iterator.html) - Iterator types and algorithms
+    * [crow/meta](meta.html) - Metaprogramming utilities
+    * [crow/guard](guard.html) - Scope guards
+    * [crow/uuid](uuid.html) - UUID
 * Algorithms
-    * [Algorithms](algorithm.html)
-    * [Hash functions](hash.html)
-    * [Topological order](topological-order.html)
+    * [crow/algorithm](algorithm.html) - Algorithms
+    * [crow/hash](hash.html) - Hash functions
+    * [crow/topological-order](topological-order.html) - Topological order
 * Command line
-    * [Command line options](options.html)
+    * [crow/options](options.html) - Command line options
 * Containers
-    * [Bounded array on the stack](bounded-array.html)
-    * [LRU cache](cache.html)
-    * [Compact array optimized for small size](compact-array.html)
-    * [Indexed table with multiple keys](index-table.html)
-    * [Linear interpolated map](linear-map.html)
-    * [Map with two-way lookup](mirror-map.html)
-    * [Multi-dimensional array](multi-array.html)
-    * [Stack](stack.html)
+    * [crow/bounded-array](bounded-array.html) - Bounded array on the stack
+    * [crow/cache](cache.html) - LRU cache
+    * [crow/compact-array](compact-array.html) - Compact array optimized for small size
+    * [crow/index-table](index-table.html) - Indexed table with multiple keys
+    * [crow/linear-map](linear-map.html) - Linear interpolated map
+    * [crow/mirror-map](mirror-map.html) - Map with two-way lookup
+    * [crow/multi-array](multi-array.html) - Multi-dimensional array
+    * [crow/stack](stack.html) - Stack
 * Database
-    * [Sqlite](sqlite.html)
+    * [crow/sqlite](sqlite.html) - Sqlite
 * Graphics
-    * [Colour](colour.html)
-    * [Colour space](colour-space.html)
-    * [Fonts](font.html)
-    * [Geometric primitives](geometry.html)
-    * [Image](image.html)
+    * [crow/colour](colour.html) - Colour
+    * [crow/colour-space](colour-space.html) - Colour space
+    * [crow/font](font.html) - Fonts
+    * [crow/geometry](geometry.html) - Geometric primitives
+    * [crow/image](image.html) - Image
 * I/O
-    * [Logging](log.html)
-    * [File path](path.html)
-    * [Progress bar](progress.html)
-    * [Standard I/O](stdio.html)
-    * [Terminal control](terminal.html)
+    * [crow/log](log.html) - Logging
+    * [crow/path](path.html) - File path
+    * [crow/progress](progress.html) - Progress bar
+    * [crow/stdio](stdio.html) - Standard I/O
+    * [crow/terminal](terminal.html) - Terminal control
 * Intervals
-    * [Interval class](interval.html)
-    * [Interval map class](interval-map.html)
-    * [Interval set class](interval-set.html)
+    * [crow/interval](interval.html) - Interval class
+    * [crow/interval-map](interval-map.html) - Interval map class
+    * [crow/interval-set](interval-set.html) - Interval set class
 * Linear algebra
-    * [Vector](vector.html)
-    * [Matrix](matrix.html)
-    * [Quaternion](quaternion.html)
-    * [Transforms](transform.html)
+    * [crow/vector](vector.html) - Vector
+    * [crow/matrix](matrix.html) - Matrix
+    * [crow/quaternion](quaternion.html) - Quaternion
+    * [crow/transform](transform.html) - Transforms
 * Mapping
-    * [Hex mapping](hexmap.html)
-    * [Map projections](projection.html)
+    * [crow/hexmap](hexmap.html) - Hex mapping
+    * [crow/projection](projection.html) - Map projections
 * Multithreading
-    * [Channel-based message dispatch](channel.html)
-    * [Named mutex](named-mutex.html)
-    * [Thread](thread.html)
-    * [Thread pool](thread-pool.html)
+    * [crow/channel](channel.html) - Channel-based message dispatch
+    * [crow/named-mutex](named-mutex.html) - Named mutex
+    * [crow/thread](thread.html) - Thread
+    * [crow/thread-pool](thread-pool.html) - Thread pool
 * Networking
-    * [HTTP status codes](http.html)
-    * [TCP/IP networking](net.html)
-    * [URI](uri.html)
-    * [Web client](web-client.html)
+    * [crow/http](http.html) - HTTP status codes
+    * [crow/net](net.html) - TCP/IP networking
+    * [crow/uri](uri.html) - URI
+    * [crow/web-client](web-client.html) - Web client
 * Numerics
-    * [Bitwise operations](binary.html)
-    * [Constants](constants.html)
-    * [Fixed-size binary numbers](fixed-binary.html)
-    * [Useful formulae](formula.html)
-    * [Mathematical utilities](maths.html)
-    * [Multiple precision integers](mp-integer.html)
-    * [Prime numbers](prime.html)
-    * [Rational numbers](rational.html)
-    * [Root finding](root-finding.html)
-    * [Statistics](statistics.html)
+    * [crow/binary](binary.html) - Bitwise operations
+    * [crow/constants](constants.html) - Constants
+    * [crow/fixed-binary](fixed-binary.html) - Fixed-size binary numbers
+    * [crow/formula](formula.html) - Useful formulae
+    * [crow/maths](maths.html) - Mathematical utilities
+    * [crow/mp-integer](mp-integer.html) - Multiple precision integers
+    * [crow/prime](prime.html) - Prime numbers
+    * [crow/rational](rational.html) - Rational numbers
+    * [crow/root-finding](root-finding.html) - Root finding
+    * [crow/statistics](statistics.html) - Statistics
 * Random generation
-    * [Dice](dice.html)
-    * [Markov text generator](markov.html)
-    * [Pseudo-random noise](noise.html)
-    * [Random number generators](random.html)
-    * [Text generators](text-gen.html)
+    * [crow/dice](dice.html) - Dice
+    * [crow/markov](markov.html) - Markov text generator
+    * [crow/noise](noise.html) - Pseudo-random noise
+    * [crow/random](random.html) - Random number generators
+    * [crow/text-gen](text-gen.html) - Text generators
 * System facilities
-    * [Dynamic libraries](dso.html)
-    * [Process control](process.html)
-    * [Signal handling](signal.html)
+    * [crow/dso](dso.html) - Dynamic libraries
+    * [crow/process](process.html) - Process control
+    * [crow/signal](signal.html) - Signal handling
 * Text manipulation
-    * [Encoding conversion](encoding.html)
-    * [English language tools](english.html)
-    * [Formatting functions](format.html)
-    * [HTML/XML markup](markup.html)
-    * [Regular expressions](regex.html)
-    * [String functions](string.html)
-    * [Table layout](table.html)
-    * [Unicode functions](unicode.html)
+    * [crow/encoding](encoding.html) - Encoding conversion
+    * [crow/english](english.html) - English language tools
+    * [crow/format](format.html) - Formatting functions
+    * [crow/markup](markup.html) - HTML/XML markup
+    * [crow/regex](regex.html) - Regular expressions
+    * [crow/string](string.html) - String functions
+    * [crow/table](table.html) - Table layout
+    * [crow/unicode](unicode.html) - Unicode functions
 * Time and date
-    * [Time and date](time.html)
+    * [crow/time](time.html) - Time and date
 * Unit testing
-    * [Unit test](unit-test.html)
+    * [crow/unit-test](unit-test.html) - Unit test
 * Library version
-    * [Version](version.html)
+    * [crow/version](version.html) - Version
