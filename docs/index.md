@@ -20,11 +20,11 @@ Other libraries required:
 ## Index
 
 * Basic types
-    * [crow/types](types.html) - Basic types
     * [crow/enum](enum.html) - Enumeration types
+    * [crow/guard](guard.html) - Scope guards
     * [crow/iterator](iterator.html) - Iterator types and algorithms
     * [crow/meta](meta.html) - Metaprogramming utilities
-    * [crow/guard](guard.html) - Scope guards
+    * [crow/types](types.html) - Basic types
     * [crow/uuid](uuid.html) - UUID
 * Algorithms
     * [crow/algorithm](algorithm.html) - Algorithms
@@ -60,10 +60,10 @@ Other libraries required:
     * [crow/interval-map](interval-map.html) - Interval map class
     * [crow/interval-set](interval-set.html) - Interval set class
 * Linear algebra
-    * [crow/vector](vector.html) - Vector
     * [crow/matrix](matrix.html) - Matrix
     * [crow/quaternion](quaternion.html) - Quaternion
     * [crow/transform](transform.html) - Transforms
+    * [crow/vector](vector.html) - Vector
 * Mapping
     * [crow/hexmap](hexmap.html) - Hex mapping
     * [crow/projection](projection.html) - Map projections
