@@ -104,16 +104,16 @@ for:
 * `t.insert(it, value)`
 * `t.erase(it)`
 
+(Note that `SimpleContainerType` does not match `std::array` or
+`std::forward_list`.)
+
 `AssociativeContainerType` is a refinement of `SimpleContainerType` that also
 checks for:
 
 * `T::key_type, T::mapped_type`
 * `value.first, value.second`
 * `t[key]`
-* `t.contains(key), t.count(key), t.find(key)`
-
-(Note that `SimpleContainerType` does not match `std::array` or
-`std::forward_list`.)
+* `t.contains(key), t.count(key), t.erase(key), t.find(key)`
 
 ## Comparison functions
 

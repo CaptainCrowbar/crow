@@ -186,6 +186,7 @@ namespace Crow {
             { t[k] } -> std::convertible_to<typename T::mapped_type&>;
             { t.contains(k) } -> std::convertible_to<bool>;
             { t.count(k) } -> std::convertible_to<size_t>;
+            { t.erase(t.begin(), t.end()) };
             { t.find(k) } -> std::convertible_to<typename T::iterator>;
         };
 
