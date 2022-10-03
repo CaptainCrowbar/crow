@@ -13,9 +13,15 @@ equivalent.
 
 Other libraries required:
 
-* [PCRE2](http://www.pcre.org/) - Required by the Regex module and anything that uses it
-* [Libcurl](https://curl.se) - Required by the Web Client module
-* [Sqlite3](https://www.sqlite.org/index.html) - Required by the Sqlite module
+* All operating systems
+    * [PCRE2](http://www.pcre.org/) - Required by the Regex module and anything that uses it
+    * [Libcurl](https://curl.se) - Required by the Web Client module
+    * [Sqlite3](https://www.sqlite.org/index.html) - Required by the Sqlite module
+* Operating system specific
+    * Linux
+        * `crypto` - Required for cryptographic hash functions
+    * Windows
+        * `ws2_32` - Required for networking
 
 ## Index
 
