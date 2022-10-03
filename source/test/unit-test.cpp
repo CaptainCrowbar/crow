@@ -2,24 +2,21 @@
 
 #include "crow/unit-test.hpp"
 
-int main(int argc, char** argv) {
-
-    Crow::UnitTest::begin_tests(argc, argv);
-
-    // unit-test.cpp
-
-    // version-test.cpp
+void version_test_group() {
     UNIT_TEST(crow_version)
+}
 
-    // log-test.cpp
+void log_test_group() {
     UNIT_TEST(crow_logging)
     UNIT_TEST(crow_logging_output)
+}
 
-    // types-test.cpp
+void types_test_group() {
     UNIT_TEST(crow_types_concepts)
     UNIT_TEST(crow_types_comparison_functions)
+}
 
-    // algorithm-test.cpp
+void algorithm_test_group() {
     UNIT_TEST(crow_algorithm_binomial_coefficients)
     UNIT_TEST(crow_algorithm_integer_power)
     UNIT_TEST(crow_algorithm_integer_power_generalised)
@@ -37,38 +34,46 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_algorithm_volume_integral)
     UNIT_TEST(crow_algorithm_find_optimum)
     UNIT_TEST(crow_algorithm_subsets)
+}
 
-    // binary-test.cpp
+void binary_test_group() {
     UNIT_TEST(crow_binary_byte_order)
     UNIT_TEST(crow_binary_signed_overflow_detection)
     UNIT_TEST(crow_binary_unsigned_overflow_detection)
+}
 
-    // bounded-array-construction-test.cpp
+void bounded_array_construction_test_group() {
     UNIT_TEST(crow_bounded_array_construction)
+}
 
-    // bounded-array-insertion-test.cpp
+void bounded_array_insertion_test_group() {
     UNIT_TEST(crow_bounded_array_insertion)
+}
 
-    // bounded-array-misc-test.cpp
+void bounded_array_misc_test_group() {
     UNIT_TEST(crow_bounded_array_capacity)
     UNIT_TEST(crow_bounded_array_keys)
+}
 
-    // bounded-array-tracking-test.cpp
+void bounded_array_tracking_test_group() {
     UNIT_TEST(crow_bounded_array_tracking)
+}
 
-    // cache-test.cpp
+void cache_test_group() {
     UNIT_TEST(crow_cache_hashed)
     UNIT_TEST(crow_cache_ordered)
     UNIT_TEST(crow_cache_function)
+}
 
-    // channel-classes-test.cpp
+void channel_classes_test_group() {
     UNIT_TEST(crow_channel_generator)
     UNIT_TEST(crow_channel_buffer)
     UNIT_TEST(crow_channel_queue)
     UNIT_TEST(crow_channel_value)
     UNIT_TEST(crow_channel_timer)
+}
 
-    // channel-dispatch-test.cpp
+void channel_dispatch_test_group() {
     UNIT_TEST(crow_channel_dispatch_empty)
     UNIT_TEST(crow_channel_dispatch_sync_close)
     UNIT_TEST(crow_channel_dispatch_async_close)
@@ -80,31 +85,37 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_channel_dispatch_heterogeneous_async_exception)
     UNIT_TEST(crow_channel_dispatch_async_message_channel)
     UNIT_TEST(crow_channel_dispatch_async_stream_channel)
+}
 
-    // colour-alpha-test.cpp
+void colour_alpha_test_group() {
     UNIT_TEST(crow_colour_concepts)
     UNIT_TEST(crow_colour_channel_order)
     UNIT_TEST(crow_colour_premultiplied_alpha)
     UNIT_TEST(crow_colour_alpha_blending)
+}
 
-    // colour-conversion-test.cpp
+void colour_conversion_test_group() {
     UNIT_TEST(crow_colour_conversion_between_colour_spaces)
     UNIT_TEST(crow_colour_conversion_between_representations)
+}
 
-    // colour-floating-channel-test.cpp
+void colour_floating_channel_test_group() {
     UNIT_TEST(crow_colour_floating_point_elements)
     UNIT_TEST(crow_colour_floating_point_arithmetic)
     UNIT_TEST(crow_colour_floating_point_standard_colours)
+}
 
-    // colour-integer-channel-test.cpp
+void colour_integer_channel_test_group() {
     UNIT_TEST(crow_colour_integral_elements)
     UNIT_TEST(crow_colour_integral_standard_colours)
     UNIT_TEST(crow_colour_integral_arithmetic)
+}
 
-    // colour-interpolation-test.cpp
+void colour_interpolation_test_group() {
     UNIT_TEST(crow_colour_interpolation)
+}
 
-    // colour-space-test.cpp
+void colour_space_test_group() {
     UNIT_TEST(crow_colour_space_concepts)
     UNIT_TEST(crow_colour_space_ciexyy)
     UNIT_TEST(crow_colour_space_cielab)
@@ -120,28 +131,35 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_colour_space_greyscale)
     UNIT_TEST(crow_colour_space_sgreyscale)
     UNIT_TEST(crow_colour_space_conversion)
+}
 
-    // colour-string-test.cpp
+void colour_string_test_group() {
     UNIT_TEST(crow_colour_hex_representation)
     UNIT_TEST(crow_colour_css_colours)
+}
 
-    // compact-array-construction-test.cpp
+void compact_array_construction_test_group() {
     UNIT_TEST(crow_compact_array_construction)
+}
 
-    // compact-array-insertion-test.cpp
+void compact_array_insertion_test_group() {
     UNIT_TEST(crow_compact_array_insertion)
+}
 
-    // compact-array-misc-test.cpp
+void compact_array_misc_test_group() {
     UNIT_TEST(crow_compact_array_capacity)
     UNIT_TEST(crow_compact_array_keys)
+}
 
-    // compact-array-tracking-test.cpp
+void compact_array_tracking_test_group() {
     UNIT_TEST(crow_compact_array_tracking)
+}
 
-    // constants-test.cpp
+void constants_test_group() {
     UNIT_TEST(crow_constants)
+}
 
-    // dice-test.cpp
+void dice_test_group() {
     UNIT_TEST(crow_dice_arithmetic)
     UNIT_TEST(crow_dice_statistics)
     UNIT_TEST(crow_dice_parser)
@@ -153,45 +171,55 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_dice_integer_parser)
     UNIT_TEST(crow_dice_integer_generation)
     UNIT_TEST(crow_dice_integer_literals)
+}
 
-    // dso-test.cpp
+void dso_test_group() {
     UNIT_TEST(crow_dynamic_library)
+}
 
-    // encoding-test.cpp
+void encoding_test_group() {
     UNIT_TEST(crow_encoding_hexcode)
     UNIT_TEST(crow_encoding_base64)
+}
 
-    // english-test.cpp
+void english_test_group() {
     UNIT_TEST(crow_english_extended_titlecase)
     UNIT_TEST(crow_english_sentence_case)
     UNIT_TEST(crow_english_list_formatting)
     UNIT_TEST(crow_english_number_formatting)
     UNIT_TEST(crow_english_pluralization)
     UNIT_TEST(crow_english_lorem_ipsum)
+}
 
-    // enum-test.cpp
+void enum_test_group() {
     UNIT_TEST(crow_format_enum_definition)
     UNIT_TEST(crow_format_enum_bitmask_operators)
+}
 
-    // fixed-binary-large-binary-100-test.cpp
+void fixed_binary_large_binary_100_test_group() {
     UNIT_TEST(crow_fixed_binary_large_binary_100)
+}
 
-    // fixed-binary-large-binary-35-test.cpp
+void fixed_binary_large_binary_35_test_group() {
     UNIT_TEST(crow_fixed_binary_large_binary_35)
+}
 
-    // fixed-binary-misc-test.cpp
+void fixed_binary_misc_test_group() {
     UNIT_TEST(crow_fixed_binary_implementation_selection)
     UNIT_TEST(crow_fixed_binary_type_conversions)
     UNIT_TEST(crow_fixed_binary_string_parsing)
     UNIT_TEST(crow_fixed_binary_hash_set)
+}
 
-    // fixed-binary-small-binary-35-test.cpp
+void fixed_binary_small_binary_35_test_group() {
     UNIT_TEST(crow_fixed_binary_small_binary_35)
+}
 
-    // fixed-binary-small-binary-5-test.cpp
+void fixed_binary_small_binary_5_test_group() {
     UNIT_TEST(crow_fixed_binary_small_binary_5)
+}
 
-    // font-test.cpp
+void font_test_group() {
     UNIT_TEST(crow_font_loading)
     UNIT_TEST(crow_font_properties)
     UNIT_TEST(crow_font_metrics)
@@ -200,33 +228,40 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_font_text_wrapping)
     UNIT_TEST(crow_font_rendering)
     UNIT_TEST(crow_font_map)
+}
 
-    // format-floating-test.cpp
+void format_floating_test_group() {
     UNIT_TEST(crow_format_floating_point_significant_digits_format)
     UNIT_TEST(crow_format_floating_point_scientific_notation)
     UNIT_TEST(crow_format_floating_point_fixed_point_format)
     UNIT_TEST(crow_format_floating_point_general_format)
     UNIT_TEST(crow_format_floating_point_probability_format)
+}
 
-    // format-integer-test.cpp
+void format_integer_test_group() {
     UNIT_TEST(crow_format_signed_integers)
     UNIT_TEST(crow_format_unsigned_integers)
+}
 
-    // format-null-test.cpp
+void format_null_test_group() {
     UNIT_TEST(crow_format_null_values)
+}
 
-    // format-numeric-test.cpp
+void format_numeric_test_group() {
     UNIT_TEST(crow_format_integer_delimiters)
     UNIT_TEST(crow_format_floating_point_delimiters)
+}
 
-    // format-print-test.cpp
+void format_print_test_group() {
     UNIT_TEST(crow_format_print)
+}
 
-    // format-range-test.cpp
+void format_range_test_group() {
     UNIT_TEST(crow_format_string)
     UNIT_TEST(crow_format_ranges)
+}
 
-    // format-type-test.cpp
+void format_type_test_group() {
     UNIT_TEST(crow_format_concepts)
     UNIT_TEST(crow_format_custom_types)
     UNIT_TEST(crow_format_boolean)
@@ -236,8 +271,9 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_format_class)
     UNIT_TEST(crow_format_function)
     UNIT_TEST(crow_format_literals)
+}
 
-    // formula-test.cpp
+void formula_test_group() {
     UNIT_TEST(crow_formula_sphere_geometry)
     UNIT_TEST(crow_formula_mass_density)
     UNIT_TEST(crow_formula_surface_gravity)
@@ -249,15 +285,18 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_formula_magnitude_luminosity)
     UNIT_TEST(crow_formula_bolometric_correction)
     UNIT_TEST(crow_formula_planet_temperature)
+}
 
-    // geometry-test.cpp
+void geometry_test_group() {
     UNIT_TEST(crow_geometry_box)
     UNIT_TEST(crow_geometry_sphere)
+}
 
-    // guard-test.cpp
+void guard_test_group() {
     UNIT_TEST(crow_scope_guards)
+}
 
-    // hash-test.cpp
+void hash_test_group() {
     UNIT_TEST(crow_hash_mix)
     UNIT_TEST(crow_hash_multiplicative)
     UNIT_TEST(crow_hash_siphash)
@@ -265,43 +304,52 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_hash_sha1)
     UNIT_TEST(crow_hash_sha256)
     UNIT_TEST(crow_hash_sha512)
+}
 
-    // hexmap-art-test.cpp
+void hexmap_art_test_group() {
     UNIT_TEST(crow_hexmap_ascii_art)
     UNIT_TEST(crow_hexmap_emoji_art)
     UNIT_TEST(crow_hexmap_xterm_art)
+}
 
-    // hexmap-building-test.cpp
+void hexmap_building_test_group() {
     UNIT_TEST(crow_hexmap_adjacency_properties)
     UNIT_TEST(crow_hexmap_initializer_list)
+}
 
-    // hexmap-geometry-test.cpp
+void hexmap_geometry_test_group() {
     UNIT_TEST(crow_hexmap_coordinate_operations)
+}
 
-    // image-io-test.cpp
+void image_io_test_group() {
     UNIT_TEST(crow_image_io_file_info)
     UNIT_TEST(crow_image_io_load)
     UNIT_TEST(crow_image_io_save)
+}
 
-    // image-resize-test.cpp
+void image_resize_test_group() {
     UNIT_TEST(crow_image_resize_dimensions)
     UNIT_TEST(crow_image_resize_content)
+}
 
-    // image-test.cpp
+void image_test_group() {
     UNIT_TEST(crow_image_construction)
     UNIT_TEST(crow_image_pixel_access)
     UNIT_TEST(crow_image_premultiplied_alpha)
     UNIT_TEST(crow_image_conversion)
+}
 
-    // index-table-test.cpp
+void index_table_test_group() {
     UNIT_TEST(crow_index_table_classes)
+}
 
-    // interval-continuous-arithmetic-test.cpp
+void interval_continuous_arithmetic_test_group() {
     UNIT_TEST(crow_interval_continuous_contains_zero)
     UNIT_TEST(crow_interval_continuous_interval_reciprocal)
     UNIT_TEST(crow_interval_continuous_interval_arithmetic)
+}
 
-    // interval-continuous-basic-test.cpp
+void interval_continuous_basic_test_group() {
     UNIT_TEST(crow_interval_continuous_interval_basic_properties)
     UNIT_TEST(crow_interval_continuous_interval_construction)
     UNIT_TEST(crow_interval_continuous_interval_from_string)
@@ -309,38 +357,46 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_interval_continuous_interval_complement)
     UNIT_TEST(crow_interval_continuous_interval_binary_operations)
     UNIT_TEST(crow_interval_continuous_interval_hashing)
+}
 
-    // interval-continuous-boundary-addition-test.cpp
+void interval_continuous_boundary_addition_test_group() {
     UNIT_TEST(crow_interval_continuous_boundary_inversion)
     UNIT_TEST(crow_interval_continuous_boundary_addition)
     UNIT_TEST(crow_interval_continuous_boundary_subtraction)
+}
 
-    // interval-continuous-boundary-basic-test.cpp
+void interval_continuous_boundary_basic_test_group() {
     UNIT_TEST(crow_interval_continuous_boundary_formatting)
     UNIT_TEST(crow_interval_continuous_boundary_from_interval)
     UNIT_TEST(crow_interval_continuous_boundary_to_interval)
+}
 
-    // interval-continuous-boundary-comparison-test.cpp
+void interval_continuous_boundary_comparison_test_group() {
     UNIT_TEST(crow_interval_continuous_boundary_adjacency)
     UNIT_TEST(crow_interval_continuous_boundary_comparison)
+}
 
-    // interval-continuous-boundary-multiplication-test.cpp
+void interval_continuous_boundary_multiplication_test_group() {
     UNIT_TEST(crow_interval_continuous_boundary_multiplication)
+}
 
-    // interval-continuous-map-test.cpp
+void interval_continuous_map_test_group() {
     UNIT_TEST(crow_interval_continuous_interval_map)
     UNIT_TEST(crow_interval_continuous_interval_map_hashing)
+}
 
-    // interval-continuous-set-test.cpp
+void interval_continuous_set_test_group() {
     UNIT_TEST(crow_interval_continuous_interval_set_construct_insert_erase)
     UNIT_TEST(crow_interval_continuous_interval_set_operations)
     UNIT_TEST(crow_interval_continuous_interval_set_hashing)
+}
 
-    // interval-integral-arithmetic-test.cpp
+void interval_integral_arithmetic_test_group() {
     UNIT_TEST(crow_interval_integral_contains_zero)
     UNIT_TEST(crow_interval_integral_interval_arithmetic)
+}
 
-    // interval-integral-basic-test.cpp
+void interval_integral_basic_test_group() {
     UNIT_TEST(crow_interval_integral_interval_basic_properties)
     UNIT_TEST(crow_interval_integral_interval_construction)
     UNIT_TEST(crow_interval_integral_interval_from_string)
@@ -349,34 +405,41 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_interval_integral_interval_complement)
     UNIT_TEST(crow_interval_integral_interval_binary_operations)
     UNIT_TEST(crow_interval_integral_interval_hashing)
+}
 
-    // interval-integral-boundary-addition-test.cpp
+void interval_integral_boundary_addition_test_group() {
     UNIT_TEST(crow_interval_integral_boundary_inversion)
     UNIT_TEST(crow_interval_integral_boundary_addition)
     UNIT_TEST(crow_interval_integral_boundary_subtraction)
+}
 
-    // interval-integral-boundary-basic-test.cpp
+void interval_integral_boundary_basic_test_group() {
     UNIT_TEST(crow_interval_integral_boundary_formatting)
     UNIT_TEST(crow_interval_integral_boundary_from_interval)
     UNIT_TEST(crow_interval_integral_boundary_to_interval)
+}
 
-    // interval-integral-boundary-comparison-test.cpp
+void interval_integral_boundary_comparison_test_group() {
     UNIT_TEST(crow_interval_integral_boundary_adjacency)
     UNIT_TEST(crow_interval_integral_boundary_comparison)
+}
 
-    // interval-integral-boundary-multiplication-test.cpp
+void interval_integral_boundary_multiplication_test_group() {
     UNIT_TEST(crow_interval_integral_boundary_multiplication)
+}
 
-    // interval-integral-map-test.cpp
+void interval_integral_map_test_group() {
     UNIT_TEST(crow_interval_integral_interval_map)
     UNIT_TEST(crow_interval_integral_interval_map_hashing)
+}
 
-    // interval-integral-set-test.cpp
+void interval_integral_set_test_group() {
     UNIT_TEST(crow_interval_integral_interval_set_construct_insert_erase)
     UNIT_TEST(crow_interval_integral_interval_set_operations)
     UNIT_TEST(crow_interval_integral_interval_set_hashing)
+}
 
-    // interval-ordered-basic-test.cpp
+void interval_ordered_basic_test_group() {
     UNIT_TEST(crow_interval_ordered_interval_basic_properties)
     UNIT_TEST(crow_interval_ordered_interval_construction)
     UNIT_TEST(crow_interval_ordered_interval_from_string)
@@ -384,26 +447,31 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_interval_ordered_interval_complement)
     UNIT_TEST(crow_interval_ordered_interval_binary_operations)
     UNIT_TEST(crow_interval_ordered_interval_hashing)
+}
 
-    // interval-ordered-boundary-basic-test.cpp
+void interval_ordered_boundary_basic_test_group() {
     UNIT_TEST(crow_interval_ordered_boundary_formatting)
     UNIT_TEST(crow_interval_ordered_boundary_from_interval)
     UNIT_TEST(crow_interval_ordered_boundary_to_interval)
+}
 
-    // interval-ordered-boundary-comparison-test.cpp
+void interval_ordered_boundary_comparison_test_group() {
     UNIT_TEST(crow_interval_ordered_boundary_adjacency)
     UNIT_TEST(crow_interval_ordered_boundary_comparison)
+}
 
-    // interval-ordered-map-test.cpp
+void interval_ordered_map_test_group() {
     UNIT_TEST(crow_interval_ordered_interval_map)
     UNIT_TEST(crow_interval_ordered_interval_map_hashing)
+}
 
-    // interval-ordered-set-test.cpp
+void interval_ordered_set_test_group() {
     UNIT_TEST(crow_interval_ordered_interval_set_construct_insert_erase)
     UNIT_TEST(crow_interval_ordered_interval_set_operations)
     UNIT_TEST(crow_interval_ordered_interval_set_hashing)
+}
 
-    // interval-stepwise-basic-test.cpp
+void interval_stepwise_basic_test_group() {
     UNIT_TEST(crow_interval_stepwise_interval_basic_properties)
     UNIT_TEST(crow_interval_stepwise_interval_construction)
     UNIT_TEST(crow_interval_stepwise_interval_from_string)
@@ -412,60 +480,72 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_interval_stepwise_interval_complement)
     UNIT_TEST(crow_interval_stepwise_interval_binary_operations)
     UNIT_TEST(crow_interval_stepwise_interval_hashing)
+}
 
-    // interval-stepwise-boundary-basic-test.cpp
+void interval_stepwise_boundary_basic_test_group() {
     UNIT_TEST(crow_interval_stepwise_boundary_formatting)
     UNIT_TEST(crow_interval_stepwise_boundary_from_interval)
     UNIT_TEST(crow_interval_stepwise_boundary_to_interval)
+}
 
-    // interval-stepwise-boundary-comparison-test.cpp
+void interval_stepwise_boundary_comparison_test_group() {
     UNIT_TEST(crow_interval_stepwise_boundary_adjacency)
     UNIT_TEST(crow_interval_stepwise_boundary_comparison)
+}
 
-    // interval-stepwise-map-test.cpp
+void interval_stepwise_map_test_group() {
     UNIT_TEST(crow_interval_stepwise_interval_map)
     UNIT_TEST(crow_interval_stepwise_interval_map_hashing)
+}
 
-    // interval-stepwise-set-test.cpp
+void interval_stepwise_set_test_group() {
     UNIT_TEST(crow_interval_stepwise_interval_set_construct_insert_erase)
     UNIT_TEST(crow_interval_stepwise_interval_set_operations)
     UNIT_TEST(crow_interval_stepwise_interval_set_hashing)
+}
 
-    // interval-types-test.cpp
+void interval_types_test_group() {
     UNIT_TEST(crow_interval_type_traits)
     UNIT_TEST(crow_interval_string_conversion)
+}
 
-    // iterator-test.cpp
+void iterator_test_group() {
     UNIT_TEST(crow_iterator_mixins)
     UNIT_TEST(crow_iterator_append_overwrite)
     UNIT_TEST(crow_iterator_dereference)
     UNIT_TEST(crow_iterator_iota)
     UNIT_TEST(crow_iterator_subrange)
+}
 
-    // linear-map-test.cpp
+void linear_map_test_group() {
     UNIT_TEST(crow_linear_map)
+}
 
-    // markov-test.cpp
+void markov_test_group() {
     UNIT_TEST(crow_markov_character_mode)
     UNIT_TEST(crow_markov_string_mode)
+}
 
-    // markup-test.cpp
+void markup_test_group() {
     UNIT_TEST(crow_markup_xml)
     UNIT_TEST(crow_markup_html)
+}
 
-    // maths-test.cpp
+void maths_test_group() {
     UNIT_TEST(crow_maths_rounding)
     UNIT_TEST(crow_maths_euclidean_division)
     UNIT_TEST(crow_maths_fraction)
     UNIT_TEST(crow_maths_interpolate)
     UNIT_TEST(crow_maths_symmetric_division)
     UNIT_TEST(crow_maths_numeric_literals)
+}
 
-    // matrix-test.cpp
+void matrix_test_group() {
     UNIT_TEST(crow_matrix_basics)
     UNIT_TEST(crow_matrix_inversion)
+}
 
-    // meta-test.cpp
+void meta_test_group() {
     UNIT_TEST(crow_meta_append)
     UNIT_TEST(crow_meta_concat)
     UNIT_TEST(crow_meta_insert)
@@ -502,125 +582,152 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_meta_is_empty)
     UNIT_TEST(crow_meta_is_unique)
     UNIT_TEST(crow_meta_length_of)
+}
 
-    // mirror-map-test.cpp
+void mirror_map_test_group() {
     UNIT_TEST(crow_mirror_map_construct)
     UNIT_TEST(crow_mirror_map_iterators)
     UNIT_TEST(crow_mirror_map_insert)
     UNIT_TEST(crow_mirror_map_erase)
     UNIT_TEST(crow_mirror_map_search)
     UNIT_TEST(crow_mirror_map_duplicates)
+}
 
-    // mp-integer-rational-arithmetic-test.cpp
+void mp_integer_rational_arithmetic_test_group() {
     UNIT_TEST(crow_mp_integer_rational_reduction)
     UNIT_TEST(crow_mp_integer_rational_arithmetic)
     UNIT_TEST(crow_mp_integer_rational_properties)
     UNIT_TEST(crow_mp_integer_rational_comparison)
     UNIT_TEST(crow_mp_integer_rational_mixed)
+}
 
-    // mp-integer-rational-conversion-test.cpp
+void mp_integer_rational_conversion_test_group() {
     UNIT_TEST(crow_mp_integer_rational_basics)
     UNIT_TEST(crow_mp_integer_rational_parsing)
+}
 
-    // mp-integer-sign-agnostic-test.cpp
+void mp_integer_sign_agnostic_test_group() {
     UNIT_TEST(crow_mp_integer_literals)
     UNIT_TEST(crow_mp_integer_core_functions)
     UNIT_TEST(crow_mp_integer_hash_set)
+}
 
-    // mp-integer-signed-arithmetic-test.cpp
+void mp_integer_signed_arithmetic_test_group() {
     UNIT_TEST(crow_mp_integer_signed_arithmetic)
     UNIT_TEST(crow_mp_integer_signed_division)
     UNIT_TEST(crow_mp_integer_signed_large_arithmetic)
     UNIT_TEST(crow_mp_integer_signed_powers)
+}
 
-    // mp-integer-signed-conversion-test.cpp
+void mp_integer_signed_conversion_test_group() {
     UNIT_TEST(crow_mp_integer_signed_conversion_integers)
     UNIT_TEST(crow_mp_integer_signed_conversion_strings)
     UNIT_TEST(crow_mp_integer_signed_conversion_base_strings)
     UNIT_TEST(crow_mp_integer_signed_conversion_double)
+}
 
-    // mp-integer-unsigned-arithmetic-test.cpp
+void mp_integer_unsigned_arithmetic_test_group() {
     UNIT_TEST(crow_mp_integer_unsigned_arithmetic)
     UNIT_TEST(crow_mp_integer_unsigned_arithmetic_powers)
     UNIT_TEST(crow_mp_integer_unsigned_bit_operations)
     UNIT_TEST(crow_mp_integer_unsigned_byte_operations)
+}
 
-    // mp-integer-unsigned-conversion-test.cpp
+void mp_integer_unsigned_conversion_test_group() {
     UNIT_TEST(crow_mp_integer_unsigned_conversion_integers)
     UNIT_TEST(crow_mp_integer_unsigned_conversion_strings)
     UNIT_TEST(crow_mp_integer_unsigned_conversion_base_strings)
     UNIT_TEST(crow_mp_integer_unsigned_conversion_double)
+}
 
-    // multi-array-test.cpp
+void multi_array_test_group() {
     UNIT_TEST(crow_multi_array_2d)
     UNIT_TEST(crow_multi_array_3d)
+}
 
-    // named-mutex-test.cpp
+void named_mutex_test_group() {
     UNIT_TEST(crow_named_mutex)
+}
 
-    // net-address-test.cpp
+void net_address_test_group() {
     UNIT_TEST(crow_net_ipv4)
     UNIT_TEST(crow_net_ipv6)
     UNIT_TEST(crow_net_socket_address)
     UNIT_TEST(crow_net_ip_literals)
+}
 
-    // net-dns-test.cpp
+void net_dns_test_group() {
     UNIT_TEST(crow_net_dns_query)
+}
 
-    // net-tcp-test.cpp
+void net_tcp_test_group() {
     UNIT_TEST(crow_net_tcp_client_server)
     UNIT_TEST(crow_net_socket_set)
+}
 
-    // noise-test.cpp
+void noise_test_group() {
     UNIT_TEST(crow_noise_result_stability)
     UNIT_TEST(crow_noise_multiple_sources)
     UNIT_TEST(crow_noise_statistics)
     UNIT_TEST(crow_noise_sample_renders)
+}
 
-    // options-anonymous-test.cpp
+void options_anonymous_test_group() {
     UNIT_TEST(crow_options_anonymous)
+}
 
-    // options-boolean-test.cpp
+void options_boolean_test_group() {
     UNIT_TEST(crow_options_boolean)
+}
 
-    // options-container-test.cpp
+void options_container_test_group() {
     UNIT_TEST(crow_options_container)
+}
 
-    // options-enumeration-test.cpp
+void options_enumeration_test_group() {
     UNIT_TEST(crow_options_enumeration)
+}
 
-    // options-help-test.cpp
+void options_help_test_group() {
     UNIT_TEST(crow_options_help)
+}
 
-    // options-mutual-exclusion-test.cpp
+void options_mutual_exclusion_test_group() {
     UNIT_TEST(crow_options_mutual_exclusion)
+}
 
-    // options-parsing-test.cpp
+void options_parsing_test_group() {
     UNIT_TEST(crow_options_parsing)
+}
 
-    // options-pattern-match-test.cpp
+void options_pattern_match_test_group() {
     UNIT_TEST(crow_options_pattern_match)
+}
 
-    // options-required-test.cpp
+void options_required_test_group() {
     UNIT_TEST(crow_options_required)
+}
 
-    // options-traits-test.cpp
+void options_traits_test_group() {
     UNIT_TEST(crow_options_concepts)
+}
 
-    // path-directory-test.cpp
+void path_directory_test_group() {
     UNIT_TEST(crow_path_directory_iterators)
     UNIT_TEST(crow_path_current_directory)
     UNIT_TEST(crow_path_deep_search)
+}
 
-    // path-file-system-test.cpp
+void path_file_system_test_group() {
     UNIT_TEST(crow_path_resolution)
     UNIT_TEST(crow_path_file_system_queries)
     UNIT_TEST(crow_path_file_system_updates)
     UNIT_TEST(crow_path_io)
     UNIT_TEST(crow_path_links)
     UNIT_TEST(crow_path_metadata)
+}
 
-    // path-name-test.cpp
+void path_name_test_group() {
     UNIT_TEST(crow_path_legal_names)
     UNIT_TEST(crow_path_unicode_names)
     UNIT_TEST(crow_path_name_normalization)
@@ -629,41 +736,49 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_path_name_combination)
     UNIT_TEST(crow_path_name_manipulation)
     UNIT_TEST(crow_path_name_comparison)
+}
 
-    // prime-fixed-binary-test.cpp
+void prime_fixed_binary_test_group() {
     UNIT_TEST(crow_prime_iterator_fixed_binary)
     UNIT_TEST(crow_prime_primality_fixed_binary)
     UNIT_TEST(crow_prime_next_prev_prime_fixed_binary)
     UNIT_TEST(crow_prime_factorization_fixed_binary)
     UNIT_TEST(crow_prime_list_primes_fixed_binary)
+}
 
-    // prime-int-factors-test.cpp
+void prime_int_factors_test_group() {
     UNIT_TEST(crow_prime_factorization_int)
+}
 
-    // prime-int-next-prev-test.cpp
+void prime_int_next_prev_test_group() {
     UNIT_TEST(crow_prime_next_prev_prime_int)
+}
 
-    // prime-int-test.cpp
+void prime_int_test_group() {
     UNIT_TEST(crow_prime_iterator_int)
     UNIT_TEST(crow_prime_primality_int)
     UNIT_TEST(crow_prime_list_primes_int)
+}
 
-    // prime-mp-integer-test.cpp
+void prime_mp_integer_test_group() {
     UNIT_TEST(crow_prime_iterator_mp_integer)
     UNIT_TEST(crow_prime_primality_mp_integer)
     UNIT_TEST(crow_prime_next_prev_prime_mp_integer)
     UNIT_TEST(crow_prime_factorization_mp_integer)
     UNIT_TEST(crow_prime_list_primes_mp_integer)
+}
 
-    // process-test.cpp
+void process_test_group() {
     UNIT_TEST(crow_process_stream)
     UNIT_TEST(crow_process_text)
     UNIT_TEST(crow_process_shell_command)
+}
 
-    // progress-test.cpp
+void progress_test_group() {
     UNIT_TEST(crow_progress_bar)
+}
 
-    // projection-test.cpp
+void projection_test_group() {
     UNIT_TEST(crow_projection_polar_coordinate_normalisation)
     UNIT_TEST(crow_projection_azimuthal_equidistant)
     UNIT_TEST(crow_projection_gnomonic)
@@ -681,50 +796,61 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_projection_interrupted_mollweide)
     UNIT_TEST(crow_projection_interrupted_sinusoidal)
     UNIT_TEST(crow_projection_sample_maps)
+}
 
-    // quaternion-test.cpp
+void quaternion_test_group() {
     UNIT_TEST(crow_quaternion)
+}
 
-    // random-adapter-test.cpp
+void random_adapter_test_group() {
     UNIT_TEST(crow_random_constrained_distribution)
+}
 
-    // random-concept-test.cpp
+void random_concept_test_group() {
     UNIT_TEST(crow_random_concepts)
+}
 
-    // random-continuous-test.cpp
+void random_continuous_test_group() {
     UNIT_TEST(crow_random_uniform_real_distribution_properties)
     UNIT_TEST(crow_random_uniform_real_distribution)
     UNIT_TEST(crow_random_log_uniform_distribution)
     UNIT_TEST(crow_random_normal_distribution_properties)
     UNIT_TEST(crow_random_normal_distribution)
     UNIT_TEST(crow_random_log_normal_distribution)
+}
 
-    // random-discrete-test.cpp
+void random_discrete_test_group() {
     UNIT_TEST(crow_random_bernoulli_distribution)
     UNIT_TEST(crow_random_uniform_integer_distribution)
     UNIT_TEST(crow_random_poisson_distribution)
+}
 
-    // random-lcg-test.cpp
+void random_lcg_test_group() {
     UNIT_TEST(crow_random_lcg_generators)
+}
 
-    // random-non-arithmetic-test.cpp
+void random_non_arithmetic_test_group() {
     UNIT_TEST(crow_random_choice_distribution)
     UNIT_TEST(crow_random_weighted_distribution)
     UNIT_TEST(crow_random_uuid)
+}
 
-    // random-pcg-test.cpp
+void random_pcg_test_group() {
     UNIT_TEST(crow_random_pcg64)
+}
 
-    // random-spatial-test.cpp
+void random_spatial_test_group() {
     UNIT_TEST(crow_random_vectors)
     UNIT_TEST(crow_random_point_in_sphere)
     UNIT_TEST(crow_random_direction)
+}
 
-    // random-xoshiro-test.cpp
+void random_xoshiro_test_group() {
     UNIT_TEST(crow_random_splitmix64)
     UNIT_TEST(crow_random_xoshiro256ss)
+}
 
-    // rational-test.cpp
+void rational_test_group() {
     UNIT_TEST(crow_rational_basics)
     UNIT_TEST(crow_rational_reduction)
     UNIT_TEST(crow_rational_arithmetic)
@@ -734,49 +860,61 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_rational_formatting)
     UNIT_TEST(crow_rational_parsing)
     UNIT_TEST(crow_rational_hash)
+}
 
-    // regex-basic-test.cpp
+void regex_basic_test_group() {
     UNIT_TEST(crow_regex_pcre_version)
     UNIT_TEST(crow_regex_escape)
+}
 
-    // regex-compile-flags-test.cpp
+void regex_compile_flags_test_group() {
     UNIT_TEST(crow_regex_compile_flags)
+}
 
-    // regex-grep-test.cpp
+void regex_grep_test_group() {
     UNIT_TEST(crow_regex_grep)
     UNIT_TEST(crow_regex_split)
     UNIT_TEST(crow_regex_partition)
     UNIT_TEST(crow_regex_tokenize)
+}
 
-    // regex-match-test.cpp
+void regex_match_test_group() {
     UNIT_TEST(crow_regex_match)
+}
 
-    // regex-replace-test.cpp
+void regex_replace_test_group() {
     UNIT_TEST(crow_regex_replace)
     UNIT_TEST(crow_regex_transform)
+}
 
-    // regex-runtime-flags-test.cpp
+void regex_runtime_flags_test_group() {
     UNIT_TEST(crow_regex_runtime_flags)
+}
 
-    // root-finding-test.cpp
+void root_finding_test_group() {
     UNIT_TEST(crow_root_finding_newton_raphson)
+}
 
-    // signal-test.cpp
+void signal_test_group() {
     UNIT_TEST(crow_signal_channel)
     UNIT_TEST(crow_signal_name)
+}
 
-    // sqlite-test.cpp
+void sqlite_test_group() {
     UNIT_TEST(crow_sqlite_connection)
+}
 
-    // stack-test.cpp
+void stack_test_group() {
     UNIT_TEST(crow_stack)
+}
 
-    // statistics-test.cpp
+void statistics_test_group() {
     UNIT_TEST(crow_statistics_univariate)
     UNIT_TEST(crow_statistics_bivariate)
     UNIT_TEST(crow_statistics_combination)
+}
 
-    // stdio-test.cpp
+void stdio_test_group() {
     UNIT_TEST(crow_stdio_cstdio)
     UNIT_TEST(crow_stdio_fdio)
     UNIT_TEST(crow_stdio_pipe)
@@ -784,22 +922,27 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_stdio_null_device)
     UNIT_TEST(crow_stdio_anonymous_temporary_file)
     UNIT_TEST(crow_stdio_named_temporary_file)
+}
 
-    // string-casing-test.cpp
+void string_casing_test_group() {
     UNIT_TEST(crow_string_case_conversion)
+}
 
-    // string-character-test.cpp
+void string_character_test_group() {
     UNIT_TEST(crow_character_functions)
+}
 
-    // string-formatting-test.cpp
+void string_formatting_test_group() {
     UNIT_TEST(crow_hex_string)
     UNIT_TEST(crow_string_quote)
     UNIT_TEST(crow_roman_numerals)
+}
 
-    // string-literals-test.cpp
+void string_literals_test_group() {
     UNIT_TEST(crow_string_literals)
+}
 
-    // string-manipulation-test.cpp
+void string_manipulation_test_group() {
     UNIT_TEST(crow_common_prefix)
     UNIT_TEST(crow_string_indentation)
     UNIT_TEST(crow_string_join)
@@ -813,28 +956,34 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_string_split_lines)
     UNIT_TEST(crow_string_trim)
     UNIT_TEST(crow_string_unqualify)
+}
 
-    // string-parsing-test.cpp
+void string_parsing_test_group() {
     UNIT_TEST(crow_string_to_boolean)
     UNIT_TEST(crow_string_to_integer)
     UNIT_TEST(crow_string_to_floating_point)
+}
 
-    // string-type-test.cpp
+void string_type_test_group() {
     UNIT_TEST(crow_string_type_name)
+}
 
-    // string-wrapping-test.cpp
+void string_wrapping_test_group() {
     UNIT_TEST(crow_string_unwrap)
     UNIT_TEST(crow_string_word_wrap)
+}
 
-    // table-test.cpp
+void table_test_group() {
     UNIT_TEST(crow_table_layout)
     UNIT_TEST(crow_table_formatting)
     UNIT_TEST(crow_table_piecewise)
+}
 
-    // terminal-test.cpp
+void terminal_test_group() {
     UNIT_TEST(crow_terminal_control)
+}
 
-    // text-gen-test.cpp
+void text_gen_test_group() {
     UNIT_TEST(crow_text_generation_null)
     UNIT_TEST(crow_text_generation_constant)
     UNIT_TEST(crow_text_generation_number)
@@ -846,16 +995,19 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_text_generation_transform)
     UNIT_TEST(crow_text_generation_casing)
     UNIT_TEST(crow_text_generation_literals)
+}
 
-    // thread-pool-test.cpp
+void thread_pool_test_group() {
     UNIT_TEST(crow_thread_pool_class)
     UNIT_TEST(crow_thread_pool_each)
     UNIT_TEST(crow_thread_pool_timing)
+}
 
-    // thread-test.cpp
+void thread_test_group() {
     UNIT_TEST(crow_thread)
+}
 
-    // time-test.cpp
+void time_test_group() {
     UNIT_TEST(crow_time_make_date)
     UNIT_TEST(crow_time_formatting)
     UNIT_TEST(crow_time_date_formatting)
@@ -866,22 +1018,26 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_time_point_conversion)
     UNIT_TEST(crow_time_system_specific_conversions)
     UNIT_TEST(crow_time_waiter)
+}
 
-    // topological-order-test.cpp
+void topological_order_test_group() {
     UNIT_TEST(crow_topological_order)
     UNIT_TEST(crow_topological_order_reverse)
+}
 
-    // transform-test.cpp
+void transform_test_group() {
     UNIT_TEST(crow_2d_transforms)
     UNIT_TEST(crow_3d_transforms)
     UNIT_TEST(crow_projective_geometry)
     UNIT_TEST(crow_primitive_transforms)
     UNIT_TEST(crow_quaternion_transforms)
+}
 
-    // unicode-normalization-test.cpp
+void unicode_normalization_test_group() {
     UNIT_TEST(crow_unicode_normalization_forms)
+}
 
-    // unicode-test.cpp
+void unicode_test_group() {
     UNIT_TEST(crow_unicode_implementation_details)
     UNIT_TEST(crow_unicode_character_encoding)
     UNIT_TEST(crow_unicode_string_encoding)
@@ -894,23 +1050,27 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_unicode_hangul_syllable_type)
     UNIT_TEST(crow_unicode_pattern_syntax)
     UNIT_TEST(crow_unicode_xid_properties)
+}
 
-    // uri-general-test.cpp
+void uri_general_test_group() {
     UNIT_TEST(crow_uri_assembly)
     UNIT_TEST(crow_uri_modifiers)
     UNIT_TEST(crow_uri_navigation)
     UNIT_TEST(crow_uri_encoding)
     UNIT_TEST(crow_uri_query)
+}
 
-    // uri-schemes-test.cpp
+void uri_schemes_test_group() {
     UNIT_TEST(crow_uri_parse_http)
     UNIT_TEST(crow_uri_parse_file)
     UNIT_TEST(crow_uri_parse_mailto)
+}
 
-    // uuid-test.cpp
+void uuid_test_group() {
     UNIT_TEST(crow_uuid)
+}
 
-    // vector-test.cpp
+void vector_test_group() {
     UNIT_TEST(crow_integer_vector_construction)
     UNIT_TEST(crow_integer_vector_arithmetic)
     UNIT_TEST(crow_integer_vector_hash)
@@ -919,10 +1079,185 @@ int main(int argc, char** argv) {
     UNIT_TEST(crow_floating_vector_construction)
     UNIT_TEST(crow_floating_vector_arithmetic)
     UNIT_TEST(crow_floating_vector_interpolation)
+}
 
-    // web-client-test.cpp
+void web_client_test_group() {
     UNIT_TEST(crow_web_client_http_get)
     UNIT_TEST(crow_web_client_http_head)
+}
+
+int main(int argc, char** argv) {
+
+    Crow::UnitTest::begin_tests(argc, argv);
+
+    version_test_group();
+    log_test_group();
+    types_test_group();
+    algorithm_test_group();
+    binary_test_group();
+    bounded_array_construction_test_group();
+    bounded_array_insertion_test_group();
+    bounded_array_misc_test_group();
+    bounded_array_tracking_test_group();
+    cache_test_group();
+    channel_classes_test_group();
+    channel_dispatch_test_group();
+    colour_alpha_test_group();
+    colour_conversion_test_group();
+    colour_floating_channel_test_group();
+    colour_integer_channel_test_group();
+    colour_interpolation_test_group();
+    colour_space_test_group();
+    colour_string_test_group();
+    compact_array_construction_test_group();
+    compact_array_insertion_test_group();
+    compact_array_misc_test_group();
+    compact_array_tracking_test_group();
+    constants_test_group();
+    dice_test_group();
+    dso_test_group();
+    encoding_test_group();
+    english_test_group();
+    enum_test_group();
+    fixed_binary_large_binary_100_test_group();
+    fixed_binary_large_binary_35_test_group();
+    fixed_binary_misc_test_group();
+    fixed_binary_small_binary_35_test_group();
+    fixed_binary_small_binary_5_test_group();
+    font_test_group();
+    format_floating_test_group();
+    format_integer_test_group();
+    format_null_test_group();
+    format_numeric_test_group();
+    format_print_test_group();
+    format_range_test_group();
+    format_type_test_group();
+    formula_test_group();
+    geometry_test_group();
+    guard_test_group();
+    hash_test_group();
+    hexmap_art_test_group();
+    hexmap_building_test_group();
+    hexmap_geometry_test_group();
+    image_io_test_group();
+    image_resize_test_group();
+    image_test_group();
+    index_table_test_group();
+    interval_continuous_arithmetic_test_group();
+    interval_continuous_basic_test_group();
+    interval_continuous_boundary_addition_test_group();
+    interval_continuous_boundary_basic_test_group();
+    interval_continuous_boundary_comparison_test_group();
+    interval_continuous_boundary_multiplication_test_group();
+    interval_continuous_map_test_group();
+    interval_continuous_set_test_group();
+    interval_integral_arithmetic_test_group();
+    interval_integral_basic_test_group();
+    interval_integral_boundary_addition_test_group();
+    interval_integral_boundary_basic_test_group();
+    interval_integral_boundary_comparison_test_group();
+    interval_integral_boundary_multiplication_test_group();
+    interval_integral_map_test_group();
+    interval_integral_set_test_group();
+    interval_ordered_basic_test_group();
+    interval_ordered_boundary_basic_test_group();
+    interval_ordered_boundary_comparison_test_group();
+    interval_ordered_map_test_group();
+    interval_ordered_set_test_group();
+    interval_stepwise_basic_test_group();
+    interval_stepwise_boundary_basic_test_group();
+    interval_stepwise_boundary_comparison_test_group();
+    interval_stepwise_map_test_group();
+    interval_stepwise_set_test_group();
+    interval_types_test_group();
+    iterator_test_group();
+    linear_map_test_group();
+    markov_test_group();
+    markup_test_group();
+    maths_test_group();
+    matrix_test_group();
+    meta_test_group();
+    mirror_map_test_group();
+    mp_integer_rational_arithmetic_test_group();
+    mp_integer_rational_conversion_test_group();
+    mp_integer_sign_agnostic_test_group();
+    mp_integer_signed_arithmetic_test_group();
+    mp_integer_signed_conversion_test_group();
+    mp_integer_unsigned_arithmetic_test_group();
+    mp_integer_unsigned_conversion_test_group();
+    multi_array_test_group();
+    named_mutex_test_group();
+    net_address_test_group();
+    net_dns_test_group();
+    net_tcp_test_group();
+    noise_test_group();
+    options_anonymous_test_group();
+    options_boolean_test_group();
+    options_container_test_group();
+    options_enumeration_test_group();
+    options_help_test_group();
+    options_mutual_exclusion_test_group();
+    options_parsing_test_group();
+    options_pattern_match_test_group();
+    options_required_test_group();
+    options_traits_test_group();
+    path_directory_test_group();
+    path_file_system_test_group();
+    path_name_test_group();
+    prime_fixed_binary_test_group();
+    prime_int_factors_test_group();
+    prime_int_next_prev_test_group();
+    prime_int_test_group();
+    prime_mp_integer_test_group();
+    process_test_group();
+    progress_test_group();
+    projection_test_group();
+    quaternion_test_group();
+    random_adapter_test_group();
+    random_concept_test_group();
+    random_continuous_test_group();
+    random_discrete_test_group();
+    random_lcg_test_group();
+    random_non_arithmetic_test_group();
+    random_pcg_test_group();
+    random_spatial_test_group();
+    random_xoshiro_test_group();
+    rational_test_group();
+    regex_basic_test_group();
+    regex_compile_flags_test_group();
+    regex_grep_test_group();
+    regex_match_test_group();
+    regex_replace_test_group();
+    regex_runtime_flags_test_group();
+    root_finding_test_group();
+    signal_test_group();
+    sqlite_test_group();
+    stack_test_group();
+    statistics_test_group();
+    stdio_test_group();
+    string_casing_test_group();
+    string_character_test_group();
+    string_formatting_test_group();
+    string_literals_test_group();
+    string_manipulation_test_group();
+    string_parsing_test_group();
+    string_type_test_group();
+    string_wrapping_test_group();
+    table_test_group();
+    terminal_test_group();
+    text_gen_test_group();
+    thread_pool_test_group();
+    thread_test_group();
+    time_test_group();
+    topological_order_test_group();
+    transform_test_group();
+    unicode_normalization_test_group();
+    unicode_test_group();
+    uri_general_test_group();
+    uri_schemes_test_group();
+    uuid_test_group();
+    vector_test_group();
+    web_client_test_group();
 
     return Crow::UnitTest::end_tests();
 

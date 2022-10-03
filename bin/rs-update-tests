@@ -37,7 +37,7 @@ fi
 
 testfiles=$(grep -E '[-]test\.cpp$' "$cmake" \
     | sed -E 's!^ +!source/!' \
-    | grep -Fv "$main")
+    | grep -Ev "/unit-test\.cpp")
 
 testinc=$(grep -Eh '#include ".*unit-test\.hpp"' $testfiles | head -n 1)
 
@@ -46,6 +46,24 @@ cat > $temp << EOF
 
 $testinc
 
+EOF
+
+for file in $testfiles; do
+    if [ -f "$file" ]; then
+        group=$(tr - _ <<< ${file##*/} | sed -E 's/\.cpp/_group/')
+        echo "void $group() {" >> $temp
+        grep -Eh '^void test_' "$file" \
+            | sed -E 's/^void test_([a-z0-9_]+)\(\).*$/\1/' \
+            | grep -Ev '^void ' \
+            | sed -E 's/.+/    UNIT_TEST(&)/' \
+            >> $temp \
+            || true
+        echo "}" >> $temp
+        echo >> $temp
+    fi
+done
+
+cat >> $temp << EOF
 int main(int argc, char** argv) {
 
     Crow::UnitTest::begin_tests(argc, argv);
@@ -54,18 +72,13 @@ EOF
 
 for file in $testfiles; do
     if [ -f "$file" ]; then
-        echo "    // ${file##*/}" >> $temp
-        grep -Eh '^void test_' "$file" \
-            | sed -E 's/^void test_([a-z0-9_]+)\(\).*$/\1/' \
-            | grep -Ev '^void ' \
-            | sed -E 's/.+/    UNIT_TEST(&)/' \
-            >> $temp \
-            || true
-        echo >> $temp
+        group=$(tr - _ <<< ${file##*/} | sed -E 's/\.cpp/_group/')
+        echo "    $group();" >> $temp
     fi
 done
 
 cat >> $temp << EOF
+
     return Crow::UnitTest::end_tests();
 
 }
