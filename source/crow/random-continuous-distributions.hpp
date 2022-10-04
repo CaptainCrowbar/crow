@@ -21,7 +21,7 @@ namespace Crow {
         common    // Use base 10 logs
     )
 
-    template <std::floating_point T>
+    template <std::floating_point T = double>
     class UniformReal {
 
     public:
@@ -78,7 +78,7 @@ namespace Crow {
 
     };
 
-    template <std::floating_point T>
+    template <std::floating_point T = double>
     class NormalDistribution {
 
     public:
@@ -151,7 +151,7 @@ namespace Crow {
 
     };
 
-    template <std::floating_point T>
+    template <std::floating_point T = double>
     class LogNormal {
 
     public:
@@ -185,7 +185,7 @@ namespace Crow {
 
     };
 
-    template <std::floating_point T>
+    template <std::floating_point T = double>
     class LogUniform {
 
     public:

@@ -14,7 +14,7 @@ namespace Crow {
     // https://www.johndcook.com/blog/skewness_kurtosis/
     // https://www.johndcook.com/blog/running_regression/
 
-    template <std::floating_point T>
+    template <std::floating_point T = double>
     class Statistics {
 
     public:

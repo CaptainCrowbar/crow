@@ -9,7 +9,7 @@ using namespace Crow;
 
 void test_crow_random_uniform_real_distribution_properties() {
 
-    auto ur = UniformReal<double>(10.0, 20.0);
+    auto ur = UniformReal(10.0, 20.0);
 
     TEST_EQUAL(ur.min(), 10);
     TEST_EQUAL(ur.max(), 20);
@@ -64,12 +64,12 @@ void test_crow_random_uniform_real_distribution() {
     static constexpr int iterations = 1'000'000;
 
     Pcg64 rng(42);
-    UniformReal<double> dist;
-    Statistics<double> stats;
+    UniformReal dist1;
+    Statistics stats;
     double x = 0;
 
     for (int i = 0; i < iterations; ++i) {
-        TRY(x = dist(rng));
+        TRY(x = dist1(rng));
         stats(x);
     }
 
@@ -78,11 +78,11 @@ void test_crow_random_uniform_real_distribution() {
     TEST_NEAR(stats.min(), 0, 0.001);
     TEST_NEAR(stats.max(), 1, 0.001);
 
-    TRY(dist = UniformReal<double>(-100, 100));
+    UniformReal dist2(-100.0, 100.0);
     stats.clear();
 
     for (int i = 0; i < iterations; ++i) {
-        TRY(x = dist(rng));
+        TRY(x = dist2(rng));
         stats(x);
     }
 
@@ -98,8 +98,8 @@ void test_crow_random_log_uniform_distribution() {
     static constexpr int iterations = 1'000'000;
 
     Pcg64 rng(42);
-    LogUniform<double> dist(10, 100'000);
-    Statistics<double> stats;
+    LogUniform dist(10.0, 100'000.0);
+    Statistics stats;
     std::array<int, 4> count = {{0,0,0,0}};
     double x = 0;
 
@@ -177,7 +177,7 @@ void test_crow_random_normal_distribution_properties() {
         { 5.00,   0.00000'14867'20,  0.99999'97133'48 },
     };
 
-    NormalDistribution<double> norm;
+    NormalDistribution norm;
 
     TEST_EQUAL(norm.mean(), 0);
     TEST_EQUAL(norm.variance(), 1);
@@ -200,23 +200,23 @@ void test_crow_random_normal_distribution() {
     static constexpr int iterations = 1'000'000;
 
     Pcg64 rng(42);
-    NormalDistribution<double> norm;
-    Statistics<double> stats;
+    NormalDistribution norm1;
+    Statistics stats;
     double x = 0;
 
     for (int i = 0; i < iterations; ++i) {
-        TRY(x = norm(rng));
+        TRY(x = norm1(rng));
         stats(x);
     }
 
     TEST_NEAR(stats.mean(), 0, 0.001);
     TEST_NEAR(stats.sd(), 1, 0.001);
 
-    TRY(norm = NormalDistribution<double>(100, 50));
+    NormalDistribution norm2(100.0, 50.0);
     stats.clear();
 
     for (int i = 0; i < iterations; ++i) {
-        TRY(x = norm(rng));
+        TRY(x = norm2(rng));
         stats(x);
     }
 
@@ -230,18 +230,18 @@ void test_crow_random_log_normal_distribution() {
     static constexpr int iterations = 1'000'000;
 
     Pcg64 rng(42);
-    LogNormal<double> dist;
-    Statistics<double> stats;
+    LogNormal<double> dist1;
+    Statistics stats;
     double x = 0;
     double lx = 0;
 
-    TEST_EQUAL(dist.m(), 0);
-    TEST_EQUAL(dist.s(), 1);
-    TEST_EQUAL(dist.median(), 1);
-    TEST_NEAR(dist.s_factor(), 2.718'282, 1e-6);
+    TEST_EQUAL(dist1.m(), 0);
+    TEST_EQUAL(dist1.s(), 1);
+    TEST_EQUAL(dist1.median(), 1);
+    TEST_NEAR(dist1.s_factor(), 2.718'282, 1e-6);
 
     for (int i = 0; i < iterations; ++i) {
-        TRY(x = dist(rng));
+        TRY(x = dist1(rng));
         lx = std::log(x);
         stats(lx);
     }
@@ -249,16 +249,16 @@ void test_crow_random_log_normal_distribution() {
     TEST_NEAR(stats.mean(), 0, 0.001);
     TEST_NEAR(stats.sd(), 1, 0.001);
 
-    dist = LogNormal<double>(2, 1, LogMode::common);
+    LogNormal dist2(2.0, 1.0, LogMode::common);
     stats.clear();
 
-    TEST_NEAR(dist.m(), 4.605'170, 1e-6);
-    TEST_NEAR(dist.s(), 2.302'585, 1e-6);
-    TEST_NEAR(dist.median(), 100, 1e-6);
-    TEST_NEAR(dist.s_factor(), 10, 1e-6);
+    TEST_NEAR(dist2.m(), 4.605'170, 1e-6);
+    TEST_NEAR(dist2.s(), 2.302'585, 1e-6);
+    TEST_NEAR(dist2.median(), 100, 1e-6);
+    TEST_NEAR(dist2.s_factor(), 10, 1e-6);
 
     for (int i = 0; i < iterations; ++i) {
-        TRY(x = dist(rng));
+        TRY(x = dist2(rng));
         lx = std::log(x);
         stats(lx);
     }

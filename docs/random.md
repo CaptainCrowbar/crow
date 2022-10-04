@@ -171,7 +171,7 @@ significant figures.
 #### Uniform integer distribution
 
 ```c++
-template <std::integral T> class UniformInteger {
+template <std::integral T = int> class UniformInteger {
     using result_type = T;
     constexpr UniformInteger() noexcept;
         // range=[0,1]
@@ -213,7 +213,7 @@ class BernoulliDistribution {
 #### Discrete normal distribution
 
 ```c++
-template <std::integral T> class DiscreteNormal {
+template <std::integral T = int> class DiscreteNormal {
     using result_type = T;
     DiscreteNormal() noexcept; // mean=0,sd=1
     DiscreteNormal(double mean, double sd) noexcept;
@@ -227,7 +227,7 @@ template <std::integral T> class DiscreteNormal {
 #### Poisson distribution
 
 ```c++
-template <std::integral T> class PoissonDistribution {
+template <std::integral T = int> class PoissonDistribution {
     using result_type = T;
     PoissonDistribution() noexcept;
         // lambda=1
@@ -249,7 +249,7 @@ template <std::integral T> class PoissonDistribution {
 #### Uniform real distribution
 
 ```c++
-template <std::floating_point T> class UniformReal {
+template <std::floating_point T = double> class UniformReal {
     using result_type = T;
     constexpr UniformReal() noexcept;
         // range=[0,1]
@@ -275,7 +275,7 @@ template <std::floating_point T> class UniformReal {
 #### Normal distribution
 
 ```c++
-template <std::floating_point T> class NormalDistribution {
+template <std::floating_point T = double> class NormalDistribution {
     using result_type = T;
     NormalDistribution() noexcept; // mean=0, sd=1
     NormalDistribution(T mean, T sd) noexcept;
@@ -295,7 +295,7 @@ template <std::floating_point T> class NormalDistribution {
 #### Log uniform distribution
 
 ```c++
-template <std::floating_point T> class LogUniform {
+template <std::floating_point T = double> class LogUniform {
     using result_type = T;
     constexpr LogUniform() noexcept; // range=[0,e)
     constexpr LogUniform(T min, T max) noexcept; // UB if min>max
@@ -309,7 +309,7 @@ template <std::floating_point T> class LogUniform {
 #### Log normal distribution
 
 ```c++
-template <std::floating_point T> class LogNormal {
+template <std::floating_point T = double> class LogNormal {
     using result_type = T;
     LogNormal() noexcept; // m=0, s=1
     LogNormal(T m, T s, LogMode mode = LogMode::natural) noexcept;

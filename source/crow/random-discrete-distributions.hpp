@@ -14,7 +14,7 @@
 
 namespace Crow {
 
-    template <std::integral T>
+    template <std::integral T = int>
     class UniformInteger {
 
     public:
@@ -150,7 +150,7 @@ namespace Crow {
 
     };
 
-    template <std::integral T>
+    template <std::integral T = int>
     class DiscreteNormal {
 
     public:
@@ -174,7 +174,7 @@ namespace Crow {
 
     };
 
-    template <std::integral T>
+    template <std::integral T = int>
     class PoissonDistribution {
 
     public:

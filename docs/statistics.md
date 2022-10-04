@@ -10,11 +10,10 @@ namespace Crow;
 ## Statistics class
 
 ```c++
-template <typename T> class Statistics;
+template <std::floating_point T = double> class Statistics;
 ```
 
-A `Statistics` object keeps running statistics for one or two variables. `T`
-must be a floating point arithmetic type.
+A `Statistics` object keeps running statistics for one or two variables.
 
 Member functions with an`x_` or `y_` prefix return the statistics for that
 variable. The versions with no prefix are synonyms for the `x_` version, for
