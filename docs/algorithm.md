@@ -106,13 +106,71 @@ template <ForwardRangeType Range1, ForwardRangeType Range2,
         const Range2& range2, T ins, T del, T sub);
 ```
 
-These return the edit distance (Levenshtein distance) between two ranges,
-based on the number of insertions, deletions, and substitutions required to
-transform one range into the other. By default, each operation is given a
-weight of 1; optionally, explicit weights can be given to each operation.
-Behaviour is undefined if any of the weights are negative.
 
-Complexity: _O(mn)_, where _m_ and _n_ are the lengths of the input ranges.
+```c++
+template <ArithmeticType T = double> class Levenshtein {
+    Levenshtein() noexcept;
+    Levenshtein(T ins, T del, T sub);
+    template <RandomAccessRangeType Range1, RandomAccessRangeType Range2>
+        T operator()(const Range1& a, const Range2& b) const;
+};
+```
+
+[Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance)
+between two strings, based on the number of insertions, deletions, and
+substitutions required to transform one range into the other. The constructor
+arguments are the weights for insertion, deletion, and substitution
+operations; all of these default to 1.
+
+The constructor will throw `std::invalid_argument` if any of the weights are
+negative.
+
+Complexity: _O(mn)_, where _m_ and _n_ are the lengths of the input strings.
+
+```c++
+template <ArithmeticType T = double> class DamerauLevenshtein {
+    DamerauLevenshtein() noexcept;
+    DamerauLevenshtein(T ins, T del, T sub, T exch);
+    template <RandomAccessRangeType Range1, RandomAccessRangeType Range2>
+        T operator()(const Range1& a, const Range2& b) const;
+};
+```
+
+[Damerau-Levenshtein distance](https://en.wikipedia.org/wiki/Damerau–Levenshtein_distance)
+between two strings, which allows insertion, deletion, substitution, as well
+as transposition of adjacent characters. The constructor arguments are the
+weights for insertion, deletion, substitution, and transposition operations;
+all of these default to 1.
+
+The constructor will throw `std::invalid_argument` if any of the weights are
+negative, or if `2*exch<ins+del`.
+
+Complexity: _O(mn)_, where _m_ and _n_ are the lengths of the input strings.
+
+```c++
+template <std::floating_point T = double> class JaroWinkler {
+    JaroWinkler() noexcept;
+    JaroWinkler(size_t prefix, T threshold, T scale);
+    template <RandomAccessRangeType Range1, RandomAccessRangeType Range2>
+        T operator()(const Range1& a, const Range2& b) const;
+};
+```
+
+[Jaro-Winkler distance](https://en.wikipedia.org/wiki/Jaro–Winkler_distance)
+between two strings, which gives a higher weight to matches within a prefix of
+the strings. This is normalized to a unit scale, returning 0 for no similarity
+and 1 for identical strings.
+
+The constructor arguments are:
+
+* `prefix` = Prefix length to be checked by the Winkler modification (default 4)
+* `threshold` = Apply the Winkler modification only if the distance is within this threshold (default 0.3)
+* `scale` = Scale factor applied to the Winkler modification (default 0.1)
+
+The constructor will throw `std::invalid_argument` if any of the weights are
+negative, if `threshold>1`, or if `scale*prefix>1`.
+
+Complexity: _O(mn)_, where _m_ and _n_ are the lengths of the input strings.
 
 ## Hash table comparison
 

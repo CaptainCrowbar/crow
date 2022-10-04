@@ -19,6 +19,7 @@
 #include <optional>
 #include <stdexcept>
 #include <type_traits>
+#include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
@@ -243,40 +244,268 @@ namespace Crow {
         return diff(lhs, rhs, std::equal_to<RangeValue<Range>>());
     }
 
-    // Edit distance (Levenshtein distance)
+    // Edit distance
 
-    template <ForwardRangeType Range1, ForwardRangeType Range2, ArithmeticType T>
-    T edit_distance(const Range1& range1, const Range2& range2, T ins, T del, T sub) {
+    template <ArithmeticType T = double>
+    class Levenshtein {
+    public:
+        Levenshtein() = default;
+        Levenshtein(T ins, T del, T sub);
+        template <RandomAccessRangeType Range1, RandomAccessRangeType Range2>
+            T operator()(const Range1& a, const Range2& b) const;
+    private:
+        T ins_ = 1;
+        T del_ = 1;
+        T sub_ = 1;
+    };
+
+    template <ArithmeticType T>
+    Levenshtein<T>::Levenshtein(T ins, T del, T sub):
+    ins_(ins), del_(del), sub_(sub) {
+        if (ins < 0 || del < 0 || sub < 0)
+            throw std::invalid_argument("Invalid costs for Levenshtein distance");
+    }
+
+    template <ArithmeticType T>
+    template <RandomAccessRangeType Range1, RandomAccessRangeType Range2>
+    T Levenshtein<T>::operator()(const Range1& a, const Range2& b) const {
 
         using std::begin;
         using std::end;
 
-        const ptrdiff_t n1 = std::distance(begin(range1), end(range1));
-        const ptrdiff_t n2 = std::distance(begin(range2), end(range2));
+        const int m = int(std::distance(begin(a), end(a)));
+        const int n = int(std::distance(begin(b), end(b)));
 
-        std::vector<T> buf1(n2 + 1);
-        std::vector<T> buf2(n2 + 1);
+        std::vector<T> buf1(n + 1, 0);
+        std::vector<T> buf2(n + 1, 0);
 
-        for (ptrdiff_t j = 1; j <= n2; ++j)
-            buf1[j] = buf1[j - 1] + ins;
+        for (int j = 0; j < n; ++j)
+            buf1[j + 1] = buf1[j] + ins_;
 
-        auto p = begin(range1);
+        for (int i = 0; i < m; ++i) {
 
-        for (ptrdiff_t i = 1; i <= n1; ++i, ++p) {
-            buf2[0] = del * T(i);
-            auto q = begin(range2);
-            for (ptrdiff_t j = 1; j <= n2; ++j, ++q)
-                buf2[j] = std::min({buf2[j - 1] + ins, buf1[j] + del, buf1[j - 1] + (*p == *q ? T(0) : sub)});
+            buf2[0] = del_ * (i + 1);
+
+            for (int j = 0; j < n; ++j) {
+                T inscost = buf2[j] + ins_;
+                T delcost = buf1[j + 1] + del_;
+                T subcost = buf1[j];
+                if (a[i] != b[j])
+                    subcost += sub_;
+                buf2[j + 1] = std::min({inscost, delcost, subcost});
+            }
+
             buf1.swap(buf2);
+
         }
 
-        return buf1[n2];
+        return buf1[n];
 
     }
 
-    template <ForwardRangeType Range1, ForwardRangeType Range2>
-    int edit_distance(const Range1& range1, const Range2& range2) {
-        return edit_distance(range1, range2, 1, 1, 1);
+    // Zhao and Sahni BMC Bioinformatics 2019, 20(Suppl 11):277
+    // https://doi.org/10.1186/s12859-019-2819-0
+    // Zhao and Sahni BMC Bioinformatics 2020, 21(Suppl 1):4
+    // https://doi.org/10.1186/s12859-019-3184-8
+
+    template <ArithmeticType T = double>
+    class DamerauLevenshtein {
+    public:
+        DamerauLevenshtein() = default;
+        DamerauLevenshtein(T ins, T del, T sub, T exch);
+        template <RandomAccessRangeType Range1, RandomAccessRangeType Range2>
+            T operator()(const Range1& a, const Range2& b) const;
+    private:
+        T ins_ = 1;
+        T del_ = 1;
+        T sub_ = 1;
+        T exch_ = 1;
+    };
+
+    template <ArithmeticType T>
+    DamerauLevenshtein<T>::DamerauLevenshtein(T ins, T del, T sub, T exch):
+    ins_(ins), del_(del), sub_(sub), exch_(exch) {
+        if (ins < 0 || del < 0 || sub < 0 || 2 * exch < ins + del)
+            throw std::invalid_argument("Invalid costs for Damerau-Levenshtein distance");
+    }
+
+    template <ArithmeticType T>
+    template <RandomAccessRangeType Range1, RandomAccessRangeType Range2>
+    T DamerauLevenshtein<T>::operator()(const Range1& a, const Range2& b) const {
+
+        using AT = std::decay_t<decltype(*begin(a))>;
+        using BT = std::decay_t<decltype(*begin(b))>;
+
+        static_assert(std::is_same_v<AT, BT>);
+
+        using std::begin;
+        using std::end;
+
+        const int m = int(std::distance(begin(a), end(a)));
+        const int n = int(std::distance(begin(b), end(b)));
+        const T maxcost = (m + n) * std::max({ins_, del_, sub_, exch_}) + 1;
+
+        std::unordered_map<AT, int> lastrow;
+        std::vector<T> fr(n + 2, maxcost);
+        std::vector<T> r1(n + 2, maxcost);
+        std::vector<T> r(n + 2);
+
+        for (auto& c: a)
+            lastrow[c] = -1;
+        for (auto& c: b)
+            lastrow[c] = -1;
+        r[0] = maxcost;
+        for (int i = 0; i <= n; ++i)
+            r[i + 1] = i;
+
+        for (int i = 0; i < m; ++i) {
+
+            r.swap(r1);
+            int lastcol = -1;
+            T lastval = r[1];
+            r[1] = i + 1;
+            T t = maxcost;
+
+            for (int j = 0; j < n; ++j) {
+
+                T inscost = r[j + 1] + ins_;
+                T delcost = r1[j + 2] + del_;
+                T subcost = r1[j + 1];
+
+                if (a[i] != b[j])
+                    subcost += sub_;
+
+                T cost = std::min({subcost, inscost, delcost});
+
+                if (a[i] == b[j]) {
+                    lastcol = j + 1;
+                    fr[j + 2] = r1[j];
+                    t = lastval;
+                } else {
+                    int k = lastrow[b[j]];
+                    int l = lastcol;
+                    if (j == l) {
+                        T exchcost = fr[j + 2] + exch_ + i - k;
+                        cost = std::min(cost, exchcost);
+                    } else if (i == k) {
+                        T exchcost = t + exch_ + j - l;
+                        cost = std::min(cost, exchcost);
+                    }
+                }
+
+                lastval = r[j + 2];
+                r[j + 2] = cost;
+
+            }
+
+            lastrow[a[i]] = i + 1;
+
+        }
+
+        return r[n + 1];
+
+    }
+
+    // https://stackoverflow.com/questions/19123506/jaro-winkler-distance-algorithm-in-c-sharp
+    // https://gist.github.com/ronnieoverby/2aa19724199df4ec8af6
+
+    // prefix     = Prefix length to be checked by Winkler modification (default 4)
+    // threshold  = Apply Winkler modification only if distance is within threshold (default 0.3)
+    // scale      = Scale factor applied to Winkler modification (default 0.1)
+
+    template <std::floating_point T = double>
+    class JaroWinkler {
+    public:
+        JaroWinkler() = default;
+        JaroWinkler(size_t prefix, T threshold, T scale);
+        template <RandomAccessRangeType Range1, RandomAccessRangeType Range2>
+            T operator()(const Range1& a, const Range2& b) const;
+    private:
+        size_t prefix_ = 4;
+        T threshold_ = 0.3f;
+        T scale_ = 0.1f;
+    };
+
+    template <std::floating_point T>
+    JaroWinkler<T>::JaroWinkler(size_t prefix, T threshold, T scale):
+    prefix_(prefix), threshold_(threshold), scale_(scale) {
+        if (prefix < 0)
+            throw std::invalid_argument("Invalid prefix length for Jaro-Winkler distance");
+        if (threshold < 0 || threshold > 1)
+            throw std::invalid_argument("Invalid distance threshold for Jaro-Winkler distance");
+        if (scale < 0 || scale * prefix > 1)
+            throw std::invalid_argument("Invalid scale factor for Jaro-Winkler distance");
+    }
+
+    template <std::floating_point T>
+    template <RandomAccessRangeType Range1, RandomAccessRangeType Range2>
+    T JaroWinkler<T>::operator()(const Range1& a, const Range2& b) const {
+
+        using std::begin;
+        using std::end;
+
+        using AT = std::decay_t<decltype(*begin(a))>;
+        using BT = std::decay_t<decltype(*begin(b))>;
+
+        static_assert(std::is_same_v<AT, BT>);
+
+        auto m = size_t(std::distance(begin(a), end(a)));
+        auto n = size_t(std::distance(begin(b), end(b)));
+
+        if (m == 0)
+            return n == 0 ? 0 : 1;
+
+        size_t max_mn = std::max(m, n);
+        size_t search_range = max_mn >= 2 ? max_mn / 2 - 1 : 0;
+
+        std::vector<bool> matched1(m, false);
+        std::vector<bool> matched2(n, false);
+
+        size_t num_common = 0;
+
+        for (size_t i = 0; i < m; ++i) {
+            size_t start = i > search_range ? i - search_range : 0;
+            size_t end = std::min(i + search_range + 1, n);
+            for (size_t j = start; j < end; ++j) {
+                if (! matched2[j] && a[i] == b[j]) {
+                    matched1[i] = matched2[j] = true;
+                    ++num_common;
+                    break;
+                }
+            }
+        }
+
+        if (num_common == 0)
+            return 1;
+
+        size_t num_half_transposed = 0;
+
+        for (size_t i = 0, j = 0; i < m; ++i) {
+            if (! matched1[i])
+                continue;
+            while (! matched2[j])
+                ++j;
+            if (a[i] != b[j])
+                ++num_half_transposed;
+            ++j;
+        }
+
+        size_t num_transposed = num_half_transposed / 2;
+        T num_common_d = num_common;
+        T distance = 1 - (num_common_d / m + num_common_d / n + (num_common - num_transposed) / num_common_d) / 3.0;
+
+        if (distance >= threshold_)
+            return distance;
+
+        size_t maxlen = std::min({prefix_, m, n});
+        size_t pos = 0;
+        while (pos < maxlen && a[pos] == b[pos])
+            ++pos;
+        if (pos != 0)
+            distance -= scale_ * pos * distance;
+
+        return distance;
+
     }
 
     // Hash table comparison

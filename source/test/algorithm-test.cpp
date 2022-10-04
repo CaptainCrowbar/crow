@@ -236,44 +236,75 @@ void test_crow_algorithm_diff() {
 
 }
 
-void test_crow_algorithm_edit_distance() {
+void test_crow_algorithm_edit_distance_levenshtein() {
 
-    TEST_EQUAL(edit_distance(""s,       ""s),                  0);
-    TEST_EQUAL(edit_distance("Hello"s,  ""s),                  5);
-    TEST_EQUAL(edit_distance(""s,       "Hello"s),             5);
-    TEST_EQUAL(edit_distance("Hello"s,  "Hello"s),             0);
-    TEST_EQUAL(edit_distance("Hello"s,  "hello"s),             1);
-    TEST_EQUAL(edit_distance("Hell"s,   "Hello"s),             1);
-    TEST_EQUAL(edit_distance("Hello"s,  "Hell"s),              1);
-    TEST_EQUAL(edit_distance("Hello"s,  "Hel"s),               2);
-    TEST_EQUAL(edit_distance("Hello"s,  "He"s),                3);
-    TEST_EQUAL(edit_distance("Hello"s,  "H"s),                 4);
-    TEST_EQUAL(edit_distance("Hello"s,  "World"s),             4);
-    TEST_EQUAL(edit_distance(""s,       ""s,        3, 2, 5),  0);
-    TEST_EQUAL(edit_distance("Hello"s,  ""s,        3, 2, 5),  10);
-    TEST_EQUAL(edit_distance(""s,       "Hello"s,   3, 2, 5),  15);
-    TEST_EQUAL(edit_distance("Hello"s,  "Hello"s,   3, 2, 5),  0);
-    TEST_EQUAL(edit_distance("Hell"s,   "Hello"s,   3, 2, 5),  3);
-    TEST_EQUAL(edit_distance("Hello"s,  "Hell"s,    3, 2, 5),  2);
-    TEST_EQUAL(edit_distance("Hello"s,  "Hel"s,     3, 2, 5),  4);
-    TEST_EQUAL(edit_distance("Hello"s,  "He"s,      3, 2, 5),  6);
-    TEST_EQUAL(edit_distance("Hello"s,  "H"s,       3, 2, 5),  8);
-    TEST_EQUAL(edit_distance("Hello"s,  "hello"s,   3, 2, 1),  1);
-    TEST_EQUAL(edit_distance("Hello"s,  "hello"s,   3, 2, 2),  2);
-    TEST_EQUAL(edit_distance("Hello"s,  "hello"s,   3, 2, 3),  3);
-    TEST_EQUAL(edit_distance("Hello"s,  "hello"s,   3, 2, 4),  4);
-    TEST_EQUAL(edit_distance("Hello"s,  "hello"s,   3, 2, 5),  5);
-    TEST_EQUAL(edit_distance("Hello"s,  "hello"s,   3, 2, 6),  5);
-    TEST_EQUAL(edit_distance("Hello"s,  "World"s,   1, 1, 5),  8);
-    TEST_EQUAL(edit_distance("Hello"s,  "World"s,   2, 2, 5),  16);
-    TEST_EQUAL(edit_distance("Hello"s,  "World"s,   3, 3, 5),  20);
-    TEST_EQUAL(edit_distance("Hello"s,  "World"s,   4, 4, 5),  20);
-    TEST_EQUAL(edit_distance("Hello"s,  "World"s,   3, 2, 1),  4);
-    TEST_EQUAL(edit_distance("Hello"s,  "World"s,   3, 2, 2),  8);
-    TEST_EQUAL(edit_distance("Hello"s,  "World"s,   3, 2, 3),  12);
-    TEST_EQUAL(edit_distance("Hello"s,  "World"s,   3, 2, 4),  16);
-    TEST_EQUAL(edit_distance("Hello"s,  "World"s,   3, 2, 5),  20);
-    TEST_EQUAL(edit_distance("Hello"s,  "World"s,   3, 2, 6),  20);
+    TEST_EQUAL(Levenshtein()(""s, ""s), 0);
+    TEST_EQUAL(Levenshtein()("Hello"s, ""s), 5);
+    TEST_EQUAL(Levenshtein()(""s, "Hello"s), 5);
+    TEST_EQUAL(Levenshtein()("Hello"s, "Hello"s), 0);
+    TEST_EQUAL(Levenshtein()("Hello"s, "hello"s), 1);
+    TEST_EQUAL(Levenshtein()("Hell"s, "Hello"s), 1);
+    TEST_EQUAL(Levenshtein()("Hello"s, "Hell"s), 1);
+    TEST_EQUAL(Levenshtein()("Hello"s, "Hel"s), 2);
+    TEST_EQUAL(Levenshtein()("Hello"s, "He"s), 3);
+    TEST_EQUAL(Levenshtein()("Hello"s, "H"s), 4);
+    TEST_EQUAL(Levenshtein()("Hello"s, "World"s), 4);
+    TEST_EQUAL(Levenshtein(3, 2, 5)(""s, ""s), 0);
+    TEST_EQUAL(Levenshtein(3, 2, 5)("Hello"s, ""s), 10);
+    TEST_EQUAL(Levenshtein(3, 2, 5)(""s, "Hello"s), 15);
+    TEST_EQUAL(Levenshtein(3, 2, 5)("Hello"s, "Hello"s), 0);
+    TEST_EQUAL(Levenshtein(3, 2, 5)("Hell"s, "Hello"s), 3);
+    TEST_EQUAL(Levenshtein(3, 2, 5)("Hello"s, "Hell"s), 2);
+    TEST_EQUAL(Levenshtein(3, 2, 5)("Hello"s, "Hel"s), 4);
+    TEST_EQUAL(Levenshtein(3, 2, 5)("Hello"s, "He"s), 6);
+    TEST_EQUAL(Levenshtein(3, 2, 5)("Hello"s, "H"s), 8);
+    TEST_EQUAL(Levenshtein(3, 2, 1)("Hello"s, "hello"s), 1);
+    TEST_EQUAL(Levenshtein(3, 2, 2)("Hello"s, "hello"s), 2);
+    TEST_EQUAL(Levenshtein(3, 2, 3)("Hello"s, "hello"s), 3);
+    TEST_EQUAL(Levenshtein(3, 2, 4)("Hello"s, "hello"s), 4);
+    TEST_EQUAL(Levenshtein(3, 2, 5)("Hello"s, "hello"s), 5);
+    TEST_EQUAL(Levenshtein(3, 2, 6)("Hello"s, "hello"s), 5);
+    TEST_EQUAL(Levenshtein(1, 1, 5)("Hello"s, "World"s), 8);
+    TEST_EQUAL(Levenshtein(2, 2, 5)("Hello"s, "World"s), 16);
+    TEST_EQUAL(Levenshtein(3, 3, 5)("Hello"s, "World"s), 20);
+    TEST_EQUAL(Levenshtein(4, 4, 5)("Hello"s, "World"s), 20);
+    TEST_EQUAL(Levenshtein(3, 2, 1)("Hello"s, "World"s), 4);
+    TEST_EQUAL(Levenshtein(3, 2, 2)("Hello"s, "World"s), 8);
+    TEST_EQUAL(Levenshtein(3, 2, 3)("Hello"s, "World"s), 12);
+    TEST_EQUAL(Levenshtein(3, 2, 4)("Hello"s, "World"s), 16);
+    TEST_EQUAL(Levenshtein(3, 2, 5)("Hello"s, "World"s), 20);
+    TEST_EQUAL(Levenshtein(3, 2, 6)("Hello"s, "World"s), 20);
+
+}
+
+void test_crow_algorithm_edit_distance_damerau_levenshtein() {
+
+    TEST_EQUAL(DamerauLevenshtein()(""s, ""s), 0);
+    TEST_EQUAL(DamerauLevenshtein()("abcde"s, ""s), 5);
+    TEST_EQUAL(DamerauLevenshtein()(""s, "abcde"s), 5);
+    TEST_EQUAL(DamerauLevenshtein()("abcde"s, "abcde"s), 0);
+    TEST_EQUAL(DamerauLevenshtein()("abcde"s, "abcdz"s), 1);
+    TEST_EQUAL(DamerauLevenshtein()("abcd"s, "abcde"s), 1);
+    TEST_EQUAL(DamerauLevenshtein()("abcde"s, "abcd"s), 1);
+    TEST_EQUAL(DamerauLevenshtein()("abcde"s, "abc"s), 2);
+    TEST_EQUAL(DamerauLevenshtein()("abcde"s, "ab"s), 3);
+    TEST_EQUAL(DamerauLevenshtein()("abcde"s, "a"s), 4);
+    TEST_EQUAL(DamerauLevenshtein()("abcde"s, "fghij"s), 5);
+    TEST_EQUAL(DamerauLevenshtein()("abcde"s, "badce"s), 2);
+    TEST_EQUAL(DamerauLevenshtein()("abcde"s, "badec"s), 3);
+    TEST_EQUAL(DamerauLevenshtein()("abcde"s, "ecdba"s), 4);
+
+}
+
+void test_crow_algorithm_edit_distance_jaro_winkler() {
+
+    TEST_EQUAL(JaroWinkler()(""s, ""s), 0);
+    TEST_EQUAL(JaroWinkler()("Hello"s, "Hello"s), 0);
+    TEST_NEAR(JaroWinkler()("Hello"s, "hello"s), 0.1333, 1e-4);
+    TEST_NEAR(JaroWinkler()("Hello"s, "HellO"s), 0.0800, 1e-4);
+    TEST_NEAR(JaroWinkler()("Hello"s, "HELLO"s), 0.5333, 1e-4);
+    TEST_NEAR(JaroWinkler()("Hello"s, "World"s), 0.5333, 1e-4);
+    TEST_EQUAL(JaroWinkler()("abcde"s, "fghij"s), 1);
 
 }
 
