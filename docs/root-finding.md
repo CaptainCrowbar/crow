@@ -34,7 +34,7 @@ protected:
 };
 ```
 
-The base class for root finding algorithms.
+The abstract base class for root finding algorithms.
 
 The `solve()` functions perform the actual root finding, solving `f(x)=y`.
 These call the virtual `do_solve()` function, which implements the actual root
@@ -60,7 +60,20 @@ call to `solve()`. Initially they will both return 0.
 ## Newton-Raphson algorithm
 
 ```c++
+template <typename T, typename F, typename DF>
+concept NewtonRaphsonArgumentTypes =
+    std::floating_point<T>
+    && requires (T t, F f, DF df) {
+        { f(t) } -> std::convertible_to<T>;
+        { df(t) } -> std::convertible_to<T>;
+    };
+```
+
+Requirements on the argument types for the Newton-Raphson algorithm.
+
+```c++
 template <std::floating_point T, typename F, typename DF>
+requires (NewtonRaphsonArgumentTypes<T, F, DF>)
 class NewtonRaphson: public RootFinder<T> {
     NewtonRaphson(F f, DF df);
 };
@@ -72,6 +85,7 @@ find a root of a function. The arguments are the function and its derivative.
 
 ```c++
 template <std::floating_point T, typename F, typename DF>
+    requires (NewtonRaphsonArgumentTypes<T, F, DF>)
     std::unique_ptr<RootFinder<T>> newton_raphson(F f, DF df);
 ```
 

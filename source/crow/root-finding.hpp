@@ -34,20 +34,22 @@ namespace Crow {
         int count_ = 0;
     };
 
-    template <std::floating_point T, typename F, typename DF>
+    template <typename T, typename F, typename DF>
+    concept NewtonRaphsonArgumentTypes =
+        std::floating_point<T>
+        && requires (T t, F f, DF df) {
+            { f(t) } -> std::convertible_to<T>;
+            { df(t) } -> std::convertible_to<T>;
+        };
+
+    template <typename T, typename F, typename DF>
+    requires (NewtonRaphsonArgumentTypes<T, F, DF>)
     class NewtonRaphson:
     public RootFinder<T> {
     public:
         NewtonRaphson(F f, DF df): RootFinder<T>(), f_(f), df_(df) {}
     protected:
-        T do_solve(T y, T x1, T x2) override;
-    private:
-        F f_;
-        DF df_;
-    };
-
-        template <std::floating_point T, typename F, typename DF>
-        T NewtonRaphson<T, F, DF>::do_solve(T y, T x1, T /*x2*/) {
+        T do_solve(T y, T x1, T /*x2*/) override {
             this->set_count(0);
             this->set_error(0);
             for (int i = 0; i < this->limit(); ++i) {
@@ -64,8 +66,13 @@ namespace Crow {
             }
             return x1;
         }
+    private:
+        F f_;
+        DF df_;
+    };
 
-    template <std::floating_point T, typename F, typename DF>
+    template <typename T, typename F, typename DF>
+    requires (NewtonRaphsonArgumentTypes<T, F, DF>)
     std::unique_ptr<RootFinder<T>> newton_raphson(F f, DF df) {
         return std::make_unique<NewtonRaphson<T, F, DF>>(f, df);
     }
