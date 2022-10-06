@@ -123,6 +123,10 @@ void test_crow_iterator_iota() {
     TRY(std::copy(xs.begin(), xs.end(), overwrite(v)));
     TEST_EQUAL(format_range(v), "[0,1,2,3,4]");
 
+    TRY(xs = iota_range(-5));
+    TRY(std::copy(xs.begin(), xs.end(), overwrite(v)));
+    TEST_EQUAL(format_range(v), "[0,-1,-2,-3,-4]");
+
     TRY(xs = iota_range(1, 6));
     TRY(std::copy(xs.begin(), xs.end(), overwrite(v)));
     TEST_EQUAL(format_range(v), "[1,2,3,4,5]");
@@ -131,13 +135,37 @@ void test_crow_iterator_iota() {
     TRY(std::copy(xs.begin(), xs.end(), overwrite(v)));
     TEST_EQUAL(format_range(v), "[5,4,3,2,1]");
 
-    TRY(xs = iota_range(1, 11, 2));
+    TRY(xs = iota_range(1, 20, 3));
     TRY(std::copy(xs.begin(), xs.end(), overwrite(v)));
-    TEST_EQUAL(format_range(v), "[1,3,5,7,9]");
+    TEST_EQUAL(format_range(v), "[1,4,7,10,13,16,19]");
 
-    TRY(xs = iota_range(9, -1, -2));
+    TRY(xs = iota_range(1, 21, 3));
     TRY(std::copy(xs.begin(), xs.end(), overwrite(v)));
-    TEST_EQUAL(format_range(v), "[9,7,5,3,1]");
+    TEST_EQUAL(format_range(v), "[1,4,7,10,13,16,19]");
+
+    TRY(xs = iota_range(1, 22, 3));
+    TRY(std::copy(xs.begin(), xs.end(), overwrite(v)));
+    TEST_EQUAL(format_range(v), "[1,4,7,10,13,16,19]");
+
+    TRY(xs = iota_range(1, 23, 3));
+    TRY(std::copy(xs.begin(), xs.end(), overwrite(v)));
+    TEST_EQUAL(format_range(v), "[1,4,7,10,13,16,19,22]");
+
+    TRY(xs = iota_range(-1, -20, -3));
+    TRY(std::copy(xs.begin(), xs.end(), overwrite(v)));
+    TEST_EQUAL(format_range(v), "[-1,-4,-7,-10,-13,-16,-19]");
+
+    TRY(xs = iota_range(-1, -21, -3));
+    TRY(std::copy(xs.begin(), xs.end(), overwrite(v)));
+    TEST_EQUAL(format_range(v), "[-1,-4,-7,-10,-13,-16,-19]");
+
+    TRY(xs = iota_range(-1, -22, -3));
+    TRY(std::copy(xs.begin(), xs.end(), overwrite(v)));
+    TEST_EQUAL(format_range(v), "[-1,-4,-7,-10,-13,-16,-19]");
+
+    TRY(xs = iota_range(-1, -23, -3));
+    TRY(std::copy(xs.begin(), xs.end(), overwrite(v)));
+    TEST_EQUAL(format_range(v), "[-1,-4,-7,-10,-13,-16,-19,-22]");
 
 }
 

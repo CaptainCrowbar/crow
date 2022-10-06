@@ -204,10 +204,10 @@ namespace Crow {
     public ForwardIterator<IotaIterator<T>, const T> {
     public:
         IotaIterator() = default;
-        explicit IotaIterator(T start): value_(start), delta_(static_cast<T>(1)) {}
-        IotaIterator(T start, T delta): value_(start), delta_(delta) {}
+        explicit IotaIterator(T start) noexcept: value_(start), delta_(static_cast<T>(1)) {}
+        IotaIterator(T start, T delta) noexcept: value_(start), delta_(delta) {}
         const T& operator*() const noexcept { return value_; }
-        IotaIterator& operator++() { value_ += delta_; return *this; }
+        IotaIterator& operator++() noexcept { value_ += delta_; return *this; }
         bool operator==(const IotaIterator& i) const noexcept { return value_ == i.value_; }
     private:
         T value_ = T(0);
@@ -215,19 +215,26 @@ namespace Crow {
     };
 
     template <ArithmeticType T>
-    Irange<IotaIterator<T>> iota_range(T stop) {
-        return {{T(0), T(1)}, {stop, T(1)}};
+    Irange<IotaIterator<T>> iota_range(T stop) noexcept {
+        T delta = T(stop >= 0 ? 1 : -1);
+        return {{T(0), delta}, {stop, delta}};
     }
 
     template <ArithmeticType T>
-    Irange<IotaIterator<T>> iota_range(T start, T stop) {
-        T delta = stop < start ? T(-1) : T(1);
+    Irange<IotaIterator<T>> iota_range(T start, T stop) noexcept {
+        T delta = T(stop >= start ? 1 : -1);
         return {{start, delta}, {stop, delta}};
     }
 
     template <ArithmeticType T>
-    Irange<IotaIterator<T>> iota_range(T start, T stop, T delta) {
-        return {{start, delta}, {stop, delta}};
+    Irange<IotaIterator<T>> iota_range(T start, T stop, T delta) noexcept {
+        // UB if delta=0 or delta and offset have opposite signs
+        T offset = T(stop - start);
+        T steps = offset / delta;
+        if (offset % delta != 0)
+            steps += 1;
+        T end = start + delta * steps;
+        return {{start, delta}, {end, delta}};
     }
 
 }

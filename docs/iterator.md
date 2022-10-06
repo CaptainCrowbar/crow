@@ -21,8 +21,10 @@ template <SimpleContainerType Container> class AppendIterator;
 An output iterator that appends items to the container.
 
 ```c++
-template <SimpleContainerType Container> AppendIterator<Container> append(Container& c);
-template <SimpleContainerType Container> AppendIterator<Container> overwrite(Container& c);
+template <SimpleContainerType Container>
+    AppendIterator<Container> append(Container& c);
+template <SimpleContainerType Container>
+    AppendIterator<Container> overwrite(Container& c);
 ```
 
 The `append()` function returns an append iterator for the container. The
@@ -43,24 +45,29 @@ value type `T*`, then `DereferenceIterator` has value type `T`.
 
 ```c++
 template <ArithmeticType T> class IotaIterator {
-    IotaIterator();
-    explicit IotaIterator(T start);
-    IotaIterator(T start, T delta);
+    IotaIterator() noexcept;
+    explicit IotaIterator(T start) noexcept;
+    IotaIterator(T start, T delta) noexcept;
 };
 template <ArithmeticType T>
-    Irange<IotaIterator<T>> iota_range(T stop);
+    Irange<IotaIterator<T>> iota_range(T stop) noexcept;
 template <ArithmeticType T>
-    Irange<IotaIterator<T>> iota_range(T start, T stop);
+    Irange<IotaIterator<T>> iota_range(T start, T stop) noexcept;
 template <ArithmeticType T>
-    Irange<IotaIterator<T>> iota_range(T start, T stop, T delta);
+    Irange<IotaIterator<T>> iota_range(T start, T stop, T delta) noexcept;
 ```
 
 A forward iterator over an arithmetic sequence. The first version of
-`iota_range()` iterates from zero to `stop-1`. The second version iterates
-from `start` to `stop-1`, or from `start` down to `stop+1` if `start>stop`.
-The third version iterates from `start` to `stop-delta` in increments of
-`delta`. Behaviour is undefined if `stop-start` is not a multiple of
+`iota_range()` iterates from zero to `stop`; the second iterates from `start`
+to `stop`; the third iterates from `start` to `stop` in increments of
 `delta`.
+
+All of these are half open ranges; for example, `iota_range(100)` iterates
+from 0 to 99. The range will be empty if `start=stop`.
+
+The `delta` increment can be negative; it will automatically be -1 in the
+first or second version if `start>stop`. In the third version, behaviour is
+undefined if `delta=0` or if `delta` and `stop-start` have opposite signs.
 
 ## Mixin classes
 
@@ -70,7 +77,8 @@ template <typename T> class OutputIterator;
 template <typename T, typename CV> class ForwardIterator;
 template <typename T, typename CV> class BidirectionalIterator;
 template <typename T, typename CV> class RandomAccessIterator;
-template <typename T, typename CV, typename Category> class FlexibleIterator:
+template <typename T, typename CV, typename Category>
+    class FlexibleIterator;
 ```
 
 These are intended to be used as base classes, following the well known CRTP
