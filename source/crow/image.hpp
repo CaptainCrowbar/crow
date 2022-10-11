@@ -109,7 +109,7 @@ namespace Crow {
 
             operator ImageIterator<I, C, true>() const noexcept requires (! Const) { return {*image_, index_}; }
 
-            CC& operator*() const noexcept { return image_->pixels()[index_]; }
+            CC& operator*() const noexcept { return image_->pixel_data()[index_]; }
             CC* operator->() const noexcept { return &**this; }
             ImageIterator& operator++() noexcept { ++index_; return *this; }
             ImageIterator operator++(int) noexcept { auto i = *this; ++*this; return i; }
@@ -164,7 +164,7 @@ namespace Crow {
         Image(int w, int h, colour_type c) { reset(w, h, c); }
 
         ~Image() noexcept = default;
-        Image(const Image& img) { reset(img.shape()); std::memcpy(data(), img.data(), bytes()); }
+        Image(const Image& img) { reset(img.shape()); std::memcpy(channel_data(), img.channel_data(), bytes()); }
         Image(Image&& img) noexcept: pix_(std::move(img.pix_)), shape_(img.shape_) { img.shape_ = {0, 0}; }
         Image& operator=(const Image& img) { Image copy(img); swap(copy); return *this; }
         Image& operator=(Image&& img) noexcept { Image copy(std::move(img)); swap(copy); return *this; }
@@ -178,10 +178,10 @@ namespace Crow {
         const_iterator begin() const noexcept { return const_iterator(*this, 0); }
         iterator end() noexcept { return iterator(*this, int64_t(size())); }
         const_iterator end() const noexcept { return const_iterator(*this, int64_t(size())); }
-        CT* pixels() noexcept { return pix_.get(); }
-        const CT* pixels() const noexcept { return pix_.get(); }
-        channel_type* data() noexcept { return pixels()->begin(); }
-        const channel_type* data() const noexcept { return pixels()->begin(); }
+        channel_type* channel_data() noexcept { return pixel_data()->begin(); }
+        const channel_type* channel_data() const noexcept { return pixel_data()->begin(); }
+        CT* pixel_data() noexcept { return pix_.get(); }
+        const CT* pixel_data() const noexcept { return pix_.get(); }
 
         iterator bottom_left() noexcept { return locate(0, is_top_down ? height() - 1 : 0); }
         const_iterator bottom_left() const noexcept { return locate(0, is_top_down ? height() - 1 : 0); }
@@ -293,17 +293,17 @@ namespace Crow {
         if constexpr (std::is_same_v<channel_type, uint8_t>) {
             auto image_ptr = Detail::load_image_8(file, shape);
             Image<Rgba8> image(shape);
-            std::memcpy(image.data(), image_ptr.get(), image.bytes());
+            std::memcpy(image.channel_data(), image_ptr.get(), image.bytes());
             convert_image(image, *this);
         } else if constexpr (std::is_same_v<channel_type, uint16_t>) {
             auto image_ptr = Detail::load_image_16(file, shape);
             Image<Rgba16> image(shape);
-            std::memcpy(image.data(), image_ptr.get(), image.bytes());
+            std::memcpy(image.channel_data(), image_ptr.get(), image.bytes());
             convert_image(image, *this);
         } else {
             auto image_ptr = Detail::load_image_hdr(file, shape);
             Image<Rgbaf> image(shape);
-            std::memcpy(image.data(), image_ptr.get(), image.bytes());
+            std::memcpy(image.channel_data(), image_ptr.get(), image.bytes());
             convert_image(image, *this);
         }
     }
@@ -435,13 +435,13 @@ namespace Crow {
         working_image working_output(actual_shape);
 
         if constexpr (std::is_same_v<channel_type, uint8_t>)
-            Detail::resize_image_8(working_input.data(), shape_, working_output.data(), actual_shape,
+            Detail::resize_image_8(working_input.channel_data(), shape_, working_output.channel_data(), actual_shape,
                 working_colour::channels, working_colour::alpha_index, stb_flags, stb_edge, stb_filter, stb_space);
         else if constexpr (std::is_same_v<channel_type, uint16_t>)
-            Detail::resize_image_16(working_input.data(), shape_, working_output.data(), actual_shape,
+            Detail::resize_image_16(working_input.channel_data(), shape_, working_output.channel_data(), actual_shape,
                 working_colour::channels, working_colour::alpha_index, stb_flags, stb_edge, stb_filter, stb_space);
         else
-            Detail::resize_image_hdr(working_input.data(), shape_, working_output.data(), actual_shape,
+            Detail::resize_image_hdr(working_input.channel_data(), shape_, working_output.channel_data(), actual_shape,
                 working_colour::channels, working_colour::alpha_index, stb_flags, stb_edge, stb_filter, stb_space);
 
         Image result;

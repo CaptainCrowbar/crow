@@ -124,13 +124,13 @@ namespace Crow {
             auto name = file.name();
             int rc = 0;
             if (format == ".bmp")
-                rc = stbi_write_bmp(name.data(), image.width(), image.height(), 4, image.data());
+                rc = stbi_write_bmp(name.data(), image.width(), image.height(), 4, image.channel_data());
             else if (format == ".jpg" || format == ".jpeg")
-                rc = stbi_write_jpg(name.data(), image.width(), image.height(), 4, image.data(), quality);
+                rc = stbi_write_jpg(name.data(), image.width(), image.height(), 4, image.channel_data(), quality);
             else if (format == ".png")
-                rc = stbi_write_png(name.data(), image.width(), image.height(), 4, image.data(), 0);
+                rc = stbi_write_png(name.data(), image.width(), image.height(), 4, image.channel_data(), 0);
             else if (format == ".tga")
-                rc = stbi_write_tga(name.data(), image.width(), image.height(), 4, image.data());
+                rc = stbi_write_tga(name.data(), image.width(), image.height(), 4, image.channel_data());
             else
                 throw ImageIoError(file, "Unknown file format", false);
             if (rc == 0)
@@ -139,7 +139,7 @@ namespace Crow {
 
         void save_image_hdr(const Image<Rgbaf>& image, const Path& file) {
             auto name = file.name();
-            int rc = stbi_write_hdr(name.data(), image.width(), image.height(), 4, image.data());
+            int rc = stbi_write_hdr(name.data(), image.width(), image.height(), 4, image.channel_data());
             if (rc == 0)
                 throw ImageIoError(file, {}, false);
         }

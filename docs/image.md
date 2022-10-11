@@ -205,10 +205,10 @@ These return iterators pointing to the pixel at one corner of the image.
 Behaviour is undefined if the image is empty.
 
 ```c++
-channel_type* Image::data() noexcept;
-const channel_type* Image::data() const noexcept;
-CT* Image::pixels() noexcept;
-const CT* Image::pixels() const noexcept;
+CT* Image::pixel_data() noexcept;
+const CT* Image::pixel_data() const noexcept;
+channel_type* Image::channel_data() noexcept;
+const channel_type* Image::channel_data() const noexcept;
 ```
 
 Pointers to the image data.
