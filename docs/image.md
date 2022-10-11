@@ -44,24 +44,6 @@ enum class ImageResize: int {
 Bitmask flags controlling the behaviour of the `resize()` function.
 
 ```c++
-enum class ImageResize: int {
-    none = 0,
-    set_aspect,  // Set a new aspect ratio (default)
-    fix_width,   // Set width, ignore height, keep aspect ratio
-    fix_height,  // Set height, ignore width, keep aspect ratio
-    fit_inside,  // Fit inside width and height, keep aspect ratio
-    wrap,        // Wrap at edges
-};
-```
-
-Bitmask flags controlling image resizing behaviour. The `wrap` flag treats the
-image as wrapped around in both directions when interpolating edge values.
-The other four flags determine how the image's dimensions are adjusted. By
-default, the dimensions or scale factor passed to the resizing function are
-used directly, which may change the image's aspect ratio; the other options
-keep the original aspect ratio.
-
-```c++
 class ImageIoError:
 public std::runtime_error {
     IO::Path file() const noexcept;
