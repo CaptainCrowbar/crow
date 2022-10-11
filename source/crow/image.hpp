@@ -85,15 +85,16 @@ namespace Crow {
         void resize_image_hdr(const float* in, Point ishape, float* out, Point oshape, int num_channels, int alpha_channel,
             int stb_flags, int stb_edge, int stb_filter, int stb_space);
 
-    }
+        template <typename I, typename C, bool Const>
+        class ImageIterator {
 
-    template <ColourType CT, ImageFlags Flags>
-    class Image {
+        private:
 
-    private:
+            using CI = std::conditional_t<Const, const I, I>;
+            using CC = std::conditional_t<Const, const C, C>;
 
-        template <typename CI, typename CC>
-        class basic_iterator {
+            CI* image_;
+            int64_t index_;
 
         public:
 
@@ -101,22 +102,22 @@ namespace Crow {
             using iterator_category = std::bidirectional_iterator_tag;
             using pointer = CC*;
             using reference = CC&;
-            using value_type = typename CT::value_type;
+            using value_type = C;
 
-            basic_iterator() = default;
-            basic_iterator(const basic_iterator<std::remove_const_t<CI>, std::remove_const_t<CC>>& i):
-                image_(i.image_), index_(i.index_) {}
+            ImageIterator() = default;
+            ImageIterator(CI& image, int64_t index) noexcept: image_(&image), index_(index) {}
 
-            CC& operator*() const noexcept { return image_->pix_.get()[index_]; }
+            operator ImageIterator<I, C, true>() const noexcept requires (! Const) { return {*image_, index_}; }
+
+            CC& operator*() const noexcept { return image_->pixels()[index_]; }
             CC* operator->() const noexcept { return &**this; }
-            basic_iterator& operator++() noexcept { ++index_; return *this; }
-            basic_iterator operator++(int) noexcept { auto i = *this; ++*this; return i; }
-            basic_iterator& operator--() noexcept { --index_; return *this; }
-            basic_iterator operator--(int) noexcept { auto i = *this; --*this; return i; }
-            bool operator==(const basic_iterator& i) const noexcept { return index_ == i.index_; }
-            bool operator!=(const basic_iterator& i) const noexcept { return ! (*this == i); }
+            ImageIterator& operator++() noexcept { ++index_; return *this; }
+            ImageIterator operator++(int) noexcept { auto i = *this; ++*this; return i; }
+            ImageIterator& operator--() noexcept { --index_; return *this; }
+            ImageIterator operator--(int) noexcept { auto i = *this; --*this; return i; }
+            bool operator==(const ImageIterator& i) const noexcept { return index_ == i.index_; }
 
-            basic_iterator& move(int axis, int distance = 1) noexcept {
+            ImageIterator& move(int axis, int distance = 1) noexcept {
                 int64_t d = distance;
                 if ((axis & 1) == 1)
                     d *= image_->width();
@@ -130,27 +131,20 @@ namespace Crow {
                 return {x, y};
             }
 
-        private:
-
-            friend class Image;
-
-            CI* image_;
-            CC* data_;
-            int64_t index_;
-
-            basic_iterator(CI& image, int64_t index) noexcept:
-                image_(&image), index_(index) {}
-
         };
 
+    }
+
+    template <ColourType CT, ImageFlags Flags>
+    class Image {
 
     public:
 
         using channel_type = typename CT::value_type;
         using colour_space = typename CT::colour_space;
         using colour_type = CT;
-        using iterator = basic_iterator<Image, colour_type>;
-        using const_iterator = basic_iterator<const Image, const colour_type>;
+        using iterator = Detail::ImageIterator<Image, colour_type, false>;
+        using const_iterator = Detail::ImageIterator<Image, colour_type, true>;
 
         static constexpr int channels = colour_type::channels;
         static constexpr ColourLayout colour_layout = CT::layout;
@@ -184,8 +178,10 @@ namespace Crow {
         const_iterator begin() const noexcept { return const_iterator(*this, 0); }
         iterator end() noexcept { return iterator(*this, int64_t(size())); }
         const_iterator end() const noexcept { return const_iterator(*this, int64_t(size())); }
-        channel_type* data() noexcept { return reinterpret_cast<channel_type*>(pix_.get()); }
-        const channel_type* data() const noexcept { return reinterpret_cast<const channel_type*>(pix_.get()); }
+        CT* pixels() noexcept { return pix_.get(); }
+        const CT* pixels() const noexcept { return pix_.get(); }
+        channel_type* data() noexcept { return pixels()->begin(); }
+        const channel_type* data() const noexcept { return pixels()->begin(); }
 
         iterator bottom_left() noexcept { return locate(0, is_top_down ? height() - 1 : 0); }
         const_iterator bottom_left() const noexcept { return locate(0, is_top_down ? height() - 1 : 0); }

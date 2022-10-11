@@ -93,9 +93,11 @@ class Image::const_iterator {
 Bidirectional iterators over the image's pixels. Iterators have two additional
 member functions:
 
-* `move()` moves the iterator along the given axis by the given number of pixels.
-    The axis is 0 for x, 1 for y; you can also use 'x' and 'y'.
-* `pos()` returns the position vector corresponding to the iterator's current position.
+* `move()` moves the iterator along the given axis by the given number of
+  pixels. The axis is 0 for x, 1 for y; you can also use 'x' and 'y'.
+  Behaviour is undefined if the axis is not one of these values.
+* `pos()` returns the position vector corresponding to the iterator's current
+  position.
 
 Iterators can be considered to exist in an infinite plane (bounded in practise
 by the range of an `int`); moving an iterator outside the bounds of the image
@@ -205,6 +207,8 @@ Behaviour is undefined if the image is empty.
 ```c++
 channel_type* Image::data() noexcept;
 const channel_type* Image::data() const noexcept;
+CT* Image::pixels() noexcept;
+const CT* Image::pixels() const noexcept;
 ```
 
 Pointers to the image data.

@@ -49,6 +49,12 @@ void test_crow_image_pixel_access() {
 
     Image<Rgba8> rgb;
     Image<Rgbaf> hdr;
+    const auto& rgbc = rgb;
+    const auto& hdrc = hdr;
+    Image<Rgba8>::iterator rgbi;
+    Image<Rgbaf>::iterator hdri;
+    Image<Rgba8>::const_iterator rgbci;
+    Image<Rgbaf>::const_iterator hdrci;
 
     TRY(rgb.reset(100, 200, Rgba8::red()));
     TRY(hdr.reset(300, 400, Rgbaf::green()));
@@ -88,6 +94,13 @@ void test_crow_image_pixel_access() {
     TEST_EQUAL(hdr(299, 0),    Rgbaf::red());
     TEST_EQUAL(hdr(0, 399),    Rgbaf::yellow());
     TEST_EQUAL(hdr(299, 399),  Rgbaf::blue());
+
+    TRY(rgbi = rgb.begin());
+    TRY(rgbci = rgb.begin());
+    TRY(rgbci = rgbc.begin());
+    TRY(hdri = hdr.begin());
+    TRY(hdrci = hdr.begin());
+    TRY(hdrci = hdrc.begin());
 
 }
 
