@@ -62,9 +62,9 @@ WebClient& operator=(WebClient&& c) noexcept;
 Other life cycle functions. `WebClient` objects are not copyable.
 
 ```c++
-HttpStatus http_get(const IO::Uri& uri, std::string& body);
-HttpStatus http_get(const IO::Uri& uri, Headers& head, std::string& body);
-HttpStatus http_head(const IO::Uri& uri, Headers& head);
+HttpStatus http_get(const Uri& uri, std::string& body);
+HttpStatus http_get(const Uri& uri, Headers& head, std::string& body);
+HttpStatus http_head(const Uri& uri, Headers& head);
 ```
 
 Perform an HTTP(S) request. The `head` and `body` arguments, if present, will

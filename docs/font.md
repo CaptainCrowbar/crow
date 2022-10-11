@@ -41,7 +41,7 @@ Font::Font();
 The default constructor creates a null font with no name or glyphs.
 
 ```c++
-explicit Font::Font(const IO::Path& file, int index = 0);
+explicit Font::Font(const Path& file, int index = 0);
 ```
 
 Load a font from a file (OTF, TTF, or TTC). The index indicates which font to
@@ -87,7 +87,7 @@ functions will return false if any of the characters being queried is not a
 valid Unicode scalar value.
 
 ```c++
-static std::vector<Font> Font::load(const IO::Path& file);
+static std::vector<Font> Font::load(const Path& file);
 ```
 
 Loads all of the available fonts from a TTC file. For OTF and TTF files this
@@ -203,7 +203,7 @@ because the text is empty or contains only whitespace characters, or the
 rendered glyphs fall entirely outside the image.
 
 ```c++
-Core::Box_i2 ScaledFont::text_box(const std::string& text,
+Box_i2 ScaledFont::text_box(const std::string& text,
     int line_shift = 0) const;
 ```
 
@@ -324,14 +324,14 @@ null font if no matching font is present in the `FontMap`.
 
 ```c++
 void FontMap::search(const std::string& dir,
-    IO::Path::flag flags = IO::Path::flag::none);
+    Path::flag flags = Path::flag::none);
 ```
 
 Searches the given directory for all readable font files. This will do nothing
 if `dir` does not exist, or exists but is not a directory. Searches are
 cumulative; previously loaded fonts are not cleared before a search.
 
-The `flags` argument can be `IO::Path::recurse` to search subdirectories
+The `flags` argument can be `Path::recurse` to search subdirectories
 recursively.
 
 ```c++

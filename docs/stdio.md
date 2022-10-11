@@ -154,8 +154,8 @@ template <typename... Args>
 template <typename... Args> void IoBase::print(Args&&... args);
 ```
 
-Formatted output functions. These call `Format::format()` or
-`Format::prints()` and write the resulting string to the output stream.
+Formatted output functions. These call `format()` or `prints()` and write the
+resulting string to the output stream.
 
 ```c++
 Irange<LineIterator> IoBase::lines();
@@ -196,7 +196,7 @@ the standard I/O streams.
 explicit Cstdio::Cstdio(const Path& f, IoMode m = IoMode::read);
 ```
 
-Opens the file using one of the standard `IO::mode` values, defaulting to read
+Opens the file using one of the standard `IoMode` values, defaulting to read
 only.
 
 ```c++
@@ -281,7 +281,7 @@ the standard I/O streams.
 explicit Fdio::Fdio(const Path& f, IoMode m = IoMode::read);
 ```
 
-Opens the file using one of the standard `IO::mode` values, defaulting to read
+Opens the file using one of the standard `IoMode` values, defaulting to read
 only.
 
 ```c++
@@ -414,7 +414,7 @@ standard I/O streams.
 explicit Winio::Winio(const Path& f, IoMode m = IoMode::read);
 ```
 
-Opens the file using one of the standard `IO::mode` values, defaulting to read
+Opens the file using one of the standard `IoMode` values, defaulting to read
 only.
 
 ```c++

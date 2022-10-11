@@ -125,7 +125,7 @@ The common base class for all map projections with a specific scalar type.
 
 ```c++
 using BasicMapProjection::scalar_type = T;
-using BasicMapProjection::vector_type = Core::Vector<T, 2>;
+using BasicMapProjection::vector_type = Vector<T, 2>;
 ```
 
 Member types.

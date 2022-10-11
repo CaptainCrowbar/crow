@@ -30,7 +30,7 @@ Examples:
     auto dice2 = Dice("2d10x5 + 3d6 + 10");
 
 ```c++
-using Dice::result_type = Sci::Rational;
+using Dice::result_type = Rational;
 ```
 
 The result type returned by the dice generator.
@@ -42,7 +42,7 @@ Dice::Dice() noexcept;
 Creates a null dice roller, which always yields zero.
 
 ```c++
-Dice::Dice(int n, int faces = 6, const Sci::Rational& factor = 1);
+Dice::Dice(int n, int faces = 6, const Rational& factor = 1);
 ```
 
 Creates a `Dice` object that rolls `n` dice, each numbered from 1 to `faces`,
@@ -91,7 +91,7 @@ Dice& Dice::operator=(Dice&& d) noexcept;
 Other life cycle functions.
 
 ```c++
-template <typename RNG> Sci::Rational Dice::operator()(RNG& rng) const;
+template <typename RNG> Rational Dice::operator()(RNG& rng) const;
 ```
 
 The main generator function. The `RNG` class can be any standard conforming
@@ -101,30 +101,30 @@ random number engine.
 Dice Dice::operator+() const;
 Dice Dice::operator-() const;
 Dice& Dice::operator+=(const Dice& b);
-Dice& Dice::operator+=(const Sci::Rational& b);
+Dice& Dice::operator+=(const Rational& b);
 Dice& Dice::operator+=(int b);
 Dice& Dice::operator-=(const Dice& b);
-Dice& Dice::operator-=(const Sci::Rational& b);
+Dice& Dice::operator-=(const Rational& b);
 Dice& Dice::operator-=(int b);
-Dice& Dice::operator*=(const Sci::Rational& b);
+Dice& Dice::operator*=(const Rational& b);
 Dice& Dice::operator*=(int b);
-Dice& Dice::operator/=(const Sci::Rational& b);
+Dice& Dice::operator/=(const Rational& b);
 Dice& Dice::operator/=(int b);
 Dice operator+(const Dice& a, const Dice& b);
-Dice operator+(const Dice& a, const Sci::Rational& b);
+Dice operator+(const Dice& a, const Rational& b);
 Dice operator+(const Dice& a, int b);
-Dice operator+(const Sci::Rational& a, const Dice& b);
+Dice operator+(const Rational& a, const Dice& b);
 Dice operator+(int a, const Dice& b);
 Dice operator-(const Dice& a, const Dice& b);
-Dice operator-(const Dice& a, const Sci::Rational& b);
+Dice operator-(const Dice& a, const Rational& b);
 Dice operator-(const Dice& a, int b);
-Dice operator-(const Sci::Rational& a, const Dice& b);
+Dice operator-(const Rational& a, const Dice& b);
 Dice operator-(int a, const Dice& b);
-Dice operator*(const Dice& a, const Sci::Rational& b);
+Dice operator*(const Dice& a, const Rational& b);
 Dice operator*(const Dice& a, int b);
-Dice operator*(const Sci::Rational& a, const Dice& b);
+Dice operator*(const Rational& a, const Dice& b);
 Dice operator*(int a, const Dice& b);
-Dice operator/(const Dice& a, const Sci::Rational& b);
+Dice operator/(const Dice& a, const Rational& b);
 Dice operator/(const Dice& a, int b);
 ```
 
@@ -137,21 +137,21 @@ the result of future rolls by that number.
 Behaviour is undefined on division by zero.
 
 ```c++
-Sci::Rational Dice::mean() const noexcept;
-Sci::Rational Dice::variance() const noexcept;
+Rational Dice::mean() const noexcept;
+Rational Dice::variance() const noexcept;
 double Dice::sd() const noexcept;
-Sci::Rational Dice::min() const noexcept;
-Sci::Rational Dice::max() const noexcept;
+Rational Dice::min() const noexcept;
+Rational Dice::max() const noexcept;
 ```
 
 Statistical properties of the dice roll result distribution.
 
 ```c++
-Sci::Rational Dice::pdf(const Sci::Rational& x) const;   // Pr(result=x)
-Sci::Rational Dice::cdf(const Sci::Rational& x) const;   // Pr(result≤x)
-Sci::Rational Dice::ccdf(const Sci::Rational& x) const;  // Pr(result≥x)
-Sci::Rational Dice::interval(const Sci::Rational& x,
-    const Sci::Rational y) const;                        // Pr(result∈[x,y])
+Rational Dice::pdf(const Rational& x) const;   // Pr(result=x)
+Rational Dice::cdf(const Rational& x) const;   // Pr(result≤x)
+Rational Dice::ccdf(const Rational& x) const;  // Pr(result≥x)
+Rational Dice::interval(const Rational& x,
+    const Rational y) const;                   // Pr(result∈[x,y])
 ```
 
 Probabilities of given results. The `interval()` function will return zero if

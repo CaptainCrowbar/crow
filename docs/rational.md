@@ -164,7 +164,7 @@ truncated toward zero; the fractional part will have the same sign as the
 original value, if the value was not an exact integer.
 
 ```c++
-std::string Ratio::str(Format::FormatSpec spec = {}) const;
+std::string Ratio::str(FormatSpec spec = {}) const;
 std::ostream& operator<<(std::ostream& o, Ratio r);
 ```
 

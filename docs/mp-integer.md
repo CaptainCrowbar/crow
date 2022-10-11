@@ -179,7 +179,7 @@ int MPN::sign() const noexcept;
 Returns the sign of `*this` (0 if zero, otherwise 1).
 
 ```c++
-std::string MPN::str(Format::FormatSpec spec = {}) const;
+std::string MPN::str(FormatSpec spec = {}) const;
 std::ostream& operator<<(std::ostream& out, const MPN& x);
 ```
 
@@ -361,7 +361,7 @@ int MPZ::sign() const noexcept;
 Returns the sign of `*this` (-1 if negative, 0 if zero, 1 if positive).
 
 ```c++
-std::string MPZ::str(Format::FormatSpec spec = {}) const;
+std::string MPZ::str(FormatSpec spec = {}) const;
 std::ostream& operator<<(std::ostream& out, const MPZ& x);
 ```
 

@@ -21,7 +21,7 @@ class Hexmap;
 This class holds a simple hexmap, and draws it using ASCII art. Each non-empty
 hex has a text label and a colour associated with it. Setting the text to an
 empty string is the same as deleting the hex. Colours are expressed in the
-format used by[`RS::Format::Xterm`](../rs-format/terminal.html).
+format used by[`Xterm`](../rs-format/terminal.html).
 
 A map is treated as a series of concentric rings of hexes around a central
 hex. Hexes are identified by ring and step numbers. The centre hex in a map
@@ -74,9 +74,9 @@ setting the Xterm flag to `yes` or `no` to force colour on or off regardless
 of where the output is going.
 
 ```c++
-using Hexmap::hex = Graphics::Core::Int2;
+using Hexmap::hex = Int2;
 using Hexmap::hexlist = std::vector<hex>;
-using Hexmap::xcolour = Graphics::Core::Int3;
+using Hexmap::xcolour = Int3;
 ```
 
 The `hex` types is a pair of integers used to identify a specific hex by its

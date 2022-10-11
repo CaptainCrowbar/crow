@@ -29,7 +29,7 @@ class Dispatch;
 ## Channel base class
 
 ```c++
-class Channel: public TL::Waiter;
+class Channel: public Waiter;
     virtual Channel::~Channel() noexcept;
     virtual void Channel::close() noexcept = 0;
     virtual bool Channel::is_closed() const noexcept = 0;

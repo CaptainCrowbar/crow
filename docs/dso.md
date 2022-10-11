@@ -54,7 +54,7 @@ The default flags.
 
 ```c++
 Dso::Dso() noexcept;
-explicit Dso::Dso(const IO::Path& file, flag_type flags = 0);
+explicit Dso::Dso(const Path& file, flag_type flags = 0);
 Dso::~Dso() noexcept;
 Dso::Dso(Dso&&) noexcept;
 Dso& Dso::operator=(Dso&&) noexcept;
@@ -85,7 +85,7 @@ True if the object holds a handle on a valid library. This is false for
 default constructed and moved-from objects.
 
 ```c++
-IO::Path Dso::file() const;
+Path Dso::file() const;
 ```
 
 Returns the file name, as supplied to the constructor. If the name passed to

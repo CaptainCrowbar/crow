@@ -77,7 +77,7 @@ TextGen& operator=(TextGen&& g) noexcept;
 Other life cycle functions.
 
 ```c++
-std::string operator()(Sci::StdRng& rng) const;
+std::string operator()(StdRng& rng) const;
 ```
 
 Generates a string.

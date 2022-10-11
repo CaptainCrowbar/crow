@@ -15,7 +15,7 @@ namespace Crow;
 ## Supporting types
 
 ```c++
-using Point = Core::Int2;
+using Point = Int2;
 ```
 
 Used for pixel coordinates.
@@ -46,7 +46,7 @@ Bitmask flags controlling the behaviour of the `resize()` function.
 ```c++
 class ImageIoError:
 public std::runtime_error {
-    IO::Path file() const noexcept;
+    Path file() const noexcept;
 };
 ```
 
@@ -80,15 +80,15 @@ The image class.
 ### Type aliases
 
 ```c++
-using Image8 = Image<Core::Rgba8>;
-using Image16 = Image<Core::Rgba16>;
-using HdrImage = Image<Core::Rgbaf>;
-using sImage8 = Image<Core::sRgba8>;
-using sImage16 = Image<Core::sRgba16>;
-using sHdrImage = Image<Core::sRgbaf>;
-using PmaImage8 = Image<Core::Rgba8, ImageFlags::premultiplied>;
-using PmaImage16 = Image<Core::Rgba16, ImageFlags::premultiplied>;
-using PmaHdrImage = Image<Core::Rgbaf, ImageFlags::premultiplied>;
+using Image8 = Image<Rgba8>;
+using Image16 = Image<Rgba16>;
+using HdrImage = Image<Rgbaf>;
+using sImage8 = Image<sRgba8>;
+using sImage16 = Image<sRgba16>;
+using sHdrImage = Image<sRgbaf>;
+using PmaImage8 = Image<Rgba8, ImageFlags::premultiplied>;
+using PmaImage16 = Image<Rgba16, ImageFlags::premultiplied>;
+using PmaHdrImage = Image<Rgbaf, ImageFlags::premultiplied>;
 ```
 
 Some common image formats.
@@ -131,7 +131,7 @@ Properties of the pixel type.
 
 ```c++
 static constexpr int channels = CT::channels;
-static constexpr Core::ColourLayout colour_layout = CL;
+static constexpr ColourLayout colour_layout = CL;
 static constexpr bool has_alpha = CT::has_alpha;
 static constexpr bool is_hdr = CT::is_hdr;
 static constexpr bool is_linear = CT::is_linear;
@@ -262,7 +262,7 @@ The current implementation uses
 for image I/O.
 
 ```c++
-void Image::load(const IO::Path& file);
+void Image::load(const Path& file);
 ```
 
 Load an image from a file. Supported image types are BMP, GIF, HDR/RGBE, JPEG,
@@ -274,7 +274,7 @@ was too big for the STB library to load (the size limit is about 1-2 GB
 depending on format), or an I/O error occurs.
 
 ```c++
-void Image::save(const IO::Path& file, int quality = 90) const;
+void Image::save(const Path& file, int quality = 90) const;
 ```
 
 Save an image to a file. The image format is deduced from the file name
@@ -284,7 +284,7 @@ quality argument is ignored. This will throw `ImageIoError` if the image
 format is not supported or an I/O error occurs.
 
 ```c++
-ImageInfo query_image(const IO::Path& file) noexcept;
+ImageInfo query_image(const Path& file) noexcept;
 ```
 
 Queries an image file for information about the stored image. File formats

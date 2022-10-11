@@ -183,7 +183,7 @@ ignored.
 
 ### Address literals
 
-All of these are in `namespace RS::IO::Literals`.
+All of these are in `namespace Crow::Literals`.
 
 ```c++
 IPv4 operator""_ip4(const char* p, size_t n);

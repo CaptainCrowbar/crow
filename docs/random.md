@@ -379,7 +379,7 @@ function call operator is called on an empty distribution.
 
 ```c++
 template <typename Range>
-    RandomChoice<TL::RangeValue<Range>> random_choice(const Range& range);
+    RandomChoice<RangeValue<Range>> random_choice(const Range& range);
 ```
 
 Convenience function to construct a `RandomChoice` object.
@@ -430,7 +430,7 @@ Generates a random version 4 UUID.
 
 ```c++
 template <std::floating_point T, int N> class RandomVector {
-    using result_type = Graphics::Core::Vector<T, N>;
+    using result_type = Vector<T, N>;
     using scalar_type = T;
     static constexpr int dim = N;
     constexpr RandomVector() noexcept;
@@ -443,7 +443,7 @@ template <std::floating_point T, int N> class RandomVector {
     constexpr result_type apex() const noexcept;
 };
 template <std::floating_point T, int N> class SymmetricRandomVector {
-    using result_type = Graphics::Core::Vector<T, N>;
+    using result_type = Vector<T, N>;
     using scalar_type = T;
     static constexpr int dim = N;
     constexpr SymmetricRandomVector() noexcept;
@@ -467,7 +467,7 @@ point in the box whose corners are `(origin,apex)`, while
 
 ```c++
 template <std::floating_point T, int N> class RandomPointInSphere {
-    using result_type = Graphics::Core::Vector<T, N>;
+    using result_type = Vector<T, N>;
     using scalar_type = T;
     static constexpr int dim = N;
     constexpr RandomPointInSphere() noexcept;
@@ -485,7 +485,7 @@ origin in `N` dimensions. Behaviour is undefined if `r<0`.
 
 ```c++
 template <std::floating_point T, int N> class RandomDirection {
-    using result_type = Graphics::Core::Vector<T, N>;
+    using result_type = Vector<T, N>;
     using scalar_type = T;
     static constexpr int dim = N;
     constexpr RandomDirection() noexcept;
