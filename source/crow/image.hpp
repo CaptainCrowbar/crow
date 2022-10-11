@@ -28,9 +28,9 @@ namespace Crow {
     using Point = Int2;
 
     enum class ImageFlags: int {
-        none           = 0,
-        bottom_up      = 1,
-        premultiplied  = 2,
+        none    = 0,
+        invert  = 1,
+        pma     = 2,
     };
 
     CROW_BITMASK_OPERATORS(ImageFlags)
@@ -71,12 +71,7 @@ namespace Crow {
 
     namespace Detail {
 
-        struct StbiFree {
-            void operator()(void* ptr) const noexcept { std::free(ptr); }
-        };
-
-        template <typename T>
-        using StbiPtr = std::unique_ptr<T, StbiFree>;
+        template <typename T> using StbiPtr = std::unique_ptr<T, FreeMem>;
 
         StbiPtr<uint8_t> load_image_8(const Path& file, Point& shape);
         StbiPtr<uint16_t> load_image_16(const Path& file, Point& shape);
@@ -160,11 +155,11 @@ namespace Crow {
         static constexpr int channels = colour_type::channels;
         static constexpr ColourLayout colour_layout = CT::layout;
         static constexpr bool has_alpha = colour_type::has_alpha;
-        static constexpr bool is_bottom_up = !! (Flags & ImageFlags::bottom_up);
+        static constexpr bool is_bottom_up = !! (Flags & ImageFlags::invert);
         static constexpr bool is_top_down = ! is_bottom_up;
         static constexpr bool is_hdr = colour_type::is_hdr;
         static constexpr bool is_linear = colour_type::is_linear;
-        static constexpr bool is_premultiplied = !! (Flags & ImageFlags::premultiplied);
+        static constexpr bool is_premultiplied = !! (Flags & ImageFlags::pma);
 
         static_assert(colour_type::can_premultiply || ! is_premultiplied);
 
@@ -212,9 +207,9 @@ namespace Crow {
         iterator locate(int x, int y) noexcept { return iterator(*this, make_index(x, y)); }
         const_iterator locate(int x, int y) const noexcept { return const_iterator(*this, make_index(x, y)); }
 
-        template <typename U = channel_type> Image<colour_type, Flags | ImageFlags::premultiplied>
+        template <typename U = channel_type> Image<colour_type, Flags | ImageFlags::pma>
             multiply_alpha(std::enable_if<SfinaeTrue<U, colour_type::can_premultiply && ! is_premultiplied>::value>* = nullptr) const;
-        template <typename U = channel_type> Image<colour_type, Flags & ~ ImageFlags::premultiplied>
+        template <typename U = channel_type> Image<colour_type, Flags & ~ ImageFlags::pma>
             unmultiply_alpha(std::enable_if<SfinaeTrue<U, colour_type::can_premultiply && is_premultiplied>::value>* = nullptr) const;
 
         void reset(Point new_shape);
@@ -248,16 +243,6 @@ namespace Crow {
 
     };
 
-    using Image8 = Image<Rgba8>;
-    using Image16 = Image<Rgba16>;
-    using HdrImage = Image<Rgbaf>;
-    using sImage8 = Image<sRgba8>;
-    using sImage16 = Image<sRgba16>;
-    using sHdrImage = Image<sRgbaf>;
-    using PmaImage8 = Image<Rgba8, ImageFlags::premultiplied>;
-    using PmaImage16 = Image<Rgba16, ImageFlags::premultiplied>;
-    using PmaHdrImage = Image<Rgbaf, ImageFlags::premultiplied>;
-
     template <typename C1, ImageFlags F1, typename C2, ImageFlags F2>
     void convert_image(const Image<C1, F1>& in, Image<C2, F2>& out) {
 
@@ -275,7 +260,7 @@ namespace Crow {
 
         } else if constexpr (Img2::is_premultiplied) {
 
-            Image<C2, F2 & ~ ImageFlags::premultiplied> linear_out;
+            Image<C2, F2 & ~ ImageFlags::pma> linear_out;
             convert_image(in, linear_out);
             out = linear_out.multiply_alpha();
 
@@ -343,10 +328,10 @@ namespace Crow {
 
     template <ColourType CT, ImageFlags Flags>
     template <typename U>
-    Image<CT, Flags | ImageFlags::premultiplied>
+    Image<CT, Flags | ImageFlags::pma>
     Image<CT, Flags>::multiply_alpha(std::enable_if<SfinaeTrue<U, colour_type::can_premultiply
             && ! is_premultiplied>::value>*) const {
-        Image<colour_type, Flags | ImageFlags::premultiplied> result(shape());
+        Image<colour_type, Flags | ImageFlags::pma> result(shape());
         auto out = result.begin();
         for (auto& pixel: *this)
             *out++ = pixel.multiply_alpha();
@@ -355,10 +340,10 @@ namespace Crow {
 
     template <ColourType CT, ImageFlags Flags>
     template <typename U>
-    Image<CT, Flags & ~ ImageFlags::premultiplied>
+    Image<CT, Flags & ~ ImageFlags::pma>
     Image<CT, Flags>::unmultiply_alpha(std::enable_if<SfinaeTrue<U, colour_type::can_premultiply
             && is_premultiplied>::value>*) const {
-        Image<colour_type, Flags & ~ ImageFlags::premultiplied> result(shape());
+        Image<colour_type, Flags & ~ ImageFlags::pma> result(shape());
         auto out = result.begin();
         for (auto& pixel: *this)
             *out++ = pixel.unmultiply_alpha();

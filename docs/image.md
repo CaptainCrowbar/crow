@@ -22,22 +22,22 @@ Used for pixel coordinates.
 
 ```c++
 enum class ImageFlags: int {
-    none = 0,
-    bottom_up,
-    premultiplied,
+    none    = 0,
+    invert  = 1,
+    pma     = 2,
 }
 ```
 
 Bitmask flags indicating properties of an image. Images are normally stored
-top down; they will be stored bottom up if the `bottom_up` flag is used.
-Pixel data will be assumed to include premultiplied alpha if the
-`premultiplied` flag is used.
+top down; they will be stored bottom up if the `invert` flag is used. Pixel
+data will be assumed to include premultiplied alpha if the `pma` flag is
+used.
 
 ```c++
 enum class ImageResize: int {
-    none = 0,
-    unlock,
-    wrap,
+    none    = 0,
+    unlock  = 1,
+    wrap    = 2,
 }
 ```
 
@@ -76,22 +76,6 @@ template <ColourType CT, ImageFlags Flags = ImageFlags::none> class Image;
 ```
 
 The image class.
-
-### Type aliases
-
-```c++
-using Image8 = Image<Rgba8>;
-using Image16 = Image<Rgba16>;
-using HdrImage = Image<Rgbaf>;
-using sImage8 = Image<sRgba8>;
-using sImage16 = Image<sRgba16>;
-using sHdrImage = Image<sRgbaf>;
-using PmaImage8 = Image<Rgba8, ImageFlags::premultiplied>;
-using PmaImage16 = Image<Rgba16, ImageFlags::premultiplied>;
-using PmaHdrImage = Image<Rgbaf, ImageFlags::premultiplied>;
-```
-
-Some common image formats.
 
 ### Member types
 
@@ -313,10 +297,10 @@ These will throw `std::invalid_argument` if either dimension is negative, or
 if one is zero but the other is not.
 
 ```c++
-void Image::resize(Point new_shape, ImageResize rflags = ImageResize::none);
-void Image::resize(double scale, ImageResize rflags = ImageResize::none);
-Image Image::resized(Point new_shape, ImageResize rflags = ImageResize::none) const;
-Image Image::resized(double scale, ImageResize rflags = ImageResize::none) const;
+void Image::resize(Point new_shape, ImageResize flags = ImageResize::none);
+void Image::resize(double scale, ImageResize flags = ImageResize::none);
+Image Image::resized(Point new_shape, ImageResize flags = ImageResize::none) const;
+Image Image::resized(double scale, ImageResize flags = ImageResize::none) const;
 ```
 
 Resample the image to a new set of dimensions. The `resize()` functions modify

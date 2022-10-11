@@ -289,7 +289,7 @@ void test_crow_font_rendering() {
 
     Font mono, serif;
     ScaledFont s_mono, s_serif;
-    HdrImage image;
+    Image<Rgbaf> image;
     Point offset;
     int n_empty, n_partial, n_full;
 

@@ -540,7 +540,7 @@ namespace {
             return image_[{i, j}];
         }
     private:
-        Image8 image_;
+        Image<Rgba8> image_;
         double x_scale_;
         double y_scale_;
     };
@@ -573,7 +573,7 @@ namespace {
         double height_offset = 0.5 * height - 0.5;
 
         Globe globe;
-        Image8 image({width, height}, Rgba8::clear());
+        Image<Rgba8> image({width, height}, Rgba8::clear());
         auto it = image.begin();
 
         for (int iy = 0; iy < height; ++iy) {

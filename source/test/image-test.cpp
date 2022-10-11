@@ -8,8 +8,8 @@ using namespace Crow;
 
 void test_crow_image_construction() {
 
-    Image8 rgb;
-    HdrImage hdr;
+    Image<Rgba8> rgb;
+    Image<Rgbaf> hdr;
 
     TEST_EQUAL(rgb.width(),   0);
     TEST_EQUAL(rgb.height(),  0);
@@ -47,8 +47,8 @@ void test_crow_image_construction() {
 
 void test_crow_image_pixel_access() {
 
-    Image8 rgb;
-    HdrImage hdr;
+    Image<Rgba8> rgb;
+    Image<Rgbaf> hdr;
 
     TRY(rgb.reset(100, 200, Rgba8::red()));
     TRY(hdr.reset(300, 400, Rgbaf::green()));
@@ -98,10 +98,10 @@ void test_crow_image_premultiplied_alpha() {
     static const Rgbaf fc1 = {0.2f,0.4f,0.6f,0.8f};
     static const Rgbaf fc2 = {0.16f,0.32f,0.48f,0.8f};
 
-    Image8 rgb1, rgb2;
-    HdrImage hdr1, hdr2;
-    PmaImage8 prgb;
-    PmaHdrImage phdr;
+    Image<Rgba8> rgb1, rgb2;
+    Image<Rgbaf> hdr1, hdr2;
+    Image<Rgba8, ImageFlags::pma> prgb;
+    Image<Rgbaf, ImageFlags::pma> phdr;
 
     TRY(rgb1.reset(100, 200, bc1));
     TRY(hdr1.reset(300, 400, fc1));
@@ -139,12 +139,12 @@ void test_crow_image_conversion() {
     static const Rgbaf fc1 = {0.2f,0.4f,0.6f,0.8f};
     static const Rgbaf fc2 = {0.16f,0.32f,0.48f,0.8f};
 
-    Image8 rgb1, rgb2;
-    HdrImage hdr1, hdr2;
-    PmaImage8 prgb;
-    PmaHdrImage phdr;
-    Image<Rgba8, ImageFlags::bottom_up> burgb;
-    Image<Rgbaf, ImageFlags::bottom_up> buhdr;
+    Image<Rgba8> rgb1, rgb2;
+    Image<Rgbaf> hdr1, hdr2;
+    Image<Rgba8, ImageFlags::invert> irgb;
+    Image<Rgbaf, ImageFlags::invert> ihdr;
+    Image<Rgba8, ImageFlags::pma> prgb;
+    Image<Rgbaf, ImageFlags::pma> phdr;
 
     TRY(rgb1.reset(20, 20, bc1));
     TRY(hdr1.reset(20, 20, fc1));
@@ -184,6 +184,18 @@ void test_crow_image_conversion() {
     TEST_VECTORS(*hdr2.top_right(),     fc1, 1e-5);
     TEST_VECTORS(*hdr2.bottom_left(),   fc1, 1e-5);
     TEST_VECTORS(*hdr2.bottom_right(),  fc1, 1e-5);
+
+    TRY(convert_image(rgb2, irgb));
+    TRY(convert_image(hdr2, ihdr));
+
+    TEST_VECTORS(*irgb.top_left(),      bc1, 0);
+    TEST_VECTORS(*irgb.top_right(),     bc1, 0);
+    TEST_VECTORS(*irgb.bottom_left(),   bc1, 0);
+    TEST_VECTORS(*irgb.bottom_right(),  bc1, 0);
+    TEST_VECTORS(*ihdr.top_left(),      fc1, 1e-5);
+    TEST_VECTORS(*ihdr.top_right(),     fc1, 1e-5);
+    TEST_VECTORS(*ihdr.bottom_left(),   fc1, 1e-5);
+    TEST_VECTORS(*ihdr.bottom_right(),  fc1, 1e-5);
 
     TRY(convert_image(rgb2, prgb));
     TRY(convert_image(hdr2, phdr));

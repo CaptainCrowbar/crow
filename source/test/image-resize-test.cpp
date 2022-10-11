@@ -8,7 +8,7 @@ using namespace Crow;
 
 void test_crow_image_resize_dimensions() {
 
-    HdrImage in, out;
+    Image<Rgbaf> in, out;
 
     TRY(in.reset({200, 100}, Rgbaf::blue()));
 
@@ -39,46 +39,44 @@ void test_crow_image_resize_dimensions() {
 
 void test_crow_image_resize_content() {
 
-    Image8 in8, out8;
-    Image16 in16, out16;
-    HdrImage in32, out32;
-    sImage8 in8s, out8s;
-    sImage16 in16s, out16s;
-    sHdrImage in32s, out32s;
-    PmaImage8 in8sp, out8sp;
-    PmaImage16 in16sp, out16sp;
-    PmaHdrImage in32sp, out32sp;
+    Image<Rgba8> lin8a, lin8b;
+    Image<Rgba16> lin16a, lin16b;
+    Image<Rgbaf> lin32a, lin32b;
+    Image<sRgba8> srgb8a, srgb8b;
+    Image<sRgba16> srgb16a, srgb16b;
+    Image<sRgbaf> srgb32a, srgb32b;
+    Image<Rgba8, ImageFlags::pma> pma8a, pma8b;
+    Image<Rgba16, ImageFlags::pma> pma16a, pma16b;
+    Image<Rgbaf, ImageFlags::pma> pma32a, pma32b;
 
-    TRY(in8.reset({200, 100}, Rgba8::red()));
-    TRY(in16.reset({200, 100}, Rgba16::green()));
-    TRY(in32.reset({200, 100}, Rgbaf::blue()));
-    TRY(in8s.reset({200, 100}, sRgba8::red()));
-    TRY(in16s.reset({200, 100}, sRgba16::green()));
-    TRY(in32s.reset({200, 100}, sRgbaf::blue()));
-    TRY(in8sp.reset({200, 100}, Rgba8::red()));
-    TRY(in16sp.reset({200, 100}, Rgba16::green()));
-    TRY(in32sp.reset({200, 100}, Rgbaf::blue()));
+    TRY(lin8a.reset({200, 100}, Rgba8::red()));
+    TRY(lin16a.reset({200, 100}, Rgba16::green()));
+    TRY(lin32a.reset({200, 100}, Rgbaf::blue()));
+    TRY(srgb8a.reset({200, 100}, sRgba8::red()));
+    TRY(srgb16a.reset({200, 100}, sRgba16::green()));
+    TRY(srgb32a.reset({200, 100}, sRgbaf::blue()));
+    TRY(pma8a.reset({200, 100}, Rgba8::red()));
+    TRY(pma16a.reset({200, 100}, Rgba16::green()));
+    TRY(pma32a.reset({200, 100}, Rgbaf::blue()));
 
-    TRY(out8 = in8.resized({100, 50}));
-    TRY(out16 = in16.resized({100, 50}));
-    TRY(out32 = in32.resized({100, 50}));
-    TRY(out8s = in8s.resized({100, 50}));
-    TRY(out16s = in16s.resized({100, 50}));
-    TRY(out32s = in32s.resized({100, 50}));
-    TRY(out8sp = in8sp.resized({100, 50}));
-    TRY(out16sp = in16sp.resized({100, 50}));
-    TRY(out32sp = in32sp.resized({100, 50}));
+    TRY(lin8b = lin8a.resized({100, 50}));
+    TRY(lin16b = lin16a.resized({100, 50}));
+    TRY(lin32b = lin32a.resized({100, 50}));
+    TRY(srgb8b = srgb8a.resized({100, 50}));
+    TRY(srgb16b = srgb16a.resized({100, 50}));
+    TRY(srgb32b = srgb32a.resized({100, 50}));
+    TRY(pma8b = pma8a.resized({100, 50}));
+    TRY(pma16b = pma16a.resized({100, 50}));
+    TRY(pma32b = pma32a.resized({100, 50}));
 
-    TEST_EQUAL(out8.width(), 100);     TEST_EQUAL(out8.height(), 50);
-    TEST_EQUAL(out16.width(), 100);    TEST_EQUAL(out16.height(), 50);
-    TEST_EQUAL(out32.width(), 100);    TEST_EQUAL(out32.height(), 50);
-    TEST_EQUAL(out8s.width(), 100);    TEST_EQUAL(out8s.height(), 50);
-    TEST_EQUAL(out16s.width(), 100);   TEST_EQUAL(out16s.height(), 50);
-    TEST_EQUAL(out32s.width(), 100);   TEST_EQUAL(out32s.height(), 50);
-    TEST_EQUAL(out8sp.width(), 100);   TEST_EQUAL(out8sp.height(), 50);
-    TEST_EQUAL(out16sp.width(), 100);  TEST_EQUAL(out16sp.height(), 50);
-    TEST_EQUAL(out32sp.width(), 100);  TEST_EQUAL(out32sp.height(), 50);
-
-    // TODO
+    TEST_EQUAL(lin8b.width(), 100);    TEST_EQUAL(lin8b.height(), 50);
+    TEST_EQUAL(lin16b.width(), 100);   TEST_EQUAL(lin16b.height(), 50);
+    TEST_EQUAL(lin32b.width(), 100);   TEST_EQUAL(lin32b.height(), 50);
+    TEST_EQUAL(srgb8b.width(), 100);   TEST_EQUAL(srgb8b.height(), 50);
+    TEST_EQUAL(srgb16b.width(), 100);  TEST_EQUAL(srgb16b.height(), 50);
+    TEST_EQUAL(srgb32b.width(), 100);  TEST_EQUAL(srgb32b.height(), 50);
+    TEST_EQUAL(pma8b.width(), 100);    TEST_EQUAL(pma8b.height(), 50);
+    TEST_EQUAL(pma16b.width(), 100);   TEST_EQUAL(pma16b.height(), 50);
+    TEST_EQUAL(pma32b.width(), 100);   TEST_EQUAL(pma32b.height(), 50);
 
 }
