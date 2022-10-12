@@ -67,7 +67,7 @@ namespace Crow {
     ImageInfo query_image(const Path& file) noexcept;
     inline std::ostream& operator<<(std::ostream& out, const ImageInfo& info) { return out << info.str(); }
 
-    template <ColourType CT, ImageFlags Flags = ImageFlags::none> class Image;
+    template <ColourType CT = Rgbaf, ImageFlags Flags = ImageFlags::none> class Image;
 
     namespace Detail {
 

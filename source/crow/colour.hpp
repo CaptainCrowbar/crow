@@ -146,7 +146,7 @@ namespace Crow {
 
     // Don't use single letter template parameters here
 
-    template <ArithmeticType VT, ColourSpace CS = LinearRGB, ColourLayout CL = ColourLayout::forward_alpha>
+    template <ArithmeticType VT = float, ColourSpace CS = LinearRGB, ColourLayout CL = ColourLayout::forward_alpha>
     class Colour:
     public Detail::ColourArithmetic<VT, CS, CL> {
 

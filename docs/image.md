@@ -72,7 +72,7 @@ not a null vector, indicating that a file has been successfully queried.
 ## Image class
 
 ```c++
-template <ColourType CT, ImageFlags Flags = ImageFlags::none> class Image;
+template <ColourType CT = Rgbaf, ImageFlags Flags = ImageFlags::none> class Image;
 ```
 
 The image class.

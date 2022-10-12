@@ -43,7 +43,7 @@ colours involved have premultiplied alpha.
 ## Colour class
 
 ```c++
-template <ArithmeticType VT, ColourSpace CS = LinearRGB,
+template <ArithmeticType VT = float, ColourSpace CS = LinearRGB,
     ColourLayout CL = ColourLayout::forward_alpha> class Colour;
 ```
 
