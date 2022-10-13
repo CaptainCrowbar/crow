@@ -237,3 +237,10 @@ bool operator>=(Binary x, Binary y) noexcept;
 ```
 
 Comparison operators.
+
+```c++
+template <size_t N> class std::numeric_limits<Crow::SmallBinary<N>>;
+template <size_t N> class std::numeric_limits<Crow::LargeBinary<N>>;
+```
+
+Numeric limits specializations.

@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <compare>
 #include <functional>
+#include <limits>
 #include <ostream>
 #include <stdexcept>
 #include <string>
@@ -261,3 +262,27 @@ namespace Crow {
 }
 
 CROW_STD_HASH_1(Ratio, typename)
+
+namespace std {
+
+    template <typename T>
+    requires (std::numeric_limits<T>::is_specialized)
+    class numeric_limits<Crow::Ratio<T>>:
+    public numeric_limits<T> {
+
+    private:
+
+        using R = Crow::Ratio<T>;
+        using LT = numeric_limits<T>;
+
+    public:
+
+        static constexpr bool is_integer = false;                  // Integer
+        static constexpr bool is_modulo = false;                   // Modulo arithmetic
+        constexpr R lowest() noexcept { return R(LT::lowest()); }  // Min finite value
+        constexpr R max() noexcept { return R(LT::max()); }        // Max ﬁnite value
+        constexpr R min() noexcept { return R(LT::min()); }        // Min positive float or min finite int
+
+    };
+
+}

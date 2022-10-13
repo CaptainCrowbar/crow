@@ -29,6 +29,10 @@ namespace Crow {
 
     namespace Detail {
 
+        constexpr int find_digits10(size_t bits) noexcept {
+            return int(uint64_t(bits) * 8'651ull / 28'738ull);
+        }
+
         template <std::unsigned_integral T>
         std::string to_binary(T t, size_t digits = 8 * sizeof(T)) {
             std::string s(digits, '0');
@@ -618,3 +622,95 @@ namespace Crow {
 
 CROW_STD_HASH_1(SmallBinary, size_t)
 CROW_STD_HASH_1(LargeBinary, size_t)
+
+namespace std {
+
+    template <size_t N>
+    class numeric_limits<Crow::SmallBinary<N>> {
+
+    private:
+
+        using B = Crow::SmallBinary<N>;
+
+    public:
+
+        static constexpr bool is_specialized = true;                     // All specializations
+        static constexpr bool is_bounded = true;                         // Finite set of values
+        static constexpr bool is_exact = true;                           // Exact representation
+        static constexpr bool is_integer = true;                         // Integer
+        static constexpr bool is_modulo = true;                          // Modulo arithmetic
+        static constexpr bool is_signed = false;                         // Signed
+        static constexpr bool traps = false;                             // Trap value exists
+        static constexpr int digits = int(N);                            // Radix digits in significand
+        static constexpr int radix = 2;                                  // Base of representation
+        static constexpr int digits10 = Crow::Detail::find_digits10(N);  // Decimals represented without change
+        constexpr B lowest() noexcept { return {}; }                     // Min finite value
+        constexpr B max() noexcept { return ~ B{}; }                     // Max ﬁnite value
+        constexpr B min() noexcept { return {}; }                        // Min positive float or min finite int
+        static constexpr bool has_denorm_loss = false;                   // Loss of accuracy as denormalization
+        static constexpr bool has_infinity = false;                      // Has positive infinity
+        static constexpr bool has_quiet_NaN = false;                     // Has quiet NaN
+        static constexpr bool has_signaling_NaN = false;                 // Has signaling NaN
+        static constexpr bool is_iec559 = false;                         // IEC 559 standard
+        static constexpr bool tinyness_before = false;                   // Tinyness detected before rounding
+        static constexpr int max_digits10 = 0;                           // Decimals required for different values
+        static constexpr int max_exponent10 = 0;                         // Max positive decimal exponent
+        static constexpr int max_exponent = 0;                           // Max positive exponent
+        static constexpr int min_exponent10 = 0;                         // Min negative decimal exponent
+        static constexpr int min_exponent = 0;                           // Min negative exponent
+        constexpr B denorm_min() noexcept { return {}; }                 // Min positive denormalized value
+        constexpr B epsilon() noexcept { return {}; }                    // Difference between 1 and next value
+        constexpr B infinity() noexcept { return {}; }                   // Positive infinity
+        constexpr B quiet_NaN() noexcept { return {}; }                  // Quiet NaN
+        constexpr B round_error() noexcept { return {}; }                // Max rounding error
+        constexpr B signaling_NaN() noexcept { return {}; }              // Signaling NaN
+        static constexpr float_denorm_style has_denorm = {};             // Has denormalized values
+        static constexpr float_round_style round_style = {};             // Rounding style
+
+    };
+
+    template <size_t N>
+    class numeric_limits<Crow::LargeBinary<N>> {
+
+    private:
+
+        using B = Crow::LargeBinary<N>;
+
+    public:
+
+        static constexpr bool is_specialized = true;                     // All specializations
+        static constexpr bool is_bounded = true;                         // Finite set of values
+        static constexpr bool is_exact = true;                           // Exact representation
+        static constexpr bool is_integer = true;                         // Integer
+        static constexpr bool is_modulo = true;                          // Modulo arithmetic
+        static constexpr bool is_signed = false;                         // Signed
+        static constexpr bool traps = false;                             // Trap value exists
+        static constexpr int digits = int(N);                            // Radix digits in significand
+        static constexpr int radix = 2;                                  // Base of representation
+        static constexpr int digits10 = Crow::Detail::find_digits10(N);  // Decimals represented without change
+        constexpr B lowest() noexcept { return {}; }                     // Min finite value
+        constexpr B max() noexcept { return ~ B{}; }                     // Max ﬁnite value
+        constexpr B min() noexcept { return {}; }                        // Min positive float or min finite int
+        static constexpr bool has_denorm_loss = false;                   // Loss of accuracy as denormalization
+        static constexpr bool has_infinity = false;                      // Has positive infinity
+        static constexpr bool has_quiet_NaN = false;                     // Has quiet NaN
+        static constexpr bool has_signaling_NaN = false;                 // Has signaling NaN
+        static constexpr bool is_iec559 = false;                         // IEC 559 standard
+        static constexpr bool tinyness_before = false;                   // Tinyness detected before rounding
+        static constexpr int max_digits10 = 0;                           // Decimals required for different values
+        static constexpr int max_exponent10 = 0;                         // Max positive decimal exponent
+        static constexpr int max_exponent = 0;                           // Max positive exponent
+        static constexpr int min_exponent10 = 0;                         // Min negative decimal exponent
+        static constexpr int min_exponent = 0;                           // Min negative exponent
+        constexpr B denorm_min() noexcept { return {}; }                 // Min positive denormalized value
+        constexpr B epsilon() noexcept { return {}; }                    // Difference between 1 and next value
+        constexpr B infinity() noexcept { return {}; }                   // Positive infinity
+        constexpr B quiet_NaN() noexcept { return {}; }                  // Quiet NaN
+        constexpr B round_error() noexcept { return {}; }                // Max rounding error
+        constexpr B signaling_NaN() noexcept { return {}; }              // Signaling NaN
+        static constexpr float_denorm_style has_denorm = {};             // Has denormalized values
+        static constexpr float_round_style round_style = {};             // Rounding style
+
+    };
+
+}

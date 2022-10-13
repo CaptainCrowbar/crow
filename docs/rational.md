@@ -188,3 +188,10 @@ leading sign; non-significant whitespace is ignored. The `try_parse()`
 function returns false if the parse fails, while `parse()` will throw
 `std::invalid_argument`; in both cases the reference argument is left
 unchanged.
+
+```c++
+template <typename T> class std::numeric_limits<Crow::Ratio<T>>;
+```
+
+Numeric limits specialization. This is specialized only if `numeric_limits<T>`
+is specialized.
