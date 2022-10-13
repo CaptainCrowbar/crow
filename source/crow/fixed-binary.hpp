@@ -30,6 +30,7 @@ namespace Crow {
     namespace Detail {
 
         constexpr int find_digits10(size_t bits) noexcept {
+            // Approximation to log10(2) is good for ~1e9 bits
             return int(uint64_t(bits) * 8'651ull / 28'738ull);
         }
 
