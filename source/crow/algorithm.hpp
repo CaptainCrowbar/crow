@@ -491,8 +491,8 @@ namespace Crow {
         }
 
         size_t num_transposed = num_half_transposed / 2;
-        T num_common_d = num_common;
-        T distance = 1 - (num_common_d / m + num_common_d / n + (num_common - num_transposed) / num_common_d) / 3.0;
+        T num_common_t = T(num_common);
+        T distance = T(1) - (num_common_t / m + num_common_t / n + (num_common - num_transposed) / num_common_t) / T(3);
 
         if (distance >= threshold_)
             return distance;

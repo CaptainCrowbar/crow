@@ -12,29 +12,39 @@ using namespace Crow;
 
 void test_crow_hash_mix() {
 
-    uint32_t hash = 0;
     int num = 42;
     std::string str = "Hello world";
     uint64_t big = 123'456'789;
     auto tpl = std::make_tuple(num, str, big);
-
-    TRY(hash = hash_mix(num, str, big));
-    TEST_EQUAL(hash, 0x3da8'59f5ul);
-    TRY(hash = hash_mix(tpl));
-    TEST_EQUAL(hash, 0x3da8'59f5ul);
-
     int i = 123;
     int j = 456;
     int k = 789;
     auto it = std::make_tuple(i, j, k);
     auto iv = std::vector{i, j, k};
 
-    TRY(hash = hash_mix(i, j, k));
-    TEST_EQUAL(hash, 0xfb57'6fa6ul);
-    TRY(hash = hash_mix(it));
-    TEST_EQUAL(hash, 0xfb57'6fa6ul);
-    TRY(hash = hash_mix(iv));
-    TEST_EQUAL(hash, 0xfb57'6fa6ul);
+    auto h1 = hash_mix(num, str, big);
+    auto h2 = hash_mix(tpl);
+    auto h3 = hash_mix(i, j, k);
+    auto h4 = hash_mix(it);
+    auto h5 = hash_mix(iv);
+
+    if constexpr (sizeof(size_t) >= 8) {
+
+        TEST_EQUAL(h1, 0x2101'0a85'372b'07b9ull);
+        TEST_EQUAL(h2, 0x2101'0a85'372b'07b9ull);
+        TEST_EQUAL(h3, 0xaa35'2f47'b466'8f76ull);
+        TEST_EQUAL(h4, 0xaa35'2f47'b466'8f76ull);
+        TEST_EQUAL(h5, 0xaa35'2f47'b466'8f76ull);
+
+    } else {
+
+        TEST_EQUAL(h1, 0x3da8'59f5ul);
+        TEST_EQUAL(h2, 0x3da8'59f5ul);
+        TEST_EQUAL(h3, 0xfb57'6fa6ul);
+        TEST_EQUAL(h4, 0xfb57'6fa6ul);
+        TEST_EQUAL(h5, 0xfb57'6fa6ul);
+
+    }
 
 }
 

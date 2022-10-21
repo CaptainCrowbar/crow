@@ -493,11 +493,11 @@ namespace Crow {
             if (hc != 0)
                 return hc;
             static const auto map = [] {
-                std::map<std::pair<char32_t, char32_t>, char32_t> map;
+                std::map<std::pair<char32_t, char32_t>, char32_t> dcmap;
                 for (auto& [k,v]: decomposition_map())
                     if (v.second != 0 && ! is_full_composition_exclusion(k))
-                        map.insert({v,k});
-                return map;
+                        dcmap.insert({v,k});
+                return dcmap;
             }();
             auto it = map.find(std::make_pair(c1, c2));
             if (it == map.end())

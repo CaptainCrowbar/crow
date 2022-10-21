@@ -43,7 +43,7 @@ class MultiplicativeHash {
     using result_type = uint32_t;
     static constexpr uint32_t initial = Initial;
     static constexpr uint32_t modulo = Modulo;
-    uint32_t operator()(const void* ptr, size_t len) const noexcept;
+    constexpr uint32_t operator()(const void* ptr, size_t len) const noexcept;
 };
 using BernsteinHash = MultiplicativeHash<5381, 33>;
 using KernighanHash = MultiplicativeHash<0, 31>;

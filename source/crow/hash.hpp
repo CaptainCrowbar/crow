@@ -72,7 +72,7 @@ namespace Crow {
         using result_type = uint32_t;
         static constexpr uint32_t initial = Initial;
         static constexpr uint32_t modulo = Modulo;
-        uint32_t operator()(const void* ptr, size_t len) const noexcept {
+        constexpr uint32_t operator()(const void* ptr, size_t len) const noexcept {
             auto bptr = static_cast<const uint8_t*>(ptr);
             uint32_t result = Initial;
             for (size_t i = 0; i < len; ++i)

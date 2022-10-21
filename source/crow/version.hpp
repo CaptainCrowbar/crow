@@ -2,17 +2,17 @@
 
 #pragma once
 
-#include <array>
 #include <string>
+#include <array>
 
 namespace Crow {
 
     inline std::array<int, 3> version() noexcept {
-        return {{ 2, 0, 68 }};
+        return {{ 2, 0, 69 }};
     }
 
     inline std::string version_string() {
-        return "2.0.68";
+        return "2.0.69";
     }
 
 }

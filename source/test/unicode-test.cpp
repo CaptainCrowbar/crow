@@ -298,11 +298,11 @@ void test_crow_unicode_canonical_composition() {
 
     using namespace Crow::Detail;
 
-    TEST_EQUAL(canonical_composition(0x41, 0x42), 0u);
-    TEST_EQUAL(canonical_composition(0x41, 0x300), 0xc0u);
-    TEST_EQUAL(canonical_composition(0x79, 0x308), 0xffu);
-    TEST_EQUAL(canonical_composition(0x1111, 0x1171), 0xd4ccu);
-    TEST_EQUAL(canonical_composition(0xd4cc, 0x11b6), 0xd4dbu);
+    TEST_EQUAL(uint32_t(canonical_composition(0x41, 0x42)), 0u);
+    TEST_EQUAL(uint32_t(canonical_composition(0x41, 0x300)), 0xc0u);
+    TEST_EQUAL(uint32_t(canonical_composition(0x79, 0x308)), 0xffu);
+    TEST_EQUAL(uint32_t(canonical_composition(0x1111, 0x1171)), 0xd4ccu);
+    TEST_EQUAL(uint32_t(canonical_composition(0xd4cc, 0x11b6)), 0xd4dbu);
 
 }
 
@@ -312,11 +312,11 @@ void test_crow_unicode_canonical_decomposition() {
 
     std::pair<char32_t, char32_t> pair;
 
-    TRY(pair = canonical_decomposition(U'A'));    TEST_EQUAL(pair.first, 0u);       TEST_EQUAL(pair.second, 0u);
-    TRY(pair = canonical_decomposition(0xc0));    TEST_EQUAL(pair.first, U'A');     TEST_EQUAL(pair.second, 0x300u);
-    TRY(pair = canonical_decomposition(0xff));    TEST_EQUAL(pair.first, U'y');     TEST_EQUAL(pair.second, 0x308u);
-    TRY(pair = canonical_decomposition(0xd4cc));  TEST_EQUAL(pair.first, 0x1111u);  TEST_EQUAL(pair.second, 0x1171u);
-    TRY(pair = canonical_decomposition(0xd4db));  TEST_EQUAL(pair.first, 0xd4ccu);  TEST_EQUAL(pair.second, 0x11b6u);
+    TRY(pair = canonical_decomposition(U'A'));    TEST_EQUAL(uint32_t(pair.first), 0u);       TEST_EQUAL(uint32_t(pair.second), 0u);
+    TRY(pair = canonical_decomposition(0xc0));    TEST_EQUAL(uint32_t(pair.first), 0x41u);    TEST_EQUAL(uint32_t(pair.second), 0x300u);
+    TRY(pair = canonical_decomposition(0xff));    TEST_EQUAL(uint32_t(pair.first), 0x79u);    TEST_EQUAL(uint32_t(pair.second), 0x308u);
+    TRY(pair = canonical_decomposition(0xd4cc));  TEST_EQUAL(uint32_t(pair.first), 0x1111u);  TEST_EQUAL(uint32_t(pair.second), 0x1171u);
+    TRY(pair = canonical_decomposition(0xd4db));  TEST_EQUAL(uint32_t(pair.first), 0xd4ccu);  TEST_EQUAL(uint32_t(pair.second), 0x11b6u);
 
 }
 
