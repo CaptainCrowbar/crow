@@ -28,23 +28,15 @@ void test_crow_hash_mix() {
     auto h4 = hash_mix(it);
     auto h5 = hash_mix(iv);
 
-    if constexpr (sizeof(size_t) >= 8) {
-
-        TEST_EQUAL(h1, 0x2101'0a85'372b'07b9ull);
-        TEST_EQUAL(h2, 0x2101'0a85'372b'07b9ull);
-        TEST_EQUAL(h3, 0xaa35'2f47'b466'8f76ull);
-        TEST_EQUAL(h4, 0xaa35'2f47'b466'8f76ull);
-        TEST_EQUAL(h5, 0xaa35'2f47'b466'8f76ull);
-
-    } else {
-
-        TEST_EQUAL(h1, 0x3da8'59f5ul);
-        TEST_EQUAL(h2, 0x3da8'59f5ul);
-        TEST_EQUAL(h3, 0xfb57'6fa6ul);
-        TEST_EQUAL(h4, 0xfb57'6fa6ul);
-        TEST_EQUAL(h5, 0xfb57'6fa6ul);
-
-    }
+    TEST(h1 != 0);
+    TEST(h2 != 0);
+    TEST(h3 != 0);
+    TEST(h4 != 0);
+    TEST(h5 != 0);
+    TEST_EQUAL(h1, h2);
+    TEST_EQUAL(h3, h4);
+    TEST_EQUAL(h3, h5);
+    TEST(h1 != h3);
 
 }
 
