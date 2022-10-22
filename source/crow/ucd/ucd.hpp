@@ -2,7 +2,7 @@
 #include "crow/types.hpp"
 #include <map>
 #include <unordered_map>
-#include <vector>
+#include <utility>
 
 namespace Crow {
 
@@ -39,20 +39,29 @@ namespace Crow {
         Zs   // Space_Separator
     )
 
-    CROW_ENUM_CLASS(East_Asian_Width, int, 1,
-        Ambiguous,
-        Fullwidth,
-        Halfwidth,
-        Narrow,
-        Neutral,
-        Wide
-    )
-
     namespace Detail {
+
+        CROW_ENUM_CLASS(East_Asian_Width, int, 1,
+            Ambiguous,
+            Fullwidth,
+            Halfwidth,
+            Narrow,
+            Neutral,
+            Wide
+        )
+
+        CROW_ENUM_CLASS(Hangul_Syllable_Type, int, 1,
+            NA,
+            L,
+            V,
+            T,
+            LV,
+            LVT
+        )
 
         using GeneralCategoryTable                = std::map<char32_t, GC>;
         using CanonicalCombiningClassTable        = std::map<char32_t, int>;
-        using CanonicalDecompositionMappingTable  = std::unorderedMap<char32_t, std::vector<char32_t>>;
+        using CanonicalDecompositionMappingTable  = std::unordered_map<char32_t, std::pair<char32_t, char32_t>>;
         using EastAsianWidthTable                 = std::map<char32_t, East_Asian_Width>;
         using BooleanPropertyTable                = std::map<char32_t, bool>;
 

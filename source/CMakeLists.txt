@@ -86,12 +86,19 @@ add_library(${library} STATIC
     ${library}/thread-pool.cpp
     ${library}/time.cpp
     ${library}/unicode.cpp
-    ${library}/unicode-decomposition.cpp
     ${library}/unicode-normalization.cpp
-    ${library}/unicode-properties.cpp
     ${library}/uri.cpp
     ${library}/uuid.cpp
     ${library}/web-client.cpp
+
+    ${library}/ucd/canonical-combining-class.cpp
+    ${library}/ucd/canonical-decomposition-mapping.cpp
+    ${library}/ucd/east-asian-width.cpp
+    ${library}/ucd/full-composition-exclusion.cpp
+    ${library}/ucd/general-category.cpp
+    ${library}/ucd/pattern-syntax.cpp
+    ${library}/ucd/xid-continue.cpp
+    ${library}/ucd/xid-start.cpp
 
 )
 
@@ -99,7 +106,6 @@ add_executable(${unittest}
 
     test/unit-test.cpp
     test/version-test.cpp
-
     test/log-test.cpp
     test/types-test.cpp
 

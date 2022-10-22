@@ -184,26 +184,6 @@ void test_crow_unicode_length() {
 
 }
 
-void test_crow_unicode_properties() {
-
-    using namespace Crow::Detail;
-
-    TEST(gc_is_cc_cf_mn()(0));
-    TEST(gc_is_cc_cf_mn()('\n'));
-    TEST(! gc_is_cc_cf_mn()('A'));
-    TEST(gc_is_cc_cf_mn()(0x0300));  // (Mn) combining grave accent
-    TEST(gc_is_cc_cf_mn()(0x0600));  // (Cf) arabic number sign
-
-    TEST(ws_pws()('\n'));
-    TEST(ws_pws()(' '));
-    TEST(! ws_pws()('A'));
-
-    TEST(! eaw_is_f_w()('A'));
-    TEST(eaw_is_f_w()(0x1100));  // (W) hangul choseong kiyeok
-    TEST(eaw_is_f_w()(0x3000));  // (F) ideographic space
-
-}
-
 void test_crow_unicode_width() {
 
     TEST_EQUAL(utf_width(""s),                                     0u);   // empty
@@ -349,12 +329,12 @@ void test_crow_unicode_pattern_syntax() {
 
 void test_crow_unicode_xid_properties() {
 
-    TEST(! is_xid_start(0));         TEST(! is_xid_nonstart(0));         TEST(! is_xid_continue(0));
-    TEST(! is_xid_start(U'!'));      TEST(! is_xid_nonstart(U'!'));      TEST(! is_xid_continue(U'!'));
-    TEST(! is_xid_start(U'0'));      TEST(is_xid_nonstart(U'0'));        TEST(is_xid_continue(U'0'));
-    TEST(is_xid_start(U'A'));        TEST(! is_xid_nonstart(U'A'));      TEST(is_xid_continue(U'A'));
-    TEST(! is_xid_start(0xa1));      TEST(! is_xid_nonstart(0xa1));      TEST(! is_xid_continue(0xa1));      // inverted exclamation mark
-    TEST(is_xid_start(0x3a9));       TEST(! is_xid_nonstart(0x3a9));     TEST(is_xid_continue(0x3a9));       // greek capital letter omega
-    TEST(! is_xid_start(0x10ffff));  TEST(! is_xid_nonstart(0x10ffff));  TEST(! is_xid_continue(0x10ffff));
+    TEST(! is_xid_start(0));         TEST(! is_xid_continue(0));
+    TEST(! is_xid_start(U'!'));      TEST(! is_xid_continue(U'!'));
+    TEST(! is_xid_start(U'0'));      TEST(is_xid_continue(U'0'));
+    TEST(is_xid_start(U'A'));        TEST(is_xid_continue(U'A'));
+    TEST(! is_xid_start(0xa1));      TEST(! is_xid_continue(0xa1));      // inverted exclamation mark
+    TEST(is_xid_start(0x3a9));       TEST(is_xid_continue(0x3a9));       // greek capital letter omega
+    TEST(! is_xid_start(0x10ffff));  TEST(! is_xid_continue(0x10ffff));
 
 }
