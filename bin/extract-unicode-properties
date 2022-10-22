@@ -6,6 +6,7 @@ import re
 # General_Category                 enum           UnicodeData.txt[2]
 # Canonical_Combining_Class        int            UnicodeData.txt[3]
 # Canonical_Decomposition_Mapping  array(scalar)  UnicodeData.txt[5]
+# East_Asian_Width                 enum           EastAsianWidth.txt
 # XID_Continue                     bool           DerivedCoreProperties.txt
 # XID_Start                        bool           DerivedCoreProperties.txt
 # XID_Nonstart                     bool           (XID_Continue && ! XID_Start)
@@ -30,19 +31,24 @@ for dir in [ucd, source]:
 
 os.makedirs(ucd_cpp, exist_ok=True)
 
-unicode_data = os.path.join(ucd, "UnicodeData.txt")
-derived_core_properties = os.path.join(ucd, "DerivedCoreProperties.txt")
-derived_normalization_props = os.path.join(ucd, "DerivedNormalizationProps.txt")
-prop_list = os.path.join(ucd, "PropList.txt")
+unicode_data_file = os.path.join(ucd, "UnicodeData.txt")
+east_asian_width_file = os.path.join(ucd, "EastAsianWidth.txt")
+derived_core_properties_file = os.path.join(ucd, "DerivedCoreProperties.txt")
+derived_normalization_props_file = os.path.join(ucd, "DerivedNormalizationProps.txt")
+prop_list_file = os.path.join(ucd, "PropList.txt")
 
 gc_pattern = re.compile(r"C[cfnos]|L[lmotu]|M[cen]|N[dlo]|P[cdefios]|S[ckmo]|Z[lps]")
 ccc_pattern = re.compile(r"\d+")
-good_cdm_pattern = re.compile(r"[0-9a-f]{4,6}( [0-9a-f]{4,6})?", re.I)
+good_cdm_pattern = re.compile(r"[0-9a-f]+( [0-9a-f]+)?", re.I)
 bad_cdm_pattern = re.compile(r"<.+> .+")
+property_comment_pattern = re.compile(r"\s*#.*")
+property_line_pattern = re.compile(r"\s*([0-9a-f]+)(?:\.\.([0-9a-f]+))?\s*;\s*(\S(?:[^#]*\S)?)\s*(?:#.*)?", re.I)
+eaw_pattern = re.compile(r"[AFHW]|Na?")
 
 general_category = ["Cn"] * n_unicode
 canonical_combining_class = [0] * n_unicode
 canonical_decomposition_mapping = [None] * n_unicode
+east_asian_width = ["Neutral"] * n_unicode
 xid_continue = [False] * n_unicode
 xid_start = [False] * n_unicode
 full_composition_exclusion = [False] * n_unicode
@@ -51,31 +57,43 @@ pattern_syntax = [False] * n_unicode
 general_category_cpp = os.path.join(ucd_cpp, "general-category.cpp")
 canonical_combining_class_cpp = os.path.join(ucd_cpp, "canonical-combining-class.cpp")
 canonical_decomposition_mapping_cpp = os.path.join(ucd_cpp, "canonical-decomposition-mapping.cpp")
+east_asian_width_cpp = os.path.join(ucd_cpp, "east-asian-width.cpp")
 xid_continue_cpp = os.path.join(ucd_cpp, "xid-continue.cpp")
 xid_start_cpp = os.path.join(ucd_cpp, "xid-start.cpp")
 full_composition_exclusion_cpp = os.path.join(ucd_cpp, "full-composition-exclusion.cpp")
 pattern_syntax_cpp = os.path.join(ucd_cpp, "pattern-syntax.cpp")
 
-def format_decomposition(decomp):
-    hexlist = [hex(d) for d in decomp]
-    return f"{{{','.join(hexlist)}}}"
+eaw_values = {
+    "A": "Ambiguous",
+    "F": "Fullwidth",
+    "H": "Halfwidth",
+    "N": "Neutral",
+    "Na": "Narrow",
+    "W": "Wide",
+}
 
-code = 0
+# UnicodeData.txt => General_Category, Canonical_Combining_Class, Canonical_Decomposition_Mapping
 
-for line in open(unicode_data):
+first = None
 
-    fields = line.split(";")
+for line in open(unicode_data_file):
+
+    fields = line.rstrip().split(";")
+    code = int(fields[0], 16)
+
+    if fields[1].endswith(", First>"):
+        first = code
+        continue
 
     gc = fields[2]
     if not gc_pattern.fullmatch(gc):
         raise ValueError(f"Unexpected General_Category: {gc}")
-    general_category[code] = gc
 
     ccc = fields[3]
     if not ccc_pattern.fullmatch(ccc):
         raise ValueError(f"Unexpected Canonical_Combining_Class: {ccc}")
-    canonical_combining_class[code] = int(ccc)
 
+    decomp = None
     cdm = fields[5]
     if cdm != "" and not bad_cdm_pattern.fullmatch(cdm):
         if not good_cdm_pattern.fullmatch(cdm):
@@ -83,9 +101,26 @@ for line in open(unicode_data):
         decomp = []
         for x in cdm.split():
             decomp.append(int(x, 16))
-        canonical_decomposition_mapping[code] = decomp
 
-    code += 1
+    if fields[1].endswith(", Last>"):
+
+        last = code
+
+        for code in range(first, last + 1):
+            general_category[code] = gc
+            canonical_combining_class[code] = int(ccc)
+
+        if decomp is not None:
+            for code in range(first, last + 1):
+                canonical_decomposition_mapping[code] = decomp
+
+    else:
+
+        general_category[code] = gc
+        canonical_combining_class[code] = int(ccc)
+
+        if decomp is not None:
+            canonical_decomposition_mapping[code] = decomp
 
 with open(general_category_cpp, "w") as cpp:
 
@@ -129,6 +164,10 @@ with open(canonical_combining_class_cpp, "w") as cpp:
     cpp.write('    }\n\n')
     cpp.write('}\n')
 
+def format_decomposition(decomp):
+    hexlist = [hex(d) for d in decomp]
+    return f"{{{','.join(hexlist)}}}"
+
 with open(canonical_decomposition_mapping_cpp, "w") as cpp:
 
     cpp.write('// This file is automatically generated\n\n')
@@ -146,3 +185,104 @@ with open(canonical_decomposition_mapping_cpp, "w") as cpp:
     cpp.write('        return static_table;\n\n')
     cpp.write('    }\n\n')
     cpp.write('}\n')
+
+# EastAsianWidth.txt => East_Asian_Width
+
+for line in open(east_asian_width_file):
+
+    line = line.rstrip()
+    if line == "" or property_comment_pattern.fullmatch(line):
+        continue
+
+    match = property_line_pattern.fullmatch(line)
+    if not match:
+        raise ValueError(f"Unexpected line in {east_asian_width_file}: {line}")
+
+    code1 = int(match[1], 16)
+    if match[2] is None:
+        code2 = code1
+    else:
+        code2 = int(match[2], 16)
+    abbrev = match[3]
+    if not eaw_pattern.fullmatch(abbrev):
+        raise ValueError(f"Unexpected East_Asian_Width: {abbrev}")
+
+    value = eaw_values[abbrev]
+
+    for code in range(code1, code2 + 1):
+        east_asian_width[code] = value
+
+with open(east_asian_width_cpp, "w") as cpp:
+
+    cpp.write('// This file is automatically generated\n\n')
+    cpp.write('#include "crow/ucd/ucd.hpp"\n\n')
+    cpp.write('namespace Crow::Detail {\n\n')
+    cpp.write('    const EastAsianWidthTable& east_asian_width_table() {\n\n')
+    cpp.write('        static const EastAsianWidthTable static_table = {\n\n')
+
+    prev = None
+
+    for code in range(n_unicode):
+        if east_asian_width[code] != prev:
+            cpp.write(f'            {{0x{code}, EastAsianWidth::{east_asian_width[code]}}},\n')
+            prev = east_asian_width[code]
+
+    cpp.write('\n')
+    cpp.write('        };\n\n')
+    cpp.write('        return static_table;\n\n')
+    cpp.write('    }\n\n')
+    cpp.write('}\n')
+
+def extract_boolean_property(input_file, output_file, prop_name, prop_table):
+
+    cpp_table_name = prop_name.lower() + "_table"
+    cpp_table_type = prop_name.replace("_", "") + "Table"
+
+    for line in open(input_file):
+
+        line = line.rstrip()
+        if line == "" or property_comment_pattern.fullmatch(line):
+            continue
+
+        match = property_line_pattern.fullmatch(line)
+        if not match:
+            raise ValueError(f"Unexpected line in {input_file}: {line}")
+
+        value = match[3]
+        if value != prop_name:
+            continue
+
+        code1 = int(match[1], 16)
+        if match[2] is None:
+            code2 = code1
+        else:
+            code2 = int(match[2], 16)
+
+        for code in range(code1, code2 + 1):
+            prop_table[code] = True
+
+    with open(output_file, "w") as cpp:
+
+        cpp.write('// This file is automatically generated\n\n')
+        cpp.write('#include "crow/ucd/ucd.hpp"\n\n')
+        cpp.write('namespace Crow::Detail {\n\n')
+        cpp.write(f'    const {cpp_table_type}& {cpp_table_name}() {{\n\n')
+        cpp.write(f'        static const {cpp_table_type} static_table = {{\n\n')
+
+        prev = None
+
+        for code in range(n_unicode):
+            if prop_table[code] != prev:
+                cpp.write(f'            {{0x{code}, {str(prop_table[code]).lower()}}},\n')
+                prev = prop_table[code]
+
+        cpp.write('\n')
+        cpp.write('        };\n\n')
+        cpp.write('        return static_table;\n\n')
+        cpp.write('    }\n\n')
+        cpp.write('}\n')
+
+extract_boolean_property(derived_core_properties_file, xid_start_cpp, "XID_Start", xid_start)
+extract_boolean_property(derived_core_properties_file, xid_continue_cpp, "XID_Continue", xid_continue)
+extract_boolean_property(derived_normalization_props_file, full_composition_exclusion_cpp, "Full_Composition_Exclusion", full_composition_exclusion)
+extract_boolean_property(prop_list_file, pattern_syntax_cpp, "Pattern_Syntax", pattern_syntax)
