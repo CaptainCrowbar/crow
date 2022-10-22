@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+project=crow
+ucd_url='https://www.unicode.org/Public/zipped/latest/UCD.zip'
+
+if [[ "$PWD" =~ /build(-[^/]+)?$ ]]; then
+    cd ..
+fi
+
+if ! [[ "$PWD" =~ /$project$ ]]; then
+    echo "*** Unexpected directory: $PWD"
+    exit 1
+fi
+
+rm -f UCD.zip
+if [ -d UCD ]; then rm -r UCD; fi
+curl "$ucd_url" -o UCD.zip
+mkdir UCD
+cd UCD
+unzip ../UCD.zip
+cd ..
+rm UCD.zip
