@@ -300,7 +300,7 @@ namespace Crow {
 
         size_t character_width(char32_t c) {
             auto gc = general_category(c);
-            if (gc == GC::Cc || gc == GC::Cf || gc == GC::Mn)
+            if (gc == GC::Cc || gc == GC::Cf || gc == GC::Mn || gc == GC::Sk)
                 return 0;
             auto eaw = east_asian_width(c);
             if (eaw == East_Asian_Width::Fullwidth || eaw == East_Asian_Width::Wide)

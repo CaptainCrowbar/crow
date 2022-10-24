@@ -114,7 +114,7 @@ namespace Crow {
 
             for (size_t c = 0; c < headers_.size(); ++c) {
                 size_t n = std::count(headers_[c].begin(), headers_[c].end(), '\n');
-                size_t len = utf_width(headers_[c]) + 3 * n;
+                size_t len = utf_width(headers_[c]) + 4 * n;
                 widths[c] = std::max(widths[c], len);
             }
 

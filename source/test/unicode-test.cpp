@@ -202,7 +202,6 @@ void test_crow_unicode_width() {
     TEST_EQUAL(utf_width("ààà\u20a9\u20a9\u20a9"s),                6u);   // ambiguous + halfwidth
     TEST_EQUAL(utf_width("àààAAA"s),                               6u);   // ambiguous + narrow
     TEST_EQUAL(utf_width("ààà\u3001\u3001\u3001"s),                9u);   // ambiguous + wide
-    TEST_EQUAL(utf_width(R"(¯\_(ツ)_/¯)"s),                        10u);  // katakana
 
     TEST_EQUAL(utf_width(u""s),                                     0u);   // empty
     TEST_EQUAL(utf_width(u"Hello world"s),                          11u);  // ascii
@@ -220,7 +219,6 @@ void test_crow_unicode_width() {
     TEST_EQUAL(utf_width(u"ààà\u20a9\u20a9\u20a9"s),                6u);   // ambiguous + halfwidth
     TEST_EQUAL(utf_width(u"àààAAA"s),                               6u);   // ambiguous + narrow
     TEST_EQUAL(utf_width(u"ààà\u3001\u3001\u3001"s),                9u);   // ambiguous + wide
-    TEST_EQUAL(utf_width(uR"(¯\_(ツ)_/¯)"s),                        10u);  // katakana
 
     TEST_EQUAL(utf_width(U""s),                                     0u);   // empty
     TEST_EQUAL(utf_width(U"Hello world"s),                          11u);  // ascii
@@ -238,7 +236,6 @@ void test_crow_unicode_width() {
     TEST_EQUAL(utf_width(U"ààà\u20a9\u20a9\u20a9"s),                6u);   // ambiguous + halfwidth
     TEST_EQUAL(utf_width(U"àààAAA"s),                               6u);   // ambiguous + narrow
     TEST_EQUAL(utf_width(U"ààà\u3001\u3001\u3001"s),                9u);   // ambiguous + wide
-    TEST_EQUAL(utf_width(UR"(¯\_(ツ)_/¯)"s),                        10u);  // katakana
 
     TEST_EQUAL(utf_width(L""s),                                     0u);   // empty
     TEST_EQUAL(utf_width(L"Hello world"s),                          11u);  // ascii
@@ -256,7 +253,10 @@ void test_crow_unicode_width() {
     TEST_EQUAL(utf_width(L"ààà\u20a9\u20a9\u20a9"s),                6u);   // ambiguous + halfwidth
     TEST_EQUAL(utf_width(L"àààAAA"s),                               6u);   // ambiguous + narrow
     TEST_EQUAL(utf_width(L"ààà\u3001\u3001\u3001"s),                9u);   // ambiguous + wide
-    TEST_EQUAL(utf_width(LR"(¯\_(ツ)_/¯)"s),                        10u);  // katakana
+
+    TEST_EQUAL(utf_width("😀👍👩"s),    6u);  // simple emoji
+    TEST_EQUAL(utf_width("😀👍🏽👩🏽"s),    6u);  // modified emoji
+    TEST_EQUAL(utf_width("🇳🇿🇺🇸🇩🇪🇦🇺"s),  8u);  // flags
 
 }
 

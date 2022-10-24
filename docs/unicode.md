@@ -88,10 +88,47 @@ This performs the same operation as `encode_char()` above, but throws
 ## Character property functions
 
 ```c++
-bool is_control(char32_t c);
+
+enum class GC {
+    Cc,  // Control
+    Cf,  // Format
+    Cn,  // Unassigned
+    Co,  // Private use
+    Cs,  // Surrogate
+    Ll,  // Lowercase letter
+    Lm,  // Modifier letter
+    Lo,  // Other letter
+    Lt,  // Titlecase letter
+    Lu,  // Uppercase letter
+    Mc,  // Spacing mark
+    Me,  // Enclosing mark
+    Mn,  // Nonspacing mark
+    Nd,  // Decimal number
+    Nl,  // Letter number
+    No,  // Other number
+    Pc,  // Connector punctuation
+    Pd,  // Dash punctuation
+    Pe,  // Close punctuation
+    Pf,  // Final punctuation
+    Pi,  // Initial punctuation
+    Po,  // Other punctuation
+    Ps,  // Open punctuation
+    Sc,  // Currency symbol
+    Sk,  // Modifier symbol
+    Sm,  // Math symbol
+    So,  // Other symbol
+    Zl,  // Line separator
+    Zp,  // Paragraph separator
+    Zs   // Space separator
+};
+GC general_category(char32_t c);
+```
+
+Unicode general category property.
+
+```c++
 bool is_pattern_syntax(char32_t c);
 bool is_xid_continue(char32_t c);
-bool is_xid_nonstart(char32_t c);
 bool is_xid_start(char32_t c);
 ```
 
@@ -142,20 +179,20 @@ template <CharacterType C>
 
 This function attempts to determine the actual display width of a string, when
 presented in a nominally "fixed width" font (which will normally include
-double width characters for East Asian scripts). It does not attempt to
-implement the full Unicode extended grapheme cluster algorithm, but uses a
-simplified version that isn't completely reliable but works for the
-characters encountered in most Unicode text:
+double width characters for East Asian scripts and emoji). It does not attempt
+to implement the full Unicode extended grapheme cluster algorithm, but uses a
+simplified algorithm:
 
-* if `General_Category = Cc` (Control), `Cf` (Format), or `Mn` (Nonspacing_Mark)
-    * and `White_Space` and `Pattern_White_Space` are both false
-        * width = 0
-* else if `East_Asian_Width = F` (Fullwidth) or `W` (Wide)
-    * width = 2
-* else
-    * width = 1
+* _if General Category is Cc, Cf, Mn, or Sk_
+    * _width is 0_
+* _else if East Asian Width is Fullwidth or Wide_
+    * _width is 2_
+* _else_
+    * _width is 1_
 
-This will throw `std::invalid_argument` if invalid encoding is encountered.
+This will not return a meaningful result if the string contains layout control
+characters such as tabs or line feeds. It will throw `std::invalid_argument`
+if invalid encoding is encountered.
 
 ## Normalization functions
 
