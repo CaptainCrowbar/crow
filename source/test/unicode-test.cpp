@@ -156,31 +156,107 @@ void test_crow_unicode_string_encoding() {
 
 }
 
-void test_crow_unicode_length() {
+void test_crow_unicode_count() {
 
     std::string s;
     std::u16string u;
     std::u32string v;
     std::wstring w;
 
-    s = "";              TEST_EQUAL(s.size(), 0u);   TEST_EQUAL(utf_length(s), 0u);
-    s = "Hello world";   TEST_EQUAL(s.size(), 11u);  TEST_EQUAL(utf_length(s), 11u);
-    s = "αβγδε";         TEST_EQUAL(s.size(), 10u);  TEST_EQUAL(utf_length(s), 5u);
-    s = "Greek αβγδε";   TEST_EQUAL(s.size(), 16u);  TEST_EQUAL(utf_length(s), 11u);
-    u = u"";             TEST_EQUAL(u.size(), 0u);   TEST_EQUAL(utf_length(u), 0u);
-    u = u"Hello world";  TEST_EQUAL(u.size(), 11u);  TEST_EQUAL(utf_length(u), 11u);
-    u = u"αβγδε";        TEST_EQUAL(u.size(), 5u);   TEST_EQUAL(utf_length(u), 5u);
-    u = u"Greek αβγδε";  TEST_EQUAL(u.size(), 11u);  TEST_EQUAL(utf_length(u), 11u);
-    v = U"";             TEST_EQUAL(v.size(), 0u);   TEST_EQUAL(utf_length(v), 0u);
-    v = U"Hello world";  TEST_EQUAL(v.size(), 11u);  TEST_EQUAL(utf_length(v), 11u);
-    v = U"αβγδε";        TEST_EQUAL(v.size(), 5u);   TEST_EQUAL(utf_length(v), 5u);
-    v = U"Greek αβγδε";  TEST_EQUAL(v.size(), 11u);  TEST_EQUAL(utf_length(v), 11u);
-    w = L"";             TEST_EQUAL(w.size(), 0u);   TEST_EQUAL(utf_length(w), 0u);
-    w = L"Hello world";  TEST_EQUAL(w.size(), 11u);  TEST_EQUAL(utf_length(w), 11u);
-    w = L"αβγδε";        TEST_EQUAL(w.size(), 5u);   TEST_EQUAL(utf_length(w), 5u);
-    w = L"Greek αβγδε";  TEST_EQUAL(w.size(), 11u);  TEST_EQUAL(utf_length(w), 11u);
+    s = "";              TEST_EQUAL(s.size(), 0u);   TEST_EQUAL(utf_count(s), 0u);
+    s = "Hello world";   TEST_EQUAL(s.size(), 11u);  TEST_EQUAL(utf_count(s), 11u);
+    s = "αβγδε";         TEST_EQUAL(s.size(), 10u);  TEST_EQUAL(utf_count(s), 5u);
+    s = "Greek αβγδε";   TEST_EQUAL(s.size(), 16u);  TEST_EQUAL(utf_count(s), 11u);
+    u = u"";             TEST_EQUAL(u.size(), 0u);   TEST_EQUAL(utf_count(u), 0u);
+    u = u"Hello world";  TEST_EQUAL(u.size(), 11u);  TEST_EQUAL(utf_count(u), 11u);
+    u = u"αβγδε";        TEST_EQUAL(u.size(), 5u);   TEST_EQUAL(utf_count(u), 5u);
+    u = u"Greek αβγδε";  TEST_EQUAL(u.size(), 11u);  TEST_EQUAL(utf_count(u), 11u);
+    v = U"";             TEST_EQUAL(v.size(), 0u);   TEST_EQUAL(utf_count(v), 0u);
+    v = U"Hello world";  TEST_EQUAL(v.size(), 11u);  TEST_EQUAL(utf_count(v), 11u);
+    v = U"αβγδε";        TEST_EQUAL(v.size(), 5u);   TEST_EQUAL(utf_count(v), 5u);
+    v = U"Greek αβγδε";  TEST_EQUAL(v.size(), 11u);  TEST_EQUAL(utf_count(v), 11u);
+    w = L"";             TEST_EQUAL(w.size(), 0u);   TEST_EQUAL(utf_count(w), 0u);
+    w = L"Hello world";  TEST_EQUAL(w.size(), 11u);  TEST_EQUAL(utf_count(w), 11u);
+    w = L"αβγδε";        TEST_EQUAL(w.size(), 5u);   TEST_EQUAL(utf_count(w), 5u);
+    w = L"Greek αβγδε";  TEST_EQUAL(w.size(), 11u);  TEST_EQUAL(utf_count(w), 11u);
 
-    s = "αβγδε\xff";  TEST_THROW(utf_length(s), std::invalid_argument);
+    s = "αβγδε\xff";  TEST_THROW(utf_count(s), std::invalid_argument);
+
+}
+
+void test_crow_unicode_length() {
+
+    TEST_EQUAL(utf_length(""s),                                     0u);   // empty
+    TEST_EQUAL(utf_length("Hello world"s),                          11u);  // ascii
+    TEST_EQUAL(utf_length("aeiou"s),                                5u);   // narrow
+    TEST_EQUAL(utf_length("áéíóú"s),                                5u);   // precomposed neutral
+    TEST_EQUAL(utf_length("a\u0301e\u0301i\u0301o\u0301u\u0301"s),  5u);   // decomposed narrow
+    TEST_EQUAL(utf_length("ÀÀÀ"s),                                  3u);   // neutral
+    TEST_EQUAL(utf_length("ààà"s),                                  3u);   // ambiguous
+    TEST_EQUAL(utf_length("\u3000\u3000\u3000"s),                   3u);   // fullwidth
+    TEST_EQUAL(utf_length("\u20a9\u20a9\u20a9"s),                   3u);   // halfwidth
+    TEST_EQUAL(utf_length("AAA"s),                                  3u);   // narrow
+    TEST_EQUAL(utf_length("\u3001\u3001\u3001"s),                   3u);   // wide
+    TEST_EQUAL(utf_length("àààÀÀÀ"s),                               6u);   // ambiguous + neutral
+    TEST_EQUAL(utf_length("ààà\u3000\u3000\u3000"s),                6u);   // ambiguous + fullwidth
+    TEST_EQUAL(utf_length("ààà\u20a9\u20a9\u20a9"s),                6u);   // ambiguous + halfwidth
+    TEST_EQUAL(utf_length("àààAAA"s),                               6u);   // ambiguous + narrow
+    TEST_EQUAL(utf_length("ààà\u3001\u3001\u3001"s),                6u);   // ambiguous + wide
+
+    TEST_EQUAL(utf_length(u""s),                                     0u);   // empty
+    TEST_EQUAL(utf_length(u"Hello world"s),                          11u);  // ascii
+    TEST_EQUAL(utf_length(u"aeiou"s),                                5u);   // narrow
+    TEST_EQUAL(utf_length(u"áéíóú"s),                                5u);   // precomposed neutral
+    TEST_EQUAL(utf_length(u"a\u0301e\u0301i\u0301o\u0301u\u0301"s),  5u);   // decomposed narrow
+    TEST_EQUAL(utf_length(u"ÀÀÀ"s),                                  3u);   // neutral
+    TEST_EQUAL(utf_length(u"ààà"s),                                  3u);   // ambiguous
+    TEST_EQUAL(utf_length(u"\u3000\u3000\u3000"s),                   3u);   // fullwidth
+    TEST_EQUAL(utf_length(u"\u20a9\u20a9\u20a9"s),                   3u);   // halfwidth
+    TEST_EQUAL(utf_length(u"AAA"s),                                  3u);   // narrow
+    TEST_EQUAL(utf_length(u"\u3001\u3001\u3001"s),                   3u);   // wide
+    TEST_EQUAL(utf_length(u"àààÀÀÀ"s),                               6u);   // ambiguous + neutral
+    TEST_EQUAL(utf_length(u"ààà\u3000\u3000\u3000"s),                6u);   // ambiguous + fullwidth
+    TEST_EQUAL(utf_length(u"ààà\u20a9\u20a9\u20a9"s),                6u);   // ambiguous + halfwidth
+    TEST_EQUAL(utf_length(u"àààAAA"s),                               6u);   // ambiguous + narrow
+    TEST_EQUAL(utf_length(u"ààà\u3001\u3001\u3001"s),                6u);   // ambiguous + wide
+
+    TEST_EQUAL(utf_length(U""s),                                     0u);   // empty
+    TEST_EQUAL(utf_length(U"Hello world"s),                          11u);  // ascii
+    TEST_EQUAL(utf_length(U"aeiou"s),                                5u);   // narrow
+    TEST_EQUAL(utf_length(U"áéíóú"s),                                5u);   // precomposed neutral
+    TEST_EQUAL(utf_length(U"a\u0301e\u0301i\u0301o\u0301u\u0301"s),  5u);   // decomposed narrow
+    TEST_EQUAL(utf_length(U"ÀÀÀ"s),                                  3u);   // neutral
+    TEST_EQUAL(utf_length(U"ààà"s),                                  3u);   // ambiguous
+    TEST_EQUAL(utf_length(U"\u3000\u3000\u3000"s),                   3u);   // fullwidth
+    TEST_EQUAL(utf_length(U"\u20a9\u20a9\u20a9"s),                   3u);   // halfwidth
+    TEST_EQUAL(utf_length(U"AAA"s),                                  3u);   // narrow
+    TEST_EQUAL(utf_length(U"\u3001\u3001\u3001"s),                   3u);   // wide
+    TEST_EQUAL(utf_length(U"àààÀÀÀ"s),                               6u);   // ambiguous + neutral
+    TEST_EQUAL(utf_length(U"ààà\u3000\u3000\u3000"s),                6u);   // ambiguous + fullwidth
+    TEST_EQUAL(utf_length(U"ààà\u20a9\u20a9\u20a9"s),                6u);   // ambiguous + halfwidth
+    TEST_EQUAL(utf_length(U"àààAAA"s),                               6u);   // ambiguous + narrow
+    TEST_EQUAL(utf_length(U"ààà\u3001\u3001\u3001"s),                6u);   // ambiguous + wide
+
+    TEST_EQUAL(utf_length(L""s),                                     0u);   // empty
+    TEST_EQUAL(utf_length(L"Hello world"s),                          11u);  // ascii
+    TEST_EQUAL(utf_length(L"aeiou"s),                                5u);   // narrow
+    TEST_EQUAL(utf_length(L"áéíóú"s),                                5u);   // precomposed neutral
+    TEST_EQUAL(utf_length(L"a\u0301e\u0301i\u0301o\u0301u\u0301"s),  5u);   // decomposed narrow
+    TEST_EQUAL(utf_length(L"ÀÀÀ"s),                                  3u);   // neutral
+    TEST_EQUAL(utf_length(L"ààà"s),                                  3u);   // ambiguous
+    TEST_EQUAL(utf_length(L"\u3000\u3000\u3000"s),                   3u);   // fullwidth
+    TEST_EQUAL(utf_length(L"\u20a9\u20a9\u20a9"s),                   3u);   // halfwidth
+    TEST_EQUAL(utf_length(L"AAA"s),                                  3u);   // narrow
+    TEST_EQUAL(utf_length(L"\u3001\u3001\u3001"s),                   3u);   // wide
+    TEST_EQUAL(utf_length(L"àààÀÀÀ"s),                               6u);   // ambiguous + neutral
+    TEST_EQUAL(utf_length(L"ààà\u3000\u3000\u3000"s),                6u);   // ambiguous + fullwidth
+    TEST_EQUAL(utf_length(L"ààà\u20a9\u20a9\u20a9"s),                6u);   // ambiguous + halfwidth
+    TEST_EQUAL(utf_length(L"àààAAA"s),                               6u);   // ambiguous + narrow
+    TEST_EQUAL(utf_length(L"ààà\u3001\u3001\u3001"s),                6u);   // ambiguous + wide
+
+    TEST_EQUAL(utf_length("😀👍👩"s),    3u);  // simple emoji
+    TEST_EQUAL(utf_length("😀👍🏽👩🏽"s),    3u);  // modified emoji
+    TEST_EQUAL(utf_length("🇳🇿🇺🇸🇩🇪🇦🇺"s),  4u);  // flags
 
 }
 

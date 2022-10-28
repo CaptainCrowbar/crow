@@ -63,10 +63,11 @@ namespace Crow {
         int canonical_combining_class(char32_t c);
         char32_t canonical_composition(char32_t c1, char32_t c2);
         std::pair<char32_t, char32_t> canonical_decomposition(char32_t c);
-        size_t character_width(char32_t c);
         East_Asian_Width east_asian_width(char32_t c);
         Hangul_Syllable_Type hangul_syllable_type(char32_t c) noexcept;
         bool is_full_composition_exclusion(char32_t c);
+        constexpr bool is_regional_indicator(char32_t c) noexcept { return c >= 0x1f1e6 & c <= 0x1f1ff; }
+        constexpr bool is_zero_width(GC gc) noexcept { return gc == GC::Cc || gc == GC::Cf || gc == GC::Mn || gc == GC::Sk; }
 
     }
 
@@ -137,19 +138,55 @@ namespace Crow {
     }
 
     template <CharacterType C>
-    size_t utf_length(const std::basic_string<C>& str) {
-        size_t len = 0;
-        for (size_t pos = 0; pos < str.size(); ++len)
+    size_t utf_count(const std::basic_string<C>& str) {
+        size_t n = 0;
+        for (size_t pos = 0; pos < str.size(); ++n)
             check_decode_char(str, pos);
-        return len;
+        return n;
+    }
+
+    template <CharacterType C>
+    size_t utf_length(const std::basic_string<C>& str) {
+        using namespace Detail;
+        bool is_ri = false;
+        bool was_ri = false;
+        char32_t c = 0;
+        size_t n = 0;
+        GC gc;
+        for (size_t pos = 0; pos < str.size();) {
+            c = check_decode_char(str, pos);
+            is_ri = is_regional_indicator(c);
+            if (is_ri && was_ri) {
+                was_ri = false;
+            } else {
+                gc = general_category(c);
+                if (! is_zero_width(gc))
+                    ++n;
+                was_ri = is_ri;
+            }
+        }
+        return n;
     }
 
     template <CharacterType C>
     size_t utf_width(const std::basic_string<C>& str) {
-        size_t width = 0;
-        for (size_t pos = 0; pos < str.size();)
-            width += Detail::character_width(check_decode_char(str, pos));
-        return width;
+        using namespace Detail;
+        char32_t c = 0;
+        size_t n = 0;
+        GC gc;
+        East_Asian_Width eaw;
+        for (size_t pos = 0; pos < str.size();) {
+            c = check_decode_char(str, pos);
+            gc = general_category(c);
+            if (! is_zero_width(gc)) {
+                eaw = east_asian_width(c);
+                if (eaw == East_Asian_Width::Fullwidth || eaw == East_Asian_Width::Wide)
+                    n += 2;
+                else
+                    ++n;
+            }
+        }
+        return n;
     }
 
     std::string to_nfc(std::string str);

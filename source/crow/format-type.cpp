@@ -19,7 +19,7 @@ namespace Crow {
 
     Formatter::Formatter(const std::string& pattern) {
 
-        utf_length(pattern); // Validate UTF-8
+        utf_count(pattern); // Validate UTF-8
 
         for (size_t current_pos = 0; current_pos < pattern.size();) {
 

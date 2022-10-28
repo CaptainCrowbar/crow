@@ -1043,6 +1043,7 @@ void unicode_test_group() {
     UNIT_TEST(crow_unicode_implementation_details)
     UNIT_TEST(crow_unicode_character_encoding)
     UNIT_TEST(crow_unicode_string_encoding)
+    UNIT_TEST(crow_unicode_count)
     UNIT_TEST(crow_unicode_length)
     UNIT_TEST(crow_unicode_width)
     UNIT_TEST(crow_unicode_canonical_combining_class)

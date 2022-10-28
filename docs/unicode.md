@@ -166,33 +166,35 @@ True if the string contains valid UTF (or is empty).
 
 ```c++
 template <CharacterType C>
+    size_t utf_count(const std::basic_string<C>& str);
+template <CharacterType C>
     size_t utf_length(const std::basic_string<C>& str);
-```
-
-Returns the number of encoded Unicode scalar values in the string. It will
-throw `std::invalid_argument` if invalid encoding is encountered.
-
-```c++
 template <CharacterType C>
     size_t utf_width(const std::basic_string<C>& str);
 ```
 
-This function attempts to determine the actual display width of a string, when
-presented in a nominally "fixed width" font (which will normally include
-double width characters for East Asian scripts and emoji). It does not attempt
-to implement the full Unicode extended grapheme cluster algorithm, but uses a
-simplified algorithm:
+These return various measures of the size of a UTF string. The `utf_count()`
+function returns the number of encoded Unicode scalar values in the string.
+
+The `utf_length()` function returns the number of grapheme clusters (including
+whitespace) in the string, while `utf_width()` returns the estimated width of
+the string when presented in a nominally "fixed width" font, assuming the font
+uses double width characters for East Asian scripts and emoji. These do not
+attempt to implement the full Unicode extended grapheme cluster algorithm, but
+use a simplified algorithm:
 
 * _if General Category is Cc, Cf, Mn, or Sk_
-    * _width is 0_
+    * _character width is 0_
 * _else if East Asian Width is Fullwidth or Wide_
-    * _width is 2_
+    * _character width is 2_
 * _else_
-    * _width is 1_
+    * _character width is 1_
 
 This will not return a meaningful result if the string contains layout control
-characters such as tabs or line feeds. It will throw `std::invalid_argument`
-if invalid encoding is encountered.
+characters such as tabs or line feeds.
+
+All of these will throw `std::invalid_argument` if invalid UTF-8 is
+encountered.
 
 ## Normalization functions
 

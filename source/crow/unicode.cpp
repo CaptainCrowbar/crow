@@ -298,17 +298,6 @@ namespace Crow {
             return find_in_ucd_table(c, canonical_combining_class_table());
         }
 
-        size_t character_width(char32_t c) {
-            auto gc = general_category(c);
-            if (gc == GC::Cc || gc == GC::Cf || gc == GC::Mn || gc == GC::Sk)
-                return 0;
-            auto eaw = east_asian_width(c);
-            if (eaw == East_Asian_Width::Fullwidth || eaw == East_Asian_Width::Wide)
-                return 2;
-            else
-                return 1;
-        }
-
         East_Asian_Width east_asian_width(char32_t c) {
             return find_in_ucd_table(c, east_asian_width_table());
         }
