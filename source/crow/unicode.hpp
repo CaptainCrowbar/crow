@@ -176,7 +176,6 @@ namespace Crow {
 
             case Usize::units: {
 
-                is_valid_utf(str, true);
                 n = str.size();
 
                 break;

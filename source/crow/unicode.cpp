@@ -154,7 +154,7 @@ namespace Crow {
                 size_t n = pos - start;
                 pos = start;
                 auto hex = Detail::hex_data(ptr + start, n);
-                throw std::invalid_argument("Invalid UTF-16: " + hex);
+                throw std::invalid_argument("Invalid UTF-16: 0x" + hex);
             }
             return c;
         }
@@ -177,7 +177,7 @@ namespace Crow {
                 size_t len = pos - start;
                 pos = start;
                 auto bytes = Detail::hex_data(str.data() + start, len);
-                throw std::invalid_argument("Invalid UTF-8: " + bytes);
+                throw std::invalid_argument("Invalid UTF-8: 0x" + bytes);
             }
             return c;
         }

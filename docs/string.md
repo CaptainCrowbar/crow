@@ -285,6 +285,23 @@ Convert a string, expressed in decimal, to a floating point number. These will
 throw `std::invalid_argument` if the string is not a valid number of the
 specified type.
 
+## String query functions
+
+```c++
+std::pair<size_t, size_t> line_and_column(std::string_view str, size_t pos,
+    Usize mode, size_t tab_size = 4);
+```
+
+Returns the line and column number corresponding to a given position within a
+string. Return values are zero-based. The input position is a byte offset,
+which will be clamped to the length of the string. The returned line number is
+based on line feed characters only. The `mode` argument determines how columns
+are counted.
+
+In modes other than `units`, this will throw `std::invalid_argument` if
+invalid UTF-8 encoding is encountered, or if the input position is not on a
+code point boundary.
+
 ## Type functions
 
 ```c++
@@ -294,8 +311,8 @@ template <typename T> std::string type_name();
 Returns a human readable type name, derived from `std::type_info::name()`.
 MSVC already supplies human readable names, so those are simply passed through
 unchanged. On GCC, and GCC-like compilers such as Clang and Xcode, this will
-attempt to demangle the name by calling `abi::__cxa_demangle ()`; if this
-fails it will give up and return the mangled name.
+attempt to demangle the name by calling `abi::__cxa_demangle()`; if this fails
+it will give up and return the mangled name.
 
 ## String literals
 

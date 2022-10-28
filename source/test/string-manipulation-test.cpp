@@ -7,7 +7,7 @@
 
 using namespace Crow;
 
-void test_crow_common_prefix() {
+void test_crow_string_common_prefix() {
 
     TEST_EQUAL(common_prefix_length("", ""), 0u);
     TEST_EQUAL(common_prefix_length("Hello", ""), 0u);

@@ -213,8 +213,9 @@ algorithm since very few fonts and display engines reliably follow Unicode's
 grapheme cluster and East Asian Width models consistently.
 
 This function will not return a meaningful result if the string contains
-layout control characters such as tabs and line feeds. It will throw
-`std::invalid_argument` if invalid UTF encoding is encountered.
+layout control characters such as tabs and line feeds. In modes other than
+`units` this will throw `std::invalid_argument` if invalid UTF encoding is
+encountered.
 
 ## Normalization functions
 

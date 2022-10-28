@@ -945,7 +945,7 @@ void string_literals_test_group() {
 }
 
 void string_manipulation_test_group() {
-    UNIT_TEST(crow_common_prefix)
+    UNIT_TEST(crow_string_common_prefix)
     UNIT_TEST(crow_string_indentation)
     UNIT_TEST(crow_string_join)
     UNIT_TEST(crow_string_padding)
@@ -964,6 +964,10 @@ void string_parsing_test_group() {
     UNIT_TEST(crow_string_to_boolean)
     UNIT_TEST(crow_string_to_integer)
     UNIT_TEST(crow_string_to_floating_point)
+}
+
+void string_query_test_group() {
+    UNIT_TEST(crow_string_line_and_column)
 }
 
 void string_type_test_group() {
@@ -1244,6 +1248,7 @@ int main(int argc, char** argv) {
     string_literals_test_group();
     string_manipulation_test_group();
     string_parsing_test_group();
+    string_query_test_group();
     string_type_test_group();
     string_wrapping_test_group();
     table_test_group();

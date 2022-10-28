@@ -179,24 +179,28 @@ void test_crow_unicode_size_units() {
     std::u32string v;
     std::wstring w;
 
-    s = "";              TEST_EQUAL(utf_size(s, Usize::units), 0u);
-    s = "Hello world";   TEST_EQUAL(utf_size(s, Usize::units), 11u);
-    s = "αβγδε";         TEST_EQUAL(utf_size(s, Usize::units), 10u);
-    s = "Greek αβγδε";   TEST_EQUAL(utf_size(s, Usize::units), 16u);
-    u = u"";             TEST_EQUAL(utf_size(u, Usize::units), 0u);
-    u = u"Hello world";  TEST_EQUAL(utf_size(u, Usize::units), 11u);
-    u = u"αβγδε";        TEST_EQUAL(utf_size(u, Usize::units), 5u);
-    u = u"Greek αβγδε";  TEST_EQUAL(utf_size(u, Usize::units), 11u);
-    v = U"";             TEST_EQUAL(utf_size(v, Usize::units), 0u);
-    v = U"Hello world";  TEST_EQUAL(utf_size(v, Usize::units), 11u);
-    v = U"αβγδε";        TEST_EQUAL(utf_size(v, Usize::units), 5u);
-    v = U"Greek αβγδε";  TEST_EQUAL(utf_size(v, Usize::units), 11u);
-    w = L"";             TEST_EQUAL(utf_size(w, Usize::units), 0u);
-    w = L"Hello world";  TEST_EQUAL(utf_size(w, Usize::units), 11u);
-    w = L"αβγδε";        TEST_EQUAL(utf_size(w, Usize::units), 5u);
-    w = L"Greek αβγδε";  TEST_EQUAL(utf_size(w, Usize::units), 11u);
-
-    s = "αβγδε\xff";  TEST_THROW(utf_size(s, Usize::units), std::invalid_argument);
+    TEST_EQUAL(utf_size(""s,              Usize::units),  0u);
+    TEST_EQUAL(utf_size("Hello world"s,   Usize::units),  11u);
+    TEST_EQUAL(utf_size("αβγδε"s,         Usize::units),  10u);
+    TEST_EQUAL(utf_size("Greek αβγδε"s,   Usize::units),  16u);
+    TEST_EQUAL(utf_size(u""s,             Usize::units),  0u);
+    TEST_EQUAL(utf_size(u"Hello world"s,  Usize::units),  11u);
+    TEST_EQUAL(utf_size(u"αβγδε"s,        Usize::units),  5u);
+    TEST_EQUAL(utf_size(u"Greek αβγδε"s,  Usize::units),  11u);
+    TEST_EQUAL(utf_size(U""s,             Usize::units),  0u);
+    TEST_EQUAL(utf_size(U"Hello world"s,  Usize::units),  11u);
+    TEST_EQUAL(utf_size(U"αβγδε"s,        Usize::units),  5u);
+    TEST_EQUAL(utf_size(U"Greek αβγδε"s,  Usize::units),  11u);
+    TEST_EQUAL(utf_size("😀👍👩"s,        Usize::units),  12u);
+    TEST_EQUAL(utf_size("😀👍🏽👩🏽"s,        Usize::units),  20u);
+    TEST_EQUAL(utf_size("🇳🇿🇺🇸🇩🇪🇦🇺"s,      Usize::units),  32u);
+    TEST_EQUAL(utf_size(u"😀👍👩"s,       Usize::units),  6u);
+    TEST_EQUAL(utf_size(u"😀👍🏽👩🏽"s,       Usize::units),  10u);
+    TEST_EQUAL(utf_size(u"🇳🇿🇺🇸🇩🇪🇦🇺"s,     Usize::units),  16u);
+    TEST_EQUAL(utf_size(U"😀👍👩"s,       Usize::units),  3u);
+    TEST_EQUAL(utf_size(U"😀👍🏽👩🏽"s,       Usize::units),  5u);
+    TEST_EQUAL(utf_size(U"🇳🇿🇺🇸🇩🇪🇦🇺"s,     Usize::units),  8u);
+    TEST_EQUAL(utf_size("αβγδε\xff"s,     Usize::units),  11u);
 
 }
 
@@ -207,24 +211,36 @@ void test_crow_unicode_size_scalars() {
     std::u32string v;
     std::wstring w;
 
-    s = "";              TEST_EQUAL(utf_size(s, Usize::scalars), 0u);
-    s = "Hello world";   TEST_EQUAL(utf_size(s, Usize::scalars), 11u);
-    s = "αβγδε";         TEST_EQUAL(utf_size(s, Usize::scalars), 5u);
-    s = "Greek αβγδε";   TEST_EQUAL(utf_size(s, Usize::scalars), 11u);
-    u = u"";             TEST_EQUAL(utf_size(u, Usize::scalars), 0u);
-    u = u"Hello world";  TEST_EQUAL(utf_size(u, Usize::scalars), 11u);
-    u = u"αβγδε";        TEST_EQUAL(utf_size(u, Usize::scalars), 5u);
-    u = u"Greek αβγδε";  TEST_EQUAL(utf_size(u, Usize::scalars), 11u);
-    v = U"";             TEST_EQUAL(utf_size(v, Usize::scalars), 0u);
-    v = U"Hello world";  TEST_EQUAL(utf_size(v, Usize::scalars), 11u);
-    v = U"αβγδε";        TEST_EQUAL(utf_size(v, Usize::scalars), 5u);
-    v = U"Greek αβγδε";  TEST_EQUAL(utf_size(v, Usize::scalars), 11u);
-    w = L"";             TEST_EQUAL(utf_size(w, Usize::scalars), 0u);
-    w = L"Hello world";  TEST_EQUAL(utf_size(w, Usize::scalars), 11u);
-    w = L"αβγδε";        TEST_EQUAL(utf_size(w, Usize::scalars), 5u);
-    w = L"Greek αβγδε";  TEST_EQUAL(utf_size(w, Usize::scalars), 11u);
+    TEST_EQUAL(utf_size(""s,              Usize::scalars),  0u);
+    TEST_EQUAL(utf_size("Hello world"s,   Usize::scalars),  11u);
+    TEST_EQUAL(utf_size("αβγδε"s,         Usize::scalars),  5u);
+    TEST_EQUAL(utf_size("Greek αβγδε"s,   Usize::scalars),  11u);
+    TEST_EQUAL(utf_size(u""s,             Usize::scalars),  0u);
+    TEST_EQUAL(utf_size(u"Hello world"s,  Usize::scalars),  11u);
+    TEST_EQUAL(utf_size(u"αβγδε"s,        Usize::scalars),  5u);
+    TEST_EQUAL(utf_size(u"Greek αβγδε"s,  Usize::scalars),  11u);
+    TEST_EQUAL(utf_size(U""s,             Usize::scalars),  0u);
+    TEST_EQUAL(utf_size(U"Hello world"s,  Usize::scalars),  11u);
+    TEST_EQUAL(utf_size(U"αβγδε"s,        Usize::scalars),  5u);
+    TEST_EQUAL(utf_size(U"Greek αβγδε"s,  Usize::scalars),  11u);
+    TEST_EQUAL(utf_size(L""s,             Usize::scalars),  0u);
+    TEST_EQUAL(utf_size(L"Hello world"s,  Usize::scalars),  11u);
+    TEST_EQUAL(utf_size(L"αβγδε"s,        Usize::scalars),  5u);
+    TEST_EQUAL(utf_size(L"Greek αβγδε"s,  Usize::scalars),  11u);
+    TEST_EQUAL(utf_size("😀👍👩"s,        Usize::scalars),  3u);
+    TEST_EQUAL(utf_size("😀👍🏽👩🏽"s,        Usize::scalars),  5u);
+    TEST_EQUAL(utf_size("🇳🇿🇺🇸🇩🇪🇦🇺"s,      Usize::scalars),  8u);
+    TEST_EQUAL(utf_size(u"😀👍👩"s,       Usize::scalars),  3u);
+    TEST_EQUAL(utf_size(u"😀👍🏽👩🏽"s,       Usize::scalars),  5u);
+    TEST_EQUAL(utf_size(u"🇳🇿🇺🇸🇩🇪🇦🇺"s,     Usize::scalars),  8u);
+    TEST_EQUAL(utf_size(U"😀👍👩"s,       Usize::scalars),  3u);
+    TEST_EQUAL(utf_size(U"😀👍🏽👩🏽"s,       Usize::scalars),  5u);
+    TEST_EQUAL(utf_size(U"🇳🇿🇺🇸🇩🇪🇦🇺"s,     Usize::scalars),  8u);
+    TEST_EQUAL(utf_size(L"😀👍👩"s,       Usize::scalars),  3u);
+    TEST_EQUAL(utf_size(L"😀👍🏽👩🏽"s,       Usize::scalars),  5u);
+    TEST_EQUAL(utf_size(L"🇳🇿🇺🇸🇩🇪🇦🇺"s,     Usize::scalars),  8u);
 
-    s = "αβγδε\xff";  TEST_THROW(utf_size(s, Usize::scalars), std::invalid_argument);
+    TEST_THROW(utf_size("αβγδε\xff"s, Usize::scalars), std::invalid_argument);
 
 }
 

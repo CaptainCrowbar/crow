@@ -1,5 +1,7 @@
 #pragma once
 
+#include "crow/unicode.hpp"
+#include "crow/enum.hpp"
 #include "crow/types.hpp"
 #include <concepts>
 #include <cstdlib>
@@ -203,6 +205,10 @@ namespace Crow {
     inline auto to_float(const std::string& str) { return to_floating<float>(str); }
     inline auto to_double(const std::string& str) { return to_floating<double>(str); }
     inline auto to_ldouble(const std::string& str) { return to_floating<long double>(str); }
+
+    // String query functions
+
+    std::pair<size_t, size_t> line_and_column(std::string_view str, size_t pos, Usize mode, size_t tab_size = 4);
 
     // Type functions
 

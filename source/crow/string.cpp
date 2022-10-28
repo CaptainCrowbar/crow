@@ -1,5 +1,4 @@
 #include "crow/string.hpp"
-#include "crow/unicode.hpp"
 #include <algorithm>
 #include <cstring>
 #include <iterator>
@@ -426,6 +425,44 @@ namespace Crow {
             return false;
         else
             throw std::invalid_argument("Invalid boolean value: " + quote(str));
+    }
+
+    // String query functions
+
+    std::pair<size_t, size_t> line_and_column(std::string_view str, size_t pos, Usize mode, size_t tab_size) {
+
+        auto text = str.substr(0, pos);
+        size_t line = std::count(text.begin(), text.end(), '\n');
+        size_t start = text.find_last_of('\n');
+
+        if (start == npos)
+            start = 0;
+        else
+            ++start;
+
+        size_t col = 0;
+        size_t i = start;
+        size_t len = text.size();
+
+        while (i < len) {
+            size_t j = text.find('\t', i);
+            if (j == npos)
+                j = len;
+            col += utf_size(text.substr(i, j - i), mode);
+            if (j == len)
+                break;
+            if (tab_size > 0) {
+                col += tab_size - col % tab_size;
+                ++j;
+            }
+            i = text.find_first_not_of('\t', j);
+            if (i == npos)
+                i = len;
+            col += tab_size * (i - j);
+        }
+
+        return {line, col};
+
     }
 
     // Type functions
