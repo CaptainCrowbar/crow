@@ -47,30 +47,30 @@ namespace Crow {
         bool operator()(std::string_view a, std::string_view b) const noexcept;
     };
 
-    std::string ascii_uppercase(std::string str);
-    std::string ascii_lowercase(std::string str);
-    std::string ascii_titlecase(std::string str);
-    size_t common_prefix_length(const std::string& str1, const std::string& str2) noexcept;
+    std::string ascii_uppercase(std::string_view str);
+    std::string ascii_lowercase(std::string_view str);
+    std::string ascii_titlecase(std::string_view str);
+    size_t common_prefix_length(std::string_view str1, std::string_view str2) noexcept;
     inline std::string dent(size_t level) { return std::string(4 * level, ' '); }
     std::string pad_left(std::string str, size_t len, char c = ' ');
     std::string pad_right(std::string str, size_t len, char c = ' ');
-    std::pair<std::string, std::string> partition(const std::string& str, const std::string& chars = ascii_whitespace);
-    std::pair<std::string, std::string> partition_at(const std::string& str, const std::string& delimiter);
-    std::string quote(const std::string& str);
-    std::string repeat(const std::string& str, size_t n);
-    std::string replace(const std::string& str, const std::string& target, const std::string& replacement);
-    std::string remove(const std::string& str, const std::string& target);
-    std::vector<std::string> split(const std::string& str, const std::string& chars = ascii_whitespace);
-    std::vector<std::string> split_at(const std::string& str, const std::string& delimiter);
-    std::vector<std::string> split_lines(const std::string& str);
-    std::string trim(const std::string& str, const std::string& chars = ascii_whitespace);
-    std::string trim_left(const std::string& str, const std::string& chars = ascii_whitespace);
-    std::string trim_right(const std::string& str, const std::string& chars = ascii_whitespace);
-    std::string unqualify(const std::string& str, const std::string& delimiters = ".:");
-    std::string unwrap_lines(const std::string& str);
-    std::string wrap_lines(const std::string& str, size_t width = 78, size_t margin = npos,
+    std::pair<std::string_view, std::string_view> partition(std::string_view str, std::string_view chars = ascii_whitespace);
+    std::pair<std::string_view, std::string_view> partition_at(std::string_view str, std::string_view delimiter);
+    std::string quote(std::string_view str);
+    std::string repeat(std::string_view str, size_t n);
+    std::string replace(std::string_view str, std::string_view target, std::string_view replacement);
+    std::string remove(std::string_view str, std::string_view target);
+    std::vector<std::string_view> split(std::string_view str, std::string_view chars = ascii_whitespace);
+    std::vector<std::string_view> split_at(std::string_view str, std::string_view delimiter);
+    std::vector<std::string_view> split_lines(std::string_view str);
+    std::string trim(std::string_view str, std::string_view chars = ascii_whitespace);
+    std::string trim_left(std::string_view str, std::string_view chars = ascii_whitespace);
+    std::string trim_right(std::string_view str, std::string_view chars = ascii_whitespace);
+    std::string unqualify(std::string_view str, std::string_view delimiters = ".:");
+    std::string unwrap_lines(std::string_view str);
+    std::string wrap_lines(std::string_view str, size_t width = 78, size_t margin = npos,
         bool checked = false);
-    std::string indent_lines(const std::string& str, size_t spaces = 4);
+    std::string indent_lines(std::string_view str, size_t spaces = 4);
 
     template <std::integral T>
     std::string hex(T t) {
@@ -84,7 +84,7 @@ namespace Crow {
     }
 
     template <typename Range>
-    std::string join(const Range& range, const std::string& delimiter = {}) {
+    std::string join(const Range& range, std::string_view delimiter = {}) {
         std::string result, str;
         for (auto& obj: range) {
             str = obj;

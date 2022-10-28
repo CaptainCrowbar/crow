@@ -121,7 +121,7 @@ namespace Crow {
 
         } else {
 
-            std::vector<std::string> parts;
+            std::vector<std::string_view> parts;
 
             for (size_t c = 0; c < headers_.size(); ++c) {
                 parts = split(headers_[c], "\n");
@@ -161,13 +161,13 @@ namespace Crow {
             }
 
             headers.resize(header_lines);
-            std::vector<std::string> parts;
+            std::vector<std::string_view> parts;
 
             for (auto& field: header) {
                 parts = split(field, "\n");
                 size_t i = 0;
                 for (; i < parts.size(); ++i)
-                    headers[i].push_back(parts[i]);
+                    headers[i].push_back(std::string(parts[i]));
                 for (; i < header_lines; ++i)
                     headers[i].push_back({});
             }

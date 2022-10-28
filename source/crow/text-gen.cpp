@@ -287,12 +287,16 @@ namespace Crow {
 
         TextGen operator""_tg(const char* ptr, size_t len) {
             std::string str(ptr, len);
-            auto vec = split(str);
-            switch (vec.size()) {
-                case 0:   return TextGen();
-                case 1:   return TextGen(str);
-                default:  return TextGen::choice(vec);
-            }
+            auto views = split(str);
+            if (views.empty())
+                return {};
+            else if (views.size() == 1)
+                return {str};
+            std::vector<std::string> words;
+            words.reserve(views.size());
+            std::transform(views.begin(), views.end(), std::back_inserter(words),
+                [] (std::string_view v) { return std::string(v); });
+            return TextGen::choice(words);
         }
 
         TextGen operator""_tg(unsigned long long n) {

@@ -587,9 +587,9 @@ namespace Crow {
         if (paras.empty())
             return 0;
 
-        for (auto& para: paras) {
+        for (auto& p: paras) {
 
-            while (! para.empty()) {
+            for (std::string para(p); ! para.empty();) {
 
                 size_t fit = text_fit(para, max_pixels);
                 if (fit == npos) {

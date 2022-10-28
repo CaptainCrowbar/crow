@@ -280,7 +280,11 @@ namespace Crow {
             auto str = format_floating_point(x, mode);
             auto [sig,exp] = partition(str, "e");
 
-            return sig + "x10^" + exp;
+            std::string result(sig);
+            result += "x10^";
+            result += exp;
+
+            return result;
 
         }
 

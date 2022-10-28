@@ -23,13 +23,15 @@ namespace Crow {
 
     }
 
-    Uri::Uri(const std::string& s) {
+    Uri::Uri(std::string_view s) {
         if (! try_parse(s))
             throw std::invalid_argument("Invalid URI: {0:q}"_fmt(s));
     }
 
-    Uri::Uri(const std::string& scheme, const std::string& user, const std::string& password, const std::string& host, uint16_t port,
-            const std::string& path, const std::string& query, const std::string& fragment) {
+    Uri::Uri(std::string_view scheme, std::string_view user, std::string_view password,
+            std::string_view host, uint16_t port,
+            std::string_view path, std::string_view query,
+            std::string_view fragment) {
         set_scheme(scheme);
         set_host(host);
         set_user(user);
@@ -40,7 +42,39 @@ namespace Crow {
         set_fragment(fragment);
     }
 
-    void Uri::set_scheme(const std::string& new_scheme, bool smart) {
+    std::string Uri::scheme() const {
+        return empty() ? std::string() : ascii_lowercase(text_.substr(0, ofs_user_ - (has_slashes() ? 3 : 1)));
+    }
+
+    std::string Uri::user() const {
+        return decode(text_.substr(ofs_user_, ofs_password_ - ofs_user_));
+    }
+
+    std::string Uri::password() const {
+        return has_password() ? decode(text_.substr(ofs_password_ + 1, ofs_host_ - ofs_password_ - 2)) : std::string();
+    }
+
+    std::string Uri::host() const {
+        return decode(text_.substr(ofs_host_, ofs_port_ - ofs_host_));
+    }
+
+    uint16_t Uri::port() const noexcept {
+        return has_port() ? uint16_t(std::strtoul(text_.data() + ofs_port_ + 1, nullptr, 10)) : 0;
+    }
+
+    std::string Uri::path() const {
+        return decode(text_.substr(ofs_path_, ofs_query_ - ofs_path_));
+    }
+
+    std::string Uri::query() const {
+        return has_query() ? decode(text_.substr(ofs_query_ + 1, ofs_fragment_ - ofs_query_ - 1)) : std::string();
+    }
+
+    std::string Uri::fragment() const {
+        return has_fragment() ? decode(text_.substr(ofs_fragment_ + 1, npos)) : std::string();
+    }
+
+    void Uri::set_scheme(std::string_view new_scheme, bool smart) {
 
         static const Regex pattern("[a-z][a-z0-9.+-]*(:(//)?)?", Regex::full);
 
@@ -66,7 +100,7 @@ namespace Crow {
 
     }
 
-    void Uri::set_user(const std::string& new_user) {
+    void Uri::set_user(std::string_view new_user) {
 
         check_nonempty();
 
@@ -99,7 +133,7 @@ namespace Crow {
 
     }
 
-    void Uri::set_password(const std::string& new_password) {
+    void Uri::set_password(std::string_view new_password) {
 
         check_nonempty();
 
@@ -123,7 +157,7 @@ namespace Crow {
 
     }
 
-    void Uri::set_host(const std::string& new_host) {
+    void Uri::set_host(std::string_view new_host) {
 
         check_nonempty();
 
@@ -165,7 +199,7 @@ namespace Crow {
 
     }
 
-    void Uri::set_path(const std::string& new_path) {
+    void Uri::set_path(std::string_view new_path) {
 
         check_nonempty();
 
@@ -190,7 +224,7 @@ namespace Crow {
 
     }
 
-    void Uri::set_query(const std::string& new_query) {
+    void Uri::set_query(std::string_view new_query) {
 
         check_nonempty();
 
@@ -207,7 +241,7 @@ namespace Crow {
 
     }
 
-    void Uri::set_fragment(const std::string& new_fragment) {
+    void Uri::set_fragment(std::string_view new_fragment) {
 
         check_nonempty();
 
@@ -286,7 +320,7 @@ namespace Crow {
             text_.resize(ofs_fragment_);
     }
 
-    void Uri::append_path(const std::string& new_path) {
+    void Uri::append_path(std::string_view new_path) {
 
         if (new_path.empty())
             return;
@@ -371,7 +405,7 @@ namespace Crow {
         return decode(text_.substr(cut, ofs_query_ - cut));
     }
 
-    bool Uri::try_parse(const std::string& s) {
+    bool Uri::try_parse(std::string_view s) {
 
         // scheme:[//][[user[:password]@]host[:port]][/path][?query][#fragment]
 
@@ -410,7 +444,7 @@ namespace Crow {
 
     }
 
-    std::string Uri::encode(const std::string& s, const std::string& exempt) {
+    std::string Uri::encode(std::string_view s, std::string_view exempt) {
         auto is_safe = [exempt] (char c) { return ascii_isalnum_w(c) || c == '-' || c == '.' || c == '~' || exempt.find(c) != npos; };
         std::string out;
         auto i = s.begin(), end = s.end();
@@ -425,7 +459,7 @@ namespace Crow {
         return out;
     }
 
-    std::string Uri::decode(const std::string& s) {
+    std::string Uri::decode(std::string_view s) {
         size_t i = 0, j = 0, len = s.size();
         if (len < 3)
             return std::string(s);
@@ -438,7 +472,7 @@ namespace Crow {
             }
             out.append(s, i, j - i);
             if (ascii_isxdigit(s[j + 1]) && ascii_isxdigit(s[j + 2])) {
-                out += char(to_uint8(s.substr(j + 1, 2), 16));
+                out += char(to_uint8(std::string(s, j + 1, 2), 16));
                 i = j + 3;
             } else {
                 out += '%';
@@ -448,7 +482,7 @@ namespace Crow {
         return out;
     }
 
-    std::vector<std::pair<std::string, std::string>> Uri::parse_query(const std::string& query, char delimiter) {
+    std::vector<std::pair<std::string, std::string>> Uri::parse_query(std::string_view query, char delimiter) {
         std::vector<std::pair<std::string, std::string>> v;
         if (! delimiter) {
             delimiter = '&';

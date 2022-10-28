@@ -68,9 +68,9 @@ struct AsciiIcaseLess;
 Case insensitive comparison function objects.
 
 ```c++
-std::string ascii_uppercase(std::string str);
-std::string ascii_lowercase(std::string str);
-std::string ascii_titlecase(std::string str);
+std::string ascii_uppercase(std::string_view str);
+std::string ascii_lowercase(std::string_view str);
+std::string ascii_titlecase(std::string_view str);
 ```
 
 Convert a string to upper, lower, or title case. Only ASCII characters are
@@ -78,8 +78,8 @@ affected. Any group of adjacent letters is considered a word for title
 casing.
 
 ```c++
-size_t common_prefix_length(const std::string& str1,
-    const std::string& str2) noexcept;
+size_t common_prefix_length(std::string_view str1,
+    std::string_view str2) noexcept;
 ```
 
 Returns the length (in bytes) of the longest common prefix of the two
@@ -101,7 +101,7 @@ Returns a hexadecimal representation of a number. This will always consist of
 complement representation.
 
 ```c++
-std::string indent_lines(const std::string& str, size_t spaces = 4);
+std::string indent_lines(std::string_view str, size_t spaces = 4);
 ```
 
 Adds the specified number of spaces on the left of every non-empty line in the
@@ -109,7 +109,7 @@ string.
 
 ```c++
 template <typename Range>
-    std::string join(const Range& range, const std::string& delimiter = {});
+    std::string join(const Range& range, std::string_view delimiter = {});
 ```
 
 Concatenates all elements of the range (which are expected to be `std::string`
@@ -125,10 +125,10 @@ or right to the specified length. The input string will be returned unchanged
 if it's already long enough.
 
 ```c++
-std::pair<std::string, std::string> partition(const std::string& str,
-    const std::string& chars = ascii_whitespace);
-std::pair<std::string, std::string> partition_at(const std::string& str,
-    const std::string& delimiter);
+std::pair<std::string_view, std::string_view>
+    partition(std::string_view str, std::string_view chars = ascii_whitespace);
+std::pair<std::string_view, std::string_view>
+    partition_at(std::string_view str, std::string_view delimiter);
 ```
 
 Splits a string into two at the first substring that either consists of one or
@@ -137,22 +137,22 @@ matching substring is found, or if `chars` or `delimiter` is empty, they will
 return the original string and an empty string.
 
 ```c++
-std::string quote(const std::string& str);
+std::string quote(std::string_view str);
 ```
 
 Encloses the string in quotes. Within the string, backslash escape codes will
 be used for quotes, backslashes, control characters, and invalid UTF-8 bytes.
 
 ```c++
-std::string repeat(const std::string& str, size_t n);
+std::string repeat(std::string_view str, size_t n);
 ```
 
 Returns a string composed of `n` copies of the first string.
 
 ```c++
-std::string replace(const std::string& str, const std::string& target,
-    const std::string& replacement);
-std::string remove(const std::string& str, const std::string& target);
+std::string replace(std::string_view str, std::string_view target,
+    std::string_view replacement);
+std::string remove(std::string_view str, std::string_view target);
 ```
 
 Replaces all (non-overlapping) occurrences of `target` in the string with
@@ -169,11 +169,11 @@ throw `std::invalid_argument` if the value is less than 1 or greater than one
 million.
 
 ```c++
-std::vector<std::string> split(const std::string& str,
-    const std::string& chars = ascii_whitespace);
-std::vector<std::string> split_at(const std::string& str,
-    const std::string& delimiter);
-std::vector<std::string> split_lines(const std::string& str);
+std::vector<std::string_view> split(std::string_view str,
+    std::string_view chars = ascii_whitespace);
+std::vector<std::string_view> split_at(std::string_view str,
+    std::string_view delimiter);
+std::vector<std::string_view> split_lines(std::string_view str);
 ```
 
 Split a string into multiple pieces, delimited by any substring that either
@@ -187,20 +187,20 @@ The third function splits the string into lines, delimited by `"\n"` or
 `"\r\n"`, removing the trailing line breaks from each line.
 
 ```c++
-std::string trim(const std::string& str,
-    const std::string& chars = ascii_whitespace);
-std::string trim_left(const std::string& str,
-    const std::string& chars = ascii_whitespace);
-std::string trim_right(const std::string& str,
-    const std::string& chars = ascii_whitespace);
+std::string trim(std::string_view str,
+    std::string_view chars = ascii_whitespace);
+std::string trim_left(std::string_view str,
+    std::string_view chars = ascii_whitespace);
+std::string trim_right(std::string_view str,
+    std::string_view chars = ascii_whitespace);
 ```
 
 Trims any characters in the `chars` list from the left, right, or both ends of
 the string.
 
 ```c++
-std::string unqualify(const std::string& str,
-    const std::string& delimiters = ".:");
+std::string unqualify(std::string_view str,
+    std::string_view delimiters = ".:");
 ```
 
 Removes any qualifying prefix from a name, up to the last occurrence of any of
@@ -208,7 +208,7 @@ the delimiter characters. The string will be returned unchanged if it does
 not contain any delimiters.
 
 ```c++
-std::string unwrap_lines(const std::string& str);
+std::string unwrap_lines(std::string_view str);
 ```
 
 Adjacent lines (not separated by at least one empty line) are concatenated,
@@ -216,7 +216,7 @@ with a space replacing the line break between them. Empty lines are left
 unchanged.
 
 ```c++
-std::string wrap_lines(const std::string& str, size_t width = 78,
+std::string wrap_lines(std::string_view str, size_t width = 78,
     size_t margin = npos);
 ```
 

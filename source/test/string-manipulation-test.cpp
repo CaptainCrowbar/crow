@@ -81,7 +81,7 @@ void test_crow_string_padding() {
 
 void test_crow_string_partition() {
 
-    std::pair<std::string, std::string> pair;
+    std::pair<std::string_view, std::string_view> pair;
 
     TRY(pair = partition(""));                            TEST_EQUAL(pair.first, "");             TEST_EQUAL(pair.second, "");
     TRY(pair = partition(" "));                           TEST_EQUAL(pair.first, "");             TEST_EQUAL(pair.second, "");
@@ -151,7 +151,7 @@ void test_crow_string_remove() {
 
 void test_crow_string_split() {
 
-    std::vector<std::string> v;
+    std::vector<std::string_view> v;
 
     TRY(v = split(""));                                   TEST_EQUAL(v.size(), 0u);  TEST_EQUAL(format_range(v), "[]");
     TRY(v = split("\r\n"));                               TEST_EQUAL(v.size(), 0u);  TEST_EQUAL(format_range(v), "[]");
@@ -170,7 +170,7 @@ void test_crow_string_split() {
 
 void test_crow_string_split_at() {
 
-    std::vector<std::string> v;
+    std::vector<std::string_view> v;
 
     TRY(v = split_at("", "::"));                       TEST_EQUAL(v.size(), 0u);  TEST_EQUAL(format_range(v), "[]");
     TRY(v = split_at(":", "::"));                      TEST_EQUAL(v.size(), 1u);  TEST_EQUAL(format_range(v), "[:]");
@@ -186,7 +186,7 @@ void test_crow_string_split_at() {
 
 void test_crow_string_split_lines() {
 
-    std::vector<std::string> v;
+    std::vector<std::string_view> v;
 
     TRY(v = split_lines(""));                            TEST_EQUAL(v.size(), 0u);  TEST_EQUAL(format_range(v), "[]");
     TRY(v = split_lines("\n"));                          TEST_EQUAL(v.size(), 1u);  TEST_EQUAL(format_range(v), "[]");

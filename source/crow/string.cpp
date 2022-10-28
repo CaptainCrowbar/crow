@@ -2,6 +2,7 @@
 #include "crow/unicode.hpp"
 #include <algorithm>
 #include <cstring>
+#include <iterator>
 #include <memory>
 #include <new>
 
@@ -10,6 +11,18 @@
 #endif
 
 namespace Crow {
+
+    namespace {
+
+        std::vector<std::string> reify_strings(const std::vector<std::string_view>& views) {
+            std::vector<std::string> strings;
+            strings.reserve(views.size());
+            std::transform(views.begin(), views.end(), std::back_inserter(strings),
+                [] (std::string_view v) { return std::string(v); });
+            return strings;
+        }
+
+    }
 
     // String manipulation functions
 
@@ -32,36 +45,41 @@ namespace Crow {
             return ascii_toupper(*its.first) < ascii_toupper(*its.second);
     }
 
-    std::string ascii_uppercase(std::string str) {
-        std::transform(str.begin(), str.end(), str.begin(), ascii_toupper);
-        return str;
+    std::string ascii_uppercase(std::string_view str) {
+        std::string result;
+        result.reserve(str.size());
+        std::transform(str.begin(), str.end(), std::back_inserter(result), ascii_toupper);
+        return result;
     }
 
-    std::string ascii_lowercase(std::string str) {
-        std::transform(str.begin(), str.end(), str.begin(), ascii_tolower);
-        return str;
+    std::string ascii_lowercase(std::string_view str) {
+        std::string result;
+        result.reserve(str.size());
+        std::transform(str.begin(), str.end(), std::back_inserter(result), ascii_tolower);
+        return result;
     }
 
-    std::string ascii_titlecase(std::string str) {
+    std::string ascii_titlecase(std::string_view str) {
         bool is_alpha = false;
         bool was_alpha = false;
-        for (char& c: str) {
+        std::string result;
+        for (char c: str) {
             if (c == '\'')
                 is_alpha = was_alpha;
             else
                 is_alpha = ascii_isalpha(c);
-            if (is_alpha) {
-                if (was_alpha)
-                    c = ascii_tolower(c);
-                else
-                    c = ascii_toupper(c);
-            }
+            if (! is_alpha)
+                result += c;
+            else if (was_alpha)
+                result += ascii_tolower(c);
+            else
+                result += ascii_toupper(c);
             was_alpha = is_alpha;
         }
-        return str;
+        return result;
     }
 
-    size_t common_prefix_length(const std::string& str1, const std::string& str2) noexcept {
+    size_t common_prefix_length(std::string_view str1, std::string_view str2) noexcept {
         size_t len = std::min(str1.size(), str2.size());
         auto it = std::mismatch(str1.begin(), str1.begin() + len, str2.begin()).first;
         return it - str1.begin();
@@ -79,7 +97,7 @@ namespace Crow {
         return str;
     }
 
-    std::pair<std::string, std::string> partition(const std::string& str, const std::string& chars) {
+    std::pair<std::string_view, std::string_view> partition(std::string_view str, std::string_view chars) {
         if (chars.empty())
             return {str, {}};
         size_t i = str.find_first_of(chars);
@@ -92,7 +110,7 @@ namespace Crow {
             return {str.substr(0, i), str.substr(j)};
     }
 
-    std::pair<std::string, std::string> partition_at(const std::string& str, const std::string& delimiter) {
+    std::pair<std::string_view, std::string_view> partition_at(std::string_view str, std::string_view delimiter) {
         if (delimiter.empty())
             return {str, {}};
         size_t i = str.find(delimiter);
@@ -102,7 +120,7 @@ namespace Crow {
             return {str.substr(0, i), str.substr(i + delimiter.size())};
     }
 
-    std::string quote(const std::string& str) {
+    std::string quote(std::string_view str) {
         std::string result = "\"";
         size_t pos = 0;
         while (pos < str.size()) {
@@ -136,7 +154,7 @@ namespace Crow {
         return result;
     }
 
-    std::string repeat(const std::string& str, size_t n) {
+    std::string repeat(std::string_view str, size_t n) {
         if (n == 0)
             return {};
         std::string result(str.size() * n, '\0');
@@ -146,9 +164,9 @@ namespace Crow {
         return result;
     }
 
-    std::string replace(const std::string& str, const std::string& target, const std::string& replacement) {
+    std::string replace(std::string_view str, std::string_view target, std::string_view replacement) {
         if (target.empty())
-            return str;
+            return std::string(str);
         std::string result;
         size_t i = 0, j = 0;
         while (i < str.size()) {
@@ -164,9 +182,9 @@ namespace Crow {
         return result;
     }
 
-    std::string remove(const std::string& str, const std::string& target) {
+    std::string remove(std::string_view str, std::string_view target) {
         if (target.empty())
-            return str;
+            return std::string(str);
         std::string result;
         size_t i = 0, j = 0;
         while (i < str.size()) {
@@ -181,8 +199,8 @@ namespace Crow {
         return result;
     }
 
-    std::vector<std::string> split(const std::string& str, const std::string& chars) {
-        std::vector<std::string> vec;
+    std::vector<std::string_view> split(std::string_view str, std::string_view chars) {
+        std::vector<std::string_view> vec;
         size_t i = 0, j = 0;
         while (j < str.size()) {
             i = str.find_first_not_of(chars, j);
@@ -194,12 +212,12 @@ namespace Crow {
         return vec;
     }
 
-    std::vector<std::string> split_at(const std::string& str, const std::string& delimiter) {
+    std::vector<std::string_view> split_at(std::string_view str, std::string_view delimiter) {
         if (str.empty())
             return {};
         if (delimiter.empty())
             return {str};
-        std::vector<std::string> vec;
+        std::vector<std::string_view> vec;
         size_t i = 0, j = 0;
         for (;;) {
             j = str.find(delimiter, i);
@@ -211,49 +229,49 @@ namespace Crow {
         return vec;
     }
 
-    std::vector<std::string> split_lines(const std::string& str) {
+    std::vector<std::string_view> split_lines(std::string_view str) {
         auto lines = split_at(str, "\n");
         if (! str.empty() && str.back() == '\n')
             lines.pop_back();
         for (auto& line: lines)
             if (! line.empty() && line.back() == '\r')
-                line.pop_back();
+                line = line.substr(0, line.size() - 1);
         return lines;
     }
 
-    std::string trim(const std::string& str, const std::string& chars) {
+    std::string trim(std::string_view str, std::string_view chars) {
         size_t i = str.find_first_not_of(chars);
         if (i == npos)
             return {};
         size_t j = str.find_last_not_of(chars);
-        return str.substr(i, j - i + 1);
+        return std::string(str, i, j - i + 1);
     }
 
-    std::string trim_left(const std::string& str, const std::string& chars) {
+    std::string trim_left(std::string_view str, std::string_view chars) {
         size_t i = str.find_first_not_of(chars);
         if (i == npos)
             return {};
         else
-            return str.substr(i);
+            return std::string(str, i, npos);
     }
 
-    std::string trim_right(const std::string& str, const std::string& chars) {
+    std::string trim_right(std::string_view str, std::string_view chars) {
         size_t i = str.find_last_not_of(chars);
         if (i == npos)
             return {};
         else
-            return str.substr(0, i + 1);
+            return std::string(str, 0, i + 1);
     }
 
-    std::string unqualify(const std::string& str, const std::string& delimiters) {
+    std::string unqualify(std::string_view str, std::string_view delimiters) {
         size_t i = str.find_last_of(delimiters);
         if (i == npos)
-            return str;
+            return std::string(str);
         else
-            return str.substr(i + 1);
+            return std::string(str, i + 1, npos);
     }
 
-    std::string unwrap_lines(const std::string& str) {
+    std::string unwrap_lines(std::string_view str) {
         std::string result;
         bool was_empty = true;
         for (auto line: split_lines(str)) {
@@ -272,14 +290,14 @@ namespace Crow {
         return result;
     }
 
-    std::string wrap_lines(const std::string& str, size_t width, size_t margin, bool checked) {
+    std::string wrap_lines(std::string_view str, size_t width, size_t margin, bool checked) {
 
         if (checked && margin != npos && margin >= width)
             throw std::length_error("Wrap margin is too big for width");
 
-        static const auto is_empty = [] (const std::string& s) { return s.empty(); };
+        static const auto is_empty = [] (std::string_view s) { return s.empty(); };
 
-        auto lines = split_lines(str);
+        auto lines = reify_strings(split_lines(str));
 
         for (auto& line: lines)
             line = trim_right(line);
@@ -326,7 +344,8 @@ namespace Crow {
                     }
 
                     if (current_width == 0) {
-                        result += prefix + word;
+                        result += prefix;
+                        result += word;
                         current_width += prefix_size + word_size;
                         if (checked && current_width > width)
                             throw std::length_error("Words will not fit in wrap width");
@@ -349,7 +368,7 @@ namespace Crow {
 
     }
 
-    std::string indent_lines(const std::string& str, size_t spaces) {
+    std::string indent_lines(std::string_view str, size_t spaces) {
         std::string result;
         for (auto& line: split_lines(str)) {
             if (! line.empty()) {
@@ -431,10 +450,11 @@ namespace Crow {
 
         std::string operator""_doc(const char* ptr, size_t len) {
             std::string str(ptr, len);
-            auto lines = split_at(str, "\n");
-            if (lines.empty())
+            auto views = split_at(str, "\n");
+            if (views.empty())
                 return {};
-            std::string prefix = lines.back();
+            auto lines = reify_strings(views);
+            auto prefix = lines.back();
             for (auto& line: lines)
                 line = trim_right(line);
             while (! lines.empty() && lines[0].empty())
@@ -457,7 +477,7 @@ namespace Crow {
         }
 
         std::vector<std::string> operator""_qw(const char* ptr, size_t len) {
-            return split(std::string(ptr, len));
+            return reify_strings(split(std::string_view(ptr, len)));
         }
 
     }

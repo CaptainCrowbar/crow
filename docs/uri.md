@@ -30,15 +30,18 @@ Uri::Uri() noexcept;
 The default constructor produces an empty URI.
 
 ```c++
-Uri::explicit Uri(const std::string& s);
+explicit Uri::Uri(std::string_view s);
 ```
 
 This constructor parses a URI supplied as a string. This will throw
 `std::invalid_argument` if the URI is invalid.
 
 ```c++
-Uri::Uri(const std::string& scheme, const std::string& user, const std::string& password, const std::string& host, uint16_t port = 0,
-    const std::string& path = {}, const std::string& query = {}, const std::string& fragment = {});
+Uri::Uri(std::string_view scheme,
+    std::string_view user, std::string_view password,
+    std::string_view host, uint16_t port = 0,
+    std::string_view path = {}, std::string_view query = {},
+    std::string_view fragment = {});
 ```
 
 This constructor assembles a URI from its component parts (following the same
@@ -89,14 +92,14 @@ a question mark is considered to include an empty query string, which is not
 the same thing as one with no query part).
 
 ```c++
-void Uri::set_scheme(const std::string& new_scheme, bool smart = true);
-void Uri::set_user(const std::string& new_user);
-void Uri::set_password(const std::string& new_password);
-void Uri::set_host(const std::string& new_host);
+void Uri::set_scheme(std::string_view new_scheme, bool smart = true);
+void Uri::set_user(std::string_view new_user);
+void Uri::set_password(std::string_view new_password);
+void Uri::set_host(std::string_view new_host);
 void Uri::set_port(uint16_t new_port);
-void Uri::set_path(const std::string& new_path);
-void Uri::set_query(const std::string& new_query);
-void Uri::set_fragment(const std::string& new_fragment);
+void Uri::set_path(std::string_view new_path);
+void Uri::set_query(std::string_view new_query);
+void Uri::set_fragment(std::string_view new_fragment);
 ```
 
 Change the value of a given URI element. The string supplied will be escaped
@@ -133,9 +136,9 @@ Remove a given URI element. There is no function to clear the scheme because
 the scheme is always required.
 
 ```c++
-void Uri::append_path(const std::string& new_path);
-Uri& Uri::operator/=(const std::string& s);
-Uri operator/(const Uri& u, const std::string& s);
+void Uri::append_path(std::string_view new_path);
+Uri& Uri::operator/=(std::string_view s);
+Uri operator/(const Uri& u, std::string_view s);
 ```
 
 Append one or more file path elements to the URI's path. Appending an absolute
@@ -201,7 +204,7 @@ std::ostream& operator<<(std::ostream& out, const Uri& u);
 Return the URI as a string.
 
 ```c++
-bool Uri::try_parse(const std::string& s);
+bool Uri::try_parse(std::string_view s);
 ```
 
 Attempts to parse the given string as a URI. On success, this changes the
@@ -209,8 +212,8 @@ current object to hold the new URI and returns true; on failure, it returns
 false and leaves the object unchanged.
 
 ```c++
-static std::string Uri::encode(const std::string& s, const std::string& exempt = {});
-static std::string Uri::decode(const std::string& s);
+static std::string Uri::encode(std::string_view s, std::string_view exempt = {});
+static std::string Uri::decode(std::string_view s);
 ```
 
 These apply percent encoding to a string. Safe bytes, left unencoded, are the
@@ -219,7 +222,7 @@ appear in the exempt string.
 
 ```c++
 template <typename R> static std::string Uri::make_query(const R& range, char delimiter = '&', int flags = 0);
-static std::vector<std::pair<std::string, std::string>> Uri::parse_query(const std::string& query, char delimiter = 0);
+static std::vector<std::pair<std::string, std::string>> Uri::parse_query(std::string_view query, char delimiter = 0);
 ```
 
 Construct or deconstruct a query string. The range argument to `make_query()`

@@ -6,6 +6,7 @@
 #include <chrono>
 #include <memory>
 #include <string>
+#include <string_view>
 
 using namespace Crow;
 using namespace std::chrono;
@@ -34,7 +35,7 @@ void test_crow_process_stream() {
 
     std::unique_ptr<StreamProcess> chan;
     std::string s;
-    std::vector<std::string> vec;
+    std::vector<std::string_view> views;
     int st = -1;
     size_t n = 0;
 
@@ -45,10 +46,10 @@ void test_crow_process_stream() {
     TEST(n > 0u);
     TEST_MATCH(s, "[\\r\\n A-Za-z0-9._-]+");
 
-    TRY(vec = split(s, "\r\n"));
-    TEST(! vec.empty());
-    TEST(range_contains(vec, file1));
-    TEST(range_contains(vec, file2));
+    TRY(views = split(s, "\r\n"));
+    TEST(! views.empty());
+    TEST(range_contains(views, file1));
+    TEST(range_contains(views, file2));
 
     TEST(chan->wait_for(10ms));
     TEST(! chan->is_closed());
@@ -62,10 +63,10 @@ void test_crow_process_stream() {
     chan.reset();
     TRY(chan = std::make_unique<StreamProcess>(list_command));
     TRY(s = chan->read_all());
-    TRY(vec = split(s, "\r\n"));
-    TEST(! vec.empty());
-    TEST(range_contains(vec, file1));
-    TEST(range_contains(vec, file2));
+    TRY(views = split(s, "\r\n"));
+    TEST(! views.empty());
+    TEST(range_contains(views, file1));
+    TEST(range_contains(views, file2));
 
 }
 
@@ -73,7 +74,8 @@ void test_crow_process_text() {
 
     std::unique_ptr<TextProcess> chan;
     std::string s;
-    std::vector<std::string> vec;
+    std::vector<std::string> ss;
+    std::vector<std::string_view> views;
     int st = -1;
     bool rc = false;
 
@@ -85,13 +87,13 @@ void test_crow_process_text() {
             break;
         if (rc) {
             TEST(chan->read(s));
-            vec.push_back(s);
+            ss.push_back(s);
         }
     }
 
-    TEST(! vec.empty());
-    TEST(range_contains(vec, file1));
-    TEST(range_contains(vec, file2));
+    TEST(! ss.empty());
+    TEST(range_contains(ss, file1));
+    TEST(range_contains(ss, file2));
 
     TRY(chan->close());
     TRY(st = chan->status());
@@ -100,23 +102,23 @@ void test_crow_process_text() {
     chan.reset();
     TRY(chan = std::make_unique<TextProcess>(list_command));
     TRY(s = chan->read_all());
-    TRY(vec = split(s, "\r\n"));
-    TEST(! vec.empty());
-    TEST(range_contains(vec, file1));
-    TEST(range_contains(vec, file2));
+    TRY(views = split(s, "\r\n"));
+    TEST(! views.empty());
+    TEST(range_contains(views, file1));
+    TEST(range_contains(views, file2));
 
 }
 
 void test_crow_process_shell_command() {
 
     std::string s;
-    std::vector<std::string> vec;
+    std::vector<std::string_view> views;
 
     TRY(s = shell(list_command));
     TEST(! s.empty());
-    TRY(vec = split(s, "\r\n"));
-    TEST(! vec.empty());
-    TEST(range_contains(vec, file1));
-    TEST(range_contains(vec, file2));
+    TRY(views = split(s, "\r\n"));
+    TEST(! views.empty());
+    TEST(range_contains(views, file1));
+    TEST(range_contains(views, file2));
 
 }
