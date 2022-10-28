@@ -172,6 +172,38 @@ void test_crow_unicode_string_encoding() {
 
 }
 
+void test_crow_unicode_size_bytes() {
+
+    std::string s;
+    std::u16string u;
+    std::u32string v;
+    std::wstring w;
+
+    TEST_EQUAL(utf_size(""s,              Usize::bytes),  0u);
+    TEST_EQUAL(utf_size("Hello world"s,   Usize::bytes),  11u);
+    TEST_EQUAL(utf_size("αβγδε"s,         Usize::bytes),  10u);
+    TEST_EQUAL(utf_size("Greek αβγδε"s,   Usize::bytes),  16u);
+    TEST_EQUAL(utf_size(u""s,             Usize::bytes),  0u);
+    TEST_EQUAL(utf_size(u"Hello world"s,  Usize::bytes),  22u);
+    TEST_EQUAL(utf_size(u"αβγδε"s,        Usize::bytes),  10u);
+    TEST_EQUAL(utf_size(u"Greek αβγδε"s,  Usize::bytes),  22u);
+    TEST_EQUAL(utf_size(U""s,             Usize::bytes),  0u);
+    TEST_EQUAL(utf_size(U"Hello world"s,  Usize::bytes),  44u);
+    TEST_EQUAL(utf_size(U"αβγδε"s,        Usize::bytes),  20u);
+    TEST_EQUAL(utf_size(U"Greek αβγδε"s,  Usize::bytes),  44u);
+    TEST_EQUAL(utf_size("😀👍👩"s,        Usize::bytes),  12u);
+    TEST_EQUAL(utf_size("😀👍🏽👩🏽"s,        Usize::bytes),  20u);
+    TEST_EQUAL(utf_size("🇳🇿🇺🇸🇩🇪🇦🇺"s,      Usize::bytes),  32u);
+    TEST_EQUAL(utf_size(u"😀👍👩"s,       Usize::bytes),  12u);
+    TEST_EQUAL(utf_size(u"😀👍🏽👩🏽"s,       Usize::bytes),  20u);
+    TEST_EQUAL(utf_size(u"🇳🇿🇺🇸🇩🇪🇦🇺"s,     Usize::bytes),  32u);
+    TEST_EQUAL(utf_size(U"😀👍👩"s,       Usize::bytes),  12u);
+    TEST_EQUAL(utf_size(U"😀👍🏽👩🏽"s,       Usize::bytes),  20u);
+    TEST_EQUAL(utf_size(U"🇳🇿🇺🇸🇩🇪🇦🇺"s,     Usize::bytes),  32u);
+    TEST_EQUAL(utf_size("αβγδε\xff"s,     Usize::bytes),  11u);
+
+}
+
 void test_crow_unicode_size_units() {
 
     std::string s;

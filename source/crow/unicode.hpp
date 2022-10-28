@@ -73,6 +73,7 @@ namespace Crow {
     }
 
     CROW_ENUM_CLASS(Usize, int, 1,
+        bytes,      // Bytes
         units,      // Code units
         scalars,    // Scalar values
         graphemes,  // Grapheme clusters
@@ -173,6 +174,14 @@ namespace Crow {
         size_t n = 0;
 
         switch (mode) {
+
+            case Usize::bytes: {
+
+                n = str.size() * sizeof(C);
+
+                break;
+
+            }
 
             case Usize::units: {
 

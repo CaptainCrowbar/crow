@@ -179,6 +179,7 @@ set, this will throw `std::invalid_argument` instead of returning false.
 
 ```c++
 enum class Usize {
+    bytes,      // Bytes
     units,      // Code units
     scalars,    // Scalar values (code points)
     graphemes,  // Grapheme clusters (including whitespace)
