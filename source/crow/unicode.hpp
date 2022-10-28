@@ -6,6 +6,7 @@
 #include <functional>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 
@@ -41,18 +42,18 @@ namespace Crow {
         }
 
         std::string hex_char32(char32_t c);
-        char32_t decode_char_impl(const std::string& str, size_t& pos) noexcept;
+        char32_t decode_char_impl(std::string_view str, size_t& pos) noexcept;
         char32_t decode_utf16_char_impl(const char16_t* ptr, size_t len, size_t& pos) noexcept;
         char32_t decode_utf32_char_impl(const char32_t* ptr, size_t len, size_t& pos) noexcept;
-        char32_t decode_char_impl(const std::u16string& str, size_t& pos) noexcept;
-        char32_t decode_char_impl(const std::u32string& str, size_t& pos) noexcept;
-        char32_t decode_char_impl(const std::wstring& str, size_t& pos) noexcept;
+        char32_t decode_char_impl(std::u16string_view str, size_t& pos) noexcept;
+        char32_t decode_char_impl(std::u32string_view str, size_t& pos) noexcept;
+        char32_t decode_char_impl(std::wstring_view str, size_t& pos) noexcept;
         char32_t check_decode_utf16_char_impl(const char16_t* ptr, size_t len, size_t& pos);
         char32_t check_decode_utf32_char_impl(const char32_t* ptr, size_t len, size_t& pos);
-        char32_t check_decode_char_impl(const std::string& str, size_t& pos);
-        char32_t check_decode_char_impl(const std::u16string& str, size_t& pos);
-        char32_t check_decode_char_impl(const std::u32string& str, size_t& pos);
-        char32_t check_decode_char_impl(const std::wstring& str, size_t& pos);
+        char32_t check_decode_char_impl(std::string_view str, size_t& pos);
+        char32_t check_decode_char_impl(std::u16string_view str, size_t& pos);
+        char32_t check_decode_char_impl(std::u32string_view str, size_t& pos);
+        char32_t check_decode_char_impl(std::wstring_view str, size_t& pos);
         bool encode_utf16_char_impl(char32_t c, std::function<void(char16_t)> out);
         bool encode_utf32_char_impl(char32_t c, std::function<void(char32_t)> out);
         bool encode_char_impl(char32_t c, std::string& str);
@@ -71,6 +72,13 @@ namespace Crow {
 
     }
 
+    CROW_ENUM_CLASS(Usize, int, 1,
+        units,      // Code units
+        scalars,    // Scalar values
+        graphemes,  // Grapheme clusters
+        columns     // Virtual columns
+    )
+
     template <typename C>
     concept CharacterType =
         std::same_as<C, char>
@@ -88,7 +96,17 @@ namespace Crow {
     }
 
     template <CharacterType C>
+    char32_t decode_char(const std::basic_string_view<C>& str, size_t& pos) noexcept {
+        return Detail::decode_char_impl(str, pos);
+    }
+
+    template <CharacterType C>
     char32_t check_decode_char(const std::basic_string<C>& str, size_t& pos) {
+        return Detail::check_decode_char_impl(str, pos);
+    }
+
+    template <CharacterType C>
+    char32_t check_decode_char(const std::basic_string_view<C>& str, size_t& pos) {
         return Detail::check_decode_char_impl(str, pos);
     }
 
@@ -112,17 +130,17 @@ namespace Crow {
     }
 
     template <CharacterType C>
-    void encode_string(const std::u32string& src, std::basic_string<C>& dst) {
+    void encode_string(std::u32string_view src, std::basic_string<C>& dst) {
         std::basic_string<C> temp;
         for (auto c: src)
             check_encode_char(c, temp);
         dst = std::move(temp);
     }
 
-    std::string to_utf8(const std::u32string& utf32);
-    std::u16string to_utf16(const std::u32string& utf32);
-    std::u32string to_utf32(const std::u32string& utf32);
-    std::wstring to_wstring(const std::u32string& utf32);
+    std::string to_utf8(std::u32string_view utf32);
+    std::u16string to_utf16(std::u32string_view utf32);
+    std::u32string to_utf32(std::u32string_view utf32);
+    std::wstring to_wstring(std::u32string_view utf32);
 
     GC general_category(char32_t c);
     bool is_pattern_syntax(char32_t c);
@@ -130,63 +148,105 @@ namespace Crow {
     bool is_xid_start(char32_t c);
 
     template <CharacterType C>
-    bool is_valid_utf(const std::basic_string<C>& str) {
-        for (size_t pos = 0; pos < str.size();)
-            if (decode_char(str, pos) == not_unicode)
-                return false;
+    bool is_valid_utf(const std::basic_string_view<C>& str, bool hard = false) {
+        if (hard) {
+            for (size_t pos = 0; pos < str.size();)
+                check_decode_char(str, pos);
+        } else {
+            for (size_t pos = 0; pos < str.size();)
+                if (decode_char(str, pos) == not_unicode)
+                    return false;
+        }
         return true;
     }
 
     template <CharacterType C>
-    size_t utf_count(const std::basic_string<C>& str) {
-        size_t n = 0;
-        for (size_t pos = 0; pos < str.size(); ++n)
-            check_decode_char(str, pos);
-        return n;
+    bool is_valid_utf(const std::basic_string<C>& str, bool hard = false) {
+        return is_valid_utf(std::basic_string_view<C>(str), hard);
     }
 
     template <CharacterType C>
-    size_t utf_length(const std::basic_string<C>& str) {
+    size_t utf_size(const std::basic_string_view<C>& str, Usize mode = Usize::columns) {
+
         using namespace Detail;
-        bool is_ri = false;
-        bool was_ri = false;
-        char32_t c = 0;
+
         size_t n = 0;
-        GC gc;
-        for (size_t pos = 0; pos < str.size();) {
-            c = check_decode_char(str, pos);
-            is_ri = is_regional_indicator(c);
-            if (is_ri && was_ri) {
-                was_ri = false;
-            } else {
-                gc = general_category(c);
-                if (! is_zero_width(gc))
-                    ++n;
-                was_ri = is_ri;
+
+        switch (mode) {
+
+            case Usize::units: {
+
+                is_valid_utf(str, true);
+                n = str.size();
+
+                break;
+
             }
+
+            case Usize::scalars: {
+
+                for (size_t pos = 0; pos < str.size(); ++n)
+                    check_decode_char(str, pos);
+
+                break;
+
+            }
+
+            case Usize::graphemes: {
+
+                char32_t c = 0;
+                bool is_ri = false;
+                bool was_ri = false;
+                GC gc;
+
+                for (size_t pos = 0; pos < str.size();) {
+                    c = check_decode_char(str, pos);
+                    is_ri = is_regional_indicator(c);
+                    if (is_ri && was_ri) {
+                        was_ri = false;
+                    } else {
+                        gc = general_category(c);
+                        if (! is_zero_width(gc))
+                            ++n;
+                        was_ri = is_ri;
+                    }
+                }
+
+                break;
+
+            }
+
+            case Usize::columns: {
+
+                char32_t c = 0;
+                GC gc;
+                East_Asian_Width eaw;
+
+                for (size_t pos = 0; pos < str.size();) {
+                    c = check_decode_char(str, pos);
+                    gc = general_category(c);
+                    if (! is_zero_width(gc)) {
+                        eaw = east_asian_width(c);
+                        if (eaw == East_Asian_Width::Fullwidth || eaw == East_Asian_Width::Wide)
+                            n += 2;
+                        else
+                            ++n;
+                    }
+                }
+
+                break;
+
+            }
+
         }
+
         return n;
+
     }
 
     template <CharacterType C>
-    size_t utf_width(const std::basic_string<C>& str) {
-        using namespace Detail;
-        char32_t c = 0;
-        size_t n = 0;
-        GC gc;
-        East_Asian_Width eaw;
-        for (size_t pos = 0; pos < str.size();) {
-            c = check_decode_char(str, pos);
-            gc = general_category(c);
-            if (! is_zero_width(gc)) {
-                eaw = east_asian_width(c);
-                if (eaw == East_Asian_Width::Fullwidth || eaw == East_Asian_Width::Wide)
-                    n += 2;
-                else
-                    ++n;
-            }
-        }
-        return n;
+    size_t utf_size(const std::basic_string<C>& str, Usize mode = Usize::columns) {
+        return utf_size(std::basic_string_view<C>(str), mode);
     }
 
     std::string to_nfc(std::string str);

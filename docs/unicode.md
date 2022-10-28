@@ -42,31 +42,38 @@ True if the code point is a valid Unicode scalar value, in the range
 
 ```c++
 template <CharacterType C>
-    char32_t decode_char(const std::basic_string<C>& str, size_t& pos) noexcept;
+    char32_t decode_char(const std::basic_string<C>& str,
+        size_t& pos) noexcept;
+template <CharacterType C>
+    char32_t decode_char(const std::basic_string_view<C>& str,
+        size_t& pos) noexcept;
 ```
 
-Reads one encoded Unicode character from the input string, starting at the
-given position. On success, returns the decoded character and advances the
+Read one encoded Unicode character from the input string, starting at the
+given position. On success, return the decoded character and advance the
 position to the next character. On failure (when either the string contains
 invalid Unicode, or the starting position is already at or past the end of the
-string), it returns `not_unicode` and advances the position to the next point
-where a character could start, up to the maximum number of code points
-possible for an encoded character (or to the end of the string, if that comes
-first).
+string), return `not_unicode` and advance the position to the next point where
+a character could start, up to the maximum number of code points possible for
+an encoded character (or to the end of the string, if that comes first).
 
 The UTF-32 version does no actual decoding, but checks that the next character
 is valid. This also applies to all of the other UTF-32 based functions below.
 
 ```c++
 template <CharacterType C>
-    char32_t check_decode_char(const std::basic_string<C>& str, size_t& pos);
+    char32_t check_decode_char(const std::basic_string<C>& str,
+        size_t& pos);
+template <CharacterType C>
+    char32_t check_decode_char(const std::basic_string_view<C>& str,
+        size_t& pos);
 ```
 
-This performs the same operation as `decode_char()` above, but throws an
-exception (and does not advance the position) instead of returning an error
-code on failure. This will throw `std::out_of_range` if the initial position
-is at or past the end of the string, or `std::invalid_argument` if invalid
-Unicode is encountered.
+Perform the same operation as `decode_char()` above, but throws an exception
+(and does not advance the position) instead of returning an error code on
+failure. This will throw `std::out_of_range` if the initial position is at or
+past the end of the string, or `std::invalid_argument` if invalid UTF encoding
+is encountered.
 
 ```c++
 template <CharacterType C>
@@ -143,15 +150,16 @@ template <CharacterType C>
 ```
 
 Convert an encoded Unicode string to a UTF-32 string. This will throw
-`std::invalid_argument` if invalid encoding is encountered.
+`std::invalid_argument` if invalid UTF encoding is encountered.
 
 ```c++
 template <CharacterType C>
-    void encode_string(const std::u32string& src, std::basic_string<C>& dst);
-std::string to_utf8(const std::u32string& utf32);
-std::u16string to_utf16(const std::u32string& utf32);
-std::u32string to_utf32(const std::u32string& utf32);
-std::wstring to_wstring(const std::u32string& utf32);
+    void encode_string(std::u32string_view src,
+        std::basic_string<C>& dst);
+std::string to_utf8(std::u32string_view utf32);
+std::u16string to_utf16(std::u32string_view utf32);
+std::u32string to_utf32(std::u32string_view utf32);
+std::wstring to_wstring(std::u32string_view utf32);
 ```
 
 These convert a UTF-32 string into an encoded string. They will throw
@@ -159,29 +167,39 @@ These convert a UTF-32 string into an encoded string. They will throw
 
 ```c++
 template <CharacterType C>
-    bool is_valid_utf(const std::basic_string<C>& str);
+    bool is_valid_utf(const std::basic_string<C>& str,
+        bool hard = false);
+template <CharacterType C>
+    bool is_valid_utf(const std::basic_string_view<C>& str,
+        bool hard = false);
 ```
 
-True if the string contains valid UTF (or is empty).
+True if the string contains valid UTF (or is empty). If the `hard` flag is
+set, this will throw `std::invalid_argument` instead of returning false.
 
 ```c++
+enum class Usize {
+    units,      // Code units
+    scalars,    // Scalar values (code points)
+    graphemes,  // Grapheme clusters (including whitespace)
+    columns     // Virtual columns (see below)
+};
 template <CharacterType C>
-    size_t utf_count(const std::basic_string<C>& str);
+    size_t utf_size(const std::basic_string<C>& str,
+        Usize mode = Usize::columns);
 template <CharacterType C>
-    size_t utf_length(const std::basic_string<C>& str);
-template <CharacterType C>
-    size_t utf_width(const std::basic_string<C>& str);
+    size_t utf_size(const std::basic_string_view<C>& str,
+        Usize mode = Usize::columns);
 ```
 
-These return various measures of the size of a UTF string. The `utf_count()`
-function returns the number of encoded Unicode scalar values in the string.
+Returns various measures of the size of a UTF string.
 
-The `utf_length()` function returns the number of grapheme clusters (including
-whitespace) in the string, while `utf_width()` returns the estimated width of
-the string when presented in a nominally "fixed width" font, assuming the font
-uses double width characters for East Asian scripts and emoji. These do not
-attempt to implement the full Unicode extended grapheme cluster algorithm, but
-use a simplified algorithm:
+In `columns` mode, this returns the estimated width of the string when
+presented in a nominally "fixed width" font, assuming the font uses double
+width characters for East Asian scripts and emoji. The `graphemes` and
+`columns` modes do not attempt to implement the full Unicode extended grapheme
+cluster algorithm, but use a simplified algorithm that will usually give the
+correct result for most text:
 
 * _if General Category is Cc, Cf, Mn, or Sk_
     * _character width is 0_
@@ -190,11 +208,15 @@ use a simplified algorithm:
 * _else_
     * _character width is 1_
 
-This will not return a meaningful result if the string contains layout control
-characters such as tabs or line feeds.
+(There is also some special casing for the regional flag symbols.)
 
-All of these will throw `std::invalid_argument` if invalid UTF-8 is
-encountered.
+In practise there would be little point in implementing a more sophisticated
+algorithm since very few fonts and display engines reliably follow Unicode's
+grapheme cluster and East Asian Width models consistently.
+
+This function will not return a meaningful result if the string contains
+layout control characters such as tabs and line feeds. It will throw
+`std::invalid_argument` if invalid UTF encoding is encountered.
 
 ## Normalization functions
 
@@ -206,4 +228,4 @@ std::u32string to_nfd(std::u32string str);
 ```
 
 Convert UTF-8 or UTF-32 strings to NFC and NFD forms. These will throw
-`std::invalid_argument` if invalid Unicode is encountered.
+`std::invalid_argument` if invalid UTF encoding is encountered.

@@ -309,7 +309,7 @@ namespace Crow {
             if (margin == npos) {
                 prefix = line_j->substr(0, line_j->find_first_not_of("\t "));
                 prefix = replace(prefix, "\t", "    ");
-                prefix_size = utf_width(prefix);
+                prefix_size = utf_size(prefix);
             }
 
             for (; line_j != line_i; ++line_j) {
@@ -318,7 +318,7 @@ namespace Crow {
 
                 for (auto& word: words) {
 
-                    auto word_size = utf_width(word);
+                    auto word_size = utf_size(word);
 
                     if (current_width > 0 && current_width + word_size + 1 > width) {
                         result += '\n';

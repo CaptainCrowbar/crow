@@ -15,7 +15,7 @@ namespace Crow {
             return hex;
         }
 
-        char32_t decode_char_impl(const std::string& str, size_t& pos) noexcept {
+        char32_t decode_char_impl(std::string_view str, size_t& pos) noexcept {
 
             // UTF-8 byte distribution:
             // 0x00-0x7f = Single byte character
@@ -127,15 +127,15 @@ namespace Crow {
                 return not_unicode;
         }
 
-        char32_t decode_char_impl(const std::u16string& str, size_t& pos) noexcept {
+        char32_t decode_char_impl(std::u16string_view str, size_t& pos) noexcept {
             return Detail::decode_utf16_char_impl(str.data(), str.size(), pos);
         }
 
-        char32_t decode_char_impl(const std::u32string& str, size_t& pos) noexcept {
+        char32_t decode_char_impl(std::u32string_view str, size_t& pos) noexcept {
             return Detail::decode_utf32_char_impl(str.data(), str.size(), pos);
         }
 
-        char32_t decode_char_impl(const std::wstring& str, size_t& pos) noexcept {
+        char32_t decode_char_impl(std::wstring_view str, size_t& pos) noexcept {
             if constexpr (sizeof(wchar_t) == sizeof(char16_t)) {
                 auto ptr = reinterpret_cast<const char16_t*>(str.data());
                 return Detail::decode_utf16_char_impl(ptr, str.size(), pos);
@@ -168,7 +168,7 @@ namespace Crow {
             return c;
         }
 
-        char32_t check_decode_char_impl(const std::string& str, size_t& pos) {
+        char32_t check_decode_char_impl(std::string_view str, size_t& pos) {
             if (pos >= str.size())
                 throw std::out_of_range("UTF-8 decoding position is out of range");
             auto start = pos;
@@ -182,15 +182,15 @@ namespace Crow {
             return c;
         }
 
-        char32_t check_decode_char_impl(const std::u16string& str, size_t& pos) {
+        char32_t check_decode_char_impl(std::u16string_view str, size_t& pos) {
             return Detail::check_decode_utf16_char_impl(str.data(), str.size(), pos);
         }
 
-        char32_t check_decode_char_impl(const std::u32string& str, size_t& pos) {
+        char32_t check_decode_char_impl(std::u32string_view str, size_t& pos) {
             return Detail::check_decode_utf32_char_impl(str.data(), str.size(), pos);
         }
 
-        char32_t check_decode_char_impl(const std::wstring& str, size_t& pos) {
+        char32_t check_decode_char_impl(std::wstring_view str, size_t& pos) {
             if constexpr (sizeof(wchar_t) == sizeof(char16_t)) {
                 auto ptr = reinterpret_cast<const char16_t*>(str.data());
                 return Detail::check_decode_utf16_char_impl(ptr, str.size(), pos);
@@ -257,25 +257,25 @@ namespace Crow {
 
     }
 
-    std::string to_utf8(const std::u32string& utf32) {
+    std::string to_utf8(std::u32string_view utf32) {
         std::string out;
         encode_string(utf32, out);
         return out;
     }
 
-    std::u16string to_utf16(const std::u32string& utf32) {
+    std::u16string to_utf16(std::u32string_view utf32) {
         std::u16string out;
         encode_string(utf32, out);
         return out;
     }
 
-    std::u32string to_utf32(const std::u32string& utf32) {
+    std::u32string to_utf32(std::u32string_view utf32) {
         std::u32string out;
         encode_string(utf32, out);
         return out;
     }
 
-    std::wstring to_wstring(const std::u32string& utf32) {
+    std::wstring to_wstring(std::u32string_view utf32) {
         std::wstring out;
         encode_string(utf32, out);
         return out;
