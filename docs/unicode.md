@@ -185,11 +185,9 @@ enum class Usize {
     columns     // Virtual columns (see below)
 };
 template <CharacterType C>
-    size_t utf_size(const std::basic_string<C>& str,
-        Usize mode = Usize::columns);
+    size_t utf_size(const std::basic_string<C>& str, Usize mode);
 template <CharacterType C>
-    size_t utf_size(const std::basic_string_view<C>& str,
-        Usize mode = Usize::columns);
+    size_t utf_size(const std::basic_string_view<C>& str, Usize mode);
 ```
 
 Returns various measures of the size of a UTF string.

@@ -166,7 +166,7 @@ namespace Crow {
     }
 
     template <CharacterType C>
-    size_t utf_size(const std::basic_string_view<C>& str, Usize mode = Usize::columns) {
+    size_t utf_size(const std::basic_string_view<C>& str, Usize mode) {
 
         using namespace Detail;
 

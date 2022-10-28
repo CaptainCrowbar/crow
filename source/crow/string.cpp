@@ -348,7 +348,7 @@ namespace Crow {
 
                 for (auto& word: words) {
 
-                    auto word_size = utf_size(word);
+                    auto word_size = utf_size(word, Usize::columns);
 
                     if (current_width > 0 && current_width + word_size + 1 > width) {
                         result += '\n';

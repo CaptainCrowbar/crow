@@ -106,7 +106,8 @@ namespace Crow {
 
     std::vector<size_t> Table::get_widths(const FormatSpec& spec) const {
 
-        static const size_t min_width = std::max(utf_size(body_null), utf_size(header_null));
+        static const size_t min_width = std::max(utf_size(body_null, Usize::columns),
+            utf_size(header_null, Usize::columns));
 
         char mode = get_mode(spec);
         std::vector<size_t> widths(columns_, min_width);
@@ -126,7 +127,7 @@ namespace Crow {
             for (size_t c = 0; c < headers_.size(); ++c) {
                 parts = split(headers_[c], "\n");
                 for (auto& part: parts)
-                    widths[c] = std::max(widths[c], utf_size(part));
+                    widths[c] = std::max(widths[c], utf_size(part, Usize::columns));
             }
 
         }
