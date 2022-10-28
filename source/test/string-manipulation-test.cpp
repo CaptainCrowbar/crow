@@ -151,49 +151,79 @@ void test_crow_string_remove() {
 
 void test_crow_string_split() {
 
-    std::vector<std::string_view> v;
+    std::vector<std::string_view> vs;
+    std::vector<std::string> ss;
 
-    TRY(v = split(""));                                   TEST_EQUAL(v.size(), 0u);  TEST_EQUAL(format_range(v), "[]");
-    TRY(v = split("\r\n"));                               TEST_EQUAL(v.size(), 0u);  TEST_EQUAL(format_range(v), "[]");
-    TRY(v = split("alpha"));                              TEST_EQUAL(v.size(), 1u);  TEST_EQUAL(format_range(v), "[alpha]");
-    TRY(v = split("alpha bravo"));                        TEST_EQUAL(v.size(), 2u);  TEST_EQUAL(format_range(v), "[alpha,bravo]");
-    TRY(v = split("alpha bravo charlie"));                TEST_EQUAL(v.size(), 3u);  TEST_EQUAL(format_range(v), "[alpha,bravo,charlie]");
-    TRY(v = split("\r\nalpha\r\nbravo\r\ncharlie\r\n"));  TEST_EQUAL(v.size(), 3u);  TEST_EQUAL(format_range(v), "[alpha,bravo,charlie]");
-    TRY(v = split("", "+-"));                             TEST_EQUAL(v.size(), 0u);  TEST_EQUAL(format_range(v), "[]");
-    TRY(v = split("+-", "+-"));                           TEST_EQUAL(v.size(), 0u);  TEST_EQUAL(format_range(v), "[]");
-    TRY(v = split("alpha", "+-"));                        TEST_EQUAL(v.size(), 1u);  TEST_EQUAL(format_range(v), "[alpha]");
-    TRY(v = split("alpha+bravo", "+-"));                  TEST_EQUAL(v.size(), 2u);  TEST_EQUAL(format_range(v), "[alpha,bravo]");
-    TRY(v = split("alpha+bravo-charlie", "+-"));          TEST_EQUAL(v.size(), 3u);  TEST_EQUAL(format_range(v), "[alpha,bravo,charlie]");
-    TRY(v = split("+-alpha+-bravo+-charlie+-", "+-"));    TEST_EQUAL(v.size(), 3u);  TEST_EQUAL(format_range(v), "[alpha,bravo,charlie]");
+    TRY(vs = split(""));                                    TEST_EQUAL(vs.size(), 0u);  TEST_EQUAL(format_range(vs), "[]");
+    TRY(vs = split("\r\n"));                                TEST_EQUAL(vs.size(), 0u);  TEST_EQUAL(format_range(vs), "[]");
+    TRY(vs = split("alpha"));                               TEST_EQUAL(vs.size(), 1u);  TEST_EQUAL(format_range(vs), "[alpha]");
+    TRY(vs = split("alpha bravo"));                         TEST_EQUAL(vs.size(), 2u);  TEST_EQUAL(format_range(vs), "[alpha,bravo]");
+    TRY(vs = split("alpha bravo charlie"));                 TEST_EQUAL(vs.size(), 3u);  TEST_EQUAL(format_range(vs), "[alpha,bravo,charlie]");
+    TRY(vs = split("\r\nalpha\r\nbravo\r\ncharlie\r\n"));   TEST_EQUAL(vs.size(), 3u);  TEST_EQUAL(format_range(vs), "[alpha,bravo,charlie]");
+    TRY(vs = split("", "+-"));                              TEST_EQUAL(vs.size(), 0u);  TEST_EQUAL(format_range(vs), "[]");
+    TRY(vs = split("+-", "+-"));                            TEST_EQUAL(vs.size(), 0u);  TEST_EQUAL(format_range(vs), "[]");
+    TRY(vs = split("alpha", "+-"));                         TEST_EQUAL(vs.size(), 1u);  TEST_EQUAL(format_range(vs), "[alpha]");
+    TRY(vs = split("alpha+bravo", "+-"));                   TEST_EQUAL(vs.size(), 2u);  TEST_EQUAL(format_range(vs), "[alpha,bravo]");
+    TRY(vs = split("alpha+bravo-charlie", "+-"));           TEST_EQUAL(vs.size(), 3u);  TEST_EQUAL(format_range(vs), "[alpha,bravo,charlie]");
+    TRY(vs = split("+-alpha+-bravo+-charlie+-", "+-"));     TEST_EQUAL(vs.size(), 3u);  TEST_EQUAL(format_range(vs), "[alpha,bravo,charlie]");
+    TRY(ss = splits(""));                                   TEST_EQUAL(ss.size(), 0u);  TEST_EQUAL(format_range(ss), "[]");
+    TRY(ss = splits("\r\n"));                               TEST_EQUAL(ss.size(), 0u);  TEST_EQUAL(format_range(ss), "[]");
+    TRY(ss = splits("alpha"));                              TEST_EQUAL(ss.size(), 1u);  TEST_EQUAL(format_range(ss), "[alpha]");
+    TRY(ss = splits("alpha bravo"));                        TEST_EQUAL(ss.size(), 2u);  TEST_EQUAL(format_range(ss), "[alpha,bravo]");
+    TRY(ss = splits("alpha bravo charlie"));                TEST_EQUAL(ss.size(), 3u);  TEST_EQUAL(format_range(ss), "[alpha,bravo,charlie]");
+    TRY(ss = splits("\r\nalpha\r\nbravo\r\ncharlie\r\n"));  TEST_EQUAL(ss.size(), 3u);  TEST_EQUAL(format_range(ss), "[alpha,bravo,charlie]");
+    TRY(ss = splits("", "+-"));                             TEST_EQUAL(ss.size(), 0u);  TEST_EQUAL(format_range(ss), "[]");
+    TRY(ss = splits("+-", "+-"));                           TEST_EQUAL(ss.size(), 0u);  TEST_EQUAL(format_range(ss), "[]");
+    TRY(ss = splits("alpha", "+-"));                        TEST_EQUAL(ss.size(), 1u);  TEST_EQUAL(format_range(ss), "[alpha]");
+    TRY(ss = splits("alpha+bravo", "+-"));                  TEST_EQUAL(ss.size(), 2u);  TEST_EQUAL(format_range(ss), "[alpha,bravo]");
+    TRY(ss = splits("alpha+bravo-charlie", "+-"));          TEST_EQUAL(ss.size(), 3u);  TEST_EQUAL(format_range(ss), "[alpha,bravo,charlie]");
+    TRY(ss = splits("+-alpha+-bravo+-charlie+-", "+-"));    TEST_EQUAL(ss.size(), 3u);  TEST_EQUAL(format_range(ss), "[alpha,bravo,charlie]");
 
 }
 
 void test_crow_string_split_at() {
 
-    std::vector<std::string_view> v;
+    std::vector<std::string_view> vs;
+    std::vector<std::string> ss;
 
-    TRY(v = split_at("", "::"));                       TEST_EQUAL(v.size(), 0u);  TEST_EQUAL(format_range(v), "[]");
-    TRY(v = split_at(":", "::"));                      TEST_EQUAL(v.size(), 1u);  TEST_EQUAL(format_range(v), "[:]");
-    TRY(v = split_at("::", "::"));                     TEST_EQUAL(v.size(), 2u);  TEST_EQUAL(format_range(v), "[,]");
-    TRY(v = split_at(":::", "::"));                    TEST_EQUAL(v.size(), 2u);  TEST_EQUAL(format_range(v), "[,:]");
-    TRY(v = split_at("::::", "::"));                   TEST_EQUAL(v.size(), 3u);  TEST_EQUAL(format_range(v), "[,,]");
-    TRY(v = split_at("abc", "::"));                    TEST_EQUAL(v.size(), 1u);  TEST_EQUAL(format_range(v), "[abc]");
-    TRY(v = split_at("abc::def", "::"));               TEST_EQUAL(v.size(), 2u);  TEST_EQUAL(format_range(v), "[abc,def]");
-    TRY(v = split_at("abc::def::ghi", "::"));          TEST_EQUAL(v.size(), 3u);  TEST_EQUAL(format_range(v), "[abc,def,ghi]");
-    TRY(v = split_at("::abc::::def::::ghi::", "::"));  TEST_EQUAL(v.size(), 7u);  TEST_EQUAL(format_range(v), "[,abc,,def,,ghi,]");
+    TRY(vs = split_at("", "::"));                        TEST_EQUAL(vs.size(), 0u);  TEST_EQUAL(format_range(vs), "[]");
+    TRY(vs = split_at(":", "::"));                       TEST_EQUAL(vs.size(), 1u);  TEST_EQUAL(format_range(vs), "[:]");
+    TRY(vs = split_at("::", "::"));                      TEST_EQUAL(vs.size(), 2u);  TEST_EQUAL(format_range(vs), "[,]");
+    TRY(vs = split_at(":::", "::"));                     TEST_EQUAL(vs.size(), 2u);  TEST_EQUAL(format_range(vs), "[,:]");
+    TRY(vs = split_at("::::", "::"));                    TEST_EQUAL(vs.size(), 3u);  TEST_EQUAL(format_range(vs), "[,,]");
+    TRY(vs = split_at("abc", "::"));                     TEST_EQUAL(vs.size(), 1u);  TEST_EQUAL(format_range(vs), "[abc]");
+    TRY(vs = split_at("abc::def", "::"));                TEST_EQUAL(vs.size(), 2u);  TEST_EQUAL(format_range(vs), "[abc,def]");
+    TRY(vs = split_at("abc::def::ghi", "::"));           TEST_EQUAL(vs.size(), 3u);  TEST_EQUAL(format_range(vs), "[abc,def,ghi]");
+    TRY(vs = split_at("::abc::::def::::ghi::", "::"));   TEST_EQUAL(vs.size(), 7u);  TEST_EQUAL(format_range(vs), "[,abc,,def,,ghi,]");
+    TRY(ss = splits_at("", "::"));                       TEST_EQUAL(ss.size(), 0u);  TEST_EQUAL(format_range(ss), "[]");
+    TRY(ss = splits_at(":", "::"));                      TEST_EQUAL(ss.size(), 1u);  TEST_EQUAL(format_range(ss), "[:]");
+    TRY(ss = splits_at("::", "::"));                     TEST_EQUAL(ss.size(), 2u);  TEST_EQUAL(format_range(ss), "[,]");
+    TRY(ss = splits_at(":::", "::"));                    TEST_EQUAL(ss.size(), 2u);  TEST_EQUAL(format_range(ss), "[,:]");
+    TRY(ss = splits_at("::::", "::"));                   TEST_EQUAL(ss.size(), 3u);  TEST_EQUAL(format_range(ss), "[,,]");
+    TRY(ss = splits_at("abc", "::"));                    TEST_EQUAL(ss.size(), 1u);  TEST_EQUAL(format_range(ss), "[abc]");
+    TRY(ss = splits_at("abc::def", "::"));               TEST_EQUAL(ss.size(), 2u);  TEST_EQUAL(format_range(ss), "[abc,def]");
+    TRY(ss = splits_at("abc::def::ghi", "::"));          TEST_EQUAL(ss.size(), 3u);  TEST_EQUAL(format_range(ss), "[abc,def,ghi]");
+    TRY(ss = splits_at("::abc::::def::::ghi::", "::"));  TEST_EQUAL(ss.size(), 7u);  TEST_EQUAL(format_range(ss), "[,abc,,def,,ghi,]");
 
 }
 
 void test_crow_string_split_lines() {
 
-    std::vector<std::string_view> v;
+    std::vector<std::string_view> vs;
+    std::vector<std::string> ss;
 
-    TRY(v = split_lines(""));                            TEST_EQUAL(v.size(), 0u);  TEST_EQUAL(format_range(v), "[]");
-    TRY(v = split_lines("\n"));                          TEST_EQUAL(v.size(), 1u);  TEST_EQUAL(format_range(v), "[]");
-    TRY(v = split_lines("\n\n"));                        TEST_EQUAL(v.size(), 2u);  TEST_EQUAL(format_range(v), "[,]");
-    TRY(v = split_lines("\n\n\n"));                      TEST_EQUAL(v.size(), 3u);  TEST_EQUAL(format_range(v), "[,,]");
-    TRY(v = split_lines("Hello world\nGoodbye\n"));      TEST_EQUAL(v.size(), 2u);  TEST_EQUAL(format_range(v), "[Hello world,Goodbye]");
-    TRY(v = split_lines("Hello world\n\nGoodbye\n\n"));  TEST_EQUAL(v.size(), 4u);  TEST_EQUAL(format_range(v), "[Hello world,,Goodbye,]");
+    TRY(vs = split_lines(""));                             TEST_EQUAL(vs.size(), 0u);  TEST_EQUAL(format_range(vs), "[]");
+    TRY(vs = split_lines("\n"));                           TEST_EQUAL(vs.size(), 1u);  TEST_EQUAL(format_range(vs), "[]");
+    TRY(vs = split_lines("\n\n"));                         TEST_EQUAL(vs.size(), 2u);  TEST_EQUAL(format_range(vs), "[,]");
+    TRY(vs = split_lines("\n\n\n"));                       TEST_EQUAL(vs.size(), 3u);  TEST_EQUAL(format_range(vs), "[,,]");
+    TRY(vs = split_lines("Hello world\nGoodbye\n"));       TEST_EQUAL(vs.size(), 2u);  TEST_EQUAL(format_range(vs), "[Hello world,Goodbye]");
+    TRY(vs = split_lines("Hello world\n\nGoodbye\n\n"));   TEST_EQUAL(vs.size(), 4u);  TEST_EQUAL(format_range(vs), "[Hello world,,Goodbye,]");
+    TRY(ss = splits_lines(""));                            TEST_EQUAL(ss.size(), 0u);  TEST_EQUAL(format_range(ss), "[]");
+    TRY(ss = splits_lines("\n"));                          TEST_EQUAL(ss.size(), 1u);  TEST_EQUAL(format_range(ss), "[]");
+    TRY(ss = splits_lines("\n\n"));                        TEST_EQUAL(ss.size(), 2u);  TEST_EQUAL(format_range(ss), "[,]");
+    TRY(ss = splits_lines("\n\n\n"));                      TEST_EQUAL(ss.size(), 3u);  TEST_EQUAL(format_range(ss), "[,,]");
+    TRY(ss = splits_lines("Hello world\nGoodbye\n"));      TEST_EQUAL(ss.size(), 2u);  TEST_EQUAL(format_range(ss), "[Hello world,Goodbye]");
+    TRY(ss = splits_lines("Hello world\n\nGoodbye\n\n"));  TEST_EQUAL(ss.size(), 4u);  TEST_EQUAL(format_range(ss), "[Hello world,,Goodbye,]");
 
 }
 

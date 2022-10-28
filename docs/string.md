@@ -171,20 +171,25 @@ million.
 ```c++
 std::vector<std::string_view> split(std::string_view str,
     std::string_view chars = ascii_whitespace);
+std::vector<std::string> splits(std::string_view str,
+    std::string_view chars = ascii_whitespace);
 std::vector<std::string_view> split_at(std::string_view str,
     std::string_view delimiter);
+std::vector<std::string> splits_at(std::string_view str,
+    std::string_view delimiter);
 std::vector<std::string_view> split_lines(std::string_view str);
+std::vector<std::string> splits_lines(std::string_view str);
 ```
 
 Split a string into multiple pieces, delimited by any substring that either
 consists of one or more characters from `chars`, or that exactly matches
-`delimiter`. In the first version, leading and trailing delimiters are
-trimmed. The first version will never have an empty string in the returned
-vector; the second version may, if there are leading, trailing, or adjacent
-delimiters.
+`delimiter`. The `split[s]()` functions trim leading and trailing delimiters,
+and will never have an empty string in the returned vector. The other
+functions may include empty strings in the returned vector, if there are
+leading, trailing, or adjacent delimiters.
 
-The third function splits the string into lines, delimited by `"\n"` or
-`"\r\n"`, removing the trailing line breaks from each line.
+The `split[s]_lines()` functions split the string into lines, delimited by
+`"\n"` or `"\r\n"`, removing the trailing line breaks from each line.
 
 ```c++
 std::string trim(std::string_view str,

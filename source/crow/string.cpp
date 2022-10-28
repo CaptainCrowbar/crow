@@ -212,6 +212,10 @@ namespace Crow {
         return vec;
     }
 
+    std::vector<std::string> splits(std::string_view str, std::string_view chars) {
+        return reify_strings(split(str, chars));
+    }
+
     std::vector<std::string_view> split_at(std::string_view str, std::string_view delimiter) {
         if (str.empty())
             return {};
@@ -229,6 +233,10 @@ namespace Crow {
         return vec;
     }
 
+    std::vector<std::string> splits_at(std::string_view str, std::string_view delimiter) {
+        return reify_strings(split_at(str, delimiter));
+    }
+
     std::vector<std::string_view> split_lines(std::string_view str) {
         auto lines = split_at(str, "\n");
         if (! str.empty() && str.back() == '\n')
@@ -237,6 +245,10 @@ namespace Crow {
             if (! line.empty() && line.back() == '\r')
                 line = line.substr(0, line.size() - 1);
         return lines;
+    }
+
+    std::vector<std::string> splits_lines(std::string_view str) {
+        return reify_strings(split_lines(str));
     }
 
     std::string trim(std::string_view str, std::string_view chars) {
@@ -297,7 +309,7 @@ namespace Crow {
 
         static const auto is_empty = [] (std::string_view s) { return s.empty(); };
 
-        auto lines = reify_strings(split_lines(str));
+        auto lines = splits_lines(str);
 
         for (auto& line: lines)
             line = trim_right(line);
@@ -450,10 +462,9 @@ namespace Crow {
 
         std::string operator""_doc(const char* ptr, size_t len) {
             std::string str(ptr, len);
-            auto views = split_at(str, "\n");
-            if (views.empty())
+            auto lines = splits_at(str, "\n");
+            if (lines.empty())
                 return {};
-            auto lines = reify_strings(views);
             auto prefix = lines.back();
             for (auto& line: lines)
                 line = trim_right(line);

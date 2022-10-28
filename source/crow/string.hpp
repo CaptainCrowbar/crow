@@ -61,8 +61,11 @@ namespace Crow {
     std::string replace(std::string_view str, std::string_view target, std::string_view replacement);
     std::string remove(std::string_view str, std::string_view target);
     std::vector<std::string_view> split(std::string_view str, std::string_view chars = ascii_whitespace);
+    std::vector<std::string> splits(std::string_view str, std::string_view chars = ascii_whitespace);
     std::vector<std::string_view> split_at(std::string_view str, std::string_view delimiter);
+    std::vector<std::string> splits_at(std::string_view str, std::string_view delimiter);
     std::vector<std::string_view> split_lines(std::string_view str);
+    std::vector<std::string> splits_lines(std::string_view str);
     std::string trim(std::string_view str, std::string_view chars = ascii_whitespace);
     std::string trim_left(std::string_view str, std::string_view chars = ascii_whitespace);
     std::string trim_right(std::string_view str, std::string_view chars = ascii_whitespace);
