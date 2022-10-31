@@ -97,7 +97,7 @@ namespace Crow {
     }
 
     template <CharacterType C>
-    char32_t decode_char(const std::basic_string_view<C>& str, size_t& pos) noexcept {
+    char32_t decode_char(std::basic_string_view<C> str, size_t& pos) noexcept {
         return Detail::decode_char_impl(str, pos);
     }
 
@@ -107,7 +107,7 @@ namespace Crow {
     }
 
     template <CharacterType C>
-    char32_t check_decode_char(const std::basic_string_view<C>& str, size_t& pos) {
+    char32_t check_decode_char(std::basic_string_view<C> str, size_t& pos) {
         return Detail::check_decode_char_impl(str, pos);
     }
 
@@ -124,6 +124,14 @@ namespace Crow {
 
     template <CharacterType C>
     std::u32string decode_string(const std::basic_string<C>& str) {
+        std::u32string utf32;
+        for (size_t pos = 0; pos < str.size();)
+            utf32 += check_decode_char(str, pos);
+        return utf32;
+    }
+
+    template <CharacterType C>
+    std::u32string decode_string(std::basic_string_view<C> str) {
         std::u32string utf32;
         for (size_t pos = 0; pos < str.size();)
             utf32 += check_decode_char(str, pos);
@@ -149,7 +157,7 @@ namespace Crow {
     bool is_xid_start(char32_t c);
 
     template <CharacterType C>
-    bool is_valid_utf(const std::basic_string_view<C>& str, bool hard = false) {
+    bool is_valid_utf(std::basic_string_view<C> str, bool hard = false) {
         if (hard) {
             for (size_t pos = 0; pos < str.size();)
                 check_decode_char(str, pos);
@@ -167,7 +175,7 @@ namespace Crow {
     }
 
     template <CharacterType C>
-    size_t utf_size(const std::basic_string_view<C>& str, Usize mode) {
+    size_t utf_size(std::basic_string_view<C> str, Usize mode) {
 
         using namespace Detail;
 

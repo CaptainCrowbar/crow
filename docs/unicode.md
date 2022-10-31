@@ -45,7 +45,7 @@ template <CharacterType C>
     char32_t decode_char(const std::basic_string<C>& str,
         size_t& pos) noexcept;
 template <CharacterType C>
-    char32_t decode_char(const std::basic_string_view<C>& str,
+    char32_t decode_char(std::basic_string_view<C> str,
         size_t& pos) noexcept;
 ```
 
@@ -65,7 +65,7 @@ template <CharacterType C>
     char32_t check_decode_char(const std::basic_string<C>& str,
         size_t& pos);
 template <CharacterType C>
-    char32_t check_decode_char(const std::basic_string_view<C>& str,
+    char32_t check_decode_char(std::basic_string_view<C> str,
         size_t& pos);
 ```
 
@@ -147,6 +147,8 @@ argument is not a valid Unicode scalar value.
 ```c++
 template <CharacterType C>
     std::u32string decode_string(const std::basic_string<C>& str);
+template <CharacterType C>
+    std::u32string decode_string(std::basic_string_view<C> str);
 ```
 
 Convert an encoded Unicode string to a UTF-32 string. This will throw
@@ -170,7 +172,7 @@ template <CharacterType C>
     bool is_valid_utf(const std::basic_string<C>& str,
         bool hard = false);
 template <CharacterType C>
-    bool is_valid_utf(const std::basic_string_view<C>& str,
+    bool is_valid_utf(std::basic_string_view<C> str,
         bool hard = false);
 ```
 
@@ -188,7 +190,7 @@ enum class Usize {
 template <CharacterType C>
     size_t utf_size(const std::basic_string<C>& str, Usize mode);
 template <CharacterType C>
-    size_t utf_size(const std::basic_string_view<C>& str, Usize mode);
+    size_t utf_size(std::basic_string_view<C> str, Usize mode);
 ```
 
 Returns various measures of the size of a UTF string.
