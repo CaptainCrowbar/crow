@@ -1056,6 +1056,7 @@ void unicode_test_group() {
     UNIT_TEST(crow_unicode_canonical_composition)
     UNIT_TEST(crow_unicode_canonical_decomposition)
     UNIT_TEST(crow_unicode_hangul_syllable_type)
+    UNIT_TEST(crow_unicode_noncharacters)
     UNIT_TEST(crow_unicode_pattern_syntax)
     UNIT_TEST(crow_unicode_xid_properties)
 }

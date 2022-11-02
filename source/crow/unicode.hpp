@@ -156,6 +156,10 @@ namespace Crow {
     bool is_xid_continue(char32_t c);
     bool is_xid_start(char32_t c);
 
+    constexpr bool is_noncharacter(char32_t c) noexcept {
+        return (c >= 0xfdd0 && c <= 0xfdef) || (c & 0xfffe) == 0xfffe;
+    }
+
     template <CharacterType C>
     bool is_valid_utf(std::basic_string_view<C> str, bool hard = false) {
         if (hard) {

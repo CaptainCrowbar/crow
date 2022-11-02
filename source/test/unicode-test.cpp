@@ -487,6 +487,25 @@ void test_crow_unicode_hangul_syllable_type() {
 
 }
 
+void test_crow_unicode_noncharacters() {
+
+    TEST(! is_noncharacter(0));
+    TEST(! is_noncharacter(0xfdcf));
+    TEST(is_noncharacter(0xfdd0));
+    TEST(is_noncharacter(0xfdef));
+    TEST(! is_noncharacter(0xfdf0));
+    TEST(! is_noncharacter(0xfffd));
+    TEST(is_noncharacter(0xfffe));
+    TEST(is_noncharacter(0xffff));
+    TEST(! is_noncharacter(0x1fffd));
+    TEST(is_noncharacter(0x1fffe));
+    TEST(is_noncharacter(0x1ffff));
+    TEST(! is_noncharacter(0x10fffd));
+    TEST(is_noncharacter(0x10fffe));
+    TEST(is_noncharacter(0x10ffff));
+
+}
+
 void test_crow_unicode_pattern_syntax() {
 
     TEST(! is_pattern_syntax(0));

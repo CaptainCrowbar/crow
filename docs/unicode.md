@@ -134,13 +134,15 @@ GC general_category(char32_t c);
 Unicode general category property.
 
 ```c++
+constexpr bool is_noncharacter(char32_t c) noexcept;
 bool is_pattern_syntax(char32_t c);
 bool is_xid_continue(char32_t c);
 bool is_xid_start(char32_t c);
 ```
 
-Selected Unicode character properties. These will all return false if the
-argument is not a valid Unicode scalar value.
+Selected Unicode character properties. The `is_noncharacter()` predicate is
+true only for the permanently reserved noncharacter code points. These will
+all return false if the argument is not a valid Unicode scalar value.
 
 ## String encoding functions
 
