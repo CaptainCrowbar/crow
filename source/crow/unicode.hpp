@@ -1,5 +1,6 @@
 #pragma once
 
+#include "crow/iterator.hpp"
 #include "crow/types.hpp"
 #include "crow/ucd/ucd.hpp"
 #include <concepts>
@@ -151,6 +152,27 @@ namespace Crow {
     std::u32string to_utf32(std::u32string_view utf32);
     std::wstring to_wstring(std::u32string_view utf32);
 
+    class UtfIterator:
+    public ForwardIterator<UtfIterator, const char32_t> {
+    public:
+        UtfIterator() = default;
+        UtfIterator(std::string_view utf8, size_t pos) noexcept: utf8_(utf8), pos_(pos), len_(0) {}
+        const char32_t& operator*() const noexcept;
+        UtfIterator& operator++() noexcept;
+        bool operator==(const UtfIterator& rhs) const noexcept { return pos_ == rhs.pos_; }
+    private:
+        std::string_view utf8_;
+        size_t pos_;
+        mutable size_t len_;
+        mutable char32_t char_;
+    };
+
+    using UtfRange = Irange<UtfIterator>;
+
+    inline UtfIterator utf_begin(std::string_view utf8) { return {utf8, 0}; }
+    inline UtfIterator utf_end(std::string_view utf8) { return {utf8, utf8.size()}; }
+    inline UtfRange utf_range(std::string_view utf8) { return {utf_begin(utf8), utf_end(utf8)}; }
+
     GC general_category(char32_t c);
     bool is_pattern_syntax(char32_t c);
     bool is_xid_continue(char32_t c);
@@ -269,9 +291,9 @@ namespace Crow {
         return utf_size(std::basic_string_view<C>(str), mode);
     }
 
-    std::string to_nfc(std::string str);
-    std::u32string to_nfc(std::u32string str);
-    std::string to_nfd(std::string str);
-    std::u32string to_nfd(std::u32string str);
+    std::string to_nfc(std::string_view str);
+    std::u32string to_nfc(std::u32string_view str);
+    std::string to_nfd(std::string_view str);
+    std::u32string to_nfd(std::u32string_view str);
 
 }

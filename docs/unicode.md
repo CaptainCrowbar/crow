@@ -225,10 +225,10 @@ encountered.
 ## Normalization functions
 
 ```c++
-std::string to_nfc(std::string str);
-std::u32string to_nfc(std::u32string str);
-std::string to_nfd(std::string str);
-std::u32string to_nfd(std::u32string str);
+std::string to_nfc(std::string_view str);
+std::u32string to_nfc(std::u32string_view str);
+std::string to_nfd(std::string_view str);
+std::u32string to_nfd(std::u32string_view str);
 ```
 
 Convert UTF-8 or UTF-32 strings to NFC and NFD forms. These will throw

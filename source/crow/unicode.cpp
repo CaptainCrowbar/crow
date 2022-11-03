@@ -281,6 +281,22 @@ namespace Crow {
         return out;
     }
 
+    const char32_t& UtfIterator::operator*() const noexcept {
+        if (len_ == 0) {
+            size_t q = pos_;
+            char_ = decode_char(utf8_, q);
+            len_ = q - pos_;
+        }
+        return char_;
+    }
+
+    UtfIterator& UtfIterator::operator++() noexcept {
+        **this;
+        pos_ += len_;
+        len_ = 0;
+        return *this;
+    }
+
     namespace {
 
         template <typename K, typename T>

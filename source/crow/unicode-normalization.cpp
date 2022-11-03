@@ -4,58 +4,60 @@
 
 namespace Crow {
 
-    // Unicode Normalization Algorithm:
+    // Unicode Normalization Algorithm
 
     // References:
-    // Unicode Standard 13.0, chapter 3.11, "Normalization Forms"
+    // Unicode Standard 15.0, chapter 3.11, "Normalization Forms"
     // Unicode Standard Annex #15, "Unicode Normalization Forms"
 
-    // Step 1: Decompose any decomposable characters. For NFC and NFD, apply
-    // only canonical decompositions; for NFKC and NFKD, also apply
-    // compatibility decompositions. Decompose characters recursively until
-    // no more decompositions are possible.
+    // We only care about NFC and NFD forms here.
+
+    // Step 1: Decompose any characters that have canonical decompositions.
+    // Decompose recursively until no more decompositions are possible.
 
     // Step 2: For each contiguous subsequence of non-starter characters, sort
-    // the characters into ascending order by canonical combining class.
-    // Characters with the same combining class are not reordered(i.e. stable
-    // sort).
+    // the characters into ascending order by canonical combining class. This
+    // is a stable sort, characters with the same combining class are not
+    // reordered.
 
-    // Step 3 (only for NFC and NFKC): For each pair of characters that form a
+    // Step 3 (only for NFC): For each pair of characters that form a
     // canonical composing pair, replace the first with the composed
     // character and delete the second. A pair need not be adjacent to be
     // composable, if the characters between them are all non-starters with a
-    // lower combining class than the second of the pair. Compose characters
-    // recursively until no more compositions are possible.
+    // lower combining class than the second of the pair. Compose recursively
+    // until no more compositions are possible.
 
     namespace {
 
-        void apply_decomposition(std::u32string& str) {
+        std::u32string apply_decomposition(std::u32string_view str) {
             using namespace Detail;
-            std::u32string out;
-            out.reserve(str.size());
-            std::pair<char32_t, char32_t> dec;
-            auto i = str.begin(), end = str.end();
-            size_t j = 0;
-            while (i != end || j < out.size()) {
-                if (j == out.size()) {
-                    out += *i++;
+            std::u32string result;
+            result.reserve(str.size() + str.size() / 10);
+            auto it = str.begin();
+            auto end = str.end();
+            size_t pos = 0;
+            while (it != end || pos < result.size()) {
+                if (pos == result.size()) {
+                    result += *it++;
                 } else {
-                    dec = canonical_decomposition(out[j]);
+                    auto dec = canonical_decomposition(result[pos]);
                     if (dec.first == 0) {
-                        ++j;
+                        ++pos;
                     } else {
-                        out[j] = dec.first;
+                        result[pos] = dec.first;
                         if (dec.second != 0)
-                            out.insert(j + 1, 1, dec.second);
+                            result.insert(pos + 1, 1, dec.second);
                     }
                 }
             }
-            str.swap(out);
+            return result;
         }
 
         void apply_ordering(std::u32string& str) {
             using namespace Detail;
-            auto i = str.begin(), j = i, end = str.end();
+            auto i = str.begin();
+            auto j = i;
+            auto end = str.end();
             while (j != end) {
                 i = std::find_if(j, end, canonical_combining_class);
                 if (i == end)
@@ -71,7 +73,8 @@ namespace Crow {
             using namespace Detail;
             if (str.size() < 2)
                 return;
-            auto i = str.begin(), end = str.end();
+            auto i = str.begin();
+            auto end = str.end();
             while (i != end) {
                 i = std::find_if_not(i, end, canonical_combining_class);
                 if (i == end)
@@ -82,7 +85,7 @@ namespace Crow {
                     int cc = canonical_combining_class(*j);
                     if (prev_cc == 0 || prev_cc < cc) {
                         char32_t c = canonical_composition(*i, *j);
-                        if (c) {
+                        if (c != 0) {
                             *i = c;
                             str.erase(j);
                             combined = true;
@@ -100,27 +103,27 @@ namespace Crow {
 
     }
 
-    std::u32string to_nfc(std::u32string str) {
-        apply_decomposition(str);
-        apply_ordering(str);
-        apply_composition(str);
-        return str;
+    std::u32string to_nfc(std::u32string_view str) {
+        auto result = apply_decomposition(str);
+        apply_ordering(result);
+        apply_composition(result);
+        return result;
     }
 
-    std::u32string to_nfd(std::u32string str) {
-        apply_decomposition(str);
-        apply_ordering(str);
-        return str;
+    std::u32string to_nfd(std::u32string_view str) {
+        auto result = apply_decomposition(str);
+        apply_ordering(result);
+        return result;
     }
 
-    std::string to_nfc(std::string str) {
+    std::string to_nfc(std::string_view str) {
         auto str32 = decode_string(str);
         auto nfc32 = to_nfc(str32);
         auto nfc8 = to_utf8(nfc32);
         return nfc8;
     }
 
-    std::string to_nfd(std::string str) {
+    std::string to_nfd(std::string_view str) {
         auto str32 = decode_string(str);
         auto nfd32 = to_nfd(str32);
         auto nfd8 = to_utf8(nfd32);

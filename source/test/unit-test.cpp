@@ -1041,12 +1041,14 @@ void transform_test_group() {
 
 void unicode_normalization_test_group() {
     UNIT_TEST(crow_unicode_normalization_forms)
+    UNIT_TEST(crow_unicode_normalization_mixed)
 }
 
 void unicode_test_group() {
     UNIT_TEST(crow_unicode_implementation_details)
     UNIT_TEST(crow_unicode_character_encoding)
     UNIT_TEST(crow_unicode_string_encoding)
+    UNIT_TEST(crow_unicode_iterators)
     UNIT_TEST(crow_unicode_size_bytes)
     UNIT_TEST(crow_unicode_size_units)
     UNIT_TEST(crow_unicode_size_scalars)

@@ -172,6 +172,26 @@ void test_crow_unicode_string_encoding() {
 
 }
 
+void test_crow_unicode_iterators() {
+
+    const std::string a8;
+    const std::string b8 = "Hello";
+    const std::string c8 = {"\x4d\xd0\xb0\xe4\xba\x8c\xf0\x90\x8c\x82\xf4\x8f\xbf\xbd"};
+    const std::string x8 = "Hello\xffworld";
+    const std::u32string a32;
+    const std::u32string b32 = U"Hello";
+    const std::u32string c32 = {0x4d,0x430,0x4e8c,0x10302,0x10fffd};
+    const std::u32string x32 = U"Hello" + std::u32string{not_unicode} + U"world";
+
+    UtfRange u;
+
+    TRY(u = utf_range(a8));  TEST_EQUAL_RANGES(u, a32);
+    TRY(u = utf_range(b8));  TEST_EQUAL_RANGES(u, b32);
+    TRY(u = utf_range(c8));  TEST_EQUAL_RANGES(u, c32);
+    TRY(u = utf_range(x8));  TEST_EQUAL_RANGES(u, x32);
+
+}
+
 void test_crow_unicode_size_bytes() {
 
     std::string s;

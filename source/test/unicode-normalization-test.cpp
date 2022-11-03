@@ -18895,3 +18895,44 @@ void test_crow_unicode_normalization_forms() {
     }
 
 }
+
+void test_crow_unicode_normalization_mixed() {
+
+    // 0061  a   latin small letter a
+    // 0065  e   latin small letter e
+    // 0069  i   latin small letter i
+    // 006f  o   latin small letter o
+    // 0075  u   latin small letter u
+    // 00e0  à   latin small letter a with grave
+    // 00e9  é   latin small letter e with acute
+    // 00ee  î   latin small letter i with circumflex
+    // 00f5  õ   latin small letter o with tilde
+    // 00fc  ü   latin small letter u with diaeresis
+    // 0300  --  combining grave accent
+    // 0301  --  combining acute accent
+    // 0302  --  combining circumflex accent
+    // 0303  --  combining tilde
+    // 0308  --  combining diaeresis
+
+    const std::u32string asc32 = U"aeiou";
+    const std::u32string nfc32 = U"aeiou\u00e0\u00e9\u00ee\u00f5\u00fc";       // "aeiouàéîõü" composed
+    const std::u32string nfd32 = U"aeioua\u0300e\u0301i\u0302o\u0303u\u0308";  // "aeiouàéîõü" decomposed
+
+    const std::string asc8 = to_utf8(asc32);
+    const std::string nfc8 = to_utf8(nfc32);
+    const std::string nfd8 = to_utf8(nfd32);
+
+    std::string str8;
+    std::u32string str32;
+
+    TRY(str8 = to_nfd(asc8));    TEST_EQUAL(str8, asc8);
+    TRY(str8 = to_nfc(asc8));    TEST_EQUAL(str8, asc8);
+    TRY(str32 = to_nfd(asc32));  TEST(str32 == asc32);
+    TRY(str32 = to_nfc(asc32));  TEST(str32 == asc32);
+
+    TRY(str8 = to_nfd(nfc8));    TEST_EQUAL(str8, nfd8);
+    TRY(str8 = to_nfc(nfd8));    TEST_EQUAL(str8, nfc8);
+    TRY(str32 = to_nfd(nfc32));  TEST(str32 == nfd32);
+    TRY(str32 = to_nfc(nfd32));  TEST(str32 == nfc32);
+
+}
