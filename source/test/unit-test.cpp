@@ -269,7 +269,7 @@ void format_type_test_group() {
     UNIT_TEST(crow_format_boolean)
     UNIT_TEST(crow_format_characters_and_strings)
     UNIT_TEST(crow_format_pointers)
-    UNIT_TEST(crow_format_types)
+    UNIT_TEST(crow_format_type_names)
     UNIT_TEST(crow_format_class)
     UNIT_TEST(crow_format_function)
     UNIT_TEST(crow_format_literals)

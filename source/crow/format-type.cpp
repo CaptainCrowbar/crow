@@ -15,6 +15,26 @@ namespace Crow {
         }
     }
 
+    std::string format_type_name(const std::string& name, const FormatSpec& spec) {
+        if (! spec.option('u'))
+            return name;
+        std::string result;
+        int depth = 0;
+        for (char c: name) {
+            if (c == '<')
+                ++depth;
+            else if (c == '>')
+                --depth;
+            else if (depth > 0)
+                {}
+            else if (c == ':')
+                result.clear();
+            else
+                result += c;
+        }
+        return result;
+    }
+
     // Class Formatter
 
     Formatter::Formatter(const std::string& pattern) {

@@ -33,6 +33,7 @@ be formatted by use of the customization points described below.
     * Mode:
         * `T` = Return the name of the argument's type instead of formatting its value
     * Options:
+        * `u` = With `T` mode, show the unqualified name
         * `Z` = Use `"--"` in place of a null value (zero, an empty string, or a null pointer)
     * Notes:
         * This is used for any type if the format spec has mode `T`

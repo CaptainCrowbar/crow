@@ -23,6 +23,7 @@
 namespace Crow {
 
     std::string format_boolean(bool b, const FormatSpec& spec);
+    std::string format_type_name(const std::string& name, const FormatSpec& spec);
 
     template <std::integral T>
     std::string format_number(T t, const FormatSpec& spec = {}) {
@@ -116,7 +117,7 @@ namespace Crow {
         std::string operator()(const T& t, const FormatSpec& spec) const {
             using U = std::decay_t<T>;
             if (spec.mode() == 'T')
-                return type_name<U>();
+                return format_type_name(type_name<U>(), spec);
             if constexpr (std::same_as<U, std::nullptr_t>)
                 return spec.option('Z') ? "--" : "<null>";
             else if constexpr (std::same_as<U, bool>)

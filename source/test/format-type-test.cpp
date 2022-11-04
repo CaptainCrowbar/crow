@@ -201,7 +201,7 @@ void test_crow_format_pointers() {
 
 }
 
-void test_crow_format_types() {
+void test_crow_format_type_names() {
 
     int i = 0;
     double d = 0;
@@ -210,14 +210,25 @@ void test_crow_format_types() {
     const double cd = 0;
     double& dr = d;
     const double& cdr = cd;
+    FormatSpec fs;
 
     TEST_MATCH(format_object(i,    "T"),  "^(signed )?int$");
     TEST_EQUAL(format_object(d,    "T"),  "double");
-    TEST_MATCH(format_object(s,    "T"),  "std::(\\w+::)*(basic_)string\\b");
-    TEST_MATCH(format_object(v,    "T"),  "std::(\\w+::)*vector<int\\b");
+    TEST_MATCH(format_object(s,    "T"),  "^std::(\\w+::)*basic_string<");
+    TEST_MATCH(format_object(v,    "T"),  "^std::(\\w+::)*vector<int,");
     TEST_EQUAL(format_object(cd,   "T"),  "double");
     TEST_EQUAL(format_object(dr,   "T"),  "double");
     TEST_EQUAL(format_object(cdr,  "T"),  "double");
+    TEST_EQUAL(format_object(fs,   "T"),  "Crow::FormatSpec");
+
+    TEST_MATCH(format_object(i,    "Tu"),  "^(signed )?int$");
+    TEST_EQUAL(format_object(d,    "Tu"),  "double");
+    TEST_EQUAL(format_object(s,    "Tu"),  "basic_string");
+    TEST_EQUAL(format_object(v,    "Tu"),  "vector");
+    TEST_EQUAL(format_object(cd,   "Tu"),  "double");
+    TEST_EQUAL(format_object(dr,   "Tu"),  "double");
+    TEST_EQUAL(format_object(cdr,  "Tu"),  "double");
+    TEST_EQUAL(format_object(fs,   "Tu"),  "FormatSpec");
 
 }
 
