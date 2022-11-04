@@ -109,6 +109,7 @@ Other libraries required:
     * [crow/english](english.html) - English language tools
     * [crow/format](format.html) - Formatting functions
     * [crow/markup](markup.html) - HTML/XML markup
+    * [crow/name](name.html) - Name formatting
     * [crow/regex](regex.html) - Regular expressions
     * [crow/string](string.html) - String functions
     * [crow/table](table.html) - Table layout

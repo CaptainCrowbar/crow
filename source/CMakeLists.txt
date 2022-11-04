@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.16)
 # and propagate the new version to version.hpp.
 
 project(Crow
-    VERSION 2.0.79
+    VERSION 2.0.80
     LANGUAGES CXX
 )
 
@@ -68,6 +68,7 @@ add_library(${library} STATIC
     ${library}/interval.cpp
     ${library}/markup.cpp
     ${library}/mp-integer.cpp
+    ${library}/name.cpp
     ${library}/named-mutex.cpp
     ${library}/net.cpp
     ${library}/options.cpp
@@ -202,6 +203,7 @@ add_executable(${unittest}
     test/mp-integer-unsigned-arithmetic-test.cpp
     test/mp-integer-unsigned-conversion-test.cpp
     test/multi-array-test.cpp
+    test/name-test.cpp
     test/named-mutex-test.cpp
     test/net-address-test.cpp
     test/net-dns-test.cpp

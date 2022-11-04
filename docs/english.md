@@ -12,15 +12,27 @@ namespace Crow;
 * TOC
 {:toc}
 
+## Constants
+
+```c++
+const std::unordered_set<std::string>& stopwords();
+    // a, an, and, at, for, in, is, of, on, or, the, to, with
+```
+
+The default list of stopwords used in `extended_titlecase()`.
+
 ## Case conversion functions
 
 ```c++
 std::string extended_titlecase(const std::string& str, bool initial = true);
+std::string extended_titlecase(const std::string& str,
+    const std::unordered_set<std::string>& stop, bool initial = true);
 ```
 
 Convert a string to title case, checking for common short English words that
 are conventionally set in lower case. If the `initial` flag is set, the first
-letter of the string will always be in upper case.
+letter of the string will always be in upper case. Optionally a custom set of
+stopwords can be supplied
 
 ```c++
 std::string sentence_case(const std::string& str);

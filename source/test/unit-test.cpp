@@ -647,6 +647,11 @@ void multi_array_test_group() {
     UNIT_TEST(crow_multi_array_3d)
 }
 
+void name_test_group() {
+    UNIT_TEST(crow_name_parsing)
+    UNIT_TEST(crow_name_formatting)
+}
+
 void named_mutex_test_group() {
     UNIT_TEST(crow_named_mutex)
 }
@@ -1197,6 +1202,7 @@ int main(int argc, char** argv) {
     mp_integer_unsigned_arithmetic_test_group();
     mp_integer_unsigned_conversion_test_group();
     multi_array_test_group();
+    name_test_group();
     named_mutex_test_group();
     net_address_test_group();
     net_dns_test_group();

@@ -3,18 +3,27 @@
 #include <algorithm>
 #include <cmath>
 #include <map>
-#include <unordered_set>
 #include <utility>
 
 namespace Crow {
 
+    // Constants
+
+    const std::unordered_set<std::string>& stopwords() {
+        static const std::unordered_set<std::string> words = {
+            "a", "an", "and", "at", "for", "in", "is", "of", "on", "or", "the", "to", "with"
+        };
+        return words;
+    }
+
     // Case conversion functions
 
     std::string extended_titlecase(const std::string& str, bool initial) {
+        return extended_titlecase(str, stopwords(), initial);
+    }
 
-        static const std::unordered_set<std::string> stopwords = {
-            "a", "an", "and", "at", "in", "of", "or", "the"
-        };
+    std::string extended_titlecase(const std::string& str, const std::unordered_set<std::string>& stop,
+            bool initial) {
 
         std::string result;
         auto i = str.begin();
@@ -39,7 +48,7 @@ namespace Crow {
             word = ascii_lowercase(word);
             ++words;
 
-            if ((words == 1 && initial) || stopwords.count(word) == 0)
+            if ((words == 1 && initial) || stop.contains(word) == 0)
                 word[0] = ascii_toupper(word[0]);
 
             result += word;

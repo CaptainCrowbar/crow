@@ -4,13 +4,20 @@
 #include "crow/types.hpp"
 #include <iterator>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 namespace Crow {
 
+    // Constants
+
+    const std::unordered_set<std::string>& stopwords();
+
     // Case conversion functions
 
     std::string extended_titlecase(const std::string& str, bool initial = true);
+    std::string extended_titlecase(const std::string& str, const std::unordered_set<std::string>& stop,
+        bool initial = true);
     std::string sentence_case(const std::string& str);
 
     // List formatting functions
