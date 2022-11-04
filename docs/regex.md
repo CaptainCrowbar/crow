@@ -91,7 +91,14 @@ Returns the version numbers as a string (e.g. `"1.23.456"`).
 
 ## Regex class
 
-### Constants
+### Member types
+
+```c++
+enum class Regex::flag_type;
+using enum flag_type;
+```
+
+The type used for bitmask flags.
 
 | Flag               | Description                                                         | Usage        |
 | ----               | -----------                                                         | -----        |
@@ -117,14 +124,8 @@ Returns the version numbers as a string (e.g. `"1.23.456"`).
 | `partial_soft`     | Enable soft partial matching (prefer full match to partial match)   | Match        |
 | `word`             | Only match a complete word                                          | Compile      |
 
-All of these are defined as:
-
-```c++
-static constexpr Regex::flag_type Regex::flag_name = flag_value
-```
-
 These are bitmask flags. Wherever a regex function takes a `flags` argument,
-the value is expected to be a bitwise-or combination of these. The Usage
+the value is expected to be a bitwise-or combination of these. The usage
 column indicates whether the flag is applied at compile time (when the regex
 is constructed), at match time (when a string is matched against the regex),
 or at replacement time (when the regex and a format string are used to modify
@@ -140,13 +141,12 @@ at match or replacement time.
 Notes on specific flags:
 
 * The `ascii` flag causes backslash character classes (`\[BbDdRSsWw]`), and
-some Posix character classes, to match only ASCII characters instead of
-matching Unicode properties. This has no effect when combined with the `byte`
-flag, since only ASCII characters are matched in byte mode anyway.
-* The `global` flag causes all matches to be replaced in `Regex::replace()`
-and `Regex::transform::operator()`. It has no effect in any other context.
-
-### Member types
+  some Posix character classes, to match only ASCII characters instead of
+  matching Unicode properties. This has no effect when combined with the
+  `byte` flag, since only ASCII characters are matched in byte mode anyway.
+* The `global` flag causes all matches to be replaced in `replace()` and
+  `transform::operator()`, instead of only the first match. It has no effect
+  in any other context.
 
 ```c++
 class Regex::error;
@@ -155,12 +155,6 @@ class Regex::transform;
 ```
 
 These are individually described below.
-
-```c++
-using Regex::flag_type = [unsigned integer type];
-```
-
-The type used for bitmask flags.
 
 ```c++
 using Regex::version_type = std::vector<int>;

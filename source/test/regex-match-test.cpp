@@ -12,7 +12,7 @@ void test_crow_regex_match() {
 
     TEST(r.is_null());
     TEST_EQUAL(r.pattern(), "");
-    TEST_EQUAL(r.flags(), 0u);
+    TEST_EQUAL(uint32_t(r.flags()), 0u);
     TEST_EQUAL(r.groups(), 0u);
     s = "ABC123";
     TRY(m = r(s));
@@ -24,7 +24,7 @@ void test_crow_regex_match() {
     TRY(r = Regex("[a-z]+"));
     TEST(! r.is_null());
     TEST_EQUAL(r.pattern(), "[a-z]+");
-    TEST_EQUAL(r.flags(), 0u);
+    TEST_EQUAL(uint32_t(r.flags()), 0u);
     TEST_EQUAL(r.groups(), 1u);
     s = "ABC123";
     TRY(m = r(s));
@@ -47,7 +47,7 @@ void test_crow_regex_match() {
     TRY(r = Regex("([a-z]+)(\\d+)"));
     TEST(! r.is_null());
     TEST_EQUAL(r.pattern(), "([a-z]+)(\\d+)");
-    TEST_EQUAL(r.flags(), 0u);
+    TEST_EQUAL(uint32_t(r.flags()), 0u);
     TEST_EQUAL(r.groups(), 3u);
     s = "ABC123 xyz789";
     TRY(m = r(s));
@@ -66,7 +66,7 @@ void test_crow_regex_match() {
     TRY(r = Regex("([a-z]+)(\\d+)", Regex::icase));
     TEST(! r.is_null());
     TEST_EQUAL(r.pattern(), "([a-z]+)(\\d+)");
-    TEST_EQUAL(r.flags(), Regex::icase);
+    TEST_EQUAL(uint32_t(r.flags()), uint32_t(Regex::icase));
     TEST_EQUAL(r.groups(), 3u);
     s = "ABC123 xyz789";
     TRY(m = r(s));
