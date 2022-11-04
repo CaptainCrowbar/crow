@@ -437,6 +437,7 @@ pointers, `offset()` and `endpos()` return `npos`, and `count()` returns zero.
 ```c++
 std::string_view match::str(size_t i = 0) const noexcept;
 std::string_view match::operator[](size_t i) const noexcept;
+match::operator std::string() const;
 match::operator std::string_view() const noexcept;
 ```
 
