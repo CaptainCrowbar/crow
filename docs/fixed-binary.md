@@ -12,7 +12,8 @@ namespace Crow;
 ```c++
 template <size_t N> class SmallBinary;
 template <size_t N> class LargeBinary;
-template <size_t N> using Binary = [SmallBinary if N<=64, otherwise LargeBinary];
+template <size_t N> using Binary
+    = [SmallBinary if N<=64, otherwise LargeBinary];
 ```
 
 All of these classes represent unsigned integers with `N` bits. `SmallBinary`
@@ -35,7 +36,8 @@ Defined for convenience
 ```c++
 static constexpr size_t Binary::bits = N;
 static constexpr size_t Binary::bytes = [total bytes in representation];
-static constexpr size_t Binary::hex_digits = [maximum number of hex digits in value];
+static constexpr size_t Binary::hex_digits
+    = [maximum number of hex digits in value];
 ```
 
 Member constants.
@@ -53,9 +55,12 @@ constexpr Binary::Binary(uint64_t x) noexcept;
 Constructor from a primitive unsigned integer.
 
 ```c++
-template <size_t M> constexpr explicit SmallBinary::SmallBinary(SmallBinary<M> x) noexcept;
-template <size_t M> constexpr explicit LargeBinary::LargeBinary(SmallBinary<M> x) noexcept;
-template <size_t M> constexpr explicit LargeBinary::LargeBinary(const LargeBinary<M>& x) noexcept;
+template <size_t M> constexpr explicit
+    SmallBinary::SmallBinary(SmallBinary<M> x) noexcept;
+template <size_t M> constexpr explicit
+    LargeBinary::LargeBinary(SmallBinary<M> x) noexcept;
+template <size_t M> constexpr explicit
+    LargeBinary::LargeBinary(const LargeBinary<M>& x) noexcept;
 ```
 
 Constructor from another `Binary` object.
@@ -138,8 +143,10 @@ constexpr explicit Binary::operator bool() const noexcept;
 True if the value is not zero.
 
 ```c++
-template <ArithmeticType T> constexpr explicit Binary::operator T() const noexcept;
-template <size_t M> constexpr explicit LargeBinary::operator SmallBinary<M>() const noexcept;
+template <ArithmeticType T> constexpr explicit
+    Binary::operator T() const noexcept;
+template <size_t M> constexpr explicit
+    LargeBinary::operator SmallBinary<M>() const noexcept;
 ```
 
 Converts a fixed binary number into a standard integer or floating point type,

@@ -833,7 +833,9 @@ void random_discrete_test_group() {
 }
 
 void random_lcg_test_group() {
-    UNIT_TEST(crow_random_lcg_generators)
+    UNIT_TEST(crow_random_lcg_32)
+    UNIT_TEST(crow_random_lcg_64)
+    UNIT_TEST(crow_random_lcg_128)
 }
 
 void random_non_arithmetic_test_group() {

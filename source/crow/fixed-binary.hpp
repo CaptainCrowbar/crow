@@ -380,42 +380,14 @@ namespace Crow {
         template <size_t N>
         template <ArithmeticType T>
         constexpr LargeBinary<N>::operator T() const noexcept {
-
-            if constexpr (std::is_floating_point_v<T>) {
-
-                size_t i = units - 1;
-                while (i != npos && array_[i] == 0)
-                    --i;
-                if (i == npos)
-                    return 0;
-                T x = std::ldexp(T(array_[i]), int(unit_bits * i));
-                if (i > 0)
-                    x += std::ldexp(T(array_[i - 1]), int(unit_bits * (i - 1)));
-
-                return x;
-
-            } else {
-
-                constexpr size_t t_bits = std::numeric_limits<T>::digits;
-                constexpr size_t t_units = (t_bits + unit_bits - 1) / unit_bits;
-                constexpr size_t n_units = std::min(t_units, units);
-
-                if constexpr (n_units < 2) {
-
-                    return T(array_[0]);
-
-                } else {
-
-                    uint64_t u = 0;
-                    for (int i = int(n_units) - 1; i >= 0; --i)
-                        u = (u << unit_bits) + array_[i];
-
-                    return T(u);
-
-                }
-
-            }
-
+            using L = std::numeric_limits<T>;
+            using U = std::conditional_t<! L::is_integer, T,
+                std::conditional_t<L::is_signed, int64_t, uint64_t>>;
+            constexpr auto unit_factor = U(1ul << unit_bits);
+            U result = 0;
+            for (int i = int(units) - 1; i >= 0; --i)
+                result = result * unit_factor + array_[i];
+            return T(result);
         }
 
         template <size_t N>

@@ -44,11 +44,21 @@ namespace Crow {
     // http://www.ams.org/journals/mcom/1999-68-225/S0025-5718-99-00996-5/S0025-5718-99-00996-5.pdf
 
     constexpr uint32_t lcg32(uint32_t x) noexcept {
-        return uint32_t(32'310'901ul * x + 850'757'001ul);
+        constexpr uint32_t m = 32'310'901ul;
+        constexpr uint32_t c = 850'757'001ul;
+        return uint32_t(m * x + c);
     }
 
     constexpr uint64_t lcg64(uint64_t x) noexcept {
-        return uint64_t(3'935'559'000'370'003'845ull * x + 8'831'144'850'135'198'739ull);
+        constexpr uint64_t m = 3'935'559'000'370'003'845ull;
+        constexpr uint64_t c = 8'831'144'850'135'198'739ull;
+        return uint64_t(m * x + c);
+    }
+
+    constexpr Uint128 lcg128(Uint128 x) noexcept {
+        constexpr Uint128 m = {0x2360'ed05'1fc6'5da4ull, 0x4385'df64'9fcc'f645ull};
+        constexpr Uint128 c = {0x55bf'e625'0318'f820ull, 0xe2d4'afe5'108d'a1e3ull};
+        return m * x + c;
     }
 
     class Lcg32 {
@@ -79,6 +89,21 @@ namespace Crow {
         static constexpr uint64_t max() noexcept { return ~ uint64_t(0); }
     private:
         uint64_t state_ = 0;
+    };
+
+    class Lcg128 {
+    public:
+        using result_type = Uint128;
+        constexpr Lcg128() noexcept {}
+        explicit constexpr Lcg128(Uint128 s) noexcept: state_(s) {}
+        Uint128 constexpr operator()() noexcept { state_ = lcg128(state_); return state_; }
+        bool constexpr operator==(const Lcg128& rhs) const noexcept { return state_ == rhs.state_; }
+        bool constexpr operator!=(const Lcg128& rhs) const noexcept { return state_ != rhs.state_; }
+        void constexpr seed(Uint128 s) noexcept { state_ = s; }
+        static constexpr Uint128 min() noexcept { return 0; }
+        static constexpr Uint128 max() noexcept { return ~ Uint128(0); }
+    private:
+        Uint128 state_ = 0;
     };
 
     // PCG generator by Melissa O'Neill

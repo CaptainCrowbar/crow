@@ -51,9 +51,10 @@ convertible to `RT`.
 ```c++
 constexpr uint32_t lcg32(uint32_t x) noexcept;
 constexpr uint64_t lcg64(uint64_t x) noexcept;
+constexpr Uint128 lcg128(Uint128 x) noexcept;
 ```
 
-Good LCG transformations for 32 and 64 bit integers, from Pierre L'Ecuyer (1999),
+Good LCG transformations for 32, 64, and 128 bit integers, based on Pierre L'Ecuyer (1999),
 ["Tables of Linear Congruential Generators of Different Sizes and Good Lattice Structure"](http://www.ams.org/journals/mcom/1999-68-225/S0025-5718-99-00996-5/S0025-5718-99-00996-5.pdf).
 
 ```c++
@@ -68,9 +69,6 @@ class Lcg32 {
     static constexpr uint32_t min() noexcept;
     static constexpr uint32_t max() noexcept;
 };
-```
-
-```c++
 class Lcg64 {
     using result_type = uint64_t;
     constexpr Lcg64() noexcept; // seed(0)
@@ -81,6 +79,17 @@ class Lcg64 {
     void constexpr seed(uint64_t s) noexcept;
     static constexpr uint64_t min() noexcept;
     static constexpr uint64_t max() noexcept;
+};
+class Lcg128 {
+    using result_type = Uint128;
+    constexpr Lcg128() noexcept; // seed(0)
+    explicit constexpr Lcg128(Uint128 s) noexcept;
+    Uint128 constexpr operator()() noexcept;
+    bool constexpr operator==(const Lcg128& rhs) const noexcept;
+    bool constexpr operator!=(const Lcg128& rhs) const noexcept;
+    void constexpr seed(Uint128 s) noexcept;
+    static constexpr Uint128 min() noexcept;
+    static constexpr Uint128 max() noexcept;
 };
 ```
 
