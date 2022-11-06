@@ -17,13 +17,15 @@ This class loads a dynamic library when constructed. Symbols from the library
 can be loaded at run time.
 
 ```c++
-using Dso::flag_type = [unsigned integer type];
+enum class Dso::flag_type;
+using enum flag_type;
 ```
 
-Member types.
+The type used for bitmask flags.
 
 | Flag                  | System   | Equivalent                             | Behaviour                                               |
 | ----                  | ------   | ----------                             | ---------                                               |
+| `none`                | All      | 0                                      | None                                                    |
 | `lazy`                | Posix    | `RTLD_LAZY`                            | Relocations may be delayed                              |
 | `now`                 | Posix    | `RTLD_NOW`                             | Relocations are performed immediately                   |
 | `global`              | Posix    | `RTLD_GLOBAL`                          | Symbols are available when relocating other libraries   |
@@ -43,8 +45,7 @@ Member types.
 | `altered_search`      | Windows  | `LOAD_WITH_ALTERED_SEARCH_PATH`        | Use alternative standard search path                    |
 
 Flags passed to the constructor and related functions, controlling the way the
-library is loaded. These are constants compatible with `flag_type`. Flags not
-relevant to the target system will be ignored.
+library is loaded. Flags not relevant to the target system will be ignored.
 
 ```c++
 static constexpr Dso::flag_type Dso::default_flags = Dso::global | Dso::now;
@@ -54,7 +55,7 @@ The default flags.
 
 ```c++
 Dso::Dso() noexcept;
-explicit Dso::Dso(const Path& file, flag_type flags = 0);
+explicit Dso::Dso(const Path& file, flag_type flags = default_flags);
 Dso::~Dso() noexcept;
 Dso::Dso(Dso&&) noexcept;
 Dso& Dso::operator=(Dso&&) noexcept;
@@ -135,7 +136,7 @@ the target system (`".dll"`, `".dylib"`, or `".so"`), and with or without a
 these work.
 
 ```c++
-static Dso Dso::self(flag_type flags = 0);
+static Dso Dso::self(flag_type flags = default_flags);
 ```
 
 Obtains a handle on the executable of the current process (equivalent to

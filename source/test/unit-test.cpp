@@ -176,7 +176,7 @@ void dice_test_group() {
 }
 
 void dso_test_group() {
-    UNIT_TEST(crow_dynamic_library)
+    UNIT_TEST(crow_dso_loading)
 }
 
 void encoding_test_group() {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "crow/enum.hpp"
 #include "crow/path.hpp"
 #include "crow/types.hpp"
 #include <functional>
@@ -13,31 +14,32 @@ namespace Crow {
 
     public:
 
-        using flag_type = uint32_t;
+        enum class flag_type: uint32_t {
 
-        enum: flag_type {
-
-            global              = flag_type(1) << 0,   // [Posix]    Symbols are available when relocating other libraries
-            lazy                = flag_type(1) << 1,   // [Posix]    Relocations may be delayed
-            local               = flag_type(1) << 2,   // [Posix]    Symbols are not visible
-            now                 = flag_type(1) << 3,   // [Posix]    Relocations are performed immediately
-            first               = flag_type(1) << 4,   // [Apple]    Search only this library for symbols
-            nodelete            = flag_type(1) << 5,   // [Apple]    Never unload
-            noload              = flag_type(1) << 6,   // [Apple]    Do not load, succeed only if already loaded
-            alter_search        = flag_type(1) << 7,   // [Windows]  Use alternative standard search path
-            datafile            = flag_type(1) << 8,   // [Windows]  Map address space as data, do not execute
-            datafile_exclusive  = flag_type(1) << 9,   // [Windows]  Map address space as data, with exclusive write access
-            ignore_authz        = flag_type(1) << 10,  // [Windows]  Do not check software restriction policies
-            image_resource      = flag_type(1) << 11,  // [Windows]  Map address space as image, do not execute
-            search_application  = flag_type(1) << 12,  // [Windows]  Search application directory only
-            search_default      = flag_type(1) << 13,  // [Windows]  Search application, system, and user-added directories
-            search_dll          = flag_type(1) << 14,  // [Windows]  Search DLL directory for its dependencies
-            search_system       = flag_type(1) << 15,  // [Windows]  Search system directory only
-            search_user         = flag_type(1) << 16,  // [Windows]  Search user-added directories only
+            none                = 0,
+            global              = 1u << 0,   // [Posix]    Symbols are available when relocating other libraries
+            lazy                = 1u << 1,   // [Posix]    Relocations may be delayed
+            local               = 1u << 2,   // [Posix]    Symbols are not visible
+            now                 = 1u << 3,   // [Posix]    Relocations are performed immediately
+            first               = 1u << 4,   // [Apple]    Search only this library for symbols
+            nodelete            = 1u << 5,   // [Apple]    Never unload
+            noload              = 1u << 6,   // [Apple]    Do not load, succeed only if already loaded
+            alter_search        = 1u << 7,   // [Windows]  Use alternative standard search path
+            datafile            = 1u << 8,   // [Windows]  Map address space as data, do not execute
+            datafile_exclusive  = 1u << 9,   // [Windows]  Map address space as data, with exclusive write access
+            ignore_authz        = 1u << 10,  // [Windows]  Do not check software restriction policies
+            image_resource      = 1u << 11,  // [Windows]  Map address space as image, do not execute
+            search_application  = 1u << 12,  // [Windows]  Search application directory only
+            search_default      = 1u << 13,  // [Windows]  Search application, system, and user-added directories
+            search_dll          = 1u << 14,  // [Windows]  Search DLL directory for its dependencies
+            search_system       = 1u << 15,  // [Windows]  Search system directory only
+            search_user         = 1u << 16,  // [Windows]  Search user-added directories only
 
         };
 
-        static constexpr flag_type default_flags = global | now;
+        using enum flag_type;
+
+        static constexpr flag_type default_flags = flag_type(uint32_t(flag_type::global) | uint32_t(flag_type::now));
 
         Dso() = default;
         explicit Dso(const Path& file, flag_type flags = default_flags) { load_library(file, flags, true); }
@@ -115,5 +117,7 @@ namespace Crow {
             names.emplace_back(next);
             return do_search(names, args...);
         }
+
+    CROW_BITMASK_OPERATORS(Dso::flag_type)
 
 }

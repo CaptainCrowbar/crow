@@ -18,6 +18,15 @@ namespace Crow {
             using native_flag_type = int;
             using native_handle_type = void*;
 
+            static constexpr const char* dso_suffix =
+                #if defined(__APPLE__)
+                    ".dylib";
+                #else
+                    ".so";
+                #endif
+
+            static constexpr const char* path_delimiters = "/";
+
             std::string dl_error() {
                 auto cptr = dlerror();
                 return cptr ? std::string(cptr) : std::string();
@@ -28,13 +37,16 @@ namespace Crow {
             using native_flag_type = uint32_t;
             using native_handle_type = HMODULE;
 
-        #endif
+            static constexpr const char* dso_suffix = ".dll";
+            static constexpr const char* path_delimiters = "/\\";
 
-        #define TRANSLATE_FLAG(from, to) if ((flags & Dso::from) != 0) native |= to
+        #endif
 
         native_flag_type translate_flags(Dso::flag_type flags) noexcept {
 
-            native_flag_type native = 0;
+            #define TRANSLATE_FLAG(from, to) if (!! (flags & Dso::from)) native_flags |= to
+
+            native_flag_type native_flags = 0;
 
             #ifdef _XOPEN_SOURCE
 
@@ -66,7 +78,7 @@ namespace Crow {
 
             #endif
 
-            return native;
+            return native_flags;
 
         }
 
@@ -93,12 +105,12 @@ namespace Crow {
 
         reset();
         file_ = {};
-        auto nflags = translate_flags(flags);
+        auto native_flags = translate_flags(flags);
 
         #ifdef _XOPEN_SOURCE
 
             const char* c_file = file.empty() ? nullptr : file.c_name();
-            handle_ = dlopen(c_file, nflags);
+            handle_ = dlopen(c_file, native_flags);
 
             if (check && handle_ == nullptr) {
                 std::string msg = dl_error();
@@ -113,7 +125,7 @@ namespace Crow {
                 handle_ = GetModuleHandle(nullptr);
             } else {
                 auto wname = file.os_name();
-                handle_ = LoadLibraryExW(wname.data(), nullptr, nflags);
+                handle_ = LoadLibraryExW(wname.data(), nullptr, native_flags);
             }
 
             if (check && handle_ == nullptr) {
@@ -166,36 +178,19 @@ namespace Crow {
     }
 
     Dso Dso::do_search(const std::vector<std::string>& names, flag_type flags) {
-
-        #ifdef _XOPEN_SOURCE
-            static constexpr const char* delimiters = "/";
-            #if defined(__APPLE__)
-                static constexpr const char* suffix = ".dylib";
-            #else
-                static constexpr const char* suffix = ".so";
-            #endif
-        #else
-            static constexpr const char* delimiters = "/\\";
-            static constexpr const char* suffix = ".dll";
-        #endif
-
         Dso dso;
-        auto nflags = translate_flags(flags);
-
         for (auto& name: names) {
-            if (dso.load_library(name, nflags, false))
+            if (dso.load_library(name, flags, false))
                 return dso;
-            if (name.find_first_of(delimiters) != npos)
+            if (name.find_first_of(path_delimiters) != npos)
                 continue;
-            std::string libname = name + suffix;
-            if (dso.load_library(libname, nflags, false))
+            std::string libname = name + dso_suffix;
+            if (dso.load_library(libname, flags, false))
                 return dso;
-            if (dso.load_library("lib" + libname, nflags, false))
+            if (dso.load_library("lib" + libname, flags, false))
                 return dso;
         }
-
         throw std::system_error(std::make_error_code(std::errc::no_such_file_or_directory), join(names, "|"));
-
     }
 
 }

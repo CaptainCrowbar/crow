@@ -7,7 +7,7 @@
 
 using namespace Crow;
 
-void test_crow_dynamic_library() {
+void test_crow_dso_loading() {
 
     Path dir, file;
     Dso lib1, lib2, lib3, lib4;
