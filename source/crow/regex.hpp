@@ -20,6 +20,7 @@ namespace Crow {
         class match;
         class match_iterator;
         class split_iterator;
+        class token_error;
         class token_iterator;
         class transform;
 
@@ -69,6 +70,16 @@ namespace Crow {
         private:
             int code_;
             static std::string message(int code);
+        };
+
+        class token_error:
+        public std::runtime_error {
+        public:
+            explicit token_error(size_t pos): std::runtime_error(message(pos)), pos_(pos) {}
+            size_t pos() const noexcept { return pos_; }
+        private:
+            size_t pos_;
+            static std::string message(size_t pos);
         };
 
         class match {

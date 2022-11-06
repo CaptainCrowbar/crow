@@ -290,6 +290,12 @@ namespace Crow {
         return msg;
     }
 
+    // Class Regex::token_error
+
+    std::string Regex::token_error::message(size_t pos) {
+        return "Tokenization error at byte " + std::to_string(pos);
+    }
+
     // Class Regex::match
 
     bool Regex::match::partial() const noexcept {
@@ -455,16 +461,23 @@ namespace Crow {
         if (current_.endpos() >= current_.subject_.size()) {
             current_ = {};
         } else {
-            auto next_delimiter = delimiter_->search(current_.subject_, current_.endpos(), flags_ | Regex::not_empty);
+            auto next_delimiter = delimiter_->search(current_.subject_, current_.endpos(), flags_);
+            if (! next_delimiter)
+                throw token_error(current_.endpos());
             current_ = token_->search(current_.subject_, next_delimiter.endpos(), flags_);
+            if (! current_)
+                throw token_error(next_delimiter.endpos());
         }
         return *this;
     }
 
     Regex::token_iterator::token_iterator(const Regex& token, const Regex& delimiter, std::string_view str, size_t pos, flag_type flags):
-    token_(&token), delimiter_(&delimiter), current_(), flags_(flags | Regex::anchor | Regex::hard_fail) {
-        if (pos < str.size())
+    token_(&token), delimiter_(&delimiter), current_(), flags_(flags | Regex::anchor) {
+        if (pos < str.size()) {
             current_ = token_->search(str, pos, flags_);
+            if (! current_)
+                throw token_error(pos);
+        }
     }
 
     // Class Regex::transform

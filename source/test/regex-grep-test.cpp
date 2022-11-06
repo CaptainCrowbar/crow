@@ -96,7 +96,7 @@ void test_crow_regex_tokenize() {
 
     TRY(r1 = Regex("\\d+"));
     TRY(r2 = Regex("\\s+"));
-    TEST_THROW(tr = Regex::tokenize(r1, r2, s), Regex::error);
+    TEST_THROW(tr = Regex::tokenize(r1, r2, s), Regex::token_error);
 
     TRY(r1 = Regex("\\w+"));
     TRY(r2 = Regex("\\s+"));
@@ -107,7 +107,7 @@ void test_crow_regex_tokenize() {
     TRY(++ti);
     TEST(ti != tr.end());
     TEST_EQUAL(ti->str(), "world");
-    TEST_THROW(++ti, Regex::error);
+    TEST_THROW(++ti, Regex::token_error);
 
     TRY(r1 = Regex("\\w*"));
     TRY(r2 = Regex("\\.?\\s*"));

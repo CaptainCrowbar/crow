@@ -151,6 +151,7 @@ Notes on specific flags:
 ```c++
 class Regex::error;
 class Regex::match;
+class Regex::token_error;
 class Regex::transform;
 ```
 
@@ -354,11 +355,15 @@ static Regex::token_range Regex::tokenize(const Regex& token,
 ```
 
 Tokenizes a string, using two regexes to match the tokens and the delimiters
-between them. The delimiter regex will always be called with the `not_empty`
-flag, but empty tokens are allowed if the token regex allows them. Adjacent
-delimiters are allowed only if the token regex can match an empty string. The
-`tokenize()` function, or the iterator's increment operator, will throw
-`Regex::error` if token or delimiter matching fails.
+between them. Empty tokens or delimiters are allowed, but behaviour is
+undefined if both patterns can match an empty string at the same point (this
+does not apply if they can both match empty strings but not simultaneously,
+e.g. different lookahead patterns).
+
+The `tokenize()` function, or the iterator's increment operator, will throw
+`Regex::token_error` if token or delimiter matching fails. Behaviour is
+undefined if an iterator is dereferenced or incremented after an exception is
+thrown.
 
 The token iterators carry references to both of the `Regex` objects it was
 created from. Behaviour is undefined if a token iterator is used after either
@@ -374,7 +379,18 @@ class Regex::error: public std::runtime_error {
 ```
 
 This is thrown from a regex constructor or matching function when the
-underlying PCRE2 call reports an error.
+underlying PCRE2 call reports an error. The `cdoe` parameter is the PCRE error
+code.
+
+```c++
+class Regex::token_error: public std::runtime_error {
+    explicit token_error(size_t pos);
+    size_t pos() const noexcept;
+};
+```
+
+This is thrown by `Regex::tokenize()` when no valid token or delimiter can be
+found. The `pos` parameter is the byte offset into the subject string.
 
 ### Regex match class
 
