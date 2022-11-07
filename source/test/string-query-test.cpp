@@ -33,11 +33,11 @@ void test_crow_string_line_and_column() {
     TRY(lc = line_and_column(s, 18, Usize::columns));  TEST_EQUAL(lc.first, 3u);  TEST_EQUAL(lc.second, 0u);
     TRY(lc = line_and_column(s, 19, Usize::columns));  TEST_EQUAL(lc.first, 3u);  TEST_EQUAL(lc.second, 0u);
 
-    TEST_THROW(line_and_column(s, 8, Usize::columns), std::invalid_argument);
-    TEST_THROW(line_and_column(s, 10, Usize::columns), std::invalid_argument);
-    TEST_THROW(line_and_column(s, 12, Usize::columns), std::invalid_argument);
-    TEST_THROW(line_and_column(s, 14, Usize::columns), std::invalid_argument);
-    TEST_THROW(line_and_column(s, 16, Usize::columns), std::invalid_argument);
+    TEST_THROW(line_and_column(s, 8, Usize::columns), UnicodeError);
+    TEST_THROW(line_and_column(s, 10, Usize::columns), UnicodeError);
+    TEST_THROW(line_and_column(s, 12, Usize::columns), UnicodeError);
+    TEST_THROW(line_and_column(s, 14, Usize::columns), UnicodeError);
+    TEST_THROW(line_and_column(s, 16, Usize::columns), UnicodeError);
 
     s = "😀👍👩\n"
         "😀👍🏽👩🏽\n"

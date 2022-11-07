@@ -298,9 +298,9 @@ which will be clamped to the length of the string. The returned line number is
 based on line feed characters only. The `mode` argument determines how columns
 are counted.
 
-In modes other than `units`, this will throw `std::invalid_argument` if
-invalid UTF-8 encoding is encountered, or if the input position is not on a
-code point boundary.
+In modes other than `units`, this will throw `UnicodeError` if invalid UTF-8
+encoding is encountered, or if the input position is not on a code point
+boundary.
 
 ## Type functions
 

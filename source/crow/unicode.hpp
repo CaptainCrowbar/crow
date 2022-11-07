@@ -11,6 +11,8 @@
 #include <type_traits>
 #include <utility>
 
+static_assert(sizeof(wchar_t) == sizeof(char16_t) || sizeof(wchar_t) == sizeof(char32_t));
+
 namespace Crow {
 
     namespace Detail {
@@ -44,13 +46,13 @@ namespace Crow {
 
         std::string hex_char32(char32_t c);
         char32_t decode_char_impl(std::string_view str, size_t& pos) noexcept;
-        char32_t decode_utf16_char_impl(const char16_t* ptr, size_t len, size_t& pos) noexcept;
-        char32_t decode_utf32_char_impl(const char32_t* ptr, size_t len, size_t& pos) noexcept;
+        char32_t decode_utf16_char_impl(std::u16string_view str, size_t& pos) noexcept;
+        char32_t decode_utf32_char_impl(std::u32string_view str, size_t& pos) noexcept;
         char32_t decode_char_impl(std::u16string_view str, size_t& pos) noexcept;
         char32_t decode_char_impl(std::u32string_view str, size_t& pos) noexcept;
         char32_t decode_char_impl(std::wstring_view str, size_t& pos) noexcept;
-        char32_t check_decode_utf16_char_impl(const char16_t* ptr, size_t len, size_t& pos);
-        char32_t check_decode_utf32_char_impl(const char32_t* ptr, size_t len, size_t& pos);
+        char32_t check_decode_utf16_char_impl(std::u16string_view str, size_t& pos);
+        char32_t check_decode_utf32_char_impl(std::u32string_view str, size_t& pos);
         char32_t check_decode_char_impl(std::string_view str, size_t& pos);
         char32_t check_decode_char_impl(std::u16string_view str, size_t& pos);
         char32_t check_decode_char_impl(std::u32string_view str, size_t& pos);
@@ -88,6 +90,24 @@ namespace Crow {
         || std::same_as<C, char32_t>
         || std::same_as<C, wchar_t>;
 
+    class UnicodeError:
+    public std::runtime_error {
+    public:
+        explicit UnicodeError(char32_t c): std::runtime_error(message(c)), pos_(0) {}
+        UnicodeError(std::string_view str, size_t pos): std::runtime_error(message(str, pos)), pos_(pos) {}
+        UnicodeError(std::u16string_view str, size_t pos): std::runtime_error(message(str, pos)), pos_(pos) {}
+        UnicodeError(std::u32string_view str, size_t pos): std::runtime_error(message(str, pos)), pos_(pos) {}
+        UnicodeError(std::wstring_view str, size_t pos): std::runtime_error(message(str, pos)), pos_(pos) {}
+        size_t pos() const noexcept { return pos_; }
+    private:
+        size_t pos_ = 0;
+        static std::string message(char32_t c);
+        static std::string message(std::string_view str, size_t pos);
+        static std::string message(std::u16string_view str, size_t pos);
+        static std::string message(std::u32string_view str, size_t pos);
+        static std::string message(std::wstring_view str, size_t pos);
+    };
+
     constexpr char32_t not_unicode = ~ char32_t(0);
 
     constexpr bool is_unicode(char32_t c) noexcept { return c <= 0xd7ff || (c >= 0xe000 && c <= 0x10ffff); }
@@ -120,7 +140,7 @@ namespace Crow {
     template <CharacterType C>
     void check_encode_char(char32_t c, std::basic_string<C>& str) {
         if (! encode_char(c, str))
-            throw std::invalid_argument("Invalid Unicode character: " + Detail::hex_char32(c));
+            throw UnicodeError(c);
     }
 
     template <CharacterType C>

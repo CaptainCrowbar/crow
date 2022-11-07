@@ -31,6 +31,22 @@ template <typename C> concept CharacterType;
 This is satisfied only for `char`, `char16_t`, `char32_t`, and `wchar_t`
 (`char8_t` is not supported yet).
 
+## Exceptions
+
+```c++
+class UnicodeError:
+public std::runtime_error {
+    explicit UnicodeError(char32_t c);
+    UnicodeError(std::string_view str, size_t pos);
+    UnicodeError(std::u16string_view str, size_t pos);
+    UnicodeError(std::u32string_view str, size_t pos);
+    UnicodeError(std::wstring_view str, size_t pos);
+    size_t pos() const noexcept { return pos_; }
+};
+```
+
+This is thrown by some functions to report invalid UTF encoding in a string.
+
 ## Character encoding functions
 
 ```c++
@@ -72,8 +88,8 @@ template <CharacterType C>
 Perform the same operation as `decode_char()` above, but throws an exception
 (and does not advance the position) instead of returning an error code on
 failure. This will throw `std::out_of_range` if the initial position is at or
-past the end of the string, or `std::invalid_argument` if invalid UTF encoding
-is encountered.
+past the end of the string, or `UnicodeError` if invalid UTF encoding is
+encountered.
 
 ```c++
 template <CharacterType C>
@@ -90,7 +106,7 @@ template <CharacterType C>
 ```
 
 This performs the same operation as `encode_char()` above, but throws
-`std::invalid_argument` instead of returning false on failure.
+`UnicodeError` instead of returning false on failure.
 
 ## Character property functions
 
@@ -154,7 +170,7 @@ template <CharacterType C>
 ```
 
 Convert an encoded Unicode string to a UTF-32 string. This will throw
-`std::invalid_argument` if invalid UTF encoding is encountered.
+`UnicodeError` if invalid UTF encoding is encountered.
 
 ```c++
 template <CharacterType C>
@@ -167,7 +183,7 @@ std::wstring to_wstring(std::u32string_view utf32);
 ```
 
 These convert a UTF-32 string into an encoded string. They will throw
-`std::invalid_argument` if an invalid Unicode scalar value is encountered.
+`UnicodeError` if an invalid Unicode scalar value is encountered.
 
 ```c++
 template <CharacterType C>
@@ -179,7 +195,7 @@ template <CharacterType C>
 ```
 
 True if the string contains valid UTF (or is empty). If the `hard` flag is
-set, this will throw `std::invalid_argument` instead of returning false.
+set, this will throw `UnicodeError` instead of returning false.
 
 ```c++
 enum class Usize {
@@ -219,8 +235,7 @@ grapheme cluster and East Asian Width models consistently.
 
 This function will not return a meaningful result if the string contains
 layout control characters such as tabs and line feeds. In modes other than
-`units` this will throw `std::invalid_argument` if invalid UTF encoding is
-encountered.
+`units` this will throw `UnicodeError` if invalid UTF encoding is encountered.
 
 ## Normalization functions
 
@@ -232,4 +247,4 @@ std::u32string to_nfd(std::u32string_view str);
 ```
 
 Convert UTF-8 or UTF-32 strings to NFC and NFD forms. These will throw
-`std::invalid_argument` if invalid UTF encoding is encountered.
+`UnicodeError` if invalid UTF encoding is encountered.

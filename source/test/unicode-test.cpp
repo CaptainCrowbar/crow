@@ -53,9 +53,9 @@ void test_crow_unicode_character_encoding() {
     s = "\xf0\x90\x8c\x82\n";  pos = 0;  TRY(c = check_decode_char(s, pos));  TEST_EQUAL(pos, 4u);  TEST(c == 0x10302u);
     s = "\xf4\x8f\xbf\xbd\n";  pos = 0;  TRY(c = check_decode_char(s, pos));  TEST_EQUAL(pos, 4u);  TEST(c == 0x10fffdu);
 
-    s = "";        pos = 0;  TEST_THROW(check_decode_char(s, pos), std::out_of_range);      TEST_EQUAL(pos, 0u);
-    s = "\xc0\n";  pos = 0;  TEST_THROW(check_decode_char(s, pos), std::invalid_argument);  TEST_EQUAL(pos, 0u);
-    s = "\xf5\n";  pos = 0;  TEST_THROW(check_decode_char(s, pos), std::invalid_argument);  TEST_EQUAL(pos, 0u);
+    s = "";        pos = 0;  TEST_THROW(check_decode_char(s, pos), std::out_of_range);  TEST_EQUAL(pos, 0u);
+    s = "\xc0\n";  pos = 0;  TEST_THROW(check_decode_char(s, pos), UnicodeError);       TEST_EQUAL(pos, 0u);
+    s = "\xf5\n";  pos = 0;  TEST_THROW(check_decode_char(s, pos), UnicodeError);       TEST_EQUAL(pos, 0u);
 
     s.clear();  TEST(encode_char(0, s));              TEST_EQUAL(s, std::string(1, '\0'));
     s.clear();  TEST(encode_char(0x4d, s));           TEST_EQUAL(s, "\x4d");
@@ -72,17 +72,17 @@ void test_crow_unicode_character_encoding() {
 
     TEST(! encode_char(0xd800, s));
     TEST(! encode_char(0x110000, s));
-    TEST_THROW(check_encode_char(0xd800, s), std::invalid_argument);
-    TEST_THROW(check_encode_char(0x110000, s), std::invalid_argument);
+    TEST_THROW(check_encode_char(0xd800, s), UnicodeError);
+    TEST_THROW(check_encode_char(0x110000, s), UnicodeError);
 
     u = u"";    pos = 0;  TRY(c = decode_char(u, pos));  TEST_EQUAL(pos, 0u);  TEST(c == ~ char32_t(0));
     u = u"A";   pos = 0;  TRY(c = decode_char(u, pos));  TEST_EQUAL(pos, 1u);  TEST(c == U'A');
     u = u"€";   pos = 0;  TRY(c = decode_char(u, pos));  TEST_EQUAL(pos, 1u);  TEST(c == U'€');
     u = u"😀";  pos = 0;  TRY(c = decode_char(u, pos));  TEST_EQUAL(pos, 2u);  TEST(c == U'😀');
 
-    u = u"";       pos = 0;  TEST_THROW(check_decode_char(u, pos), std::out_of_range);      TEST_EQUAL(pos, 0u);
-    u = {0xd800};  pos = 0;  TEST_THROW(check_decode_char(u, pos), std::invalid_argument);  TEST_EQUAL(pos, 0u);
-    u = {0xdfff};  pos = 0;  TEST_THROW(check_decode_char(u, pos), std::invalid_argument);  TEST_EQUAL(pos, 0u);
+    u = u"";       pos = 0;  TEST_THROW(check_decode_char(u, pos), std::out_of_range);  TEST_EQUAL(pos, 0u);
+    u = {0xd800};  pos = 0;  TEST_THROW(check_decode_char(u, pos), UnicodeError);       TEST_EQUAL(pos, 0u);
+    u = {0xdfff};  pos = 0;  TEST_THROW(check_decode_char(u, pos), UnicodeError);       TEST_EQUAL(pos, 0u);
 
     u.clear();  TEST(encode_char(U'A', u));   TEST(u == u"A");
     u.clear();  TEST(encode_char(U'€', u));   TEST(u == u"€");
@@ -90,8 +90,8 @@ void test_crow_unicode_character_encoding() {
 
     TEST(! encode_char(0xd800, u));
     TEST(! encode_char(0x110000, u));
-    TEST_THROW(check_encode_char(0xd800, u), std::invalid_argument);
-    TEST_THROW(check_encode_char(0x110000, u), std::invalid_argument);
+    TEST_THROW(check_encode_char(0xd800, u), UnicodeError);
+    TEST_THROW(check_encode_char(0x110000, u), UnicodeError);
 
 }
 
@@ -131,12 +131,12 @@ void test_crow_unicode_string_encoding() {
     TEST(to_wstring(a32) == aw);
     TEST(to_wstring(b32) == bw);
 
-    TEST_THROW(decode_string(x8), std::invalid_argument);
-    TEST_THROW(decode_string(x16), std::invalid_argument);
-    TEST_THROW(decode_string(xw), std::invalid_argument);
-    TEST_THROW(to_utf8(x32), std::invalid_argument);
-    TEST_THROW(to_utf16(x32), std::invalid_argument);
-    TEST_THROW(to_wstring(x32), std::invalid_argument);
+    TEST_THROW(decode_string(x8), UnicodeError);
+    TEST_THROW(decode_string(x16), UnicodeError);
+    TEST_THROW(decode_string(xw), UnicodeError);
+    TEST_THROW(to_utf8(x32), UnicodeError);
+    TEST_THROW(to_utf16(x32), UnicodeError);
+    TEST_THROW(to_wstring(x32), UnicodeError);
 
     TEST(is_valid_utf(a8));
     TEST(is_valid_utf(b8));
@@ -157,18 +157,18 @@ void test_crow_unicode_string_encoding() {
     TRY(is_valid_utf(a8, true));
     TRY(is_valid_utf(b8, true));
     TRY(is_valid_utf(c8, true));
-    TEST_THROW(is_valid_utf(x8, true), std::invalid_argument);
+    TEST_THROW(is_valid_utf(x8, true), UnicodeError);
     TRY(is_valid_utf(a16, true));
     TRY(is_valid_utf(b16, true));
     TRY(is_valid_utf(c16, true));
-    TEST_THROW(is_valid_utf(x16, true), std::invalid_argument);
+    TEST_THROW(is_valid_utf(x16, true), UnicodeError);
     TRY(is_valid_utf(a32, true));
     TRY(is_valid_utf(b32, true));
     TRY(is_valid_utf(c32, true));
-    TEST_THROW(is_valid_utf(x32, true), std::invalid_argument);
+    TEST_THROW(is_valid_utf(x32, true), UnicodeError);
     TRY(is_valid_utf(aw, true));
     TRY(is_valid_utf(bw, true));
-    TEST_THROW(is_valid_utf(xw, true), std::invalid_argument);
+    TEST_THROW(is_valid_utf(xw, true), UnicodeError);
 
 }
 
@@ -292,7 +292,7 @@ void test_crow_unicode_size_scalars() {
     TEST_EQUAL(utf_size(L"😀👍🏽👩🏽"s,       Usize::scalars),  5u);
     TEST_EQUAL(utf_size(L"🇳🇿🇺🇸🇩🇪🇦🇺"s,     Usize::scalars),  8u);
 
-    TEST_THROW(utf_size("αβγδε\xff"s, Usize::scalars), std::invalid_argument);
+    TEST_THROW(utf_size("αβγδε\xff"s, Usize::scalars), UnicodeError);
 
 }
 
@@ -370,7 +370,7 @@ void test_crow_unicode_size_graphemes() {
     TEST_EQUAL(utf_size("😀👍🏽👩🏽"s,    Usize::graphemes),  3u);  // modified emoji
     TEST_EQUAL(utf_size("🇳🇿🇺🇸🇩🇪🇦🇺"s,  Usize::graphemes),  4u);  // flags
 
-    TEST_THROW(utf_size("αβγδε\xff"s, Usize::graphemes), std::invalid_argument);
+    TEST_THROW(utf_size("αβγδε\xff"s, Usize::graphemes), UnicodeError);
 
 }
 
@@ -448,7 +448,7 @@ void test_crow_unicode_size_columns() {
     TEST_EQUAL(utf_size("😀👍🏽👩🏽"s,    Usize::columns),  6u);  // modified emoji
     TEST_EQUAL(utf_size("🇳🇿🇺🇸🇩🇪🇦🇺"s,  Usize::columns),  8u);  // flags
 
-    TEST_THROW(utf_size("αβγδε\xff"s, Usize::columns), std::invalid_argument);
+    TEST_THROW(utf_size("αβγδε\xff"s, Usize::columns), UnicodeError);
 
 }
 

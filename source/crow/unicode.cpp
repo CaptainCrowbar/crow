@@ -5,6 +5,48 @@
 
 namespace Crow {
 
+    std::string UnicodeError::message(char32_t c) {
+        return "Invalid Unicode character: " + Detail::hex_char32(c);
+    }
+
+    std::string UnicodeError::message(std::string_view str, size_t pos) {
+        std::string msg = "Invalid UTF-8 at byte ";
+        msg += std::to_string(pos);
+        msg += ": 0x";
+        auto end = pos;
+        Detail::decode_char_impl(str, end);
+        msg += Detail::hex_data(str.data() + pos, end - pos);
+        return msg;
+    }
+
+    std::string UnicodeError::message(std::u16string_view str, size_t pos) {
+        std::string msg = "Invalid UTF-16 at code unit ";
+        msg += std::to_string(pos);
+        msg += ": ";
+        msg += Detail::hex_char32(str[pos]);
+        return msg;
+    }
+
+    std::string UnicodeError::message(std::u32string_view str, size_t pos) {
+        std::string msg = "Invalid Unicode character at position ";
+        msg += std::to_string(pos);
+        msg += ": ";
+        msg += Detail::hex_char32(str[pos]);
+        return msg;
+    }
+
+    std::string UnicodeError::message(std::wstring_view str, size_t pos) {
+        if constexpr (sizeof(wchar_t) == sizeof(char16_t)) {
+            auto ptr = reinterpret_cast<const char16_t*>(str.data());
+            std::u16string_view view(ptr, str.size());
+            return message(view, pos);
+        } else {
+            auto ptr = reinterpret_cast<const char32_t*>(str.data());
+            std::u32string_view view(ptr, str.size());
+            return message(view, pos);
+        }
+    }
+
     namespace Detail {
 
         std::string hex_char32(char32_t c) {
@@ -80,7 +122,7 @@ namespace Crow {
 
         }
 
-        char32_t decode_utf16_char_impl(const char16_t* ptr, size_t len, size_t& pos) noexcept {
+        char32_t decode_utf16_char_impl(std::u16string_view str, size_t& pos) noexcept {
 
             // UTF-16 code unit distribution:
             // 0000-d7ff = BMP character
@@ -91,6 +133,9 @@ namespace Crow {
             static constexpr auto is_start = [] (char16_t c) constexpr {
                 return c <= 0xdbff || c >= 0xe000;
             };
+
+            auto ptr = str.data();
+            auto len = str.size();
 
             auto fail = [ptr,len,&pos] {
                 size_t max_pos = std::min(pos + 2, len);
@@ -117,10 +162,10 @@ namespace Crow {
 
         }
 
-        char32_t decode_utf32_char_impl(const char32_t* ptr, size_t len, size_t& pos) noexcept {
-            if (pos >= len)
+        char32_t decode_utf32_char_impl(std::u32string_view str, size_t& pos) noexcept {
+            if (pos >= str.size())
                 return not_unicode;
-            auto c = ptr[pos++];
+            auto c = str[pos++];
             if (is_unicode(c))
                 return c;
             else
@@ -128,75 +173,74 @@ namespace Crow {
         }
 
         char32_t decode_char_impl(std::u16string_view str, size_t& pos) noexcept {
-            return Detail::decode_utf16_char_impl(str.data(), str.size(), pos);
+            return decode_utf16_char_impl(str, pos);
         }
 
         char32_t decode_char_impl(std::u32string_view str, size_t& pos) noexcept {
-            return Detail::decode_utf32_char_impl(str.data(), str.size(), pos);
+            return decode_utf32_char_impl(str, pos);
         }
 
         char32_t decode_char_impl(std::wstring_view str, size_t& pos) noexcept {
             if constexpr (sizeof(wchar_t) == sizeof(char16_t)) {
                 auto ptr = reinterpret_cast<const char16_t*>(str.data());
-                return Detail::decode_utf16_char_impl(ptr, str.size(), pos);
+                std::u16string_view ustr(ptr, str.size());
+                return decode_utf16_char_impl(ustr, pos);
             } else {
                 auto ptr = reinterpret_cast<const char32_t*>(str.data());
-                return Detail::decode_utf32_char_impl(ptr, str.size(), pos);
+                std::u32string_view ustr(ptr, str.size());
+                return decode_utf32_char_impl(ustr, pos);
             }
         }
 
-        char32_t check_decode_utf16_char_impl(const char16_t* ptr, size_t len, size_t& pos) {
-            if (pos >= len)
+        char32_t check_decode_utf16_char_impl(std::u16string_view str, size_t& pos) {
+            if (pos >= str.size())
                 throw std::out_of_range("UTF-16 decoding position is out of range");
-            auto start = pos;
-            auto c = decode_utf16_char_impl(ptr, len, pos);
-            if (c == not_unicode) {
-                size_t n = pos - start;
-                pos = start;
-                auto hex = Detail::hex_data(ptr + start, n);
-                throw std::invalid_argument("Invalid UTF-16: 0x" + hex);
-            }
+            auto end = pos;
+            auto c = decode_utf16_char_impl(str, end);
+            if (c == not_unicode)
+                throw UnicodeError(str, pos);
+            pos = end;
             return c;
         }
 
-        char32_t check_decode_utf32_char_impl(const char32_t* ptr, size_t len, size_t& pos) {
-            if (pos >= len)
+        char32_t check_decode_utf32_char_impl(std::u32string_view str, size_t& pos) {
+            if (pos >= str.size())
                 throw std::out_of_range("Wide character decoding position is out of range");
-            auto c = ptr[pos++];
+            auto c = str[pos];
             if (! is_unicode(c))
-                throw std::invalid_argument("Invalid Unicode character: " + Detail::hex_char32(c));
+                throw UnicodeError(str, pos);
+            ++pos;
             return c;
         }
 
         char32_t check_decode_char_impl(std::string_view str, size_t& pos) {
             if (pos >= str.size())
                 throw std::out_of_range("UTF-8 decoding position is out of range");
-            auto start = pos;
-            auto c = decode_char_impl(str, pos);
-            if (c == not_unicode) {
-                size_t len = pos - start;
-                pos = start;
-                auto bytes = Detail::hex_data(str.data() + start, len);
-                throw std::invalid_argument("Invalid UTF-8: 0x" + bytes);
-            }
+            auto end = pos;
+            auto c = decode_char_impl(str, end);
+            if (c == not_unicode)
+                throw UnicodeError(str, pos);
+            pos = end;
             return c;
         }
 
         char32_t check_decode_char_impl(std::u16string_view str, size_t& pos) {
-            return Detail::check_decode_utf16_char_impl(str.data(), str.size(), pos);
+            return check_decode_utf16_char_impl(str, pos);
         }
 
         char32_t check_decode_char_impl(std::u32string_view str, size_t& pos) {
-            return Detail::check_decode_utf32_char_impl(str.data(), str.size(), pos);
+            return check_decode_utf32_char_impl(str, pos);
         }
 
         char32_t check_decode_char_impl(std::wstring_view str, size_t& pos) {
             if constexpr (sizeof(wchar_t) == sizeof(char16_t)) {
                 auto ptr = reinterpret_cast<const char16_t*>(str.data());
-                return Detail::check_decode_utf16_char_impl(ptr, str.size(), pos);
+                std::u16string_view ustr(ptr, str.size());
+                return check_decode_utf16_char_impl(ustr, pos);
             } else {
                 auto ptr = reinterpret_cast<const char32_t*>(str.data());
-                return Detail::check_decode_utf32_char_impl(ptr, str.size(), pos);
+                std::u32string_view ustr(ptr, str.size());
+                return check_decode_utf32_char_impl(ustr, pos);
             }
         }
 
@@ -241,18 +285,18 @@ namespace Crow {
         }
 
         bool encode_char_impl(char32_t c, std::u16string& str) {
-            return Detail::encode_utf16_char_impl(c, [&str] (char16_t c) { str += c; });
+            return encode_utf16_char_impl(c, [&str] (char16_t c) { str += c; });
         }
 
         bool encode_char_impl(char32_t c, std::u32string& str) {
-            return Detail::encode_utf32_char_impl(c, [&str] (char32_t c) { str += c; });
+            return encode_utf32_char_impl(c, [&str] (char32_t c) { str += c; });
         }
 
         bool encode_char_impl(char32_t c, std::wstring& str) {
             if constexpr (sizeof(wchar_t) == sizeof(char16_t))
-                return Detail::encode_utf16_char_impl(c, [&str] (char16_t c) { str += wchar_t(c); });
+                return encode_utf16_char_impl(c, [&str] (char16_t c) { str += wchar_t(c); });
             else
-                return Detail::encode_utf32_char_impl(c, [&str] (char32_t c) { str += wchar_t(c); });
+                return encode_utf32_char_impl(c, [&str] (char32_t c) { str += wchar_t(c); });
         }
 
     }
