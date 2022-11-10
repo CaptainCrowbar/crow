@@ -182,6 +182,7 @@ namespace Crow {
         DereferenceIterator& operator+=(ptrdiff_t n) { iter_ += n; return *this; }
         ptrdiff_t operator-(const DereferenceIterator& i) const { return iter_ - i.iter_; }
         bool operator==(const DereferenceIterator& i) const { return iter_ == i.iter_; }
+        Iterator get() const noexcept { return iter_; }
     private:
         Iterator iter_;
     };

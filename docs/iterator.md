@@ -38,10 +38,12 @@ template <RangeType Range> auto dereference_range(Range& r);
 ```
 
 `DereferenceIterator` is a thin wrapper around `Iterator` that provides all of
-the same behaviour(iterator category and mutability), except that it adds
-another level of dereferencing over the original iterator's value type, which
-must be a type with a unary `*` operator. For example, if `Iterator` has
-value type `T*`, then `DereferenceIterator` has value type `T`.
+the same behaviour (including iterator category and mutability), except that
+it adds another level of dereferencing over the original iterator's value
+type, which must be a type with a unary `*` operator (for example, if
+`Iterator` has value type `T*`, then `DereferenceIterator` has value type
+`T`). The iterator has a member function `get()` that returns the underlying
+original iterator.
 
 ```c++
 template <ArithmeticType T> class IotaIterator {

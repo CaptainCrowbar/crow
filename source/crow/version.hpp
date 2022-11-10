@@ -8,11 +8,11 @@
 namespace Crow {
 
     inline std::array<int, 3> version() noexcept {
-        return {{ 2, 0, 87 }};
+        return {{ 2, 0, 88 }};
     }
 
     inline std::string version_string() {
-        return "2.0.87";
+        return "2.0.88";
     }
 
 }
