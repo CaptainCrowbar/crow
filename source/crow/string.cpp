@@ -1,5 +1,4 @@
 #include "crow/string.hpp"
-#include <algorithm>
 #include <cstring>
 #include <iterator>
 #include <memory>

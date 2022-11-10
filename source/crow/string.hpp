@@ -3,6 +3,7 @@
 #include "crow/unicode.hpp"
 #include "crow/enum.hpp"
 #include "crow/types.hpp"
+#include <algorithm>
 #include <concepts>
 #include <cstdlib>
 #include <limits>
@@ -78,13 +79,14 @@ namespace Crow {
     std::string indent_lines(std::string_view str, size_t spaces = 4);
 
     template <std::integral T>
-    std::string hex(T t) {
+    std::string hex(T t, size_t digits = 2 * sizeof(T)) {
         using U = std::make_unsigned_t<T>;
-        static constexpr auto digits = "0123456789abcdef";
+        static constexpr auto xdigits = "0123456789abcdef";
         auto u = U(t);
-        std::string result(2 * sizeof(T), '0');
-        for (size_t i = result.size() - 1; u != 0; --i, u >>= 4)
-            result[i] = digits[u & 15];
+        std::string result;
+        for (; u != 0 || result.size() < digits; u /= 16)
+            result.push_back(xdigits[u % 16]);
+        std::reverse(result.begin(), result.end());
         return result;
     }
 

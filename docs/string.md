@@ -93,12 +93,12 @@ Returns a string of `4*size` spaces, for convenience when generating indented
 text.
 
 ```c++
-template <std::integral T> std::string hex(T t);
+template <std::integral T> std::string hex(T t, size_t digits = 2 * sizeof(T));
 ```
 
-Returns a hexadecimal representation of a number. This will always consist of
-`2*sizeof(T)` digits. If `T` is signed, the output represents the twos
-complement representation.
+Returns a hexadecimal representation of a number, with at least the specified
+number of digits. If `T` is signed, the output represents the twos complement
+representation.
 
 ```c++
 std::string indent_lines(std::string_view str, size_t spaces = 4);

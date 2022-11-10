@@ -6,23 +6,38 @@ using namespace Crow;
 
 void test_crow_hex_string() {
 
-    TEST_EQUAL(hex(uint8_t(0)),                  "00");
-    TEST_EQUAL(hex(uint8_t(42)),                 "2a");
-    TEST_EQUAL(hex(uint8_t(255)),                "ff");
-    TEST_EQUAL(hex(uint16_t(0)),                 "0000");
-    TEST_EQUAL(hex(uint16_t(42)),                "002a");
-    TEST_EQUAL(hex(uint16_t(255)),               "00ff");
-    TEST_EQUAL(hex(uint16_t(12'345)),            "3039");
-    TEST_EQUAL(hex(uint16_t(65'535)),            "ffff");
-    TEST_EQUAL(hex(uint32_t(0)),                 "00000000");
-    TEST_EQUAL(hex(uint32_t(42)),                "0000002a");
-    TEST_EQUAL(hex(uint32_t(255)),               "000000ff");
-    TEST_EQUAL(hex(uint32_t(12'345)),            "00003039");
-    TEST_EQUAL(hex(uint32_t(65'535)),            "0000ffff");
-    TEST_EQUAL(hex(uint32_t(1'000'000)),         "000f4240");
-    TEST_EQUAL(hex(uint32_t(4'294'967'295ull)),  "ffffffff");
-    TEST_EQUAL(hex(uint64_t(0)),                 "0000000000000000");
-    TEST_EQUAL(hex(~ uint64_t(0)),               "ffffffffffffffff");
+    TEST_EQUAL(hex(uint8_t(0)),                     "00");
+    TEST_EQUAL(hex(uint8_t(42)),                    "2a");
+    TEST_EQUAL(hex(uint8_t(255)),                   "ff");
+    TEST_EQUAL(hex(uint16_t(0)),                    "0000");
+    TEST_EQUAL(hex(uint16_t(42)),                   "002a");
+    TEST_EQUAL(hex(uint16_t(255)),                  "00ff");
+    TEST_EQUAL(hex(uint16_t(12'345)),               "3039");
+    TEST_EQUAL(hex(uint16_t(65'535)),               "ffff");
+    TEST_EQUAL(hex(uint32_t(0)),                    "00000000");
+    TEST_EQUAL(hex(uint32_t(42)),                   "0000002a");
+    TEST_EQUAL(hex(uint32_t(255)),                  "000000ff");
+    TEST_EQUAL(hex(uint32_t(12'345)),               "00003039");
+    TEST_EQUAL(hex(uint32_t(65'535)),               "0000ffff");
+    TEST_EQUAL(hex(uint32_t(1'000'000)),            "000f4240");
+    TEST_EQUAL(hex(uint32_t(4'294'967'295ull)),     "ffffffff");
+    TEST_EQUAL(hex(uint32_t(0), 1),                 "0");
+    TEST_EQUAL(hex(uint32_t(42), 1),                "2a");
+    TEST_EQUAL(hex(uint32_t(255), 1),               "ff");
+    TEST_EQUAL(hex(uint32_t(12'345), 1),            "3039");
+    TEST_EQUAL(hex(uint32_t(65'535), 1),            "ffff");
+    TEST_EQUAL(hex(uint32_t(1'000'000), 1),         "f4240");
+    TEST_EQUAL(hex(uint32_t(4'294'967'295ull), 1),  "ffffffff");
+    TEST_EQUAL(hex(uint32_t(0), 6),                 "000000");
+    TEST_EQUAL(hex(uint32_t(42), 6),                "00002a");
+    TEST_EQUAL(hex(uint32_t(255), 6),               "0000ff");
+    TEST_EQUAL(hex(uint32_t(12'345), 6),            "003039");
+    TEST_EQUAL(hex(uint32_t(65'535), 6),            "00ffff");
+    TEST_EQUAL(hex(uint32_t(1'000'000), 6),         "0f4240");
+    TEST_EQUAL(hex(uint32_t(4'294'967'295ull), 6),  "ffffffff");
+    TEST_EQUAL(hex(uint64_t(0)),                    "0000000000000000");
+    TEST_EQUAL(hex(~ uint64_t(0)),                  "ffffffffffffffff");
+    TEST_EQUAL(hex(int64_t(-1)),                    "ffffffffffffffff");
 
 }
 
