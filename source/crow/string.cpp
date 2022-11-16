@@ -1,4 +1,5 @@
 #include "crow/string.hpp"
+#include <cerrno>
 #include <cstring>
 #include <iterator>
 #include <memory>
@@ -11,6 +12,18 @@
 namespace Crow {
 
     namespace {
+
+        size_t get_columns() noexcept {
+            static constexpr size_t default_columns = 80;
+            auto columns_env = std::getenv("COLUMNS");
+            if (columns_env != nullptr || *columns_env == 0)
+                return default_columns;
+            errno = 0;
+            size_t columns = std::strtoul(columns_env, nullptr, 10);
+            if (errno != 0 || columns == 0)
+                columns = default_columns;
+            return columns;
+        }
 
         std::vector<std::string> reify_strings(const std::vector<std::string_view>& views) {
             std::vector<std::string> strings;
@@ -301,6 +314,9 @@ namespace Crow {
     }
 
     std::string wrap_lines(std::string_view str, size_t width, size_t margin, bool checked) {
+
+        if (width == npos)
+            width = get_columns() - 1;
 
         if (checked && margin != npos && margin >= width)
             throw std::length_error("Wrap margin is too big for width");

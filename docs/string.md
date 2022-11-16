@@ -221,21 +221,27 @@ with a space replacing the line break between them. Empty lines are left
 unchanged.
 
 ```c++
-std::string wrap_lines(std::string_view str, size_t width = 78,
-    size_t margin = npos);
+std::string wrap_lines(std::string_view str, size_t width = npos,
+    size_t margin = npos, bool checked = false);
 ```
 
 Paragraphs are word wrapped to the given width. Words are delimited by ASCII
 whitespace; paragraphs are delimited by at least one empty line (the empty
-lines appear in the output). If `margin=npos`, the indentation of the first
-line of each paragraph is used for the whole paragraph; otherwise, the
-`margin` value is used for indenting all text, and individual paragraph
-indentation in the input is ignored.
+lines appear in the output).
 
-By default, individual words too long to fit on one line will be allowed to
-violate the right margin. If the `checked` flag is set, this will throw
-`std::length_error` if a word is too long, or if the margin is too big for
-the width.
+If `width=npos`, the width defaults to the value of the `COLUMNS` environment
+variable minus 1. If `COLUMNS` is not set to a positive integer value, the
+function will behave as if `COLUMNS=80`.
+
+If `margin=npos`, the indentation of the first line of each paragraph is used
+for the whole paragraph; otherwise, the `margin` value is used for indenting
+all text, and individual paragraph indentation in the input is ignored. If the
+`checked` flag is set, the function will throw `std::length_error` if
+`margin>=width`.
+
+If an individual word is too long to fit on one line, the default behaviour is
+to allow it to violate the right margin. If the `checked` flag is set, the
+function will throw `std::length_error` in this situation.
 
 ## String parsing functions
 
