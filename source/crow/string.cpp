@@ -16,13 +16,14 @@ namespace Crow {
         size_t get_columns() noexcept {
             static constexpr size_t default_columns = 80;
             auto columns_env = std::getenv("COLUMNS");
-            if (columns_env != nullptr || *columns_env == 0)
+            if (columns_env == nullptr || *columns_env == 0)
                 return default_columns;
             errno = 0;
             size_t columns = std::strtoul(columns_env, nullptr, 10);
-            if (errno != 0 || columns == 0)
-                columns = default_columns;
-            return columns;
+            if (errno == 0 && columns != 0)
+                return columns;
+            else
+                return default_columns;
         }
 
         std::vector<std::string> reify_strings(const std::vector<std::string_view>& views) {
