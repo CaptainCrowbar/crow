@@ -16,10 +16,10 @@ void test_crow_path_legal_names() {
     TEST(Path("foo/bar").is_legal());
     TEST(! Path("foo\0bar"s).is_legal());
 
-    TRY(Path("", Path::flag::legal_name));
-    TRY(Path("foo", Path::flag::legal_name));
-    TRY(Path("foo/bar", Path::flag::legal_name));
-    TEST_THROW(Path("foo\0bar"s, Path::flag::legal_name), std::invalid_argument);
+    TRY(Path("", Path::legal_name));
+    TRY(Path("foo", Path::legal_name));
+    TRY(Path("foo/bar", Path::legal_name));
+    TEST_THROW(Path("foo\0bar"s, Path::legal_name), std::invalid_argument);
 
     #ifdef _XOPEN_SOURCE
 
@@ -115,13 +115,13 @@ void test_crow_path_name_properties() {
         TRY(file = "/foo/bar");   TEST(file.is_absolute());    TEST(! file.is_relative());  TEST(! file.is_root());
         TRY(file = "//foo/bar");  TEST(file.is_absolute());    TEST(! file.is_relative());  TEST(! file.is_root());
 
-        TRY(file = "");           TEST_EQUAL(int(file.empty()) + int(file.is_absolute()) + int(file.is_relative()), 1);
-        TRY(file = "/");          TEST_EQUAL(int(file.empty()) + int(file.is_absolute()) + int(file.is_relative()), 1);
-        TRY(file = "foo");        TEST_EQUAL(int(file.empty()) + int(file.is_absolute()) + int(file.is_relative()), 1);
-        TRY(file = "/foo");       TEST_EQUAL(int(file.empty()) + int(file.is_absolute()) + int(file.is_relative()), 1);
-        TRY(file = "foo/bar");    TEST_EQUAL(int(file.empty()) + int(file.is_absolute()) + int(file.is_relative()), 1);
-        TRY(file = "/foo/bar");   TEST_EQUAL(int(file.empty()) + int(file.is_absolute()) + int(file.is_relative()), 1);
-        TRY(file = "//foo/bar");  TEST_EQUAL(int(file.empty()) + int(file.is_absolute()) + int(file.is_relative()), 1);
+        TRY(file = "");           TEST_EQUAL(int(file.is_empty()) + int(file.is_absolute()) + int(file.is_relative()), 1);
+        TRY(file = "/");          TEST_EQUAL(int(file.is_empty()) + int(file.is_absolute()) + int(file.is_relative()), 1);
+        TRY(file = "foo");        TEST_EQUAL(int(file.is_empty()) + int(file.is_absolute()) + int(file.is_relative()), 1);
+        TRY(file = "/foo");       TEST_EQUAL(int(file.is_empty()) + int(file.is_absolute()) + int(file.is_relative()), 1);
+        TRY(file = "foo/bar");    TEST_EQUAL(int(file.is_empty()) + int(file.is_absolute()) + int(file.is_relative()), 1);
+        TRY(file = "/foo/bar");   TEST_EQUAL(int(file.is_empty()) + int(file.is_absolute()) + int(file.is_relative()), 1);
+        TRY(file = "//foo/bar");  TEST_EQUAL(int(file.is_empty()) + int(file.is_absolute()) + int(file.is_relative()), 1);
 
         TRY(file = "");           TEST_EQUAL(file.path_form(), Path::form::empty);
         TRY(file = "/");          TEST_EQUAL(file.path_form(), Path::form::absolute);
@@ -416,6 +416,49 @@ void test_crow_path_name_combination() {
         TRY(file1 = "a/b/c");   TRY(file2 = "/a/b/c");  TEST_THROW(file1.relative_to(file2), std::invalid_argument);
         TRY(file1 = "/a/b/c");  TRY(file2 = "a/b/c");   TEST_THROW(file1.relative_to(file2), std::invalid_argument);
 
+        TRY(file1 = "/a/b/c");      TRY(file2 = "/a/b/c");      TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3.name(), ".");
+        TRY(file1 = "/a");          TRY(file2 = "/a/b/c");      TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3.name(), file1);
+        TRY(file1 = "/a/b");        TRY(file2 = "/a/b/c");      TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3.name(), file1);
+        TRY(file1 = "/a/b/c/d");    TRY(file2 = "/a/b/c");      TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3.name(), "d");
+        TRY(file1 = "/a/b/c/d/e");  TRY(file2 = "/a/b/c");      TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3.name(), "d/e");
+        TRY(file1 = "/a/b/c");      TRY(file2 = "/a");          TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3.name(), "b/c");
+        TRY(file1 = "/a/b/c");      TRY(file2 = "/a/b");        TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3.name(), "c");
+        TRY(file1 = "/a/b/c");      TRY(file2 = "/a/b/c/d");    TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3.name(), file1);
+        TRY(file1 = "/a/b/c");      TRY(file2 = "/a/b/c/d/e");  TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3.name(), file1);
+        TRY(file1 = "/a/b/x");      TRY(file2 = "/a/b/c");      TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3.name(), file1);
+        TRY(file1 = "/a/b/x/y");    TRY(file2 = "/a/b/c");      TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3.name(), file1);
+        TRY(file1 = "/a/x");        TRY(file2 = "/a/b/c");      TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3.name(), file1);
+        TRY(file1 = "/a/x/y");      TRY(file2 = "/a/b/c");      TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3.name(), file1);
+        TRY(file1 = "/a/x/y/z");    TRY(file2 = "/a/b/c");      TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3.name(), file1);
+        TRY(file1 = "/x");          TRY(file2 = "/a/b/c");      TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3.name(), file1);
+        TRY(file1 = "/x/y");        TRY(file2 = "/a/b/c");      TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3.name(), file1);
+        TRY(file1 = "/x/y/z");      TRY(file2 = "/a/b/c");      TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3.name(), file1);
+        TRY(file1 = "a/b/c");       TRY(file2 = "a/b/c");       TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3.name(), ".");
+        TRY(file1 = "a/b/c/d");     TRY(file2 = "a/b/c");       TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3.name(), "d");
+        TRY(file1 = "a/b/c/d/e");   TRY(file2 = "a/b/c");       TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3.name(), "d/e");
+        TRY(file1 = "a/b/c");       TRY(file2 = "a");           TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3.name(), "b/c");
+        TRY(file1 = "a/b/c");       TRY(file2 = "a/b");         TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3.name(), "c");
+
+        TRY(file1 = "a");        TRY(file2 = "a/b/c");      TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "a/b");      TRY(file2 = "a/b/c");      TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "a/b/c");    TRY(file2 = "a/b/c/d");    TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "a/b/c");    TRY(file2 = "a/b/c/d/e");  TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "a/b/x");    TRY(file2 = "a/b/c");      TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "a/b/x/y");  TRY(file2 = "a/b/c");      TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "a/x");      TRY(file2 = "a/b/c");      TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "a/x/y");    TRY(file2 = "a/b/c");      TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "a/x/y/z");  TRY(file2 = "a/b/c");      TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "x");        TRY(file2 = "a/b/c");      TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "x/y");      TRY(file2 = "a/b/c");      TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "x/y/z");    TRY(file2 = "a/b/c");      TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "");         TRY(file2 = "");           TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "");         TRY(file2 = "a/b/c");      TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "");         TRY(file2 = "/a/b/c");     TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "a/b/c");    TRY(file2 = "");           TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "/a/b/c");   TRY(file2 = "");           TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "a/b/c");    TRY(file2 = "/a/b/c");     TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "/a/b/c");   TRY(file2 = "a/b/c");      TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+
     #else
 
         TRY(file1 = "");             TRY(file1 /= "");             TEST_EQUAL(file1.name(), "");
@@ -516,6 +559,58 @@ void test_crow_path_name_combination() {
         TRY(file1 = "C:\\a\\b\\c");  TRY(file2 = "");             TEST_THROW(file1.relative_to(file2), std::invalid_argument);
         TRY(file1 = "a\\b\\c");      TRY(file2 = "C:\\a\\b\\c");  TEST_THROW(file1.relative_to(file2), std::invalid_argument);
         TRY(file1 = "C:\\a\\b\\c");  TRY(file2 = "a\\b\\c");      TEST_THROW(file1.relative_to(file2), std::invalid_argument);
+
+        TRY(file1 = "C:\\a\\b\\c");         TRY(file2 = "C:\\a\\b\\c");         TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, ".");
+        TRY(file1 = "C:\\a");               TRY(file2 = "C:\\a\\b\\c");         TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, file1);
+        TRY(file1 = "C:\\a\\b");            TRY(file2 = "C:\\a\\b\\c");         TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, file1);
+        TRY(file1 = "C:\\a\\b\\c\\d");      TRY(file2 = "C:\\a\\b\\c");         TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, "d");
+        TRY(file1 = "C:\\a\\b\\c\\d\\e");   TRY(file2 = "C:\\a\\b\\c");         TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, "d\\e");
+        TRY(file1 = "C:\\a\\b\\c");         TRY(file2 = "C:\\a");               TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, "b\\c");
+        TRY(file1 = "C:\\a\\b\\c");         TRY(file2 = "C:\\a\\b");            TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, "c");
+        TRY(file1 = "C:\\a\\b\\c");         TRY(file2 = "C:\\a\\b\\c\\d");      TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, file1);
+        TRY(file1 = "C:\\a\\b\\c");         TRY(file2 = "C:\\a\\b\\c\\d\\e");   TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, file1);
+        TRY(file1 = "C:\\a\\b\\x");         TRY(file2 = "C:\\a\\b\\c");         TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, file1);
+        TRY(file1 = "C:\\a\\b\\x\\y");      TRY(file2 = "C:\\a\\b\\c");         TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, file1);
+        TRY(file1 = "C:\\a\\x");            TRY(file2 = "C:\\a\\b\\c");         TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, file1);
+        TRY(file1 = "C:\\a\\x\\y");         TRY(file2 = "C:\\a\\b\\c");         TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, file1);
+        TRY(file1 = "C:\\a\\x\\y\\z");      TRY(file2 = "C:\\a\\b\\c");         TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, file1);
+        TRY(file1 = "C:\\x");               TRY(file2 = "C:\\a\\b\\c");         TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, file1);
+        TRY(file1 = "C:\\x\\y");            TRY(file2 = "C:\\a\\b\\c");         TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, file1);
+        TRY(file1 = "C:\\x\\y\\z");         TRY(file2 = "C:\\a\\b\\c");         TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, file1);
+        TRY(file1 = "a\\b\\c");             TRY(file2 = "a\\b\\c");             TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, ".");
+        TRY(file1 = "a\\b\\c\\d");          TRY(file2 = "a\\b\\c");             TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, "d");
+        TRY(file1 = "a\\b\\c\\d\\e");       TRY(file2 = "a\\b\\c");             TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, "d\\e");
+        TRY(file1 = "a\\b\\c");             TRY(file2 = "a");                   TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, "b\\c");
+        TRY(file1 = "a\\b\\c");             TRY(file2 = "a\\b");                TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, "c");
+        TRY(file1 = "C:\\a\\b\\c");         TRY(file2 = "D:\\a\\b\\c");         TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, file1);
+        TRY(file1 = "C:\\a\\b\\c");         TRY(file2 = "\\\\hello\\a\\b\\c");  TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, file1);
+        TRY(file1 = "\\\\hello\\a\\b\\c");  TRY(file2 = "\\\\hello\\a\\b\\c");  TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, ".");
+        TRY(file1 = "\\\\hello\\a\\b\\c");  TRY(file2 = "\\\\hello");           TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, "a\\b\\c");
+        TRY(file1 = "\\\\hello\\a\\b\\c");  TRY(file2 = "C:\\a\\b\\c");         TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, file1);
+        TRY(file1 = "\\\\hello");           TRY(file2 = "\\\\world");           TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, file1);
+        TRY(file1 = "\\\\hello\\a\\b\\c");  TRY(file2 = "\\\\world\\a\\b\\c");  TRY(file3 = file1.relative_to(file2, Path::no_backtrack));  TEST_EQUAL(file3, file1);
+
+        TRY(file1 = "a");                   TRY(file2 = "a\\b\\c");             TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "a\\b");                TRY(file2 = "a\\b\\c");             TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "a\\b\\c");             TRY(file2 = "a\\b\\c\\d");          TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "a\\b\\c");             TRY(file2 = "a\\b\\c\\d\\e");       TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "a\\b\\x");             TRY(file2 = "a\\b\\c");             TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "a\\b\\x\\y");          TRY(file2 = "a\\b\\c");             TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "a\\x");                TRY(file2 = "a\\b\\c");             TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "a\\x\\y");             TRY(file2 = "a\\b\\c");             TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "a\\x\\y\\z");          TRY(file2 = "a\\b\\c");             TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "x");                   TRY(file2 = "a\\b\\c");             TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "x\\y");                TRY(file2 = "a\\b\\c");             TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "x\\y\\z");             TRY(file2 = "a\\b\\c");             TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "\\\\hello");           TRY(file2 = "\\\\hello\\a\\b\\c");  TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "\\\\hello\\x\\y\\z");  TRY(file2 = "\\\\hello\\a\\b\\c");  TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "");                    TRY(file2 = "");                    TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "");                    TRY(file2 = "a\\b\\c");             TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "");                    TRY(file2 = "C:\\a\\b\\c");         TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "a\\b\\c");             TRY(file2 = "");                    TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "C:\\a\\b\\c");         TRY(file2 = "");                    TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "a\\b\\c");             TRY(file2 = "C:\\a\\b\\c");         TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
+        TRY(file1 = "C:\\a\\b\\c");         TRY(file2 = "a\\b\\c");             TEST_THROW(file1.relative_to(file2, Path::no_backtrack), std::invalid_argument);
 
     #endif
 

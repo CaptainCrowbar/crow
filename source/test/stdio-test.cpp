@@ -395,7 +395,7 @@ void test_crow_stdio_anonymous_temporary_file() {
     REQUIRE(tf);
     TEST(tf->get());
     TRY(path = tf->where());
-    TEST(path.empty());
+    TEST(path.is_empty());
 
 }
 
@@ -408,7 +408,7 @@ void test_crow_stdio_named_temporary_file() {
     REQUIRE(tf);
     TEST(tf->get());
     TRY(path = tf->where());
-    TEST(! path.empty());
+    TEST(! path.is_empty());
     TEST_MATCH(path.name(), ".+" SLASH "__test_tempfile_[[:xdigit:]]{16}$");
     TEST(path.exists());
     TEST(path.is_file());

@@ -118,24 +118,28 @@ Case insensitivity here applies only to ASCII characters; the semantics of
 Unicode case sensitivity are too complicated to emulate here,
 
 ```c++
-enum class Path::flag: int {
-    none = 0,
-    append,      // If the file already exists, append to it instead of overwriting
-    bottom_up,   // Search a directory tree in bottom up order instead of top down
-    legal_name,  // Fail if the file name is illegal for the operating system
-    may_copy,    // Fall back on copying files if the original operation is not possible
-    may_fail,    // Return a default value instead of throwing if the operation fails
-    no_follow,   // Don't follow symlinks
-    no_hidden,   // Ignore hidden files
-    overwrite,   // Replace the file if it already exists
-    recurse,     // Perform directory operations recursively
-    stdio,       // If the path is empty or "-", use standard input or output instead
-    unicode,     // Ignore files whose names are not valid UTF
+enum class Path::flag_type: int {
+    no_flags = 0,
+    append,        // If the file already exists, append to it instead of overwriting
+    bottom_up,     // Search a directory tree in bottom up order instead of top down
+    legal_name,    // Fail if the file name is illegal for the operating system
+    may_copy,      // Fall back on copying files if the original operation is not possible
+    may_fail,      // Return a default value instead of throwing if the operation fails
+    no_backtrack,  // Don't search upward through directories
+    no_follow,     // Don't follow symlinks
+    no_hidden,     // Ignore hidden files
+    overwrite,     // Replace the file if it already exists
+    recurse,       // Perform directory operations recursively
+    stdio,         // If the path is empty or "-", use standard input or output instead
+    unicode,       // Ignore files whose names are not valid UTF
 };
+using enum Path::flag_type;
 ```
 
 Bitmask flags controlling the behaviour of some of the path functions. More
 details of the resulting behaviour are described with the relevant functions.
+As a general rule, flags that are not relevant to a specific function are
+ignored.
 
 ```c++
 enum class Path::form: int {
@@ -145,6 +149,7 @@ enum class Path::form: int {
     drive_relative,
     relative
 };
+using enum Path::form;
 std::ostream& operator<<(std::ostream& out, Path::form f);
 ```
 
@@ -182,10 +187,10 @@ Path::Path() noexcept;
 Default constructor, equivalent to constructing from an empty string.
 
 ```c++
-Path::Path(const std::string& file, flag flags = flag::none);
-Path::Path(const char* file, flag flags = flag::none);
-Path::Path(const std::wstring& file, flag flags = flag::none);
-Path::Path(const wchar_t* file, flag flags = flag::none);
+Path::Path(const std::string& file, flag_type flags = no_flags);
+Path::Path(const char* file, flag_type flags = no_flags);
+Path::Path(const std::wstring& file, flag_type flags = no_flags);
+Path::Path(const wchar_t* file, flag_type flags = no_flags);
 ```
 
 Constructors (and implicit conversions) from a string.
@@ -269,7 +274,7 @@ extension. This will throw `std::invalid_argument` if the path is empty or is
 a root path, or (on Windows) if the new extension contains invalid UTF-8.
 
 ```c++
-bool Path::empty() const noexcept;
+bool Path::is_empty() const noexcept;
 bool Path::is_absolute() const noexcept;
 bool Path::is_relative() const noexcept;
 bool Path::is_drive_absolute() const noexcept;
@@ -318,16 +323,24 @@ bool Path::is_unicode() const noexcept;
 True if the name is valid UTF.
 
 ```c++
-Path Path::relative_to(const Path& base) const;
+Path Path::relative_to(const Path& base, flag_type flags = no_flags) const;
 ```
 
 Returns a relative path locating the current path relative to the given base
-path. The current and base paths must be either both absolute or both
-relative; if they are relative, they are assumed to be relative to the same
-root. On Windows, if the two paths are absolute and have different drive
-prefixes, the original absolute path will be returned unchanged. This will
-throw `std::invalid_argument` if one of the two paths is absolute and the
-other relative.
+path (which is assumed, without checking, to be a directory). The current and
+base paths must be either both absolute or both relative; if they are
+relative, they are assumed to be relative to the same root. If the
+`no_backtrack` flag is set, paths that are not within the base directory will
+be returned as absolute paths, instead of using `".."` elements to backtrack
+up the directory tree.
+
+On Windows, if the two paths are absolute and have different drive prefixes,
+the original absolute path will be returned unchanged, regardless of the
+`no_backtrack` flag.
+
+This will throw `std::invalid_argument` if one of the two paths is absolute
+and the other relative, or if both paths are relative, the current path is
+not below the base directory, and the `no_backtrack` flag is set.
 
 ```c++
 std::pair<std::string, std::string> Path::split_leaf() const;
@@ -409,10 +422,10 @@ These require read-only access to the file system. Any function not marked
 in addition to any other documented exceptions.
 
 ```c++
-Path::time_point Path::access_time(flag flags = flag::none) const noexcept;
-Path::time_point Path::create_time(flag flags = flag::none) const noexcept;
-Path::time_point Path::modify_time(flag flags = flag::none) const noexcept;
-Path::time_point Path::status_time(flag flags = flag::none) const noexcept;
+Path::time_point Path::access_time(flag_type flags = no_flags) const noexcept;
+Path::time_point Path::create_time(flag_type flags = no_flags) const noexcept;
+Path::time_point Path::modify_time(flag_type flags = no_flags) const noexcept;
+Path::time_point Path::status_time(flag_type flags = no_flags) const noexcept;
 ```
 
 Query the file's time metadata; see also the corresponding update functions
@@ -430,8 +443,8 @@ operate (if possible) on the symlink rather than the target file.
 | Status time  | Metadata was last modified  | `ctime`  | Read only      | Read only   | Not supported  |
 
 ```c++
-Path::directory_range Path::directory(flag flags = flag::none) const;
-Path::search_range Path::deep_search(flag flags = flag::none) const;
+Path::directory_range Path::directory(flag_type flags = no_flags) const;
+Path::search_range Path::deep_search(flag_type flags = no_flags) const;
 ```
 
 Return an iterator range over the files within a directory, either the
@@ -453,7 +466,7 @@ Deep search iterators otherwise take the same flags, and follow the same
 rules, as directory iterator.
 
 ```c++
-bool Path::exists(flag flags = flag::none) const noexcept;
+bool Path::exists(flag_type flags = no_flags) const noexcept;
 ```
 
 Query whether a file exists. This may give a false negative if the file exists
@@ -461,7 +474,7 @@ but is not accessible to the calling process. The `no_follow` flag prevents
 this function from following symbolic links.
 
 ```c++
-Path::id_type Path::id(flag flags = flag::none) const noexcept;
+Path::id_type Path::id(flag_type flags = no_flags) const noexcept;
 ```
 
 Returns a unique file identifier, intended to identify the file even if it is
@@ -473,9 +486,9 @@ presence of shenanigans like parallel NFS mounts. The `no_follow` flag
 prevents this function from following symbolic links.
 
 ```c++
-bool Path::is_directory(flag flags = flag::none) const noexcept;
-bool Path::is_file(flag flags = flag::none) const noexcept;
-bool Path::is_special(flag flags = flag::none) const noexcept;
+bool Path::is_directory(flag_type flags = no_flags) const noexcept;
+bool Path::is_file(flag_type flags = no_flags) const noexcept;
+bool Path::is_special(flag_type flags = no_flags) const noexcept;
 ```
 
 Query the file type. Exactly one of these will be true if `exists()` is true.
@@ -517,7 +530,7 @@ Returns the file pointed to by a symlink. This will just return the original
 path unchanged if it is not a symlink (on Windows this will always happen).
 
 ```c++
-uint64_t Path::size(flag flags = flag::none) const;
+uint64_t Path::size(flag_type flags = no_flags) const;
 ```
 
 Returns the size of a file in bytes. If the `no_follow` flag is set, and the
@@ -534,7 +547,7 @@ throw `std::system_error` if the underlying system API fails, in addition to
 any other documented exceptions.
 
 ```c++
-void Path::copy_to(const Path& dst, flag flags = flag::none) const;
+void Path::copy_to(const Path& dst, flag_type flags = no_flags) const;
 ```
 
 Copy a file from the current path to the destination path. If the `overwrite`
@@ -555,7 +568,7 @@ If the file does not exist, an empty file with default permissions is
 created.
 
 ```c++
-void Path::make_directory(flag flags = flag::none) const;
+void Path::make_directory(flag_type flags = no_flags) const;
 ```
 
 Create a directory, with default permissions, at the current path. If the
@@ -568,7 +581,7 @@ This will do nothing if the directory already exists. It will throw
 `overwrite` flag was not set.
 
 ```c++
-void Path::make_symlink(const Path& linkname, flag flags = flag::none) const;
+void Path::make_symlink(const Path& linkname, flag_type flags = no_flags) const;
 ```
 
 Create a symlink at `linkname`, pointing to the current path. The existence or
@@ -583,7 +596,7 @@ file. It will throw `std::system_error` if a file already exists at
 `may_copy` flag is set.
 
 ```c++
-void Path::move_to(const Path& dst, flag flags = flag::none) const;
+void Path::move_to(const Path& dst, flag_type flags = no_flags) const;
 ```
 
 Move a file from the current path to the destination path. If the `may_copy`
@@ -597,24 +610,28 @@ throw `std::system_error` if the source file does not exist, or if the
 destination already exists and `overwrite` was not set.
 
 ```c++
-void Path::remove(flag flags = flag::none) const;
+void Path::remove(flag_type flags = no_flags) const;
 ```
 
 Delete a file. This will do nothing if the file already does not exist. If the
 `recurse` flag is set, this will behave like like `rm -rf` and delete
 directories recursively.
 
-This will throw `std::system_error` if the path refers to a non-empty directory and the
-`recurse` flag is not used, if the caller does not have permission to remove
-the file, or in some circumstances, if the file is in use by another process.
+This will throw `std::system_error` if the path refers to a non-empty
+directory and the `recurse` flag is not used, if the caller does not have
+permission to remove the file, or in some circumstances, if the file is in
+use by another process.
 
 ```c++
-void Path::set_access_time(flag flags = flag::none) const;
-void Path::set_access_time(Path::time_point t, flag flags = flag::none) const;
-void Path::set_create_time(flag flags = flag::none) const;
-void Path::set_create_time(Path::time_point t, flag flags = flag::none) const;
-void Path::set_modify_time(flag flags = flag::none) const;
-void Path::set_modify_time(Path::time_point t, flag flags = flag::none) const;
+void Path::set_access_time(flag_type flags = no_flags) const;
+void Path::set_access_time(Path::time_point t,
+    flag_type flags = no_flags) const;
+void Path::set_create_time(flag_type flags = no_flags) const;
+void Path::set_create_time(Path::time_point t,
+    flag_type flags = no_flags) const;
+void Path::set_modify_time(flag_type flags = no_flags) const;
+void Path::set_modify_time(Path::time_point t,
+    flag_type flags = no_flags) const;
 ```
 
 Modify the file's time metadata. Refer to the corresponding query functions
@@ -635,7 +652,7 @@ system.
 
 ```c++
 void Path::load(std::string& str, size_t maxlen = npos,
-    flag flags = flag::none) const;
+    flag_type flags = no_flags) const;
 ```
 
 Read the contents of a file into a string (erasing its former contents).
@@ -648,7 +665,7 @@ If the `may_fail` flag is not set, this will throw `std::system_error` if the
 file does not exist or an I/O error occurs.
 
 ```c++
-void Path::save(const std::string& str, flag flags = flag::none) const;
+void Path::save(const std::string& str, flag_type flags = no_flags) const;
 ```
 
 Writes the contents of a string to a file. If the `append` flag is set and the

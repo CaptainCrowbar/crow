@@ -148,7 +148,7 @@ namespace Crow {
 
     Cstdio::Cstdio(const Path& f, IoMode m) {
 
-        if (f.empty() || f.name() == "-") {
+        if (f.is_empty() || f.name() == "-") {
 
             if (m == IoMode::read)
                 *this = std_input();
@@ -319,7 +319,7 @@ namespace Crow {
 
     Fdio::Fdio(const Path& f, IoMode m) {
 
-        if (f.empty() || f.name() == "-") {
+        if (f.is_empty() || f.name() == "-") {
 
             if (m == IoMode::read) {
                 *this = std_input();
@@ -607,7 +607,7 @@ namespace Crow {
 
         static constexpr int max_tries = 100;
 
-        if (! dir.empty() && ! dir.is_directory())
+        if (! dir.is_empty() && ! dir.is_directory())
             throw IoError(std::errc::no_such_file_or_directory);
 
         std::random_device dev;
@@ -642,7 +642,7 @@ namespace Crow {
     }
 
     TempFile::~TempFile() noexcept {
-        if (! where_.empty()) {
+        if (! where_.is_empty()) {
             try { close(); } catch (...) {}
             try { where_.remove(); } catch (...) {}
         }

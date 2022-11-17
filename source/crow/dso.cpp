@@ -109,12 +109,12 @@ namespace Crow {
 
         #ifdef _XOPEN_SOURCE
 
-            const char* c_file = file.empty() ? nullptr : file.c_name();
+            const char* c_file = file.is_empty() ? nullptr : file.c_name();
             handle_ = dlopen(c_file, native_flags);
 
             if (check && handle_ == nullptr) {
                 std::string msg = dl_error();
-                if (! file.empty())
+                if (! file.is_empty())
                     msg = quote(file.name()) + ": " + msg;
                 throw std::system_error(std::make_error_code(std::errc::no_such_file_or_directory), msg);
             }

@@ -169,7 +169,7 @@ namespace Crow {
         std::vector<std::string> subfamilies(const std::string& family) const;
         Font find(const std::vector<std::string>& families, FontStyle style = FontStyle::regular) const;
         Font load(const std::string& family, const std::string& subfamily) const;
-        void search(const Path& dir, Path::flag flags = Path::flag::none);
+        void search(const Path& dir, Path::flag_type flags = Path::no_flags);
         void search_system();
         size_t size() const noexcept { return table_.size(); }
 

@@ -78,7 +78,7 @@ void test_crow_path_deep_search() {
     Path::search_range range;
     std::vector<Path> files;
     std::string s;
-    auto guard = on_scope_exit([=] { root.remove(Path::flag::recurse); });
+    auto guard = on_scope_exit([=] { root.remove(Path::recurse); });
 
     TEST(! root.exists());
     TRY(range = root.deep_search());
@@ -124,7 +124,7 @@ void test_crow_path_deep_search() {
         "__test_root__/zap"
     "]");
 
-    TRY(range = root.deep_search(Path::flag::bottom_up));
+    TRY(range = root.deep_search(Path::bottom_up));
     files.clear();
     TRY(std::copy(range.begin(), range.end(), std::back_inserter(files)));
     TEST_EQUAL(files.size(), 10u);

@@ -794,7 +794,7 @@ namespace Crow {
             return Font(j->second.file, j->second.index);
     }
 
-    void FontMap::search(const Path& dir, Path::flag flags) {
+    void FontMap::search(const Path& dir, Path::flag_type flags) {
         auto check_file = [this] (const Path& file) {
             if (file.is_file()) {
                 int index = 0;
@@ -802,7 +802,7 @@ namespace Crow {
                     table_[font.family()][font.subfamily()] = {file, index++};
             }
         };
-        if (!! (flags & Path::flag::recurse)) {
+        if (!! (flags & Path::recurse)) {
             for (auto& file: dir.deep_search())
                 check_file(file);
         } else {
@@ -838,11 +838,11 @@ namespace Crow {
             Path dir;
 
             for (auto& cdir: system_font_dirs) {
-                if (cdir[0] == '~' && cdir[1] == '/' && ! home.empty())
+                if (cdir[0] == '~' && cdir[1] == '/' && ! home.is_empty())
                     dir = home / (cdir + 2);
                 else
                     dir = cdir;
-                search(dir, Path::flag::recurse);
+                search(dir, Path::recurse);
             }
 
         #endif

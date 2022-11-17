@@ -42,7 +42,7 @@ namespace Crow {
 
     std::string ImageIoError::make_message(const Path& file, const std::string& details, bool stbi) {
         std::string message = "Image I/O error";
-        if (! file.empty())
+        if (! file.is_empty())
             message += ": " + file.name();
         if (! details.empty())
             message += ": " + details;

@@ -97,11 +97,11 @@ void test_crow_path_file_system_queries() {
     TEST(id2 != id1);
 
     TEST(cmcache.size() > 10'000);
-    TEST(cmcache.size(Path::flag::recurse) > 10'000);
+    TEST(cmcache.size(Path::recurse) > 10'000);
     TEST_EQUAL(none.size(), 0u);
-    TEST_EQUAL(none.size(Path::flag::recurse), 0u);
-    TEST(Path(".").size(Path::flag::recurse) > 1'000'000);
-    TEST(cmfiles.size(Path::flag::recurse) > 100'000);
+    TEST_EQUAL(none.size(Path::recurse), 0u);
+    TEST(Path(".").size(Path::recurse) > 1'000'000);
+    TEST(cmfiles.size(Path::recurse) > 100'000);
 
 }
 
@@ -161,7 +161,7 @@ void test_crow_path_file_system_updates() {
     TEST(d2.exists());
     TEST(d2.is_directory());
     TEST_THROW(d2.copy_to(d3), std::system_error);
-    TRY(d2.copy_to(d3, Path::flag::recurse));
+    TRY(d2.copy_to(d3, Path::recurse));
     TEST(d2.exists());
     TEST(d2.is_directory());
     TEST(d3.exists());
@@ -185,14 +185,14 @@ void test_crow_path_file_system_updates() {
     TEST(! d2.exists());
 
     TEST_THROW(d2.make_directory(), std::system_error);
-    TRY(d2.make_directory(Path::flag::recurse));
+    TRY(d2.make_directory(Path::recurse));
     TEST(d1.exists());
     TEST(d2.exists());
     TEST(d1.is_directory());
     TEST(d2.is_directory());
-    TRY(d2.make_directory(Path::flag::recurse));
+    TRY(d2.make_directory(Path::recurse));
     TEST_THROW(d1.remove(), std::system_error);
-    TRY(d1.remove(Path::flag::recurse));
+    TRY(d1.remove(Path::recurse));
 
     std::this_thread::sleep_for(10ms);
 
@@ -241,7 +241,7 @@ void test_crow_path_file_system_updates() {
     TEST(f1.exists());
     TEST(f2.exists());
 
-    TRY(d1.remove(Path::flag::recurse));
+    TRY(d1.remove(Path::recurse));
     TEST(! d1.exists());
     TEST(! f1.exists());
     TEST(! f2.exists());
@@ -273,13 +273,13 @@ void test_crow_path_io() {
 
     TRY(testfile.load(s));
     TEST_EQUAL(s, "Hello world\n");
-    TRY(testfile.save("Goodbye\n", Path::flag::append));
+    TRY(testfile.save("Goodbye\n", Path::append));
     TEST_EQUAL(testfile.size(), 20u);
     TRY(testfile.load(s));
     TEST_EQUAL(s, "Hello world\nGoodbye\n");
 
     TEST_THROW(nofile.load(s), std::system_error);
-    TRY(nofile.load(s, npos, Path::flag::may_fail));
+    TRY(nofile.load(s, npos, Path::may_fail));
     TEST(s.empty());
 
     TRY(testfile.remove());
@@ -307,10 +307,10 @@ void test_crow_path_links() {
         TEST(link.is_symlink());
         TEST_EQUAL(link.resolve_symlink(), file);
         TEST_EQUAL(link.size(), bytes);
-        TEST_EQUAL(link.size(Path::flag::no_follow), file.name().size());
+        TEST_EQUAL(link.size(Path::no_follow), file.name().size());
     #else
         TEST_THROW(file.make_symlink(link), std::system_error);
-        TRY(file.make_symlink(link, Path::flag::may_copy));
+        TRY(file.make_symlink(link, Path::may_copy));
         TEST(link.exists());
         TEST(! link.is_symlink());
         TEST_EQUAL(link.size(), bytes);

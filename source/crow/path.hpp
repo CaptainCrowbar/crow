@@ -33,19 +33,20 @@ namespace Crow {
         using string_type = std::basic_string<character_type>;
         using time_point = std::chrono::system_clock::time_point;
 
-        enum class flag: int {
-            none        = 0,
-            append      = 1 << 0,   // Append if file exists
-            bottom_up   = 1 << 1,   // Bottom up order
-            legal_name  = 1 << 2,   // Throw on illegal file name
-            may_copy    = 1 << 3,   // Copy if operation not allowed
-            may_fail    = 1 << 4,   // Empty string if read fails
-            no_follow   = 1 << 5,   // Don't follow symlinks
-            no_hidden   = 1 << 6,   // Skip hidden files
-            overwrite   = 1 << 7,   // Delete existing file if necessary
-            recurse     = 1 << 8,   // Recursive directory operations
-            stdio       = 1 << 9,   // Use stdin/out if file is "" or "-"
-            unicode     = 1 << 10,  // Skip files with non-Unicode names
+        enum class flag_type: int {
+            no_flags      = 0,
+            append        = 1 << 0,   // Append if file exists
+            bottom_up     = 1 << 1,   // Bottom up order
+            legal_name    = 1 << 2,   // Throw on illegal file name
+            may_copy      = 1 << 3,   // Copy if operation not allowed
+            may_fail      = 1 << 4,   // Empty string if read fails
+            no_backtrack  = 1 << 5,   // Don't search upward through directories
+            no_follow     = 1 << 6,   // Don't follow symlinks
+            no_hidden     = 1 << 7,   // Skip hidden files
+            overwrite     = 1 << 8,   // Delete existing file if necessary
+            recurse       = 1 << 9,   // Recursive directory operations
+            stdio         = 1 << 10,  // Use stdin/out if file is "" or "-"
+            unicode       = 1 << 11,  // Skip files with non-Unicode names
         };
 
         enum class form: int {
@@ -56,11 +57,14 @@ namespace Crow {
             relative,
         };
 
+        using enum flag_type;
+        using enum form;
+
         class directory_iterator:
         public InputIterator<directory_iterator, const Path> {
         public:
             directory_iterator() = default;
-            directory_iterator(const Path& dir, flag flags);
+            directory_iterator(const Path& dir, flag_type flags);
             const Path& operator*() const noexcept;
             directory_iterator& operator++();
             bool operator==(const directory_iterator& i) const noexcept { return impl_ == i.impl_; }
@@ -73,7 +77,7 @@ namespace Crow {
         public InputIterator<search_iterator, const Path> {
         public:
             search_iterator() = default;
-            search_iterator(const Path& dir, flag flags);
+            search_iterator(const Path& dir, flag_type flags);
             const Path& operator*() const noexcept;
             search_iterator& operator++();
             bool operator==(const search_iterator& i) const noexcept { return impl_ == i.impl_; }
@@ -130,12 +134,12 @@ namespace Crow {
         // Life cycle functions
 
         Path() = default;
-        Path(const std::string& file, flag flags = flag::none);
-        Path(const char* file, flag flags = flag::none): Path(std::string(file), flags) {}
+        Path(const std::string& file, flag_type flags = no_flags);
+        Path(const char* file, flag_type flags = no_flags): Path(std::string(file), flags) {}
 
         #ifdef _WIN32
-            Path(const std::wstring& file, flag flags = flag::none);
-            Path(const wchar_t* file, flag flags = flag::none): Path(std::wstring(file), flags) {}
+            Path(const std::wstring& file, flag_type flags = no_flags);
+            Path(const wchar_t* file, flag_type flags = no_flags): Path(std::wstring(file), flags) {}
         #endif
 
         // Path name functions
@@ -149,9 +153,9 @@ namespace Crow {
         std::vector<std::string> breakdown() const;
         std::vector<string_type> os_breakdown() const;
         Path change_ext(const std::string& new_ext) const;
-        bool empty() const noexcept { return filename_.empty(); }
         size_t hash() const noexcept { return std::hash<string_type>()(filename_); }
 
+        bool is_empty() const noexcept { return filename_.empty(); }
         bool is_absolute() const noexcept;
         bool is_drive_absolute() const noexcept;
         bool is_drive_relative() const noexcept;
@@ -162,7 +166,7 @@ namespace Crow {
         bool is_unicode() const noexcept { return is_valid_utf(filename_); }
 
         form path_form() const noexcept;
-        Path relative_to(const Path& base) const;
+        Path relative_to(const Path& base, flag_type flags = no_flags) const;
         std::pair<std::string, std::string> split_leaf() const;
         std::pair<string_type, string_type> split_os_leaf() const;
         std::pair<Path, Path> split_path() const;
@@ -176,52 +180,52 @@ namespace Crow {
         friend Path& operator/=(Path& lhs, const Path& rhs) { lhs = Path::join(lhs, rhs); return lhs; }
 
         friend std::ostream& operator<<(std::ostream& out, const Path& p) { return out << p.name(); }
-        friend std::ostream& operator<<(std::ostream& out, Path::form f);
+        friend std::ostream& operator<<(std::ostream& out, form f);
         friend bool operator==(const Path& lhs, const Path& rhs) noexcept { return lhs.filename_ == rhs.filename_; }
         friend std::strong_ordering operator<=>(const Path& lhs, const Path& rhs) noexcept;
 
         // File system query functions
 
-        time_point access_time(flag flags = flag::none) const noexcept;
-        time_point create_time(flag flags = flag::none) const noexcept;
-        time_point modify_time(flag flags = flag::none) const noexcept;
-        time_point status_time(flag flags = flag::none) const noexcept;
+        time_point access_time(flag_type flags = no_flags) const noexcept;
+        time_point create_time(flag_type flags = no_flags) const noexcept;
+        time_point modify_time(flag_type flags = no_flags) const noexcept;
+        time_point status_time(flag_type flags = no_flags) const noexcept;
 
-        directory_range directory(flag flags = flag::none) const;
-        search_range deep_search(flag flags = flag::none) const;
-        bool exists(flag flags = flag::none) const noexcept;
-        id_type id(flag flags = flag::none) const noexcept;
+        directory_range directory(flag_type flags = no_flags) const;
+        search_range deep_search(flag_type flags = no_flags) const;
+        bool exists(flag_type flags = no_flags) const noexcept;
+        id_type id(flag_type flags = no_flags) const noexcept;
 
-        bool is_directory(flag flags = flag::none) const noexcept;
-        bool is_file(flag flags = flag::none) const noexcept;
-        bool is_special(flag flags = flag::none) const noexcept;
+        bool is_directory(flag_type flags = no_flags) const noexcept;
+        bool is_file(flag_type flags = no_flags) const noexcept;
+        bool is_special(flag_type flags = no_flags) const noexcept;
         bool is_hidden() const noexcept;
         bool is_symlink() const noexcept;
 
         Path resolve() const;
         Path resolve_symlink() const;
-        uint64_t size(flag flags = flag::none) const;
+        uint64_t size(flag_type flags = no_flags) const;
 
         // File system update functions
 
-        void copy_to(const Path& dst, flag flags = flag::none) const;
+        void copy_to(const Path& dst, flag_type flags = no_flags) const;
         void create() const;
-        void make_directory(flag flags = flag::none) const;
-        void make_symlink(const Path& linkname, flag flags = flag::none) const;
-        void move_to(const Path& dst, flag flags = flag::none) const;
-        void remove(flag flags = flag::none) const;
+        void make_directory(flag_type flags = no_flags) const;
+        void make_symlink(const Path& linkname, flag_type flags = no_flags) const;
+        void move_to(const Path& dst, flag_type flags = no_flags) const;
+        void remove(flag_type flags = no_flags) const;
 
-        void set_access_time(flag flags = flag::none) const { set_access_time(std::chrono::system_clock::now(), flags); }
-        void set_access_time(time_point t, flag flags = flag::none) const;
-        void set_create_time(flag flags = flag::none) const { set_create_time(std::chrono::system_clock::now(), flags); }
-        void set_create_time(time_point t, flag flags = flag::none) const;
-        void set_modify_time(flag flags = flag::none) const { set_modify_time(std::chrono::system_clock::now(), flags); }
-        void set_modify_time(time_point t, flag flags = flag::none) const;
+        void set_access_time(flag_type flags = no_flags) const { set_access_time(std::chrono::system_clock::now(), flags); }
+        void set_access_time(time_point t, flag_type flags = no_flags) const;
+        void set_create_time(flag_type flags = no_flags) const { set_create_time(std::chrono::system_clock::now(), flags); }
+        void set_create_time(time_point t, flag_type flags = no_flags) const;
+        void set_modify_time(flag_type flags = no_flags) const { set_modify_time(std::chrono::system_clock::now(), flags); }
+        void set_modify_time(time_point t, flag_type flags = no_flags) const;
 
         // I/O functions
 
-        void load(std::string& str, size_t maxlen = npos, flag flags = flag::none) const;
-        void save(const std::string& str, flag flags = flag::none) const;
+        void load(std::string& str, size_t maxlen = npos, flag_type flags = no_flags) const;
+        void save(const std::string& str, flag_type flags = no_flags) const;
 
         // Process state functions
 
@@ -235,11 +239,11 @@ namespace Crow {
         std::pair<string_type, string_type> get_base_ext() const noexcept;
         string_type get_leaf() const noexcept;
         string_type get_root(bool allow_drive_special) const noexcept;
-        void make_canonical(flag flags);
+        void make_canonical(flag_type flags);
         template <typename Range, typename BinaryFunction> static Path do_combine(const Range& range, BinaryFunction f);
 
         #ifdef _XOPEN_SOURCE
-            void set_file_times(time_point atime, time_point mtime, flag flags) const;
+            void set_file_times(time_point atime, time_point mtime, flag_type flags) const;
         #else
             time_point get_file_time(int index) const noexcept;
             void set_file_time(time_point t, int index) const;
@@ -270,7 +274,7 @@ namespace Crow {
             return p;
         }
 
-    CROW_BITMASK_OPERATORS(Path::flag);
+    CROW_BITMASK_OPERATORS(Path::flag_type);
 
 }
 

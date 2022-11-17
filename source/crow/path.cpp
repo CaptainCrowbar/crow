@@ -49,9 +49,9 @@ namespace Crow {
                 bool ok;
             };
 
-            StatResult get_stat(const std::string& file, Path::flag flags) noexcept {
+            StatResult get_stat(const std::string& file, Path::flag_type flags) noexcept {
                 StatResult result;
-                result.ok = (!! (flags & Path::flag::no_follow) ? lstat : stat)(file.data(), &result.st) == 0;
+                result.ok = (!! (flags & Path::no_follow) ? lstat : stat)(file.data(), &result.st) == 0;
                 if (! result.ok)
                     memset(&result.st, 0, sizeof(result.st));
                 return result;
@@ -170,19 +170,19 @@ namespace Crow {
 
     #ifdef _XOPEN_SOURCE
 
-        Path::Path(const std::string& file, flag flags):
+        Path::Path(const std::string& file, flag_type flags):
         filename_(file) {
             make_canonical(flags);
         }
 
     #else
 
-        Path::Path(const std::string& file, flag flags):
+        Path::Path(const std::string& file, flag_type flags):
         filename_(to_wstring(decode_string(file))) {
             make_canonical(flags);
         }
 
-        Path::Path(const std::wstring& file, flag flags):
+        Path::Path(const std::wstring& file, flag_type flags):
         filename_(file) {
             make_canonical(flags);
         }
@@ -222,7 +222,7 @@ namespace Crow {
 
     std::vector<Path::string_type> Path::os_breakdown() const {
         std::vector<string_type> parts;
-        if (empty())
+        if (is_empty())
             return parts;
         auto root = get_root(true);
         if (! root.empty())
@@ -239,7 +239,7 @@ namespace Crow {
     }
 
     Path Path::change_ext(const std::string& new_ext) const {
-        if (empty() || get_root(true).size() == filename_.size())
+        if (is_empty() || get_root(true).size() == filename_.size())
             throw std::invalid_argument("Can't change file extension: " + quote(name()));
         string_type prefix = filename_;
         prefix.resize(prefix.size() - get_base_ext().second.size());
@@ -279,7 +279,7 @@ namespace Crow {
     }
 
     bool Path::is_relative() const noexcept {
-        return ! empty() && ! is_absolute() && ! is_drive_absolute() && ! is_drive_relative();
+        return ! is_empty() && ! is_absolute() && ! is_drive_absolute() && ! is_drive_relative();
     }
 
     bool Path::is_leaf() const noexcept {
@@ -310,34 +310,51 @@ namespace Crow {
     }
 
     Path::form Path::path_form() const noexcept {
-        if (filename_.empty())          return form::empty;
-        else if (is_drive_absolute())  return form::drive_absolute;
-        else if (is_drive_relative())  return form::drive_relative;
-        else if (is_absolute())        return form::absolute;
-        else                           return form::relative;
+        if (filename_.empty())         return empty;
+        else if (is_drive_absolute())  return drive_absolute;
+        else if (is_drive_relative())  return drive_relative;
+        else if (is_absolute())        return absolute;
+        else                           return relative;
     }
 
-    Path Path::relative_to(const Path& base) const {
-        auto base_form = base.path_form(), this_form = path_form();
-        if (! (base_form == form::absolute && this_form == form::absolute)
-                && ! (base_form == form::relative && this_form == form::relative))
+    Path Path::relative_to(const Path& base, flag_type flags) const {
+
+        auto base_form = base.path_form();
+        auto this_form = path_form();
+
+        if (! (base_form == absolute && this_form == absolute)
+                && ! (base_form == relative && this_form == relative))
             throw std::invalid_argument("Invalid combination of arguments to Path::relative_to()");
+
         auto base_vec = base.os_breakdown(), this_vec = os_breakdown();
-        if (this_form == form::absolute && base_vec[0] != this_vec[0])
+
+        if (this_form == absolute && base_vec[0] != this_vec[0])
             return *this;
-        auto cuts = std::mismatch(base_vec.begin(), base_vec.end(), this_vec.begin(), this_vec.end());
+
         Path prefix;
+        auto cuts = std::mismatch(base_vec.begin(), base_vec.end(), this_vec.begin(), this_vec.end());
+
         if (base_vec.end() > cuts.first) {
-            size_t len = 3 * (base_vec.end() - cuts.first) - 1;
-            prefix.filename_.assign(len, OS_CHAR('.'));
-            for (size_t i = 2; i < len; i += 3)
-                prefix.filename_[i] = native_delimiter;
+            if (! (flags & no_backtrack)) {
+                size_t len = 3 * (base_vec.end() - cuts.first) - 1;
+                prefix.filename_.assign(len, OS_CHAR('.'));
+                for (size_t i = 2; i < len; i += 3)
+                    prefix.filename_[i] = native_delimiter;
+            } else if (base_form == relative) {
+                throw std::invalid_argument("Invalid combination of arguments to Path::relative_to()");
+            } else {
+                return *this;
+            }
         }
+
         Path suffix = join(irange(cuts.second, this_vec.end()));
         Path rel_path = prefix / suffix;
-        if (rel_path.empty())
+
+        if (rel_path.is_empty())
             rel_path = ".";
+
         return rel_path;
+
     }
 
     std::pair<std::string, std::string> Path::split_leaf() const {
@@ -382,11 +399,11 @@ namespace Crow {
     }
 
     Path Path::join(const Path& lhs, const Path& rhs) {
-        if (lhs.empty() || rhs.is_absolute())
+        if (lhs.is_empty() || rhs.is_absolute())
             return rhs;
         auto result = lhs.os_name();
         auto root = lhs.get_root(true);
-        if (root.size() < result.size() && result.back() != native_delimiter && ! rhs.empty())
+        if (root.size() < result.size() && result.back() != native_delimiter && ! rhs.is_empty())
             result += native_delimiter;
         result += rhs.os_name();
         return result;
@@ -394,12 +411,12 @@ namespace Crow {
 
     std::ostream& operator<<(std::ostream& out, Path::form f) {
         switch (f) {
-            case Path::form::empty:           out << "empty"; break;
-            case Path::form::absolute:        out << "absolute"; break;
-            case Path::form::relative:        out << "relative"; break;
-            case Path::form::drive_absolute:  out << "drive_absolute"; break;
-            case Path::form::drive_relative:  out << "drive_relative"; break;
-            default:                          out << int(f); break;
+            case Path::empty:           out << "empty"; break;
+            case Path::absolute:        out << "absolute"; break;
+            case Path::relative:        out << "relative"; break;
+            case Path::drive_absolute:  out << "drive_absolute"; break;
+            case Path::drive_relative:  out << "drive_relative"; break;
+            default:                    out << int(f); break;
         }
         return out;
     }
@@ -415,7 +432,7 @@ namespace Crow {
 
     // File system query functions
 
-    Path::time_point Path::access_time([[maybe_unused]] flag flags) const noexcept {
+    Path::time_point Path::access_time([[maybe_unused]] flag_type flags) const noexcept {
         time_point tp;
         #ifdef __APPLE__
             auto st = get_stat(filename_, flags).st;
@@ -429,7 +446,7 @@ namespace Crow {
         return tp;
     }
 
-    Path::time_point Path::create_time([[maybe_unused]] flag flags) const noexcept {
+    Path::time_point Path::create_time([[maybe_unused]] flag_type flags) const noexcept {
         time_point tp;
         #ifdef __APPLE__
             auto st = get_stat(filename_, flags).st;
@@ -442,7 +459,7 @@ namespace Crow {
         return tp;
     }
 
-    Path::time_point Path::modify_time([[maybe_unused]] flag flags) const noexcept {
+    Path::time_point Path::modify_time([[maybe_unused]] flag_type flags) const noexcept {
         time_point tp;
         #ifdef __APPLE__
             auto st = get_stat(filename_, flags).st;
@@ -456,7 +473,7 @@ namespace Crow {
         return tp;
     }
 
-    Path::time_point Path::status_time([[maybe_unused]] flag flags) const noexcept {
+    Path::time_point Path::status_time([[maybe_unused]] flag_type flags) const noexcept {
         time_point tp;
         #ifdef __APPLE__
             auto st = get_stat(filename_, flags).st;
@@ -468,20 +485,20 @@ namespace Crow {
         return tp;
     }
 
-    Path::directory_range Path::directory(flag flags) const {
+    Path::directory_range Path::directory(flag_type flags) const {
         directory_iterator it(*this, flags);
         return {it, {}};
     }
 
-    Path::search_range Path::deep_search(flag flags) const {
+    Path::search_range Path::deep_search(flag_type flags) const {
         search_iterator it(*this, flags);
         return {it, {}};
     }
 
-    bool Path::exists([[maybe_unused]] flag flags) const noexcept {
+    bool Path::exists([[maybe_unused]] flag_type flags) const noexcept {
         #ifdef _XOPEN_SOURCE
             struct stat st;
-            if (!! (flags & flag::no_follow))
+            if (!! (flags & no_follow))
                 return lstat(c_name(), &st) == 0;
             else
                 return stat(c_name(), &st) == 0;
@@ -490,7 +507,7 @@ namespace Crow {
         #endif
     }
 
-    Path::id_type Path::id([[maybe_unused]] flag flags) const noexcept {
+    Path::id_type Path::id([[maybe_unused]] flag_type flags) const noexcept {
         uint64_t device = 0, file = 0;
         #ifdef _XOPEN_SOURCE
             auto st = get_stat(filename_, flags).st;
@@ -511,7 +528,7 @@ namespace Crow {
         return {device, file};
     }
 
-    bool Path::is_directory([[maybe_unused]] flag flags) const noexcept {
+    bool Path::is_directory([[maybe_unused]] flag_type flags) const noexcept {
         #ifdef _XOPEN_SOURCE
             auto st = get_stat(filename_, flags).st;
             return S_ISDIR(st.st_mode);
@@ -520,7 +537,7 @@ namespace Crow {
         #endif
     }
 
-    bool Path::is_file([[maybe_unused]] flag flags) const noexcept {
+    bool Path::is_file([[maybe_unused]] flag_type flags) const noexcept {
         #ifdef _XOPEN_SOURCE
             auto st = get_stat(filename_, flags).st;
             return S_ISREG(st.st_mode);
@@ -530,7 +547,7 @@ namespace Crow {
         #endif
     }
 
-    bool Path::is_special([[maybe_unused]] flag flags) const noexcept {
+    bool Path::is_special([[maybe_unused]] flag_type flags) const noexcept {
         #ifdef _XOPEN_SOURCE
             auto rc = get_stat(filename_, flags);
             return rc.ok && ! S_ISDIR(rc.st.st_mode) && ! S_ISREG(rc.st.st_mode);
@@ -560,7 +577,7 @@ namespace Crow {
 
     bool Path::is_symlink() const noexcept {
         #ifdef _XOPEN_SOURCE
-            auto st = get_stat(filename_, flag::no_follow).st;
+            auto st = get_stat(filename_, no_follow).st;
             return S_ISLNK(st.st_mode);
         #else
             return false;
@@ -569,7 +586,7 @@ namespace Crow {
 
     Path Path::resolve() const {
         Path result;
-        if (empty()) {
+        if (is_empty()) {
             result = get_current_directory(false);
         } else {
             #ifdef _XOPEN_SOURCE
@@ -579,12 +596,12 @@ namespace Crow {
                     if (pos != npos)
                         tail = filename_.substr(pos + 1, npos);
                     Path home = get_user_home(user);
-                    if (! home.empty())
+                    if (! home.is_empty())
                         result = home / tail;
                 }
-                if (result.empty() && is_relative()) {
+                if (result.is_empty() && is_relative()) {
                     Path cwd = get_current_directory(false);
-                    if (! cwd.empty())
+                    if (! cwd.is_empty())
                         result = cwd / *this;
                 }
             #else
@@ -612,7 +629,7 @@ namespace Crow {
                 result = resolved;
             #endif
         }
-        if (result.empty())
+        if (result.is_empty())
             result = *this;
         if (! result.is_absolute())
             throw std::system_error(std::make_error_code(std::errc::no_such_file_or_directory), name());
@@ -642,7 +659,7 @@ namespace Crow {
         #endif
     }
 
-    uint64_t Path::size(flag flags) const {
+    uint64_t Path::size(flag_type flags) const {
         #ifdef _XOPEN_SOURCE
             auto st = get_stat(filename_, flags).st;
             uint64_t bytes = st.st_size;
@@ -650,33 +667,33 @@ namespace Crow {
             auto info = get_attributes_ex(filename_);
             uint64_t bytes = (uint64_t(info.nFileSizeHigh) << 32) + uint64_t(info.nFileSizeLow);
         #endif
-        if (!! (flags & flag::recurse))
+        if (!! (flags & recurse))
             for (auto& child: directory())
-                bytes += child.size(flag::no_follow | flag::recurse);
+                bytes += child.size(no_follow | recurse);
         return bytes;
     }
 
     // File system update functions
 
-    void Path::copy_to(const Path& dst, flag flags) const {
+    void Path::copy_to(const Path& dst, flag_type flags) const {
         static constexpr size_t block_size = 16384;
         if (! exists())
             throw std::system_error(std::make_error_code(std::errc::no_such_file_or_directory), name());
         if (*this == dst || id() == dst.id())
             throw std::system_error(std::make_error_code(std::errc::file_exists), dst.name());
-        if (is_directory() && ! (flags & flag::recurse))
+        if (is_directory() && ! (flags & recurse))
             throw std::system_error(std::make_error_code(std::errc::is_a_directory), name());
         if (dst.exists()) {
-            if (! (flags & flag::overwrite))
+            if (! (flags & overwrite))
                 throw std::system_error(std::make_error_code(std::errc::file_exists), dst.name());
-            dst.remove(flag::recurse);
+            dst.remove(recurse);
         }
         if (is_symlink()) {
             resolve_symlink().make_symlink(dst);
         } else if (is_directory()) {
             dst.make_directory();
             for (auto& child: directory())
-                child.copy_to(dst / child.split_path().second, flag::recurse);
+                child.copy_to(dst / child.split_path().second, recurse);
         } else {
             auto in = OS_FUNCTION(fopen)(c_name(), OS_CHAR("rb"));
             int err = errno;
@@ -711,7 +728,7 @@ namespace Crow {
             save(std::string{});
     }
 
-    void Path::make_directory(flag flags) const {
+    void Path::make_directory(flag_type flags) const {
         static const auto mkdir_call = [] (const Path& dir) {
             #ifdef _XOPEN_SOURCE
                 return mkdir(dir.c_name(), 0777);
@@ -725,10 +742,10 @@ namespace Crow {
         if (err == EEXIST) {
             if (is_directory())
                 return;
-            if (! (flags & flag::overwrite))
+            if (! (flags & overwrite))
                 throw std::system_error(err, std::generic_category(), name());
             remove();
-        } else if (err == ENOENT && !! (flags & flag::recurse) && ! empty()) {
+        } else if (err == ENOENT && !! (flags & recurse) && ! is_empty()) {
             Path parent = split_path().first;
             if (parent == *this)
                 throw std::system_error(err, std::generic_category(), name());
@@ -740,7 +757,7 @@ namespace Crow {
         }
     }
 
-    void Path::make_symlink(const Path& linkname, flag flags) const {
+    void Path::make_symlink(const Path& linkname, flag_type flags) const {
         #ifdef _XOPEN_SOURCE
             if (linkname.is_symlink()) {
                 try {
@@ -749,47 +766,47 @@ namespace Crow {
                 }
                 catch (const std::system_error&) {}
             }
-            if (!! (flags & flag::overwrite) && linkname.exists())
+            if (!! (flags & overwrite) && linkname.exists())
                 linkname.remove(flags);
             if (symlink(c_name(), linkname.c_name()) == 0)
                 return;
-            if (! (flags & flag::may_copy)) {
+            if (! (flags & may_copy)) {
                 int err = errno;
                 throw std::system_error(err, std::generic_category(), linkname.name() + " -> " + name());
             }
-            copy_to(linkname, flag::recurse);
+            copy_to(linkname, recurse);
         #else
-            if (!! (flags & flag::may_copy))
-                copy_to(linkname, flag::recurse);
+            if (!! (flags & may_copy))
+                copy_to(linkname, recurse);
             else
                 throw std::system_error(std::make_error_code(std::errc::operation_not_supported),
                     "Symbolic links are not supported on Windows");
         #endif
     }
 
-    void Path::move_to(const Path& dst, flag flags) const {
+    void Path::move_to(const Path& dst, flag_type flags) const {
         if (! exists())
             throw std::system_error(std::make_error_code(std::errc::no_such_file_or_directory), name());
         if (*this == dst)
             return;
         if (dst.exists() && id() != dst.id()) {
-            if (! (flags & flag::overwrite))
+            if (! (flags & overwrite))
                 throw std::system_error(std::make_error_code(std::errc::file_exists), dst.name());
-            dst.remove(flag::recurse);
+            dst.remove(recurse);
         }
         if (OS_FUNCTION(rename)(c_name(), dst.c_name()) == 0)
             return;
         int err = errno;
-        if (err != EXDEV || ! (flags & flag::may_copy))
+        if (err != EXDEV || ! (flags & may_copy))
             throw std::system_error(err, std::generic_category(), name() + " -> " + dst.name());
-        copy_to(dst, flag::recurse);
-        remove(flag::recurse);
+        copy_to(dst, recurse);
+        remove(recurse);
     }
 
-    void Path::remove(flag flags) const {
-        if (!! (flags & flag::recurse) && is_directory() && ! is_symlink())
+    void Path::remove(flag_type flags) const {
+        if (!! (flags & recurse) && is_directory() && ! is_symlink())
             for (auto child: directory())
-                child.remove(flag::recurse);
+                child.remove(recurse);
         #ifdef _XOPEN_SOURCE
             int rc = std::remove(c_name());
             int err = errno;
@@ -807,7 +824,7 @@ namespace Crow {
         #endif
     }
 
-    void Path::set_access_time(time_point t, [[maybe_unused]] flag flags) const {
+    void Path::set_access_time(time_point t, [[maybe_unused]] flag_type flags) const {
         #ifdef _XOPEN_SOURCE
             set_file_times(t, modify_time(), flags);
         #else
@@ -815,7 +832,7 @@ namespace Crow {
         #endif
     }
 
-    void Path::set_create_time([[maybe_unused]] time_point t, flag /*flags*/) const {
+    void Path::set_create_time([[maybe_unused]] time_point t, flag_type /*flags*/) const {
         #ifdef _XOPEN_SOURCE
             throw std::system_error(std::make_error_code(std::errc::operation_not_supported),
                 "The operating system does not support modifying file creation time");
@@ -824,7 +841,7 @@ namespace Crow {
         #endif
     }
 
-    void Path::set_modify_time(time_point t, [[maybe_unused]] flag flags) const {
+    void Path::set_modify_time(time_point t, [[maybe_unused]] flag_type flags) const {
         #ifdef _XOPEN_SOURCE
             set_file_times(access_time(), t, flags);
         #else
@@ -834,16 +851,16 @@ namespace Crow {
 
     // I/O functions
 
-    void Path::load(std::string& str, size_t maxlen, flag flags) const {
+    void Path::load(std::string& str, size_t maxlen, flag_type flags) const {
         static constexpr size_t block_size = 16384;
         FILE* in = nullptr;
         auto guard = on_scope_exit([&] { if (in != nullptr && in != stdin) fclose(in); });
-        if (!! (flags & flag::stdio) && (filename_.empty() || filename_ == OS_CHAR("-"))) {
+        if (!! (flags & stdio) && (filename_.empty() || filename_ == OS_CHAR("-"))) {
             in = stdin;
         } else {
             in = OS_FUNCTION(fopen)(c_name(), OS_CHAR("rb"));
             if (! in) {
-                if (! (flags & flag::may_fail))
+                if (! (flags & may_fail))
                     throw std::system_error(std::make_error_code(std::errc::io_error), name());
                 str.clear();
                 return;
@@ -860,18 +877,18 @@ namespace Crow {
         }
     }
 
-    void Path::save(const std::string& str, flag flags) const {
-        static constexpr flag options = flag::append | flag::overwrite;
+    void Path::save(const std::string& str, flag_type flags) const {
+        static constexpr flag_type options = append | overwrite;
         if ((flags & options) == options)
             throw std::invalid_argument("Invalid options to Path::save()");
         FILE* out = nullptr;
         auto guard = on_scope_exit([&] { if (out != nullptr && out != stdout) fclose(out); });
-        if (!! (flags & flag::stdio) && (filename_.empty() || filename_ == OS_CHAR("-"))) {
+        if (!! (flags & stdio) && (filename_.empty() || filename_ == OS_CHAR("-"))) {
             out = stdout;
         } else {
             if (! (flags & options) && exists())
                 throw std::system_error(std::make_error_code(std::errc::file_exists), name());
-            out = OS_FUNCTION(fopen)(c_name(), !! (flags & flag::append) ? OS_CHAR("ab") : OS_CHAR("wb"));
+            out = OS_FUNCTION(fopen)(c_name(), !! (flags & append) ? OS_CHAR("ab") : OS_CHAR("wb"));
             if (! out)
                 throw std::system_error(std::make_error_code(std::errc::io_error), name());
         }
@@ -967,7 +984,7 @@ namespace Crow {
         return filename_.substr(0, pos);
     }
 
-    void Path::make_canonical(flag flags) {
+    void Path::make_canonical(flag_type flags) {
         static const string_type ss = {native_delimiter, native_delimiter};
         static const string_type sds = {native_delimiter, OS_CHAR('.'), native_delimiter};
         #ifndef _XOPEN_SOURCE
@@ -1029,7 +1046,7 @@ namespace Crow {
                 filename_[drive] -= 0x20;
         #endif
         // Validate if requested
-        if (!! (flags & flag::legal_name) && ! is_legal())
+        if (!! (flags & legal_name) && ! is_legal())
             throw std::invalid_argument("Invalid file name: " + quote(name()));
     }
 
@@ -1048,11 +1065,11 @@ namespace Crow {
 
     #elif defined(_XOPEN_SOURCE)
 
-        void Path::set_file_times(time_point atime, time_point mtime, flag flags) const {
+        void Path::set_file_times(time_point atime, time_point mtime, flag_type flags) const {
             timespec times[2];
             timepoint_to_timespec(atime, times[0]);
             timepoint_to_timespec(mtime, times[1]);
-            int utflags = !! (flags & flag::no_follow) ? AT_SYMLINK_NOFOLLOW : 0;
+            int utflags = !! (flags & no_follow) ? AT_SYMLINK_NOFOLLOW : 0;
             errno = 0;
             int rc = utimensat(AT_FDCWD, c_name(), times, utflags);
             int err = errno;
@@ -1118,7 +1135,7 @@ namespace Crow {
         Path current;
         Path prefix;
         string_type leaf;
-        flag flags = {};
+        flag_type flags = no_flags;
         #ifdef _XOPEN_SOURCE
             DIR* dirptr = nullptr;
             dirent entry;
@@ -1132,14 +1149,14 @@ namespace Crow {
         #endif
     };
 
-    Path::directory_iterator::directory_iterator(const Path& dir, flag flags) {
-        if (!! (flags & flag::unicode) && ! dir.is_unicode())
+    Path::directory_iterator::directory_iterator(const Path& dir, flag_type flags) {
+        if (!! (flags & unicode) && ! dir.is_unicode())
             return;
         #ifdef _XOPEN_SOURCE
             impl_ = std::make_shared<impl_type>();
             memset(&impl_->entry, 0, sizeof(impl_->entry));
             memset(impl_->padding, 0, sizeof(impl_->padding));
-            if (dir.empty())
+            if (dir.is_empty())
                 impl_->dirptr = opendir(".");
             else
                 impl_->dirptr = opendir(dir.c_name());
@@ -1175,7 +1192,7 @@ namespace Crow {
     Path::directory_iterator& Path::directory_iterator::operator++() {
         static const string_type dot1(1, OS_CHAR('.'));
         static const string_type dot2(2, OS_CHAR('.'));
-        const bool skip_hidden = !! (impl_->flags & flag::no_hidden);
+        const bool skip_hidden = !! (impl_->flags & no_hidden);
         while (impl_) {
             #ifdef _XOPEN_SOURCE
                 dirent* entptr = nullptr;
@@ -1201,7 +1218,7 @@ namespace Crow {
                 break;
             }
             if (impl_->leaf != dot1 && impl_->leaf != dot2
-                    && (! (impl_->flags & flag::unicode) || is_valid_utf(impl_->leaf))) {
+                    && (! (impl_->flags & unicode) || is_valid_utf(impl_->leaf))) {
                 impl_->current = impl_->prefix / impl_->leaf;
                 if (! skip_hidden || ! impl_->current.is_hidden())
                     break;
@@ -1214,11 +1231,11 @@ namespace Crow {
 
     struct Path::search_iterator::impl_type {
         std::vector<directory_range> stack;
-        flag flagset = {};
+        flag_type flagset = no_flags;
         bool revisit = false;
     };
 
-    Path::search_iterator::search_iterator(const Path& dir, flag flags) {
+    Path::search_iterator::search_iterator(const Path& dir, flag_type flags) {
         if (! dir.is_directory(flags))
             return;
         auto range = dir.directory(flags);
@@ -1227,7 +1244,7 @@ namespace Crow {
         impl_ = std::make_shared<impl_type>();
         impl_->stack.push_back(range);
         impl_->flagset = flags;
-        if (!! (impl_->flagset & flag::bottom_up)) {
+        if (!! (impl_->flagset & bottom_up)) {
             for (;;) {
                 range = (**this).directory(impl_->flagset);
                 if (range.empty())
@@ -1235,7 +1252,7 @@ namespace Crow {
                 impl_->stack.push_back(range);
             }
         }
-        impl_->revisit = !! (impl_->flagset & flag::bottom_up) && ! impl_->stack.empty() && (**this).is_directory();
+        impl_->revisit = !! (impl_->flagset & bottom_up) && ! impl_->stack.empty() && (**this).is_directory();
         if (impl_->stack.empty())
             impl_.reset();
     }
@@ -1257,7 +1274,7 @@ namespace Crow {
                 if (impl_->revisit)
                     impl_->stack.pop_back();
             }
-        } while (! impl_->stack.empty() && (**this).is_directory(impl_->flagset) && impl_->revisit != !! (impl_->flagset & flag::bottom_up));
+        } while (! impl_->stack.empty() && (**this).is_directory(impl_->flagset) && impl_->revisit != !! (impl_->flagset & bottom_up));
         if (impl_->stack.empty())
             impl_.reset();
         return *this;
