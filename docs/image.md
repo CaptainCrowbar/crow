@@ -72,7 +72,8 @@ not a null vector, indicating that a file has been successfully queried.
 ## Image class
 
 ```c++
-template <ColourType CT = Rgbaf, ImageFlags Flags = ImageFlags::none> class Image;
+template <ColourType CT = Rgbaf, ImageFlags Flags = ImageFlags::none>
+    class Image;
 ```
 
 The image class.
@@ -301,10 +302,14 @@ These will throw `std::invalid_argument` if either dimension is negative, or
 if one is zero but the other is not.
 
 ```c++
-void Image::resize(Point new_shape, ImageResize flags = ImageResize::none);
-void Image::resize(double scale, ImageResize flags = ImageResize::none);
-Image Image::resized(Point new_shape, ImageResize flags = ImageResize::none) const;
-Image Image::resized(double scale, ImageResize flags = ImageResize::none) const;
+void Image::resize(Point new_shape,
+    ImageResize flags = ImageResize::none);
+void Image::resize(double scale,
+    ImageResize flags = ImageResize::none);
+Image Image::resized(Point new_shape,
+    ImageResize flags = ImageResize::none) const;
+Image Image::resized(double scale,
+    ImageResize flags = ImageResize::none) const;
 ```
 
 Resample the image to a new set of dimensions. The `resize()` functions modify
