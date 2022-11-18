@@ -120,17 +120,18 @@ Unicode case sensitivity are too complicated to emulate here,
 ```c++
 enum class Path::flag_type: int {
     no_flags = 0,
-    append,        // If the file already exists, append to it instead of overwriting
-    bottom_up,     // Search a directory tree in bottom up order instead of top down
-    legal_name,    // Fail if the file name is illegal for the operating system
-    may_copy,      // Fall back on copying files if the original operation is not possible
-    may_fail,      // Return a default value instead of throwing if the operation fails
+....:....1....:....2....:....3....:....4....:....5....:....6....:....7....:....8
+    append,        // If file exists, append instead of overwriting
+    bottom_up,     // Search directory tree in bottom up order
+    legal_name,    // Fail if file name is illegal for OS
+    may_copy,      // Fall back to copying if normal operation is not possible
+    may_fail,      // Return default value instead of throwing on failure
     no_backtrack,  // Don't search upward through directories
     no_follow,     // Don't follow symlinks
     no_hidden,     // Ignore hidden files
-    overwrite,     // Replace the file if it already exists
+    overwrite,     // Replace file if it already exists
     recurse,       // Perform directory operations recursively
-    stdio,         // If the path is empty or "-", use standard input or output instead
+    stdio,         // If path is empty or "-", use stdin/stdout instead
     unicode,       // Ignore files whose names are not valid UTF
 };
 using enum Path::flag_type;
@@ -581,7 +582,8 @@ This will do nothing if the directory already exists. It will throw
 `overwrite` flag was not set.
 
 ```c++
-void Path::make_symlink(const Path& linkname, flag_type flags = no_flags) const;
+void Path::make_symlink(const Path& linkname,
+    flag_type flags = no_flags) const;
 ```
 
 Create a symlink at `linkname`, pointing to the current path. The existence or
