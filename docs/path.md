@@ -120,7 +120,6 @@ Unicode case sensitivity are too complicated to emulate here,
 ```c++
 enum class Path::flag_type: int {
     no_flags = 0,
-....:....1....:....2....:....3....:....4....:....5....:....6....:....7....:....8
     append,        // If file exists, append instead of overwriting
     bottom_up,     // Search directory tree in bottom up order
     legal_name,    // Fail if file name is illegal for OS
