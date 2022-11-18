@@ -1,5 +1,6 @@
 #include "crow/image.hpp"
 #include "crow/colour.hpp"
+#include "crow/geometry.hpp"
 #include "crow/unit-test.hpp"
 #include "test/vector-test.hpp"
 #include <stdexcept>
@@ -78,5 +79,27 @@ void test_crow_image_resize_content() {
     TEST_EQUAL(pma8b.width(), 100);    TEST_EQUAL(pma8b.height(), 50);
     TEST_EQUAL(pma16b.width(), 100);   TEST_EQUAL(pma16b.height(), 50);
     TEST_EQUAL(pma32b.width(), 100);   TEST_EQUAL(pma32b.height(), 50);
+
+}
+
+void test_crow_image_segment() {
+
+    Image<Rgb8> img1(100, 100);
+    Image<Rgb8> img2;
+
+    for (int x = 0; x < 100; ++x)
+        for (int y = 0; y < 100; ++y)
+            img1(x, y) = Rgb8(x, y, 0);
+
+    TRY(img2 = img1.segment({{20, 50}, {60, 40}}));
+    TEST_EQUAL(img2.width(), 60);
+    TEST_EQUAL(img2.height(), 40);
+    REQUIRE(img2.width() == 60 && img2.height() == 40);
+
+    for (int x = 0; x < 60; ++x)
+        for (int y = 0; y < 40; ++y)
+            TEST_EQUAL(img2(x, y), Rgb8(x + 20, y + 50, 0));
+
+    TEST_THROW(img1.segment({{20, 150}, {60, 40}}), std::invalid_argument);
 
 }

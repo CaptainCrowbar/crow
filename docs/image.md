@@ -336,12 +336,14 @@ is zero when the `unlock` flag is used. The `scale` based functions will
 throw `std::invalid_argument` if the scale is zero or negative.
 
 ```c++
+Box_i2 Image::extent() const noexcept;
 Point Image::shape() const noexcept;
 int Image::width() const noexcept;
 int Image::height() const noexcept;
 ```
 
-Query the dimensions of the image.
+Query the dimensions of the image. The box returned by `extent()` has its base
+at the origin and its dimensions equal to `shape()`.
 
 ```c++
 size_t Image::size() const noexcept;
@@ -363,6 +365,14 @@ void Image::fill(CT c) noexcept;
 ```
 
 Fills all pixels with a uniform colour.
+
+```c++
+Image Image::segment(Box_i2 box) const;
+```
+
+Returns a copy of a rectangular segment of the image. This will throw
+`std::invalid_argument` if part of the rectangle is outside the bounds of the
+image.
 
 ```c++
 void Image::swap(Image& img) noexcept;

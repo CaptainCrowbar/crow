@@ -332,6 +332,7 @@ void image_io_test_group() {
 void image_resize_test_group() {
     UNIT_TEST(crow_image_resize_dimensions)
     UNIT_TEST(crow_image_resize_content)
+    UNIT_TEST(crow_image_segment)
 }
 
 void image_test_group() {

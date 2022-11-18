@@ -5,6 +5,7 @@
 #include "crow/colour.hpp"
 #include "crow/enum.hpp"
 #include "crow/format.hpp"
+#include "crow/geometry.hpp"
 #include "crow/path.hpp"
 #include "crow/string.hpp"
 #include "crow/types.hpp"
@@ -216,6 +217,8 @@ namespace Crow {
         void resize(double scale, ImageResize rflags = ImageResize::none);
         Image resized(Point new_shape, ImageResize rflags = ImageResize::none) const;
         Image resized(double scale, ImageResize rflags = ImageResize::none) const;
+        Image segment(Box_i2 box) const;
+        Box_i2 extent() const noexcept { return {Point::null(), shape_}; }
         Point shape() const noexcept { return shape_; }
         bool empty() const noexcept { return ! pix_; }
         int width() const noexcept { return shape_.x(); }
@@ -458,6 +461,26 @@ namespace Crow {
         int w = int(std::lround(scale * width()));
         int h = int(std::lround(scale * height()));
         return resized(Point{w, h}, rflags | ImageResize::unlock);
+    }
+
+    template <ColourType CT, ImageFlags Flags>
+    Image<CT, Flags> Image<CT, Flags>::segment(Box_i2 box) const {
+
+        if (! extent().contains(box))
+            throw std::invalid_argument("Image segment box is not contained within image");
+
+        Image img(box.shape());
+
+        for (int y2 = 0; y2 < box.shape().y(); ++y2) {
+            int y1 = y2 + box.base().y();
+            auto i1 = locate(box.base().x(), y1);
+            auto i2 = locate(box.apex().x(), y1);
+            auto j = img.locate(0, y2);
+            std::copy(i1, i2, j);
+        }
+
+        return img;
+
     }
 
 }
