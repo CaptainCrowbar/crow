@@ -40,6 +40,66 @@ namespace Crow {
     constexpr char ascii_toupper(char c) noexcept { return ascii_islower(c) ? char(c - 0x20) : c; }
     constexpr char ascii_tolower(char c) noexcept { return ascii_isupper(c) ? char(c + 0x20) : c; }
 
+    // String formatting functions
+
+    namespace Detail {
+
+        std::string roman_helper(uint32_t n, bool lcase);
+
+    }
+
+    template <std::integral T>
+    std::string bin(T t, size_t digits = 8 * sizeof(T)) {
+        using U = std::make_unsigned_t<T>;
+        auto u = U(t);
+        std::string result;
+        for (; u != 0 || result.size() < digits; u /= 2)
+            result.push_back(char('0' + u % 2));
+        std::reverse(result.begin(), result.end());
+        return result;
+    }
+
+    template <std::integral T>
+    std::string dec(T t, size_t digits = 1) {
+        using U = std::make_unsigned_t<T>;
+        U u;
+        if constexpr (std::is_signed_v<T>) {
+            if (t < 0)
+                u = U(- t);
+            else
+                u = U(t);
+        } else {
+            u = U(t);
+        }
+        std::string result;
+        for (; u != 0 || result.size() < digits; u /= 10)
+            result.push_back(char('0' + u % 10));
+        if constexpr (std::is_signed_v<T>)
+            if (t < 0)
+                result += '-';
+        std::reverse(result.begin(), result.end());
+        return result;
+    }
+
+    template <std::integral T>
+    std::string hex(T t, size_t digits = 2 * sizeof(T)) {
+        using U = std::make_unsigned_t<T>;
+        static constexpr auto xdigits = "0123456789abcdef";
+        auto u = U(t);
+        std::string result;
+        for (; u != 0 || result.size() < digits; u /= 16)
+            result.push_back(xdigits[u % 16]);
+        std::reverse(result.begin(), result.end());
+        return result;
+    }
+
+    template <std::integral T>
+    std::string roman(T t, bool lcase = false) {
+        if (t < 1 || t > 1'000'000)
+            throw std::invalid_argument("Invalid argument for Roman numerals: " + std::to_string(t));
+        return Detail::roman_helper(uint32_t(t), lcase);
+    }
+
     // String manipulation functions
 
     struct AsciiIcaseEqual {
@@ -77,18 +137,6 @@ namespace Crow {
     std::string wrap_lines(std::string_view str, size_t width = npos, size_t margin = npos, bool checked = false);
     std::string indent_lines(std::string_view str, size_t spaces = 4);
 
-    template <std::integral T>
-    std::string hex(T t, size_t digits = 2 * sizeof(T)) {
-        using U = std::make_unsigned_t<T>;
-        static constexpr auto xdigits = "0123456789abcdef";
-        auto u = U(t);
-        std::string result;
-        for (; u != 0 || result.size() < digits; u /= 16)
-            result.push_back(xdigits[u % 16]);
-        std::reverse(result.begin(), result.end());
-        return result;
-    }
-
     template <typename Range>
     std::string join(const Range& range, std::string_view delimiter = {}) {
         std::string result, str;
@@ -100,19 +148,6 @@ namespace Crow {
         if (! result.empty())
             result.resize(result.size() - delimiter.size());
         return result;
-    }
-
-    namespace Detail {
-
-        std::string roman_helper(uint32_t n, bool lcase);
-
-    }
-
-    template <std::integral T>
-    std::string roman(T t, bool lcase = false) {
-        if (t < 1 || t > 1'000'000)
-            throw std::invalid_argument("Invalid argument for Roman numerals: " + std::to_string(t));
-        return Detail::roman_helper(uint32_t(t), lcase);
     }
 
     // String parsing functions

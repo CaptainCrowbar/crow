@@ -36,6 +36,30 @@ namespace Crow {
 
     }
 
+    // String formatting functions
+
+    namespace Detail {
+
+        std::string roman_helper(uint32_t n, bool lcase) {
+            static constexpr std::pair<uint32_t, const char*> table[] = {
+                { 900, "CM" }, { 500, "D" }, { 400, "CD" }, { 100, "C" },
+                { 90, "XC" }, { 50, "L" }, { 40, "XL" }, { 10, "X" },
+                { 9, "IX" }, { 5, "V" }, { 4, "IV" }, { 1, "I" },
+            };
+            std::string rom(size_t(n / 1000), 'M');
+            n %= 1000;
+            for (auto [div,str]: table) {
+                for (auto q = n / div; q > 0; --q)
+                    rom += str;
+                n %= div;
+            }
+            if (lcase)
+                rom = ascii_lowercase(rom);
+            return rom;
+        }
+
+    }
+
     // String manipulation functions
 
     bool AsciiIcaseEqual::operator()(std::string_view a, std::string_view b) const noexcept {
@@ -405,28 +429,6 @@ namespace Crow {
             result += '\n';
         }
         return result;
-    }
-
-    namespace Detail {
-
-        std::string roman_helper(uint32_t n, bool lcase) {
-            static constexpr std::pair<uint32_t, const char*> table[] = {
-                { 900, "CM" }, { 500, "D" }, { 400, "CD" }, { 100, "C" },
-                { 90, "XC" }, { 50, "L" }, { 40, "XL" }, { 10, "X" },
-                { 9, "IX" }, { 5, "V" }, { 4, "IV" }, { 1, "I" },
-            };
-            std::string rom(size_t(n / 1000), 'M');
-            n %= 1000;
-            for (auto [div,str]: table) {
-                for (auto q = n / div; q > 0; --q)
-                    rom += str;
-                n %= div;
-            }
-            if (lcase)
-                rom = ascii_lowercase(rom);
-            return rom;
-        }
-
     }
 
     // String parsing functions

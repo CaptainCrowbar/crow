@@ -54,6 +54,26 @@ These perform the same functions as the similarly named functions above,
 except that the underscore character as counted as a letter instead of a
 punctuation mark (like the `\w` escape code in regular expressions).
 
+## String formatting functions
+
+```c++
+template <std::integral T> std::string bin(T t, size_t digits = 8 * sizeof(T));
+template <std::integral T> std::string dec(T t, size_t digits = 1);
+template <std::integral T> std::string hex(T t, size_t digits = 2 * sizeof(T));
+```
+
+Return a binary, decimal, or hexadecimal representation of a number, with at
+least the specified number of digits. For `bin()` and `hex()`, if `T` is
+signed, the output represents the twos complement representation.
+
+```c++
+template <std::integral T> std::string roman(T t, bool lcase = false);
+```
+
+Expresses a number in Roman numerals, optionally in lower case. This will
+throw `std::invalid_argument` if the value is less than 1 or greater than one
+million.
+
 ## String manipulation functions
 
 ```c++
@@ -91,14 +111,6 @@ std::string dent(size_t level);
 
 Returns a string of `4*size` spaces, for convenience when generating indented
 text.
-
-```c++
-template <std::integral T> std::string hex(T t, size_t digits = 2 * sizeof(T));
-```
-
-Returns a hexadecimal representation of a number, with at least the specified
-number of digits. If `T` is signed, the output represents the twos complement
-representation.
 
 ```c++
 std::string indent_lines(std::string_view str, size_t spaces = 4);
@@ -159,14 +171,6 @@ Replaces all (non-overlapping) occurrences of `target` in the string with
 `replacement`. The `remove()` function is shorthand for
 `replace(str,target,"")`. These will return the original string unchanged if
 `target` is empty.
-
-```c++
-template <std::integral T> std::string roman(T t, bool lcase = false);
-```
-
-Expresses a number in Roman numerals, optionally in lower case. This will
-throw `std::invalid_argument` if the value is less than 1 or greater than one
-million.
 
 ```c++
 std::vector<std::string_view> split(std::string_view str,
