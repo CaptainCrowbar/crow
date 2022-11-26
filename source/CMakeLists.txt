@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.16)
 # and propagate the new version to version.hpp.
 
 project(Crow
-    VERSION 2.0.93
+    VERSION 2.0.94
     LANGUAGES CXX
 )
 

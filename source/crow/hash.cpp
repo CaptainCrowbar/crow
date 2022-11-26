@@ -72,26 +72,7 @@ namespace Crow {
             } \
         }
 
-        void MD5::do_add(const void* ptr, size_t len) {
-            using context_type = HASH_CONTEXT(MD5, MD5);
-            auto ctx = static_cast<context_type*>(anon_ctx_);
-            if (! anon_ctx_) {
-                anon_ctx_ = ctx = new context_type;
-                HASH_INIT(MD5, MD5)
-            }
-            HASH_UPDATE(MD5)
-        }
-        void MD5::do_final() noexcept {
-            using context_type = HASH_CONTEXT(MD5, MD5);
-            if (anon_ctx_) {
-                auto ctx = static_cast<context_type*>(anon_ctx_);
-                HASH_FINAL(MD5)
-                delete ctx;
-                anon_ctx_ = nullptr;
-            }
-        }
-
-    // IMPLEMENT_CRYPTOGRAPHIC_HASH(MD5, MD5, MD5, MD5)
+    IMPLEMENT_CRYPTOGRAPHIC_HASH(MD5, MD5, MD5, MD5)
     IMPLEMENT_CRYPTOGRAPHIC_HASH(SHA1, SHA1, SHA, SHA1)
     IMPLEMENT_CRYPTOGRAPHIC_HASH(SHA256, SHA256, SHA256, SHA_256)
     IMPLEMENT_CRYPTOGRAPHIC_HASH(SHA512, SHA512, SHA512, SHA_512)

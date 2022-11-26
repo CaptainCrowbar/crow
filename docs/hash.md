@@ -35,7 +35,12 @@ the same result for the same sequence of values. The first version cannot be
 called with less than two arguments (to avoid overload resolution issues);
 the others will return zero if the argument list is empty.
 
-## Multiplicative hashes
+## Primitive hash functions
+
+For all primitive and cryptographic hash functions, behaviour is undefined if
+a null pointer is passed, unless the length is also zero.
+
+### Multiplicative hashes
 
 ```c++
 template <uint32_t Initial, uint32_t Modulo>
@@ -44,6 +49,7 @@ class MultiplicativeHash {
     static constexpr uint32_t initial = Initial;
     static constexpr uint32_t modulo = Modulo;
     constexpr uint32_t operator()(const void* ptr, size_t len) const noexcept;
+    constexpr uint32_t operator()(std::string_view str) const noexcept;
 };
 using BernsteinHash = MultiplicativeHash<5381, 33>;
 using KernighanHash = MultiplicativeHash<0, 31>;
@@ -52,14 +58,15 @@ using KernighanHash = MultiplicativeHash<0, 31>;
 Generic multiplicative hash, and instantiations for the widely used Bernstein
 and K&R hash functions.
 
-## SipHash
+### SipHash
 
 ```c++
 class SipHash {
     using result_type = uint64_t;
     constexpr SipHash() noexcept; // SipHash(0,0)
-    constexpr SipHash(uint64_t key0, uint64_t key1) noexcept;
+    constexpr explicit SipHash(uint64_t key0, uint64_t key1 = 0) noexcept;
     constexpr uint64_t operator()(const void* ptr, size_t len) const noexcept;
+    constexpr uint64_t operator()(std::string_view str) const noexcept;
 };
 ```
 
@@ -75,11 +82,11 @@ class CryptographicHash {
     using result_type = std::string;
     virtual ~CryptographicHash() noexcept;
     std::string operator()(const void* ptr, size_t len);
-    std::string operator()(const std::string& str);
+    std::string operator()(std::string_view str);
     size_t bits() const noexcept;
     size_t bytes() const noexcept;
     void add(const void* ptr, size_t len);
-    void add(const std::string& str);
+    void add(std::string_view str);
     std::string get();
     void clear() noexcept;
 };

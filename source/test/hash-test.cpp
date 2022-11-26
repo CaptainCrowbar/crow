@@ -45,10 +45,10 @@ void test_crow_hash_multiplicative() {
     std::string s;
     uint32_t h = 0;
 
-    s = "";             TRY(h = BernsteinHash()(s.data(), s.size()));  TEST_EQUAL(h, 0x0000'1505ul);
-    s = "Hello world";  TRY(h = BernsteinHash()(s.data(), s.size()));  TEST_EQUAL(h, 0x89bb'20a1ul);
-    s = "";             TRY(h = KernighanHash()(s.data(), s.size()));  TEST_EQUAL(h, 0x0000'0000ul);
-    s = "Hello world";  TRY(h = KernighanHash()(s.data(), s.size()));  TEST_EQUAL(h, 0xce59'8aa4ul);
+    s = "";             TRY(h = BernsteinHash()(s));  TEST_EQUAL(h, 0x0000'1505ul);
+    s = "Hello world";  TRY(h = BernsteinHash()(s));  TEST_EQUAL(h, 0x89bb'20a1ul);
+    s = "";             TRY(h = KernighanHash()(s));  TEST_EQUAL(h, 0x0000'0000ul);
+    s = "Hello world";  TRY(h = KernighanHash()(s));  TEST_EQUAL(h, 0xce59'8aa4ul);
 
 }
 

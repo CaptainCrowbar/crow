@@ -7,6 +7,7 @@
 #include <functional>
 #include <iterator>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -79,6 +80,9 @@ namespace Crow {
                 result = Modulo * result + bptr[i];
             return result;
         }
+        constexpr uint32_t operator()(std::string_view str) const noexcept {
+            return (*this)(str.data(), str.size());
+        }
     };
 
     using BernsteinHash = MultiplicativeHash<5381, 33>;
@@ -94,7 +98,8 @@ namespace Crow {
         using result_type = uint64_t;
 
         constexpr SipHash() noexcept {}
-        constexpr SipHash(uint64_t key0, uint64_t key1) noexcept: key0_(key0), key1_(key1) {}
+        constexpr explicit SipHash(uint64_t key0, uint64_t key1 = 0) noexcept:
+            key0_(key0), key1_(key1) {}
 
         constexpr uint64_t operator()(const void* ptr, size_t len) const noexcept {
 
@@ -134,6 +139,10 @@ namespace Crow {
 
             return v0 ^ v1 ^ v2 ^ v3;
 
+        }
+
+        constexpr uint64_t operator()(std::string_view str) const noexcept {
+            return (*this)(str.data(), str.size());
         }
 
     private:
@@ -177,12 +186,12 @@ namespace Crow {
         CryptographicHash& operator=(CryptographicHash&&) = delete;
 
         std::string operator()(const void* ptr, size_t len) { clear(); add(ptr, len); return get(); }
-        std::string operator()(const std::string& str) { clear(); add(str); return get(); }
+        std::string operator()(std::string_view str) { clear(); add(str); return get(); }
 
         size_t bits() const noexcept { return bits_; }
         size_t bytes() const noexcept { return bits_ / 8; }
-        void add(const void* ptr, size_t len) { do_add(ptr, len); }
-        void add(const std::string& str) { do_add(str.data(), str.size()); }
+        void add(const void* ptr, size_t len) { if (len > 0) do_add(ptr, len); }
+        void add(std::string_view str) { do_add(str.data(), str.size()); }
         std::string get() { do_final(); return hash_; }
         void clear() noexcept { do_final(); hash_.assign(bytes(), '\0'); }
 
