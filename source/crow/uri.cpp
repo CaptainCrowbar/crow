@@ -490,7 +490,7 @@ namespace Crow {
             if (pos != npos)
                 delimiter = query[pos];
         }
-        auto entries = split(query, std::string{delimiter});
+        auto entries = splitv(query, std::string{delimiter});
         for (auto& entry: entries) {
             auto kv = partition_at(entry, "=");
             v.push_back({decode(kv.first), decode(kv.second)});

@@ -26,14 +26,6 @@ namespace Crow {
                 return default_columns;
         }
 
-        std::vector<std::string> reify_strings(const std::vector<std::string_view>& views) {
-            std::vector<std::string> strings;
-            strings.reserve(views.size());
-            std::transform(views.begin(), views.end(), std::back_inserter(strings),
-                [] (std::string_view v) { return std::string(v); });
-            return strings;
-        }
-
     }
 
     // String formatting functions
@@ -204,9 +196,9 @@ namespace Crow {
         if (target.empty())
             return std::string(str);
         std::string result;
-        size_t i = 0, j = 0;
+        size_t i = 0;
         while (i < str.size()) {
-            j = str.find(target, i);
+            size_t j = str.find(target, i);
             if (j == npos) {
                 result.append(str, i, npos);
                 break;
@@ -222,9 +214,9 @@ namespace Crow {
         if (target.empty())
             return std::string(str);
         std::string result;
-        size_t i = 0, j = 0;
+        size_t i = 0;
         while (i < str.size()) {
-            j = str.find(target, i);
+            size_t j = str.find(target, i);
             if (j == npos) {
                 result.append(str, i, npos);
                 break;
@@ -235,56 +227,83 @@ namespace Crow {
         return result;
     }
 
-    std::vector<std::string_view> split(std::string_view str, std::string_view chars) {
-        std::vector<std::string_view> vec;
-        size_t i = 0, j = 0;
-        while (j < str.size()) {
-            i = str.find_first_not_of(chars, j);
-            if (i == npos)
-                break;
-            j = str.find_first_of(chars, i);
-            vec.push_back(str.substr(i, j - i));
+    namespace {
+
+        template <typename T>
+        std::vector<T> split_impl(std::string_view str, std::string_view chars) {
+            std::vector<T> vec;
+            size_t i = 0;
+            while (i < str.size()) {
+                size_t j = str.find_first_not_of(chars, i);
+                if (j == npos)
+                    break;
+                i = str.find_first_of(chars, j);
+                vec.emplace_back(str.substr(j, i - j));
+            }
+            return vec;
         }
-        return vec;
+
+        template <typename T>
+        std::vector<T> split_at_impl(std::string_view str, std::string_view delimiter) {
+            if (str.empty())
+                return {};
+            std::vector<T> vec;
+            if (delimiter.empty()) {
+                vec.emplace_back(str);
+                return vec;
+            }
+            size_t i = 0;
+            for (;;) {
+                size_t j = str.find(delimiter, i);
+                vec.emplace_back(str.substr(i, j - i));
+                if (j == npos)
+                    break;
+                i = j + delimiter.size();
+            }
+            return vec;
+        }
+
+        template <typename T>
+        std::vector<T> split_lines_impl(std::string_view str, bool keep) {
+            std::vector<T> vec;
+            size_t i = 0;
+            while (i < str.size()) {
+                size_t j = str.find('\n', i);
+                if (j == npos) {
+                    vec.emplace_back(str.substr(i, npos));
+                    break;
+                }
+                size_t n = keep ? 0 : j > 0 && str[j - 1] == '\r' ? 2 : 1;
+                vec.emplace_back(str.substr(i, j + 1 - i - n));
+                i = j + 1;
+            }
+            return vec;
+        }
+
     }
 
     std::vector<std::string> splits(std::string_view str, std::string_view chars) {
-        return reify_strings(split(str, chars));
+        return split_impl<std::string>(str, chars);
     }
 
-    std::vector<std::string_view> split_at(std::string_view str, std::string_view delimiter) {
-        if (str.empty())
-            return {};
-        if (delimiter.empty())
-            return {str};
-        std::vector<std::string_view> vec;
-        size_t i = 0, j = 0;
-        for (;;) {
-            j = str.find(delimiter, i);
-            vec.push_back(str.substr(i, j - i));
-            if (j == npos)
-                break;
-            i = j + delimiter.size();
-        }
-        return vec;
+    std::vector<std::string_view> splitv(std::string_view str, std::string_view chars) {
+        return split_impl<std::string_view>(str, chars);
     }
 
     std::vector<std::string> splits_at(std::string_view str, std::string_view delimiter) {
-        return reify_strings(split_at(str, delimiter));
+        return split_at_impl<std::string>(str, delimiter);
     }
 
-    std::vector<std::string_view> split_lines(std::string_view str) {
-        auto lines = split_at(str, "\n");
-        if (! str.empty() && str.back() == '\n')
-            lines.pop_back();
-        for (auto& line: lines)
-            if (! line.empty() && line.back() == '\r')
-                line = line.substr(0, line.size() - 1);
-        return lines;
+    std::vector<std::string_view> splitv_at(std::string_view str, std::string_view delimiter) {
+        return split_at_impl<std::string_view>(str, delimiter);
     }
 
-    std::vector<std::string> splits_lines(std::string_view str) {
-        return reify_strings(split_lines(str));
+    std::vector<std::string> splits_lines(std::string_view str, bool keep) {
+        return split_lines_impl<std::string>(str, keep);
+    }
+
+    std::vector<std::string_view> splitv_lines(std::string_view str, bool keep) {
+        return split_lines_impl<std::string_view>(str, keep);
     }
 
     std::string trim(std::string_view str, std::string_view chars) {
@@ -322,7 +341,7 @@ namespace Crow {
     std::string unwrap_lines(std::string_view str) {
         std::string result;
         bool was_empty = true;
-        for (auto line: split_lines(str)) {
+        for (auto line: splitv_lines(str)) {
             if (line.empty()) {
                 result.append(size_t(! was_empty) + 1, '\n');
             } else if (was_empty) {
@@ -383,7 +402,7 @@ namespace Crow {
 
             for (; line_j != line_i; ++line_j) {
 
-                auto words = split(*line_j);
+                auto words = splitv(*line_j);
 
                 for (auto& word: words) {
 
@@ -421,7 +440,7 @@ namespace Crow {
 
     std::string indent_lines(std::string_view str, size_t spaces) {
         std::string result;
-        for (auto& line: split_lines(str)) {
+        for (auto& line: splitv_lines(str)) {
             if (! line.empty()) {
                 result.append(spaces, ' ');
                 result += line;
@@ -540,10 +559,6 @@ namespace Crow {
                 doc += '\n';
             }
             return doc;
-        }
-
-        std::vector<std::string> operator""_qw(const char* ptr, size_t len) {
-            return reify_strings(split(std::string_view(ptr, len)));
         }
 
     }

@@ -46,7 +46,7 @@ void test_crow_process_stream() {
     TEST(n > 0u);
     TEST_MATCH(s, "[\\r\\n A-Za-z0-9._-]+");
 
-    TRY(views = split(s, "\r\n"));
+    TRY(views = splitv(s, "\r\n"));
     TEST(! views.empty());
     TEST(range_contains(views, file1));
     TEST(range_contains(views, file2));
@@ -63,7 +63,7 @@ void test_crow_process_stream() {
     chan.reset();
     TRY(chan = std::make_unique<StreamProcess>(list_command));
     TRY(s = chan->read_all());
-    TRY(views = split(s, "\r\n"));
+    TRY(views = splitv(s, "\r\n"));
     TEST(! views.empty());
     TEST(range_contains(views, file1));
     TEST(range_contains(views, file2));
@@ -102,7 +102,7 @@ void test_crow_process_text() {
     chan.reset();
     TRY(chan = std::make_unique<TextProcess>(list_command));
     TRY(s = chan->read_all());
-    TRY(views = split(s, "\r\n"));
+    TRY(views = splitv(s, "\r\n"));
     TEST(! views.empty());
     TEST(range_contains(views, file1));
     TEST(range_contains(views, file2));
@@ -116,7 +116,7 @@ void test_crow_process_shell_command() {
 
     TRY(s = shell(list_command));
     TEST(! s.empty());
-    TRY(views = split(s, "\r\n"));
+    TRY(views = splitv(s, "\r\n"));
     TEST(! views.empty());
     TEST(range_contains(views, file1));
     TEST(range_contains(views, file2));

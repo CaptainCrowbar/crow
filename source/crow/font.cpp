@@ -583,7 +583,7 @@ namespace Crow {
             throw std::invalid_argument("No font");
 
         std::vector<std::string> lines;
-        auto paras = split(text_in, "\n");
+        auto paras = splitv(text_in, "\n");
         if (paras.empty())
             return 0;
 
