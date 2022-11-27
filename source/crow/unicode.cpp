@@ -341,6 +341,11 @@ namespace Crow {
         return *this;
     }
 
+    std::string_view UtfIterator::view() const noexcept {
+        **this;
+        return utf8_.substr(pos_, len_);
+    }
+
     namespace {
 
         template <typename K, typename T>

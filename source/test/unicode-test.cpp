@@ -190,6 +190,14 @@ void test_crow_unicode_iterators() {
     TRY(u = utf_range(c8));  TEST_EQUAL_RANGES(u, c32);
     TRY(u = utf_range(x8));  TEST_EQUAL_RANGES(u, x32);
 
+    UtfIterator i;
+
+    TRY(i = utf_begin(c8));  TEST_EQUAL(*i, U'M');           TEST_EQUAL(i.view(), "M");
+    TRY(++i);                TEST_EQUAL(*i, U'\u0430');      TEST_EQUAL(i.view(), "\u0430");
+    TRY(++i);                TEST_EQUAL(*i, U'\u4e8c');      TEST_EQUAL(i.view(), "\u4e8c");
+    TRY(++i);                TEST_EQUAL(*i, U'\U00010302');  TEST_EQUAL(i.view(), "\U00010302");
+    TRY(++i);                TEST_EQUAL(*i, U'\U0010fffd');  TEST_EQUAL(i.view(), "\U0010fffd");
+
 }
 
 void test_crow_unicode_size_bytes() {

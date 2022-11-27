@@ -160,6 +160,27 @@ Selected Unicode character properties. The `is_noncharacter()` predicate is
 true only for the permanently reserved noncharacter code points. These will
 all return false if the argument is not a valid Unicode scalar value.
 
+## Iterators
+
+```c++
+class UtfIterator {
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = char32_t;
+    UtfIterator() noexcept;
+    UtfIterator(std::string_view utf8, size_t pos) noexcept;
+    const char32_t& operator*() const noexcept;
+    std::string_view view() const noexcept;
+};
+using UtfRange = Irange<UtfIterator>;
+UtfIterator utf_begin(std::string_view utf8) noexcept;
+UtfIterator utf_end(std::string_view utf8) noexcept;
+UtfRange utf_range(std::string_view utf8) noexcept;
+```
+
+An iterator over the encoded Unicode code points in a UTF-8 string. Standard
+iterator members are not listed individually. The `view()` method returns the
+substring that contains the current encoded character.
+
 ## String encoding functions
 
 ```c++

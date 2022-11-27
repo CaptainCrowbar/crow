@@ -180,6 +180,7 @@ namespace Crow {
         const char32_t& operator*() const noexcept;
         UtfIterator& operator++() noexcept;
         bool operator==(const UtfIterator& rhs) const noexcept { return pos_ == rhs.pos_; }
+        std::string_view view() const noexcept;
     private:
         std::string_view utf8_;
         size_t pos_;
@@ -189,9 +190,9 @@ namespace Crow {
 
     using UtfRange = Irange<UtfIterator>;
 
-    inline UtfIterator utf_begin(std::string_view utf8) { return {utf8, 0}; }
-    inline UtfIterator utf_end(std::string_view utf8) { return {utf8, utf8.size()}; }
-    inline UtfRange utf_range(std::string_view utf8) { return {utf_begin(utf8), utf_end(utf8)}; }
+    inline UtfIterator utf_begin(std::string_view utf8) noexcept { return {utf8, 0}; }
+    inline UtfIterator utf_end(std::string_view utf8) noexcept { return {utf8, utf8.size()}; }
+    inline UtfRange utf_range(std::string_view utf8) noexcept { return {utf_begin(utf8), utf_end(utf8)}; }
 
     GC general_category(char32_t c);
     bool is_pattern_syntax(char32_t c);
