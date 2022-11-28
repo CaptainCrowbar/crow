@@ -108,9 +108,16 @@ namespace Crow {
         static std::string message(std::wstring_view str, size_t pos);
     };
 
-    constexpr char32_t not_unicode = ~ char32_t(0);
+    constexpr char32_t first_surrogate   = 0xd800;         // First UTF-16 surrogate code
+    constexpr char32_t last_surrogate    = 0xdfff;         // Last UTF-16 surrogate code
+    constexpr char32_t byte_order_mark   = 0xfeff;         // Byte order mark
+    constexpr char32_t replacement_char  = 0xfffd;         // Unicode replacement character
+    constexpr char32_t max_unicode       = 0x10ffff;       // Highest possible Unicode code point
+    constexpr char32_t not_unicode       = ~ char32_t(0);  // Returned as an error code
 
-    constexpr bool is_unicode(char32_t c) noexcept { return c <= 0xd7ff || (c >= 0xe000 && c <= 0x10ffff); }
+    constexpr bool is_unicode(char32_t c) noexcept {
+        return c < first_surrogate || (c > last_surrogate && c <= max_unicode);
+    }
 
     template <CharacterType C>
     char32_t decode_char(const std::basic_string<C>& str, size_t& pos) noexcept {
@@ -176,23 +183,32 @@ namespace Crow {
     public ForwardIterator<UtfIterator, const char32_t> {
     public:
         UtfIterator() = default;
-        UtfIterator(std::string_view utf8, size_t pos) noexcept: utf8_(utf8), pos_(pos), len_(0) {}
-        const char32_t& operator*() const noexcept;
-        UtfIterator& operator++() noexcept;
+        explicit UtfIterator(std::string_view utf8, size_t pos, bool checked = false);
+        const char32_t& operator*() const;
+        UtfIterator& operator++();
         bool operator==(const UtfIterator& rhs) const noexcept { return pos_ == rhs.pos_; }
         std::string_view view() const noexcept;
     private:
         std::string_view utf8_;
-        size_t pos_;
-        mutable size_t len_;
-        mutable char32_t char_;
+        size_t pos_ = 0;
+        mutable size_t len_ = 0;
+        mutable char32_t char_ = 0;
+        bool checked_ = false;
     };
 
     using UtfRange = Irange<UtfIterator>;
 
-    inline UtfIterator utf_begin(std::string_view utf8) noexcept { return {utf8, 0}; }
-    inline UtfIterator utf_end(std::string_view utf8) noexcept { return {utf8, utf8.size()}; }
-    inline UtfRange utf_range(std::string_view utf8) noexcept { return {utf_begin(utf8), utf_end(utf8)}; }
+    inline UtfIterator utf_begin(std::string_view utf8, bool checked = false) noexcept {
+        return UtfIterator(utf8, 0, checked);
+    }
+
+    inline UtfIterator utf_end(std::string_view utf8, bool checked = false) noexcept {
+        return UtfIterator(utf8, utf8.size(), checked);
+    }
+
+    inline UtfRange utf_range(std::string_view utf8, bool checked = false) noexcept {
+        return {utf_begin(utf8, checked), utf_end(utf8, checked)};
+    }
 
     GC general_category(char32_t c);
     bool is_pattern_syntax(char32_t c);

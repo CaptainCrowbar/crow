@@ -17,10 +17,16 @@ This header defines functions related to Unicode and UTF-8 encoding.
 ## Constants
 
 ```c++
-constexpr char32_t not_unicode = ~ char32_t(0);
+constexpr char32_t first_surrogate   = 0xd800;         // First UTF-16 surrogate code
+constexpr char32_t last_surrogate    = 0xdfff;         // Last UTF-16 surrogate code
+constexpr char32_t byte_order_mark   = 0xfeff;         // Byte order mark
+constexpr char32_t replacement_char  = 0xfffd;         // Unicode replacement character
+constexpr char32_t max_unicode       = 0x10ffff;       // Highest possible Unicode code point
+constexpr char32_t not_unicode       = ~ char32_t(0);  // Returned as an error code
 ```
 
-This is returned by some of the functions below to indicate failure.
+Some code points defined for convenience. The `not_unicode` value is returned
+by some of the functions below to indicate failure.
 
 ## Concepts
 
@@ -167,19 +173,26 @@ class UtfIterator {
     using iterator_category = std::forward_iterator_tag;
     using value_type = char32_t;
     UtfIterator() noexcept;
-    UtfIterator(std::string_view utf8, size_t pos) noexcept;
+    explicit UtfIterator(std::string_view utf8, size_t pos, bool checked = false);
     const char32_t& operator*() const noexcept;
     std::string_view view() const noexcept;
 };
 using UtfRange = Irange<UtfIterator>;
-UtfIterator utf_begin(std::string_view utf8) noexcept;
-UtfIterator utf_end(std::string_view utf8) noexcept;
-UtfRange utf_range(std::string_view utf8) noexcept;
+UtfIterator utf_begin(std::string_view utf8, bool checked = false) noexcept;
+UtfIterator utf_end(std::string_view utf8, bool checked = false) noexcept;
+UtfRange utf_range(std::string_view utf8, bool checked = false) noexcept;
 ```
 
 An iterator over the encoded Unicode code points in a UTF-8 string. Standard
 iterator members are not listed individually. The `view()` method returns the
 substring that contains the current encoded character.
+
+The `checked` flag determines how invalid UTF-8 is handled. The default
+behaviour is to substitute the replacement character (`U+FFFD`), with the
+length of the invalid code unit sequence determined in the same way as for
+`decode_char()` (above). If `checked` is true, the constructor or increment
+operator will throw `UnicodeError` (these can be treated as `noexcept` if
+`checked` is false). The equality test does not read the `checked` flag.
 
 ## String encoding functions
 

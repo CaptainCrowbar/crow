@@ -131,7 +131,7 @@ namespace Crow {
             // e000-ffff = BMP character
 
             static constexpr auto is_start = [] (char16_t c) constexpr {
-                return c <= 0xdbff || c >= 0xe000;
+                return c <= 0xdbff || c > last_surrogate;
             };
 
             auto ptr = str.data();
@@ -147,11 +147,11 @@ namespace Crow {
             if (pos >= len)
                 return not_unicode;
 
-            if (ptr[pos] <= 0xd7ff || ptr[pos] >= 0xe000)
+            if (ptr[pos] < first_surrogate || ptr[pos] > last_surrogate)
                 return char32_t(ptr[pos++]);
 
             if (len - pos < 2 || ptr[pos] >= 0xdc00
-                    || ptr[pos + 1] <= 0xdbff || ptr[pos + 1] >= 0xe000) {
+                    || ptr[pos + 1] <= 0xdbff || ptr[pos + 1] > last_surrogate) {
                 return fail();
             }
 
@@ -325,16 +325,24 @@ namespace Crow {
         return out;
     }
 
-    const char32_t& UtfIterator::operator*() const noexcept {
+    UtfIterator::UtfIterator(std::string_view utf8, size_t pos, bool checked):
+    utf8_(utf8), pos_(pos), checked_(checked) {}
+
+    const char32_t& UtfIterator::operator*() const {
         if (len_ == 0) {
             size_t q = pos_;
             char_ = decode_char(utf8_, q);
+            if (char_ == not_unicode) {
+                if (checked_)
+                    throw UnicodeError(utf8_, pos_);
+                char_ = replacement_char;
+            }
             len_ = q - pos_;
         }
         return char_;
     }
 
-    UtfIterator& UtfIterator::operator++() noexcept {
+    UtfIterator& UtfIterator::operator++() {
         **this;
         pos_ += len_;
         len_ = 0;

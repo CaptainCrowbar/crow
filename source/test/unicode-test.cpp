@@ -1,5 +1,6 @@
 #include "crow/unicode.hpp"
 #include "crow/unit-test.hpp"
+#include <iterator>
 #include <stdexcept>
 #include <string>
 
@@ -181,22 +182,37 @@ void test_crow_unicode_iterators() {
     const std::u32string a32;
     const std::u32string b32 = U"Hello";
     const std::u32string c32 = {0x4d,0x430,0x4e8c,0x10302,0x10fffd};
-    const std::u32string x32 = U"Hello" + std::u32string{not_unicode} + U"world";
+    const std::u32string x32 = U"Hello\ufffdworld";
 
+    UtfIterator i;
     UtfRange u;
+    std::u32string s;
 
     TRY(u = utf_range(a8));  TEST_EQUAL_RANGES(u, a32);
     TRY(u = utf_range(b8));  TEST_EQUAL_RANGES(u, b32);
     TRY(u = utf_range(c8));  TEST_EQUAL_RANGES(u, c32);
     TRY(u = utf_range(x8));  TEST_EQUAL_RANGES(u, x32);
 
-    UtfIterator i;
+    TRY(u = utf_range(x8, true));
+    TEST_THROW(std::copy(u.begin(), u.end(), std::back_inserter(s)), UnicodeError);
 
     TRY(i = utf_begin(c8));  TEST_EQUAL(*i, U'M');           TEST_EQUAL(i.view(), "M");
     TRY(++i);                TEST_EQUAL(*i, U'\u0430');      TEST_EQUAL(i.view(), "\u0430");
     TRY(++i);                TEST_EQUAL(*i, U'\u4e8c');      TEST_EQUAL(i.view(), "\u4e8c");
     TRY(++i);                TEST_EQUAL(*i, U'\U00010302');  TEST_EQUAL(i.view(), "\U00010302");
     TRY(++i);                TEST_EQUAL(*i, U'\U0010fffd');  TEST_EQUAL(i.view(), "\U0010fffd");
+
+    TRY(++i);
+    TEST(i == utf_end(c8));
+
+    TRY(i = utf_begin(x8, true));  TEST_EQUAL(*i, U'H');  TEST_EQUAL(i.view(), "H");
+    TRY(++i);                      TEST_EQUAL(*i, U'e');  TEST_EQUAL(i.view(), "e");
+    TRY(++i);                      TEST_EQUAL(*i, U'l');  TEST_EQUAL(i.view(), "l");
+    TRY(++i);                      TEST_EQUAL(*i, U'l');  TEST_EQUAL(i.view(), "l");
+    TRY(++i);                      TEST_EQUAL(*i, U'o');  TEST_EQUAL(i.view(), "o");
+
+    TRY(++i);
+    TEST_THROW(*i, UnicodeError);
 
 }
 
