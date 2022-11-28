@@ -184,15 +184,15 @@ namespace Crow {
     public:
         UtfIterator() = default;
         explicit UtfIterator(std::string_view utf8, size_t pos, bool checked = false);
-        const char32_t& operator*() const;
+        const char32_t& operator*() const { return char_; }
         UtfIterator& operator++();
         bool operator==(const UtfIterator& rhs) const noexcept { return pos_ == rhs.pos_; }
-        std::string_view view() const noexcept;
+        std::string_view view() const noexcept { return utf8_.substr(pos_, next_ - pos_); }
     private:
         std::string_view utf8_;
         size_t pos_ = 0;
-        mutable size_t len_ = 0;
-        mutable char32_t char_ = 0;
+        size_t next_ = 0;
+        char32_t char_ = 0;
         bool checked_ = false;
     };
 

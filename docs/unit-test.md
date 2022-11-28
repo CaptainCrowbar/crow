@@ -132,6 +132,10 @@ int main(int argc, char** argv) {
 
 ## Test macros
 
+The `TRY(), TEST(),` and `REQUIRE()` macros will always evaluate their
+argument exactly once. All of the other macros may evaluate any of their
+arguments any number of times (including zero).
+
 ```c++
 #define UNIT_TEST(name)
 ```

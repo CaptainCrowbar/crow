@@ -326,32 +326,21 @@ namespace Crow {
     }
 
     UtfIterator::UtfIterator(std::string_view utf8, size_t pos, bool checked):
-    utf8_(utf8), pos_(pos), checked_(checked) {}
+    utf8_(utf8), pos_(pos), next_(pos), checked_(checked) {
+        ++*this;
+    }
 
-    const char32_t& UtfIterator::operator*() const {
-        if (len_ == 0) {
-            size_t q = pos_;
-            char_ = decode_char(utf8_, q);
+    UtfIterator& UtfIterator::operator++() {
+        pos_ = next_;
+        if (pos_ < utf8_.size()) {
+            char_ = decode_char(utf8_, next_);
             if (char_ == not_unicode) {
                 if (checked_)
                     throw UnicodeError(utf8_, pos_);
                 char_ = replacement_char;
             }
-            len_ = q - pos_;
         }
-        return char_;
-    }
-
-    UtfIterator& UtfIterator::operator++() {
-        **this;
-        pos_ += len_;
-        len_ = 0;
         return *this;
-    }
-
-    std::string_view UtfIterator::view() const noexcept {
-        **this;
-        return utf8_.substr(pos_, len_);
     }
 
     namespace {

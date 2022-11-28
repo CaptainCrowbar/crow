@@ -211,8 +211,7 @@ void test_crow_unicode_iterators() {
     TRY(++i);                      TEST_EQUAL(*i, U'l');  TEST_EQUAL(i.view(), "l");
     TRY(++i);                      TEST_EQUAL(*i, U'o');  TEST_EQUAL(i.view(), "o");
 
-    TRY(++i);
-    TEST_THROW(*i, UnicodeError);
+    TEST_THROW(++i, UnicodeError);
 
 }
 
