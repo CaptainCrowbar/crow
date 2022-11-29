@@ -184,8 +184,8 @@ UtfRange utf_range(std::string_view utf8, bool checked = false) noexcept;
 ```
 
 An iterator over the encoded Unicode code points in a UTF-8 string. Standard
-iterator members are not listed individually. The `view()` method returns the
-substring that contains the current encoded character.
+iterator members are not listed individually. Behaviour is undefined if
+`pos>utf8.size()`.
 
 The `checked` flag determines how invalid UTF-8 is handled. The default
 behaviour is to substitute the replacement character (`U+FFFD`), with the
@@ -193,6 +193,27 @@ length of the invalid code unit sequence determined in the same way as for
 `decode_char()` (above). If `checked` is true, the constructor or increment
 operator will throw `UnicodeError` (these can be treated as `noexcept` if
 `checked` is false). The equality test does not read the `checked` flag.
+
+The `view()` method returns the substring that contains the current encoded
+character.
+
+```c++
+class GraphemeIterator {
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = std::string_view;
+    GraphemeIterator() noexcept;
+    explicit GraphemeIterator(std::string_view utf8, size_t pos, bool checked = false);
+    const std::string_view& operator*() const noexcept;
+};
+using GraphemeRange = Irange<GraphemeIterator>;
+GraphemeIterator graphemes_begin(std::string_view utf8, bool checked = false) noexcept;
+GraphemeIterator graphemes_end(std::string_view utf8, bool checked = false) noexcept;
+GraphemeRange graphemes(std::string_view utf8, bool checked = false) noexcept;
+```
+
+An iterator over the extended grapheme clusters in a UTF-8 string. Standard
+iterator members are not listed individually. The `checked` flag works as for
+`UtfIterator`. Behaviour is undefined if `pos>utf8.size()`.
 
 ## String encoding functions
 
@@ -233,19 +254,15 @@ set, this will throw `UnicodeError` instead of returning false.
 
 ```c++
 enum class Usize {
-    bytes,      // Bytes
     units,      // Code units
     scalars,    // Scalar values (code points)
     graphemes,  // Grapheme clusters (including whitespace)
     columns     // Virtual columns (see below)
 };
-template <CharacterType C>
-    size_t utf_size(const std::basic_string<C>& str, Usize mode);
-template <CharacterType C>
-    size_t utf_size(std::basic_string_view<C> str, Usize mode);
+size_t utf_size(std::string_view str, Usize mode);
 ```
 
-Returns various measures of the size of a UTF string.
+Returns various measures of the size of a UTF-8 string.
 
 In `columns` mode, this returns the estimated width of the string when
 presented in a nominally "fixed width" font, assuming the font uses double
@@ -269,7 +286,7 @@ grapheme cluster and East Asian Width models consistently.
 
 This function will not return a meaningful result if the string contains
 layout control characters such as tabs and line feeds. In modes other than
-`units` this will throw `UnicodeError` if invalid UTF encoding is encountered.
+`units` this will throw `UnicodeError` if invalid UTF-8 is encountered.
 
 ## Normalization functions
 

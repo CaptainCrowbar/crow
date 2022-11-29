@@ -116,7 +116,7 @@ namespace Crow {
 
             for (size_t c = 0; c < headers_.size(); ++c) {
                 size_t n = std::count(headers_[c].begin(), headers_[c].end(), '\n');
-                size_t len = utf_size(headers_[c]) + 4 * n;
+                size_t len = utf_size(headers_[c], Usize::columns) + 4 * n;
                 widths[c] = std::max(widths[c], len);
             }
 
@@ -134,7 +134,7 @@ namespace Crow {
 
         for (auto& row: cells_)
             for (size_t c = 0; c < row.size(); ++c)
-                widths[c] = std::max(widths[c], utf_size(row[c]));
+                widths[c] = std::max(widths[c], utf_size(row[c], Usize::columns));
 
         return widths;
     }
@@ -197,7 +197,7 @@ namespace Crow {
         }
 
         for (; c < row.size(); ++c) {
-            size_t old_len = utf_size(line);
+            size_t old_len = utf_size(line, Usize::columns);
             std::string extra = delimiter;
             if (! row[c].empty())
                 extra += row[c];
@@ -205,12 +205,12 @@ namespace Crow {
                 extra += is_header ? header_null : body_null;
             line += extra;
             size_t new_len = old_len + widths[c] + padding;
-            size_t extra_len = utf_size(extra);
+            size_t extra_len = utf_size(extra, Usize::columns);
             line.append(new_len - old_len - extra_len, ' ');
         }
 
         for (; c < widths.size(); ++c) {
-            size_t old_len = utf_size(line);
+            size_t old_len = utf_size(line, Usize::columns);
             std::string extra = delimiter;
             if (mode == 'T') {
                 if (is_header)
@@ -220,7 +220,7 @@ namespace Crow {
             }
             line += extra;
             size_t new_len = old_len + widths[c] + padding;
-            size_t extra_len = utf_size(extra);
+            size_t extra_len = utf_size(extra, Usize::columns);
             line.append(new_len - old_len - extra_len, ' ');
         }
 

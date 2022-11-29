@@ -343,6 +343,28 @@ namespace Crow {
         return *this;
     }
 
+    GraphemeIterator::GraphemeIterator(std::string_view utf8, size_t pos, bool checked):
+    utf8_(utf8), view_(utf8.substr(pos, 0)), checked_(checked) {
+        if (pos == utf8_.size())
+            return;
+        auto q = pos;
+        next_char_ = check_decode_char(utf8_, q);
+        if (checked_ && next_char_ == not_unicode)
+            throw UnicodeError(utf8_, pos);
+        next_view_ = utf8.substr(pos, q - pos);
+        ++*this;
+    }
+
+    GraphemeIterator& GraphemeIterator::operator++() {
+        // TODO
+        (void)checked_;
+        (void)char_;
+        (void)next_char_;
+        (void)char_;
+        (void)next_char_;
+        return *this;
+    }
+
     namespace {
 
         template <typename K, typename T>
@@ -362,6 +384,10 @@ namespace Crow {
 
         East_Asian_Width east_asian_width(char32_t c) {
             return find_in_ucd_table(c, east_asian_width_table());
+        }
+
+        Grapheme_Cluster_Break grapheme_cluster_break(char32_t c) {
+            return find_in_ucd_table(c, grapheme_cluster_break_table());
         }
 
         bool is_full_composition_exclusion(char32_t c) {
@@ -483,6 +509,83 @@ namespace Crow {
 
     bool is_xid_continue(char32_t c) {
         return find_in_ucd_table(c, Detail::xid_continue_table());
+    }
+
+    size_t utf_size(std::string_view str, Usize mode) {
+
+        using namespace Detail;
+
+        size_t n = 0;
+
+        switch (mode) {
+
+            case Usize::units: {
+
+                n = str.size();
+
+                break;
+
+            }
+
+            case Usize::scalars: {
+
+                for (size_t pos = 0; pos < str.size(); ++n)
+                    check_decode_char(str, pos);
+
+                break;
+
+            }
+
+            case Usize::graphemes: {
+
+                char32_t c = 0;
+                bool is_ri = false;
+                bool was_ri = false;
+                GC gc;
+
+                for (size_t pos = 0; pos < str.size();) {
+                    c = check_decode_char(str, pos);
+                    is_ri = is_regional_indicator(c);
+                    if (is_ri && was_ri) {
+                        was_ri = false;
+                    } else {
+                        gc = general_category(c);
+                        if (! is_zero_width(gc))
+                            ++n;
+                        was_ri = is_ri;
+                    }
+                }
+
+                break;
+
+            }
+
+            case Usize::columns: {
+
+                char32_t c = 0;
+                GC gc;
+                East_Asian_Width eaw;
+
+                for (size_t pos = 0; pos < str.size();) {
+                    c = check_decode_char(str, pos);
+                    gc = general_category(c);
+                    if (! is_zero_width(gc)) {
+                        eaw = east_asian_width(c);
+                        if (eaw == East_Asian_Width::F || eaw == East_Asian_Width::W)
+                            n += 2;
+                        else
+                            ++n;
+                    }
+                }
+
+                break;
+
+            }
+
+        }
+
+        return n;
+
     }
 
 }

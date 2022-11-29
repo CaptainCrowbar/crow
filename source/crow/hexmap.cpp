@@ -318,7 +318,7 @@ namespace Crow {
         std::map<hex, int> widths;
 
         for (auto& [k,v]: table_) {
-            int width = int(utf_size(v.label));
+            int width = int(utf_size(v.label, Usize::columns));
             max_width = std::max(max_width, width);
         }
 
@@ -351,7 +351,7 @@ namespace Crow {
             int row = k[0];
             int col = k[1];
             std::string hex_label = v->label;
-            size_t width = utf_size(hex_label);
+            size_t width = utf_size(hex_label, Usize::columns);
             if (v->colour.has_value()) {
                 auto rgb = term.rgb(v->colour->x(), v->colour->y(), v->colour->z());
                 hex_label = term.bold() + rgb + hex_label + term.reset();

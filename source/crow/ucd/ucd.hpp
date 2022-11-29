@@ -42,12 +42,29 @@ namespace Crow {
     namespace Detail {
 
         CROW_ENUM_CLASS(East_Asian_Width, int, 1,
-            Ambiguous,
-            Fullwidth,
-            Halfwidth,
-            Narrow,
-            Neutral,
-            Wide
+            A,   // Ambiguous
+            F,   // Fullwidth
+            H,   // Halfwidth
+            N,   // Neutral
+            Na,  // Narrow
+            W    // Wide
+        )
+
+        CROW_ENUM_CLASS(Grapheme_Cluster_Break, int, 1,
+            Other,
+            CR,
+            LF,
+            Control,
+            Extend,
+            ZWJ,
+            Regional_Indicator,
+            Prepend,
+            SpacingMark,
+            L,
+            V,
+            T,
+            LV,
+            LVT
         )
 
         CROW_ENUM_CLASS(Hangul_Syllable_Type, int, 1,
@@ -63,12 +80,14 @@ namespace Crow {
         using CanonicalCombiningClassTable        = std::map<char32_t, int>;
         using CanonicalDecompositionMappingTable  = std::unordered_map<char32_t, std::pair<char32_t, char32_t>>;
         using EastAsianWidthTable                 = std::map<char32_t, East_Asian_Width>;
+        using GraphemeClusterBreakTable           = std::map<char32_t, Grapheme_Cluster_Break>;
         using BooleanPropertyTable                = std::map<char32_t, bool>;
 
         const GeneralCategoryTable&                general_category_table();
         const CanonicalCombiningClassTable&        canonical_combining_class_table();
         const CanonicalDecompositionMappingTable&  canonical_decomposition_mapping_table();
         const EastAsianWidthTable&                 east_asian_width_table();
+        const GraphemeClusterBreakTable&           grapheme_cluster_break_table();
         const BooleanPropertyTable&                full_composition_exclusion_table();
         const BooleanPropertyTable&                pattern_syntax_table();
         const BooleanPropertyTable&                xid_continue_table();

@@ -68,6 +68,7 @@ namespace Crow {
         char32_t canonical_composition(char32_t c1, char32_t c2);
         std::pair<char32_t, char32_t> canonical_decomposition(char32_t c);
         East_Asian_Width east_asian_width(char32_t c);
+        Grapheme_Cluster_Break grapheme_cluster_break(char32_t c);
         Hangul_Syllable_Type hangul_syllable_type(char32_t c) noexcept;
         bool is_full_composition_exclusion(char32_t c);
         constexpr bool is_regional_indicator(char32_t c) noexcept { return c >= 0x1f1e6 & c <= 0x1f1ff; }
@@ -76,7 +77,6 @@ namespace Crow {
     }
 
     CROW_ENUM_CLASS(Usize, int, 1,
-        bytes,      // Bytes
         units,      // Code units
         scalars,    // Scalar values
         graphemes,  // Grapheme clusters
@@ -210,6 +210,37 @@ namespace Crow {
         return {utf_begin(utf8, checked), utf_end(utf8, checked)};
     }
 
+    class GraphemeIterator:
+    public ForwardIterator<GraphemeIterator, const std::string_view> {
+    public:
+        GraphemeIterator() = default;
+        explicit GraphemeIterator(std::string_view utf8, size_t pos, bool checked = false);
+        const std::string_view& operator*() const { return view_; }
+        GraphemeIterator& operator++();
+        bool operator==(const GraphemeIterator& rhs) const noexcept { return view_.data() == rhs.view_.data(); }
+    private:
+        std::string_view utf8_;
+        std::string_view view_;
+        std::string_view next_view_;
+        char32_t char_ = 0;
+        char32_t next_char_ = 0;
+        bool checked_ = false;
+    };
+
+    using GraphemeRange = Irange<GraphemeIterator>;
+
+    inline GraphemeIterator graphemes_begin(std::string_view utf8, bool checked = false) noexcept {
+        return GraphemeIterator(utf8, 0, checked);
+    }
+
+    inline GraphemeIterator graphemes_end(std::string_view utf8, bool checked = false) noexcept {
+        return GraphemeIterator(utf8, utf8.size(), checked);
+    }
+
+    inline GraphemeRange graphemes(std::string_view utf8, bool checked = false) noexcept {
+        return {graphemes_begin(utf8, checked), graphemes_end(utf8, checked)};
+    }
+
     GC general_category(char32_t c);
     bool is_pattern_syntax(char32_t c);
     bool is_xid_continue(char32_t c);
@@ -237,97 +268,7 @@ namespace Crow {
         return is_valid_utf(std::basic_string_view<C>(str), hard);
     }
 
-    template <CharacterType C>
-    size_t utf_size(std::basic_string_view<C> str, Usize mode) {
-
-        using namespace Detail;
-
-        size_t n = 0;
-
-        switch (mode) {
-
-            case Usize::bytes: {
-
-                n = str.size() * sizeof(C);
-
-                break;
-
-            }
-
-            case Usize::units: {
-
-                n = str.size();
-
-                break;
-
-            }
-
-            case Usize::scalars: {
-
-                for (size_t pos = 0; pos < str.size(); ++n)
-                    check_decode_char(str, pos);
-
-                break;
-
-            }
-
-            case Usize::graphemes: {
-
-                char32_t c = 0;
-                bool is_ri = false;
-                bool was_ri = false;
-                GC gc;
-
-                for (size_t pos = 0; pos < str.size();) {
-                    c = check_decode_char(str, pos);
-                    is_ri = is_regional_indicator(c);
-                    if (is_ri && was_ri) {
-                        was_ri = false;
-                    } else {
-                        gc = general_category(c);
-                        if (! is_zero_width(gc))
-                            ++n;
-                        was_ri = is_ri;
-                    }
-                }
-
-                break;
-
-            }
-
-            case Usize::columns: {
-
-                char32_t c = 0;
-                GC gc;
-                East_Asian_Width eaw;
-
-                for (size_t pos = 0; pos < str.size();) {
-                    c = check_decode_char(str, pos);
-                    gc = general_category(c);
-                    if (! is_zero_width(gc)) {
-                        eaw = east_asian_width(c);
-                        if (eaw == East_Asian_Width::Fullwidth || eaw == East_Asian_Width::Wide)
-                            n += 2;
-                        else
-                            ++n;
-                    }
-                }
-
-                break;
-
-            }
-
-        }
-
-        return n;
-
-    }
-
-    template <CharacterType C>
-    size_t utf_size(const std::basic_string<C>& str, Usize mode = Usize::columns) {
-        return utf_size(std::basic_string_view<C>(str), mode);
-    }
-
+    size_t utf_size(std::string_view str, Usize mode);
     std::string to_nfc(std::string_view str);
     std::u32string to_nfc(std::u32string_view str);
     std::string to_nfd(std::string_view str);

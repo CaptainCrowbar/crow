@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.16)
 # and propagate the new version to version.hpp.
 
 project(Crow
-    VERSION 2.0.98
+    VERSION 2.0.99
     LANGUAGES CXX
 )
 
@@ -97,6 +97,7 @@ add_library(${library} STATIC
     ${library}/ucd/east-asian-width.cpp
     ${library}/ucd/full-composition-exclusion.cpp
     ${library}/ucd/general-category.cpp
+    ${library}/ucd/grapheme-cluster-break.cpp
     ${library}/ucd/pattern-syntax.cpp
     ${library}/ucd/xid-continue.cpp
     ${library}/ucd/xid-start.cpp

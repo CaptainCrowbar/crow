@@ -173,7 +173,7 @@ void test_crow_unicode_string_encoding() {
 
 }
 
-void test_crow_unicode_iterators() {
+void test_crow_unicode_utf_iterators() {
 
     const std::string a8;
     const std::string b8 = "Hello";
@@ -215,35 +215,75 @@ void test_crow_unicode_iterators() {
 
 }
 
-void test_crow_unicode_size_bytes() {
+void test_crow_unicode_grapheme_iterators() {
 
-    std::string s;
-    std::u16string u;
-    std::u32string v;
-    std::wstring w;
+    // TODO
 
-    TEST_EQUAL(utf_size(""s,              Usize::bytes),  0u);
-    TEST_EQUAL(utf_size("Hello world"s,   Usize::bytes),  11u);
-    TEST_EQUAL(utf_size("αβγδε"s,         Usize::bytes),  10u);
-    TEST_EQUAL(utf_size("Greek αβγδε"s,   Usize::bytes),  16u);
-    TEST_EQUAL(utf_size(u""s,             Usize::bytes),  0u);
-    TEST_EQUAL(utf_size(u"Hello world"s,  Usize::bytes),  22u);
-    TEST_EQUAL(utf_size(u"αβγδε"s,        Usize::bytes),  10u);
-    TEST_EQUAL(utf_size(u"Greek αβγδε"s,  Usize::bytes),  22u);
-    TEST_EQUAL(utf_size(U""s,             Usize::bytes),  0u);
-    TEST_EQUAL(utf_size(U"Hello world"s,  Usize::bytes),  44u);
-    TEST_EQUAL(utf_size(U"αβγδε"s,        Usize::bytes),  20u);
-    TEST_EQUAL(utf_size(U"Greek αβγδε"s,  Usize::bytes),  44u);
-    TEST_EQUAL(utf_size("😀👍👩"s,        Usize::bytes),  12u);
-    TEST_EQUAL(utf_size("😀👍🏽👩🏽"s,        Usize::bytes),  20u);
-    TEST_EQUAL(utf_size("🇳🇿🇺🇸🇩🇪🇦🇺"s,      Usize::bytes),  32u);
-    TEST_EQUAL(utf_size(u"😀👍👩"s,       Usize::bytes),  12u);
-    TEST_EQUAL(utf_size(u"😀👍🏽👩🏽"s,       Usize::bytes),  20u);
-    TEST_EQUAL(utf_size(u"🇳🇿🇺🇸🇩🇪🇦🇺"s,     Usize::bytes),  32u);
-    TEST_EQUAL(utf_size(U"😀👍👩"s,       Usize::bytes),  12u);
-    TEST_EQUAL(utf_size(U"😀👍🏽👩🏽"s,       Usize::bytes),  20u);
-    TEST_EQUAL(utf_size(U"🇳🇿🇺🇸🇩🇪🇦🇺"s,     Usize::bytes),  32u);
-    TEST_EQUAL(utf_size("αβγδε\xff"s,     Usize::bytes),  11u);
+    // const std::string good =
+    //     "Hello\n"
+    //     "αβγδε\n"
+    //     "áéíóú\n"                                // composed
+    //     "a\u0301e\u0301i\u0301o\u0301u\u0301\n"  // decomposed
+    //     "😀👍👩\n"                               // simple emoji
+    //     "😀👍🏽👩🏽\n"                               // modified emoji
+    //     "🇳🇿🇺🇸🇩🇪🇦🇺\n";                            // flags
+
+    // const std::string bad = "αβγ\xffxyz";
+
+    // GraphemeIterator beg, end, i;
+
+    // TRY(beg = graphemes_begin(good));
+    // TRY(end = graphemes_end(good));
+
+    // TRY(i = beg);  REQUIRE(i != end);  TEST_EQUAL(*i, "H");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "e");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "l");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "l");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "o");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "\n");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "α");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "β");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "γ");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "δ");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "ε");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "\n");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "á");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "é");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "í");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "ó");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "ú");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "\n");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "a\u0301");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "e\u0301");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "i\u0301");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "o\u0301");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "u\u0301");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "\n");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "😀");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "👍");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "👩");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "\n");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "😀");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "👍🏽");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "👩🏽");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "\n");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "🇳🇿");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "🇺🇸");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "🇩🇪");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "🇦🇺");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "\n");
+
+    // TRY(++i);
+    // TEST(i == end);
+
+    // TRY(beg = graphemes_begin(bad));
+    // TRY(end = graphemes_end(bad));
+
+    // TRY(i = beg);  REQUIRE(i != end);  TEST_EQUAL(*i, "α");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "β");
+    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "γ");
+
+    // TEST_THROW(++i, UnicodeError);
 
 }
 
@@ -254,28 +294,14 @@ void test_crow_unicode_size_units() {
     std::u32string v;
     std::wstring w;
 
-    TEST_EQUAL(utf_size(""s,              Usize::units),  0u);
-    TEST_EQUAL(utf_size("Hello world"s,   Usize::units),  11u);
-    TEST_EQUAL(utf_size("αβγδε"s,         Usize::units),  10u);
-    TEST_EQUAL(utf_size("Greek αβγδε"s,   Usize::units),  16u);
-    TEST_EQUAL(utf_size(u""s,             Usize::units),  0u);
-    TEST_EQUAL(utf_size(u"Hello world"s,  Usize::units),  11u);
-    TEST_EQUAL(utf_size(u"αβγδε"s,        Usize::units),  5u);
-    TEST_EQUAL(utf_size(u"Greek αβγδε"s,  Usize::units),  11u);
-    TEST_EQUAL(utf_size(U""s,             Usize::units),  0u);
-    TEST_EQUAL(utf_size(U"Hello world"s,  Usize::units),  11u);
-    TEST_EQUAL(utf_size(U"αβγδε"s,        Usize::units),  5u);
-    TEST_EQUAL(utf_size(U"Greek αβγδε"s,  Usize::units),  11u);
-    TEST_EQUAL(utf_size("😀👍👩"s,        Usize::units),  12u);
-    TEST_EQUAL(utf_size("😀👍🏽👩🏽"s,        Usize::units),  20u);
-    TEST_EQUAL(utf_size("🇳🇿🇺🇸🇩🇪🇦🇺"s,      Usize::units),  32u);
-    TEST_EQUAL(utf_size(u"😀👍👩"s,       Usize::units),  6u);
-    TEST_EQUAL(utf_size(u"😀👍🏽👩🏽"s,       Usize::units),  10u);
-    TEST_EQUAL(utf_size(u"🇳🇿🇺🇸🇩🇪🇦🇺"s,     Usize::units),  16u);
-    TEST_EQUAL(utf_size(U"😀👍👩"s,       Usize::units),  3u);
-    TEST_EQUAL(utf_size(U"😀👍🏽👩🏽"s,       Usize::units),  5u);
-    TEST_EQUAL(utf_size(U"🇳🇿🇺🇸🇩🇪🇦🇺"s,     Usize::units),  8u);
-    TEST_EQUAL(utf_size("αβγδε\xff"s,     Usize::units),  11u);
+    TEST_EQUAL(utf_size(""s,             Usize::units),  0u);
+    TEST_EQUAL(utf_size("Hello world"s,  Usize::units),  11u);
+    TEST_EQUAL(utf_size("αβγδε"s,        Usize::units),  10u);
+    TEST_EQUAL(utf_size("Greek αβγδε"s,  Usize::units),  16u);
+    TEST_EQUAL(utf_size("😀👍👩"s,       Usize::units),  12u);
+    TEST_EQUAL(utf_size("😀👍🏽👩🏽"s,       Usize::units),  20u);
+    TEST_EQUAL(utf_size("🇳🇿🇺🇸🇩🇪🇦🇺"s,     Usize::units),  32u);
+    TEST_EQUAL(utf_size("αβγδε\xff"s,    Usize::units),  11u);
 
 }
 
@@ -286,34 +312,13 @@ void test_crow_unicode_size_scalars() {
     std::u32string v;
     std::wstring w;
 
-    TEST_EQUAL(utf_size(""s,              Usize::scalars),  0u);
-    TEST_EQUAL(utf_size("Hello world"s,   Usize::scalars),  11u);
-    TEST_EQUAL(utf_size("αβγδε"s,         Usize::scalars),  5u);
-    TEST_EQUAL(utf_size("Greek αβγδε"s,   Usize::scalars),  11u);
-    TEST_EQUAL(utf_size(u""s,             Usize::scalars),  0u);
-    TEST_EQUAL(utf_size(u"Hello world"s,  Usize::scalars),  11u);
-    TEST_EQUAL(utf_size(u"αβγδε"s,        Usize::scalars),  5u);
-    TEST_EQUAL(utf_size(u"Greek αβγδε"s,  Usize::scalars),  11u);
-    TEST_EQUAL(utf_size(U""s,             Usize::scalars),  0u);
-    TEST_EQUAL(utf_size(U"Hello world"s,  Usize::scalars),  11u);
-    TEST_EQUAL(utf_size(U"αβγδε"s,        Usize::scalars),  5u);
-    TEST_EQUAL(utf_size(U"Greek αβγδε"s,  Usize::scalars),  11u);
-    TEST_EQUAL(utf_size(L""s,             Usize::scalars),  0u);
-    TEST_EQUAL(utf_size(L"Hello world"s,  Usize::scalars),  11u);
-    TEST_EQUAL(utf_size(L"αβγδε"s,        Usize::scalars),  5u);
-    TEST_EQUAL(utf_size(L"Greek αβγδε"s,  Usize::scalars),  11u);
-    TEST_EQUAL(utf_size("😀👍👩"s,        Usize::scalars),  3u);
-    TEST_EQUAL(utf_size("😀👍🏽👩🏽"s,        Usize::scalars),  5u);
-    TEST_EQUAL(utf_size("🇳🇿🇺🇸🇩🇪🇦🇺"s,      Usize::scalars),  8u);
-    TEST_EQUAL(utf_size(u"😀👍👩"s,       Usize::scalars),  3u);
-    TEST_EQUAL(utf_size(u"😀👍🏽👩🏽"s,       Usize::scalars),  5u);
-    TEST_EQUAL(utf_size(u"🇳🇿🇺🇸🇩🇪🇦🇺"s,     Usize::scalars),  8u);
-    TEST_EQUAL(utf_size(U"😀👍👩"s,       Usize::scalars),  3u);
-    TEST_EQUAL(utf_size(U"😀👍🏽👩🏽"s,       Usize::scalars),  5u);
-    TEST_EQUAL(utf_size(U"🇳🇿🇺🇸🇩🇪🇦🇺"s,     Usize::scalars),  8u);
-    TEST_EQUAL(utf_size(L"😀👍👩"s,       Usize::scalars),  3u);
-    TEST_EQUAL(utf_size(L"😀👍🏽👩🏽"s,       Usize::scalars),  5u);
-    TEST_EQUAL(utf_size(L"🇳🇿🇺🇸🇩🇪🇦🇺"s,     Usize::scalars),  8u);
+    TEST_EQUAL(utf_size(""s,             Usize::scalars),  0u);
+    TEST_EQUAL(utf_size("Hello world"s,  Usize::scalars),  11u);
+    TEST_EQUAL(utf_size("αβγδε"s,        Usize::scalars),  5u);
+    TEST_EQUAL(utf_size("Greek αβγδε"s,  Usize::scalars),  11u);
+    TEST_EQUAL(utf_size("😀👍👩"s,       Usize::scalars),  3u);
+    TEST_EQUAL(utf_size("😀👍🏽👩🏽"s,       Usize::scalars),  5u);
+    TEST_EQUAL(utf_size("🇳🇿🇺🇸🇩🇪🇦🇺"s,     Usize::scalars),  8u);
 
     TEST_THROW(utf_size("αβγδε\xff"s, Usize::scalars), UnicodeError);
 
@@ -337,61 +342,9 @@ void test_crow_unicode_size_graphemes() {
     TEST_EQUAL(utf_size("ààà\u20a9\u20a9\u20a9"s,                Usize::graphemes),  6u);   // ambiguous + halfwidth
     TEST_EQUAL(utf_size("àààAAA"s,                               Usize::graphemes),  6u);   // ambiguous + narrow
     TEST_EQUAL(utf_size("ààà\u3001\u3001\u3001"s,                Usize::graphemes),  6u);   // ambiguous + wide
-
-    TEST_EQUAL(utf_size(u""s,                                     Usize::graphemes),  0u);   // empty
-    TEST_EQUAL(utf_size(u"Hello world"s,                          Usize::graphemes),  11u);  // ascii
-    TEST_EQUAL(utf_size(u"aeiou"s,                                Usize::graphemes),  5u);   // narrow
-    TEST_EQUAL(utf_size(u"áéíóú"s,                                Usize::graphemes),  5u);   // precomposed neutral
-    TEST_EQUAL(utf_size(u"a\u0301e\u0301i\u0301o\u0301u\u0301"s,  Usize::graphemes),  5u);   // decomposed narrow
-    TEST_EQUAL(utf_size(u"ÀÀÀ"s,                                  Usize::graphemes),  3u);   // neutral
-    TEST_EQUAL(utf_size(u"ààà"s,                                  Usize::graphemes),  3u);   // ambiguous
-    TEST_EQUAL(utf_size(u"\u3000\u3000\u3000"s,                   Usize::graphemes),  3u);   // fullwidth
-    TEST_EQUAL(utf_size(u"\u20a9\u20a9\u20a9"s,                   Usize::graphemes),  3u);   // halfwidth
-    TEST_EQUAL(utf_size(u"AAA"s,                                  Usize::graphemes),  3u);   // narrow
-    TEST_EQUAL(utf_size(u"\u3001\u3001\u3001"s,                   Usize::graphemes),  3u);   // wide
-    TEST_EQUAL(utf_size(u"àààÀÀÀ"s,                               Usize::graphemes),  6u);   // ambiguous + neutral
-    TEST_EQUAL(utf_size(u"ààà\u3000\u3000\u3000"s,                Usize::graphemes),  6u);   // ambiguous + fullwidth
-    TEST_EQUAL(utf_size(u"ààà\u20a9\u20a9\u20a9"s,                Usize::graphemes),  6u);   // ambiguous + halfwidth
-    TEST_EQUAL(utf_size(u"àààAAA"s,                               Usize::graphemes),  6u);   // ambiguous + narrow
-    TEST_EQUAL(utf_size(u"ààà\u3001\u3001\u3001"s,                Usize::graphemes),  6u);   // ambiguous + wide
-
-    TEST_EQUAL(utf_size(U""s,                                     Usize::graphemes),  0u);   // empty
-    TEST_EQUAL(utf_size(U"Hello world"s,                          Usize::graphemes),  11u);  // ascii
-    TEST_EQUAL(utf_size(U"aeiou"s,                                Usize::graphemes),  5u);   // narrow
-    TEST_EQUAL(utf_size(U"áéíóú"s,                                Usize::graphemes),  5u);   // precomposed neutral
-    TEST_EQUAL(utf_size(U"a\u0301e\u0301i\u0301o\u0301u\u0301"s,  Usize::graphemes),  5u);   // decomposed narrow
-    TEST_EQUAL(utf_size(U"ÀÀÀ"s,                                  Usize::graphemes),  3u);   // neutral
-    TEST_EQUAL(utf_size(U"ààà"s,                                  Usize::graphemes),  3u);   // ambiguous
-    TEST_EQUAL(utf_size(U"\u3000\u3000\u3000"s,                   Usize::graphemes),  3u);   // fullwidth
-    TEST_EQUAL(utf_size(U"\u20a9\u20a9\u20a9"s,                   Usize::graphemes),  3u);   // halfwidth
-    TEST_EQUAL(utf_size(U"AAA"s,                                  Usize::graphemes),  3u);   // narrow
-    TEST_EQUAL(utf_size(U"\u3001\u3001\u3001"s,                   Usize::graphemes),  3u);   // wide
-    TEST_EQUAL(utf_size(U"àààÀÀÀ"s,                               Usize::graphemes),  6u);   // ambiguous + neutral
-    TEST_EQUAL(utf_size(U"ààà\u3000\u3000\u3000"s,                Usize::graphemes),  6u);   // ambiguous + fullwidth
-    TEST_EQUAL(utf_size(U"ààà\u20a9\u20a9\u20a9"s,                Usize::graphemes),  6u);   // ambiguous + halfwidth
-    TEST_EQUAL(utf_size(U"àààAAA"s,                               Usize::graphemes),  6u);   // ambiguous + narrow
-    TEST_EQUAL(utf_size(U"ààà\u3001\u3001\u3001"s,                Usize::graphemes),  6u);   // ambiguous + wide
-
-    TEST_EQUAL(utf_size(L""s,                                     Usize::graphemes),  0u);   // empty
-    TEST_EQUAL(utf_size(L"Hello world"s,                          Usize::graphemes),  11u);  // ascii
-    TEST_EQUAL(utf_size(L"aeiou"s,                                Usize::graphemes),  5u);   // narrow
-    TEST_EQUAL(utf_size(L"áéíóú"s,                                Usize::graphemes),  5u);   // precomposed neutral
-    TEST_EQUAL(utf_size(L"a\u0301e\u0301i\u0301o\u0301u\u0301"s,  Usize::graphemes),  5u);   // decomposed narrow
-    TEST_EQUAL(utf_size(L"ÀÀÀ"s,                                  Usize::graphemes),  3u);   // neutral
-    TEST_EQUAL(utf_size(L"ààà"s,                                  Usize::graphemes),  3u);   // ambiguous
-    TEST_EQUAL(utf_size(L"\u3000\u3000\u3000"s,                   Usize::graphemes),  3u);   // fullwidth
-    TEST_EQUAL(utf_size(L"\u20a9\u20a9\u20a9"s,                   Usize::graphemes),  3u);   // halfwidth
-    TEST_EQUAL(utf_size(L"AAA"s,                                  Usize::graphemes),  3u);   // narrow
-    TEST_EQUAL(utf_size(L"\u3001\u3001\u3001"s,                   Usize::graphemes),  3u);   // wide
-    TEST_EQUAL(utf_size(L"àààÀÀÀ"s,                               Usize::graphemes),  6u);   // ambiguous + neutral
-    TEST_EQUAL(utf_size(L"ààà\u3000\u3000\u3000"s,                Usize::graphemes),  6u);   // ambiguous + fullwidth
-    TEST_EQUAL(utf_size(L"ààà\u20a9\u20a9\u20a9"s,                Usize::graphemes),  6u);   // ambiguous + halfwidth
-    TEST_EQUAL(utf_size(L"àààAAA"s,                               Usize::graphemes),  6u);   // ambiguous + narrow
-    TEST_EQUAL(utf_size(L"ààà\u3001\u3001\u3001"s,                Usize::graphemes),  6u);   // ambiguous + wide
-
-    TEST_EQUAL(utf_size("😀👍👩"s,    Usize::graphemes),  3u);  // simple emoji
-    TEST_EQUAL(utf_size("😀👍🏽👩🏽"s,    Usize::graphemes),  3u);  // modified emoji
-    TEST_EQUAL(utf_size("🇳🇿🇺🇸🇩🇪🇦🇺"s,  Usize::graphemes),  4u);  // flags
+    TEST_EQUAL(utf_size("😀👍👩"s,                               Usize::graphemes),  3u);   // simple emoji
+    TEST_EQUAL(utf_size("😀👍🏽👩🏽"s,                               Usize::graphemes),  3u);   // modified emoji
+    TEST_EQUAL(utf_size("🇳🇿🇺🇸🇩🇪🇦🇺"s,                             Usize::graphemes),  4u);   // flags
 
     TEST_THROW(utf_size("αβγδε\xff"s, Usize::graphemes), UnicodeError);
 
@@ -415,61 +368,9 @@ void test_crow_unicode_size_columns() {
     TEST_EQUAL(utf_size("ààà\u20a9\u20a9\u20a9"s,                Usize::columns),  6u);   // ambiguous + halfwidth
     TEST_EQUAL(utf_size("àààAAA"s,                               Usize::columns),  6u);   // ambiguous + narrow
     TEST_EQUAL(utf_size("ààà\u3001\u3001\u3001"s,                Usize::columns),  9u);   // ambiguous + wide
-
-    TEST_EQUAL(utf_size(u""s,                                     Usize::columns),  0u);   // empty
-    TEST_EQUAL(utf_size(u"Hello world"s,                          Usize::columns),  11u);  // ascii
-    TEST_EQUAL(utf_size(u"aeiou"s,                                Usize::columns),  5u);   // narrow
-    TEST_EQUAL(utf_size(u"áéíóú"s,                                Usize::columns),  5u);   // precomposed neutral
-    TEST_EQUAL(utf_size(u"a\u0301e\u0301i\u0301o\u0301u\u0301"s,  Usize::columns),  5u);   // decomposed narrow
-    TEST_EQUAL(utf_size(u"ÀÀÀ"s,                                  Usize::columns),  3u);   // neutral
-    TEST_EQUAL(utf_size(u"ààà"s,                                  Usize::columns),  3u);   // ambiguous
-    TEST_EQUAL(utf_size(u"\u3000\u3000\u3000"s,                   Usize::columns),  6u);   // fullwidth
-    TEST_EQUAL(utf_size(u"\u20a9\u20a9\u20a9"s,                   Usize::columns),  3u);   // halfwidth
-    TEST_EQUAL(utf_size(u"AAA"s,                                  Usize::columns),  3u);   // narrow
-    TEST_EQUAL(utf_size(u"\u3001\u3001\u3001"s,                   Usize::columns),  6u);   // wide
-    TEST_EQUAL(utf_size(u"àààÀÀÀ"s,                               Usize::columns),  6u);   // ambiguous + neutral
-    TEST_EQUAL(utf_size(u"ààà\u3000\u3000\u3000"s,                Usize::columns),  9u);   // ambiguous + fullwidth
-    TEST_EQUAL(utf_size(u"ààà\u20a9\u20a9\u20a9"s,                Usize::columns),  6u);   // ambiguous + halfwidth
-    TEST_EQUAL(utf_size(u"àààAAA"s,                               Usize::columns),  6u);   // ambiguous + narrow
-    TEST_EQUAL(utf_size(u"ààà\u3001\u3001\u3001"s,                Usize::columns),  9u);   // ambiguous + wide
-
-    TEST_EQUAL(utf_size(U""s,                                     Usize::columns),  0u);   // empty
-    TEST_EQUAL(utf_size(U"Hello world"s,                          Usize::columns),  11u);  // ascii
-    TEST_EQUAL(utf_size(U"aeiou"s,                                Usize::columns),  5u);   // narrow
-    TEST_EQUAL(utf_size(U"áéíóú"s,                                Usize::columns),  5u);   // precomposed neutral
-    TEST_EQUAL(utf_size(U"a\u0301e\u0301i\u0301o\u0301u\u0301"s,  Usize::columns),  5u);   // decomposed narrow
-    TEST_EQUAL(utf_size(U"ÀÀÀ"s,                                  Usize::columns),  3u);   // neutral
-    TEST_EQUAL(utf_size(U"ààà"s,                                  Usize::columns),  3u);   // ambiguous
-    TEST_EQUAL(utf_size(U"\u3000\u3000\u3000"s,                   Usize::columns),  6u);   // fullwidth
-    TEST_EQUAL(utf_size(U"\u20a9\u20a9\u20a9"s,                   Usize::columns),  3u);   // halfwidth
-    TEST_EQUAL(utf_size(U"AAA"s,                                  Usize::columns),  3u);   // narrow
-    TEST_EQUAL(utf_size(U"\u3001\u3001\u3001"s,                   Usize::columns),  6u);   // wide
-    TEST_EQUAL(utf_size(U"àààÀÀÀ"s,                               Usize::columns),  6u);   // ambiguous + neutral
-    TEST_EQUAL(utf_size(U"ààà\u3000\u3000\u3000"s,                Usize::columns),  9u);   // ambiguous + fullwidth
-    TEST_EQUAL(utf_size(U"ààà\u20a9\u20a9\u20a9"s,                Usize::columns),  6u);   // ambiguous + halfwidth
-    TEST_EQUAL(utf_size(U"àààAAA"s,                               Usize::columns),  6u);   // ambiguous + narrow
-    TEST_EQUAL(utf_size(U"ààà\u3001\u3001\u3001"s,                Usize::columns),  9u);   // ambiguous + wide
-
-    TEST_EQUAL(utf_size(L""s,                                     Usize::columns),  0u);   // empty
-    TEST_EQUAL(utf_size(L"Hello world"s,                          Usize::columns),  11u);  // ascii
-    TEST_EQUAL(utf_size(L"aeiou"s,                                Usize::columns),  5u);   // narrow
-    TEST_EQUAL(utf_size(L"áéíóú"s,                                Usize::columns),  5u);   // precomposed neutral
-    TEST_EQUAL(utf_size(L"a\u0301e\u0301i\u0301o\u0301u\u0301"s,  Usize::columns),  5u);   // decomposed narrow
-    TEST_EQUAL(utf_size(L"ÀÀÀ"s,                                  Usize::columns),  3u);   // neutral
-    TEST_EQUAL(utf_size(L"ààà"s,                                  Usize::columns),  3u);   // ambiguous
-    TEST_EQUAL(utf_size(L"\u3000\u3000\u3000"s,                   Usize::columns),  6u);   // fullwidth
-    TEST_EQUAL(utf_size(L"\u20a9\u20a9\u20a9"s,                   Usize::columns),  3u);   // halfwidth
-    TEST_EQUAL(utf_size(L"AAA"s,                                  Usize::columns),  3u);   // narrow
-    TEST_EQUAL(utf_size(L"\u3001\u3001\u3001"s,                   Usize::columns),  6u);   // wide
-    TEST_EQUAL(utf_size(L"àààÀÀÀ"s,                               Usize::columns),  6u);   // ambiguous + neutral
-    TEST_EQUAL(utf_size(L"ààà\u3000\u3000\u3000"s,                Usize::columns),  9u);   // ambiguous + fullwidth
-    TEST_EQUAL(utf_size(L"ààà\u20a9\u20a9\u20a9"s,                Usize::columns),  6u);   // ambiguous + halfwidth
-    TEST_EQUAL(utf_size(L"àààAAA"s,                               Usize::columns),  6u);   // ambiguous + narrow
-    TEST_EQUAL(utf_size(L"ààà\u3001\u3001\u3001"s,                Usize::columns),  9u);   // ambiguous + wide
-
-    TEST_EQUAL(utf_size("😀👍👩"s,    Usize::columns),  6u);  // simple emoji
-    TEST_EQUAL(utf_size("😀👍🏽👩🏽"s,    Usize::columns),  6u);  // modified emoji
-    TEST_EQUAL(utf_size("🇳🇿🇺🇸🇩🇪🇦🇺"s,  Usize::columns),  8u);  // flags
+    TEST_EQUAL(utf_size("😀👍👩"s,                               Usize::columns),  6u);   // simple emoji
+    TEST_EQUAL(utf_size("😀👍🏽👩🏽"s,                               Usize::columns),  6u);   // modified emoji
+    TEST_EQUAL(utf_size("🇳🇿🇺🇸🇩🇪🇦🇺"s,                             Usize::columns),  8u);   // flags
 
     TEST_THROW(utf_size("αβγδε\xff"s, Usize::columns), UnicodeError);
 
