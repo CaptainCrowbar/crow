@@ -984,6 +984,15 @@ void string_type_test_group() {
     UNIT_TEST(crow_string_type_name)
 }
 
+void string_view_test_group() {
+    UNIT_TEST(crow_string_view_null)
+    UNIT_TEST(crow_string_view_position)
+    UNIT_TEST(crow_string_view_begin_end)
+    UNIT_TEST(crow_string_view_cat)
+    UNIT_TEST(crow_string_view_extend)
+    UNIT_TEST(crow_string_view_left_right)
+}
+
 void string_wrapping_test_group() {
     UNIT_TEST(crow_string_unwrap)
     UNIT_TEST(crow_string_word_wrap)
@@ -1266,6 +1275,7 @@ int main(int argc, char** argv) {
     string_parsing_test_group();
     string_query_test_group();
     string_type_test_group();
+    string_view_test_group();
     string_wrapping_test_group();
     table_test_group();
     terminal_test_group();
