@@ -25,6 +25,69 @@ void test_crow_unicode_implementation_details() {
 
 }
 
+void test_crow_unicode_properties() {
+
+    TEST_EQUAL(general_category(0),         GC::Cc);  // null
+    TEST_EQUAL(general_category(U'\n'),     GC::Cc);  // line feed
+    TEST_EQUAL(general_category(U' '),      GC::Zs);  // space
+    TEST_EQUAL(general_category(U'!'),      GC::Po);  // exclamation mark
+    TEST_EQUAL(general_category(U'$'),      GC::Sc);  // dollar sign
+    TEST_EQUAL(general_category(U'('),      GC::Ps);  // left parenthesis
+    TEST_EQUAL(general_category(U')'),      GC::Pe);  // right parenthesis
+    TEST_EQUAL(general_category(U'+'),      GC::Sm);  // plus sign
+    TEST_EQUAL(general_category(U'-'),      GC::Pd);  // hyphen-minus
+    TEST_EQUAL(general_category(U'/'),      GC::Po);  // solidus
+    TEST_EQUAL(general_category(U'0'),      GC::Nd);  // digit zero
+    TEST_EQUAL(general_category(U'9'),      GC::Nd);  // digit nine
+    TEST_EQUAL(general_category(U'A'),      GC::Lu);  // latin capital letter a
+    TEST_EQUAL(general_category(U'Z'),      GC::Lu);  // latin capital letter z
+    TEST_EQUAL(general_category(U'^'),      GC::Sk);  // circumflex accent
+    TEST_EQUAL(general_category(U'_'),      GC::Pc);  // low line
+    TEST_EQUAL(general_category(U'a'),      GC::Ll);  // latin small letter a
+    TEST_EQUAL(general_category(U'z'),      GC::Ll);  // latin small letter z
+    TEST_EQUAL(general_category(0xa6),      GC::So);  // broken bar
+    TEST_EQUAL(general_category(0xaa),      GC::Lo);  // feminine ordinal indicator
+    TEST_EQUAL(general_category(0xab),      GC::Pi);  // left-pointing double angle quotation mark
+    TEST_EQUAL(general_category(0xad),      GC::Cf);  // soft hyphen
+    TEST_EQUAL(general_category(0xb2),      GC::No);  // superscript two
+    TEST_EQUAL(general_category(0xbb),      GC::Pf);  // right-pointing double angle quotation mark
+    TEST_EQUAL(general_category(0xf7),      GC::Sm);  // division sign
+    TEST_EQUAL(general_category(0x1c5),     GC::Lt);  // latin capital letter d with small letter z with caron
+    TEST_EQUAL(general_category(0x2b0),     GC::Lm);  // modifier letter small h
+    TEST_EQUAL(general_category(0x2b9),     GC::Lm);  // modifier letter prime
+    TEST_EQUAL(general_category(0x2c5),     GC::Sk);  // modifier letter down arrowhead
+    TEST_EQUAL(general_category(0x300),     GC::Mn);  // combining grave accent
+    TEST_EQUAL(general_category(0x309),     GC::Mn);  // combining hook above
+    TEST_EQUAL(general_category(0x378),     GC::Cn);  // unassigned
+    TEST_EQUAL(general_category(0x488),     GC::Me);  // combining cyrillic hundred thousands sign
+    TEST_EQUAL(general_category(0x5d1),     GC::Lo);  // hebrew letter bet
+    TEST_EQUAL(general_category(0x6fd),     GC::So);  // arabic sign sindhi ampersand
+    TEST_EQUAL(general_category(0x903),     GC::Mc);  // devanagari sign visarga
+    TEST_EQUAL(general_category(0x94e),     GC::Mc);  // devanagari vowel sign prishthamatra e
+    TEST_EQUAL(general_category(0x9f7),     GC::No);  // bengali currency numerator four
+    TEST_EQUAL(general_category(0x9fb),     GC::Sc);  // bengali ganda mark
+    TEST_EQUAL(general_category(0x16ee),    GC::Nl);  // runic arlaug symbol
+    TEST_EQUAL(general_category(0x180e),    GC::Cf);  // mongolian vowel separator
+    TEST_EQUAL(general_category(0x1f8d),    GC::Lt);  // greek capital letter alpha with dasia and oxia and prosgegrammeni
+    TEST_EQUAL(general_category(0x2006),    GC::Zs);  // six-per-em space
+    TEST_EQUAL(general_category(0x2014),    GC::Pd);  // em dash
+    TEST_EQUAL(general_category(0x2028),    GC::Zl);  // line separator
+    TEST_EQUAL(general_category(0x2029),    GC::Zp);  // paragraph separator
+    TEST_EQUAL(general_category(0x207d),    GC::Ps);  // superscript left parenthesis
+    TEST_EQUAL(general_category(0x2166),    GC::Nl);  // roman numeral seven
+    TEST_EQUAL(general_category(0x2309),    GC::Pe);  // right ceiling
+    TEST_EQUAL(general_category(0x2e0c),    GC::Pi);  // left raised omission bracket
+    TEST_EQUAL(general_category(0x2e21),    GC::Pf);  // right vertical bar with quill
+    TEST_EQUAL(general_category(0xa670),    GC::Me);  // combining cyrillic ten millions sign
+    TEST_EQUAL(general_category(0xd800),    GC::Cs);  // non private use high surrogate
+    TEST_EQUAL(general_category(0xdfff),    GC::Cs);  // low surrogate
+    TEST_EQUAL(general_category(0xe000),    GC::Co);  // private use
+    TEST_EQUAL(general_category(0xff3f),    GC::Pc);  // fullwidth low line
+    TEST_EQUAL(general_category(0x10fffd),  GC::Co);  // plane 16 private use
+    TEST_EQUAL(general_category(0x110000),  GC::Cn);  // not unicode
+
+}
+
 void test_crow_unicode_character_encoding() {
 
     // UTF-32    UTF-16     UTF-8
@@ -217,73 +280,76 @@ void test_crow_unicode_utf_iterators() {
 
 void test_crow_unicode_grapheme_iterators() {
 
-    // TODO
+    std::string str;
+    GraphemeIterator b, e, i;
 
-    // const std::string good =
-    //     "Hello\n"
-    //     "αβγδε\n"
-    //     "áéíóú\n"                                // composed
-    //     "a\u0301e\u0301i\u0301o\u0301u\u0301\n"  // decomposed
-    //     "😀👍👩\n"                               // simple emoji
-    //     "😀👍🏽👩🏽\n"                               // modified emoji
-    //     "🇳🇿🇺🇸🇩🇪🇦🇺\n";                            // flags
+    TRY(b = graphemes_begin(str));
+    TRY(e = graphemes_end(str));
+    TEST(b == e);
 
-    // const std::string bad = "αβγ\xffxyz";
+    str =
+        "Hello\n"
+        "αβγδε\n"
+        "áéíóú\n"                                // composed
+        "a\u0301e\u0301i\u0301o\u0301u\u0301\n"  // decomposed
+        "😀👍👩\n"                               // simple emoji
+        "😀👍🏽👩🏽\n"                               // modified emoji
+        "🇳🇿🇺🇸🇩🇪🇦🇺\n";                            // flags
 
-    // GraphemeIterator beg, end, i;
+    TRY(b = graphemes_begin(str));
+    TRY(e = graphemes_end(str));
 
-    // TRY(beg = graphemes_begin(good));
-    // TRY(end = graphemes_end(good));
+    TRY(i = b);  REQUIRE(i != e);  TEST_EQUAL(*i, "H");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "e");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "l");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "l");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "o");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "\n");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "α");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "β");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "γ");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "δ");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "ε");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "\n");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "á");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "é");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "í");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "ó");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "ú");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "\n");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "a\u0301");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "e\u0301");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "i\u0301");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "o\u0301");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "u\u0301");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "\n");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "😀");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "👍");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "👩");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "\n");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "😀");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "👍🏽");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "👩🏽");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "\n");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "🇳🇿");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "🇺🇸");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "🇩🇪");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "🇦🇺");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "\n");
 
-    // TRY(i = beg);  REQUIRE(i != end);  TEST_EQUAL(*i, "H");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "e");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "l");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "l");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "o");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "\n");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "α");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "β");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "γ");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "δ");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "ε");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "\n");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "á");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "é");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "í");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "ó");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "ú");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "\n");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "a\u0301");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "e\u0301");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "i\u0301");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "o\u0301");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "u\u0301");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "\n");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "😀");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "👍");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "👩");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "\n");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "😀");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "👍🏽");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "👩🏽");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "\n");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "🇳🇿");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "🇺🇸");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "🇩🇪");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "🇦🇺");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "\n");
+    TRY(++i);
+    TEST(i == e);
 
-    // TRY(++i);
-    // TEST(i == end);
+    str = "αβγ\xffxyz";
 
-    // TRY(beg = graphemes_begin(bad));
-    // TRY(end = graphemes_end(bad));
+    TRY(b = graphemes_begin(str, true));
+    TRY(e = graphemes_end(str));
 
-    // TRY(i = beg);  REQUIRE(i != end);  TEST_EQUAL(*i, "α");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "β");
-    // TRY(++i);      REQUIRE(i != end);  TEST_EQUAL(*i, "γ");
+    TRY(i = b);  REQUIRE(i != e);  TEST_EQUAL(*i, "α");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "β");
+    TRY(++i);    REQUIRE(i != e);  TEST_EQUAL(*i, "γ");
 
-    // TEST_THROW(++i, UnicodeError);
+    TEST_THROW(++i, UnicodeError);
 
 }
 

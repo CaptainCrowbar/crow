@@ -10,6 +10,7 @@
 #include <string_view>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 static_assert(sizeof(wchar_t) == sizeof(char16_t) || sizeof(wchar_t) == sizeof(char32_t));
 
@@ -215,15 +216,15 @@ namespace Crow {
     public:
         GraphemeIterator() = default;
         explicit GraphemeIterator(std::string_view utf8, size_t pos, bool checked = false);
-        const std::string_view& operator*() const { return view_; }
+        const std::string_view& operator*() const { return current_; }
         GraphemeIterator& operator++();
-        bool operator==(const GraphemeIterator& rhs) const noexcept { return view_.data() == rhs.view_.data(); }
+        bool operator==(const GraphemeIterator& rhs) const noexcept { return current_.data() == rhs.current_.data(); }
     private:
-        std::string_view utf8_;
-        std::string_view view_;
-        std::string_view next_view_;
-        char32_t char_ = 0;
-        char32_t next_char_ = 0;
+        std::string_view source_;   // Full subject string
+        std::string_view current_;  // Encoded grapheme cluster
+        std::string_view peek_;     // Next encoded scalar
+        std::u32string uchars_;     // Current+peek as UTF-32
+        std::vector<GC> gcs_;       // Current+peek general categories
         bool checked_ = false;
     };
 

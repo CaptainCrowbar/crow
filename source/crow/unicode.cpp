@@ -344,25 +344,68 @@ namespace Crow {
     }
 
     GraphemeIterator::GraphemeIterator(std::string_view utf8, size_t pos, bool checked):
-    utf8_(utf8), view_(utf8.substr(pos, 0)), checked_(checked) {
-        if (pos == utf8_.size())
+    source_(utf8), current_(utf8.substr(pos, 0)), checked_(checked) {
+        if (pos >= utf8.size())
             return;
         auto q = pos;
-        next_char_ = check_decode_char(utf8_, q);
-        if (checked_ && next_char_ == not_unicode)
-            throw UnicodeError(utf8_, pos);
-        next_view_ = utf8.substr(pos, q - pos);
+        auto c = decode_char(source_, q);
+        peek_ = source_.substr(pos, q - pos);
+        uchars_ += c;
+        gcs_.push_back(general_category(c));
         ++*this;
     }
 
     GraphemeIterator& GraphemeIterator::operator++() {
-        // TODO
-        (void)checked_;
-        (void)char_;
-        (void)next_char_;
-        (void)char_;
-        (void)next_char_;
+
+        using namespace Detail;
+
+        // Discard current grapheme
+        current_ = peek_.substr(0, 0);
+        uchars_.erase(uchars_.begin(), uchars_.end() - 1);
+        gcs_.erase(gcs_.begin(), gcs_.end() - 1);
+        if (peek_.empty())
+            return *this;
+
+        for (;;) {
+
+            // Check peek for valid Unicode
+            auto peek_pos = size_t(peek_.data() - source_.data());
+            if (uchars_[0] == not_unicode) {
+                if (checked_)
+                    throw UnicodeError(source_, peek_pos);
+                uchars_[0] = replacement_char;
+            }
+
+            // Append peek to current
+            current_ = std::string_view(current_.data(), current_.size() + peek_.size());
+            peek_pos += peek_.size();
+            if (peek_pos == source_.size()) {
+                peek_ = source_.substr(source_.size(), 0);
+                break;
+            }
+
+            // Get next peek
+            auto q = peek_pos;
+            auto c = decode_char(source_, q);
+            peek_ = source_.substr(peek_pos, q - peek_pos);
+            uchars_ += c;
+            gcs_.push_back(general_category(c));
+
+            // Check peek for grapheme continuation
+            bool extend = false;
+            if (c == 0)
+                extend = true;
+            else if (c >= 0x7f && is_zero_width(gcs_.back()))
+                extend = true;
+            else if (uchars_.size() == 2 && is_regional_indicator(uchars_[0]) && is_regional_indicator(uchars_[1]))
+                extend = true;
+            if (! extend)
+                break;
+
+        }
+
         return *this;
+
     }
 
     namespace {
