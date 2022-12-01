@@ -1,5 +1,5 @@
 #include "crow/unicode.hpp"
-#include "crow/unicode-data.hpp"
+#include "crow/string-view.hpp"
 #include <algorithm>
 #include <map>
 
@@ -360,7 +360,7 @@ namespace Crow {
         using namespace Detail;
 
         // Discard current grapheme
-        current_ = peek_.substr(0, 0);
+        current_ = view_begin(peek_);
         uchars_.erase(uchars_.begin(), uchars_.end() - 1);
         gcs_.erase(gcs_.begin(), gcs_.end() - 1);
         if (peek_.empty())
@@ -369,7 +369,7 @@ namespace Crow {
         for (;;) {
 
             // Check peek for valid Unicode
-            auto peek_pos = size_t(peek_.data() - source_.data());
+            auto peek_pos = view_pos(source_, peek_);
             if (uchars_[0] == not_unicode) {
                 if (checked_)
                     throw UnicodeError(source_, peek_pos);
@@ -377,10 +377,10 @@ namespace Crow {
             }
 
             // Append peek to current
-            current_ = std::string_view(current_.data(), current_.size() + peek_.size());
+            current_ = view_cat(current_, peek_);
             peek_pos += peek_.size();
             if (peek_pos == source_.size()) {
-                peek_ = source_.substr(source_.size(), 0);
+                peek_ = view_end(source_);
                 break;
             }
 
