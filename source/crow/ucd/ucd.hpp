@@ -51,29 +51,29 @@ namespace Crow {
         )
 
         CROW_ENUM_CLASS(Grapheme_Cluster_Break, int, 1,
-            Other,
             CR,
-            LF,
             Control,
             Extend,
-            ZWJ,
-            Regional_Indicator,
-            Prepend,
-            SpacingMark,
             L,
-            V,
-            T,
+            LF,
             LV,
-            LVT
+            LVT,
+            Other,
+            Prepend,
+            Regional_Indicator,
+            SpacingMark,
+            T,
+            V,
+            ZWJ
         )
 
         CROW_ENUM_CLASS(Hangul_Syllable_Type, int, 1,
-            NA,
             L,
-            V,
-            T,
             LV,
-            LVT
+            LVT,
+            NA,
+            T,
+            V
         )
 
         using GeneralCategoryTable                = std::map<char32_t, GC>;
@@ -92,6 +92,7 @@ namespace Crow {
         const BooleanPropertyTable&                pattern_syntax_table();
         const BooleanPropertyTable&                xid_continue_table();
         const BooleanPropertyTable&                xid_start_table();
+        const BooleanPropertyTable&                extended_pictographic_table();
 
     }
 

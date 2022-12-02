@@ -72,6 +72,7 @@ namespace Crow {
         Grapheme_Cluster_Break grapheme_cluster_break(char32_t c);
         Hangul_Syllable_Type hangul_syllable_type(char32_t c) noexcept;
         bool is_full_composition_exclusion(char32_t c);
+        bool is_extended_pictographic(char32_t c);
         constexpr bool is_regional_indicator(char32_t c) noexcept { return c >= 0x1f1e6 & c <= 0x1f1ff; }
         constexpr bool is_zero_width(GC gc) noexcept { return gc == GC::Cc || gc == GC::Cf || gc == GC::Mn || gc == GC::Sk; }
 
@@ -220,11 +221,14 @@ namespace Crow {
         GraphemeIterator& operator++();
         bool operator==(const GraphemeIterator& rhs) const noexcept { return current_.data() == rhs.current_.data(); }
     private:
+        using GCB = Detail::Grapheme_Cluster_Break;
         std::string_view source_;   // Full subject string
         std::string_view current_;  // Encoded grapheme cluster
         std::string_view peek_;     // Next encoded scalar
         std::u32string uchars_;     // Current+peek as UTF-32
-        std::vector<GC> gcs_;       // Current+peek general categories
+        std::vector<GC> gcs_;       // Current+peek general category
+        std::vector<GCB> gcbs_;     // Current+peek grapheme cluster break
+        std::vector<bool> eps_;     // Current+peek extended pictographic
         bool checked_ = false;
     };
 

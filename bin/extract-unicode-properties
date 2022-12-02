@@ -13,6 +13,7 @@ import re
 # XID_Nonstart                     bool           (XID_Continue && ! XID_Start)
 # Full_Composition_Exclusion       bool           DerivedNormalizationProps.txt
 # Pattern_Syntax                   bool           PropList.txt
+# Extended_Pictographic            bool           emoji/emoji-data.txt
 
 n_unicode = 0x110000
 project = "crow"
@@ -38,6 +39,7 @@ derived_core_properties_file = os.path.join(ucd, "DerivedCoreProperties.txt")
 derived_normalization_props_file = os.path.join(ucd, "DerivedNormalizationProps.txt")
 prop_list_file = os.path.join(ucd, "PropList.txt")
 grapheme_break_property_file = os.path.join(ucd, "auxiliary/GraphemeBreakProperty.txt")
+emoji_data_file = os.path.join(ucd, "emoji/emoji-data.txt")
 
 gc_pattern = re.compile(r"C[cfnos]|L[lmotu]|M[cen]|N[dlo]|P[cdefios]|S[ckmo]|Z[lps]")
 ccc_pattern = re.compile(r"\d+")
@@ -57,6 +59,7 @@ xid_continue = [False] * n_unicode
 xid_start = [False] * n_unicode
 full_composition_exclusion = [False] * n_unicode
 pattern_syntax = [False] * n_unicode
+extended_pictographic = [False] * n_unicode
 
 general_category_cpp = os.path.join(ucd_cpp, "general-category.cpp")
 canonical_combining_class_cpp = os.path.join(ucd_cpp, "canonical-combining-class.cpp")
@@ -67,6 +70,7 @@ xid_continue_cpp = os.path.join(ucd_cpp, "xid-continue.cpp")
 xid_start_cpp = os.path.join(ucd_cpp, "xid-start.cpp")
 full_composition_exclusion_cpp = os.path.join(ucd_cpp, "full-composition-exclusion.cpp")
 pattern_syntax_cpp = os.path.join(ucd_cpp, "pattern-syntax.cpp")
+extended_pictographic_cpp = os.path.join(ucd_cpp, "extended-pictographic.cpp")
 
 # UnicodeData.txt => General_Category, Canonical_Combining_Class, Canonical_Decomposition_Mapping
 
@@ -310,5 +314,6 @@ extract_boolean_property(derived_core_properties_file, xid_start_cpp, "XID_Start
 extract_boolean_property(derived_core_properties_file, xid_continue_cpp, "XID_Continue", xid_continue)
 extract_boolean_property(derived_normalization_props_file, full_composition_exclusion_cpp, "Full_Composition_Exclusion", full_composition_exclusion)
 extract_boolean_property(prop_list_file, pattern_syntax_cpp, "Pattern_Syntax", pattern_syntax)
+extract_boolean_property(emoji_data_file, extended_pictographic_cpp, "Extended_Pictographic", extended_pictographic)
 
 print("Done")

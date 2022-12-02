@@ -345,6 +345,7 @@ namespace Crow {
 
     GraphemeIterator::GraphemeIterator(std::string_view utf8, size_t pos, bool checked):
     source_(utf8), current_(utf8.substr(pos, 0)), checked_(checked) {
+        using namespace Detail;
         if (pos >= utf8.size())
             return;
         auto q = pos;
@@ -352,7 +353,88 @@ namespace Crow {
         peek_ = source_.substr(pos, q - pos);
         uchars_ += c;
         gcs_.push_back(general_category(c));
+        gcbs_.push_back(grapheme_cluster_break(c));
+        eps_.push_back(is_extended_pictographic(c));
         ++*this;
+    }
+
+    namespace {
+
+        using GCB = Detail::Grapheme_Cluster_Break;
+
+        bool continue_grapheme(char32_t first, char32_t last, char32_t next,
+                GC first_gc, GC last_gc, GC next_gc,
+                GCB first_gcb, GCB last_gcb, GCB next_gcb,
+                bool first_ep, bool last_ep, bool next_ep,
+                size_t prefix_length) noexcept {
+
+            // https://www.unicode.org/reports/tr29/tr29-41.html#Grapheme_Cluster_Boundaries
+
+            //  Break at the start and end of text, unless the text is empty.
+            //      GB1.    sot <break> Any
+            //      GB2.    Any <break> eot
+            //  Do not break between a CR and LF. Otherwise, break before and after controls.
+            //      GB3.    CR <join> LF
+            //      GB4.    (Control | CR | LF) <break>
+            //      GB5.    <break> (Control | CR | LF)
+            //  Do not break Hangul syllable sequences.
+            //      GB6.    L <join> (L | V | LV | LVT)
+            //      GB7.    (LV | V) <join> (V | T)
+            //      GB8.    (LVT | T) <join> T
+            //  Do not break before extending characters or ZWJ.
+            //      GB9.    <join> (Extend | ZWJ)
+            //  Do not break before SpacingMarks, or after Prepend characters.
+            //      GB9a.   <join> SpacingMark
+            //      GB9b.   Prepend <join>
+            //  Do not break within emoji modifier sequences or emoji zwj sequences.
+            //      GB11.   \p{Extended_Pictographic} Extend* ZWJ <join> \p{Extended_Pictographic}
+            //  Do not break within emoji flag sequences.
+            //  That is, do not break between regional indicator (RI) symbols if there is an odd number of RI characters before the break point.
+            //      GB12.   sot (RI RI)* RI <join> RI
+            //      GB13.   [^RI] (RI RI)* RI <join> RI
+            //  Otherwise, break everywhere.
+            //      GB999.  Any <break> Any
+
+            using namespace Detail;
+
+            // TODO
+            (void)first;
+            (void)last;
+            (void)next;
+            (void)first_gc;
+            (void)last_gc;
+            (void)next_gc;
+            (void)first_gcb;
+            (void)last_gcb;
+            (void)next_gcb;
+            (void)first_ep;
+            (void)last_ep;
+            (void)next_ep;
+            (void)prefix_length;
+
+            if (last == U'\r' && next == U'\n')
+                return true;
+            else if (last_gcb == GCB::Control || next_gcb == GCB::Control)
+                return true;
+            else if (last_gcb == GCB::L && (next_gcb == GCB::L || next_gcb == GCB::V || next_gcb == GCB::LV || next_gcb == GCB::LVT))
+                return true;
+            else if ((last_gcb == GCB::LV || last_gcb == GCB::V) && (next_gcb == GCB::V || next_gcb == GCB::T))
+                return true;
+            else if ((last_gcb == GCB::LVT || last_gcb == GCB::T) && next_gcb == GCB::T)
+                return true;
+            else if (next_gcb == GCB::Extend || next_gcb == GCB::ZWJ)
+                return true;
+            else if (last_gcb == GCB::Prepend)
+                return true;
+            else if (first_ep && last_gcb == GCB::ZWJ && next_ep)
+                return true;
+            else if (prefix_length == 1 && last_gcb == GCB::Regional_Indicator && next_gcb == GCB::Regional_Indicator)
+                return true;
+            else
+                return false;
+
+        }
+
     }
 
     GraphemeIterator& GraphemeIterator::operator++() {
@@ -363,6 +445,8 @@ namespace Crow {
         current_ = view_begin(peek_);
         uchars_.erase(uchars_.begin(), uchars_.end() - 1);
         gcs_.erase(gcs_.begin(), gcs_.end() - 1);
+        gcbs_.erase(gcbs_.begin(), gcbs_.end() - 1);
+        eps_.erase(eps_.begin(), eps_.end() - 1);
         if (peek_.empty())
             return *this;
 
@@ -390,16 +474,16 @@ namespace Crow {
             peek_ = source_.substr(peek_pos, q - peek_pos);
             uchars_ += c;
             gcs_.push_back(general_category(c));
+            gcbs_.push_back(grapheme_cluster_break(c));
+            eps_.push_back(is_extended_pictographic(c));
 
             // Check peek for grapheme continuation
-            bool extend = false;
-            if (c == 0)
-                extend = true;
-            else if (c >= 0x7f && is_zero_width(gcs_.back()))
-                extend = true;
-            else if (uchars_.size() == 2 && is_regional_indicator(uchars_[0]) && is_regional_indicator(uchars_[1]))
-                extend = true;
-            if (! extend)
+            size_t n_prefix = uchars_.size() - 1;
+            if (! continue_grapheme(uchars_[0], uchars_[n_prefix - 1], uchars_.back(),
+                    gcs_[0], gcs_[n_prefix - 1], gcs_.back(),
+                    gcbs_[0], gcbs_[n_prefix - 1], gcbs_.back(),
+                    eps_[0], eps_[n_prefix - 1], eps_.back(),
+                    n_prefix))
                 break;
 
         }
@@ -435,6 +519,10 @@ namespace Crow {
 
         bool is_full_composition_exclusion(char32_t c) {
             return find_in_ucd_table(c, full_composition_exclusion_table());
+        }
+
+        bool is_extended_pictographic(char32_t c) {
+            return find_in_ucd_table(c, extended_pictographic_table());
         }
 
         namespace {

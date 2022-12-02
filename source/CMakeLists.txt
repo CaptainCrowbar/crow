@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.16)
 # and propagate the new version to version.hpp.
 
 project(Crow
-    VERSION 2.0.102
+    VERSION 2.0.103
     LANGUAGES CXX
 )
 
@@ -95,6 +95,7 @@ add_library(${library} STATIC
     ${library}/ucd/canonical-combining-class.cpp
     ${library}/ucd/canonical-decomposition-mapping.cpp
     ${library}/ucd/east-asian-width.cpp
+    ${library}/ucd/extended-pictographic.cpp
     ${library}/ucd/full-composition-exclusion.cpp
     ${library}/ucd/general-category.cpp
     ${library}/ucd/grapheme-cluster-break.cpp
