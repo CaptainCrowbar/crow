@@ -1,6 +1,7 @@
 #include "crow/unicode.hpp"
 #include "crow/string-view.hpp"
 #include <algorithm>
+#include <iterator>
 #include <map>
 
 namespace Crow {
@@ -362,10 +363,9 @@ namespace Crow {
 
         using GCB = Detail::Grapheme_Cluster_Break;
 
-        bool continue_grapheme(char32_t first, char32_t last, char32_t next,
-                GC first_gc, GC last_gc, GC next_gc,
-                GCB first_gcb, GCB last_gcb, GCB next_gcb,
-                bool first_ep, bool last_ep, bool next_ep,
+        bool continue_grapheme(char32_t /*first*/, char32_t last, char32_t next,
+                GCB /*first_gcb*/, GCB last_gcb, GCB next_gcb,
+                bool first_ep, bool /*last_ep*/, bool next_ep,
                 size_t prefix_length) noexcept {
 
             // https://www.unicode.org/reports/tr29/tr29-41.html#Grapheme_Cluster_Boundaries
@@ -396,21 +396,6 @@ namespace Crow {
             //      GB999.  Any <break> Any
 
             using namespace Detail;
-
-            // TODO
-            (void)first;
-            (void)last;
-            (void)next;
-            (void)first_gc;
-            (void)last_gc;
-            (void)next_gc;
-            (void)first_gcb;
-            (void)last_gcb;
-            (void)next_gcb;
-            (void)first_ep;
-            (void)last_ep;
-            (void)next_ep;
-            (void)prefix_length;
 
             if (last == U'\r' && next == U'\n')
                 return true;
@@ -480,7 +465,6 @@ namespace Crow {
             // Check peek for grapheme continuation
             size_t n_prefix = uchars_.size() - 1;
             if (! continue_grapheme(uchars_[0], uchars_[n_prefix - 1], uchars_.back(),
-                    gcs_[0], gcs_[n_prefix - 1], gcs_.back(),
                     gcbs_[0], gcbs_[n_prefix - 1], gcbs_.back(),
                     eps_[0], eps_[n_prefix - 1], eps_.back(),
                     n_prefix))
@@ -642,80 +626,57 @@ namespace Crow {
         return find_in_ucd_table(c, Detail::xid_continue_table());
     }
 
+    namespace {
+
+        size_t character_width(char32_t c, GC gc) {
+            using namespace Detail;
+            if (gc == GC::Cc || gc == GC::Cf || gc == GC::Mn || gc == GC::Sk)
+                return 0;
+            auto eaw = east_asian_width(c);
+            if (eaw == East_Asian_Width::F || eaw == East_Asian_Width::W)
+                return 2;
+            else
+                return 1;
+        }
+
+    }
+
     size_t utf_size(std::string_view str, Usize mode) {
-
-        using namespace Detail;
-
-        size_t n = 0;
 
         switch (mode) {
 
             case Usize::units: {
-
-                n = str.size();
-
-                break;
-
+                return str.size();
             }
 
             case Usize::scalars: {
-
-                for (size_t pos = 0; pos < str.size(); ++n)
+                size_t n = 0;
+                size_t pos = 0;
+                while (pos < str.size()) {
                     check_decode_char(str, pos);
-
-                break;
-
+                    ++n;
+                }
+                return n;
             }
 
             case Usize::graphemes: {
-
-                char32_t c = 0;
-                bool is_ri = false;
-                bool was_ri = false;
-                GC gc;
-
-                for (size_t pos = 0; pos < str.size();) {
-                    c = check_decode_char(str, pos);
-                    is_ri = is_regional_indicator(c);
-                    if (is_ri && was_ri) {
-                        was_ri = false;
-                    } else {
-                        gc = general_category(c);
-                        if (! is_zero_width(gc))
-                            ++n;
-                        was_ri = is_ri;
-                    }
-                }
-
-                break;
-
+                auto range = graphemes(str, true);
+                return size_t(std::distance(range.begin(), range.end()));
             }
 
             case Usize::columns: {
-
-                char32_t c = 0;
-                GC gc;
-                East_Asian_Width eaw;
-
-                for (size_t pos = 0; pos < str.size();) {
-                    c = check_decode_char(str, pos);
-                    gc = general_category(c);
-                    if (! is_zero_width(gc)) {
-                        eaw = east_asian_width(c);
-                        if (eaw == East_Asian_Width::F || eaw == East_Asian_Width::W)
-                            n += 2;
-                        else
-                            ++n;
-                    }
+                size_t n = 0;
+                auto range = graphemes(str, true);
+                for (auto g = range.begin(); g != range.end(); ++g) {
+                    if (g.uchars_.size() >= 2 && g.gcbs_[0] == GCB::Regional_Indicator && g.gcbs_[1] == GCB::Regional_Indicator)
+                        n += 2;
+                    else
+                        n += character_width(g.uchars_[0], g.gcs_[0]);
                 }
-
-                break;
-
+                return n;
             }
 
         }
-
-        return n;
 
     }
 

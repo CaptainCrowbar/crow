@@ -73,8 +73,6 @@ namespace Crow {
         Hangul_Syllable_Type hangul_syllable_type(char32_t c) noexcept;
         bool is_full_composition_exclusion(char32_t c);
         bool is_extended_pictographic(char32_t c);
-        constexpr bool is_regional_indicator(char32_t c) noexcept { return c >= 0x1f1e6 & c <= 0x1f1ff; }
-        constexpr bool is_zero_width(GC gc) noexcept { return gc == GC::Cc || gc == GC::Cf || gc == GC::Mn || gc == GC::Sk; }
 
     }
 
@@ -212,6 +210,8 @@ namespace Crow {
         return {utf_begin(utf8, checked), utf_end(utf8, checked)};
     }
 
+    size_t utf_size(std::string_view str, Usize mode);
+
     class GraphemeIterator:
     public ForwardIterator<GraphemeIterator, const std::string_view> {
     public:
@@ -221,6 +221,7 @@ namespace Crow {
         GraphemeIterator& operator++();
         bool operator==(const GraphemeIterator& rhs) const noexcept { return current_.data() == rhs.current_.data(); }
     private:
+        friend size_t utf_size(std::string_view str, Usize mode);
         using GCB = Detail::Grapheme_Cluster_Break;
         std::string_view source_;   // Full subject string
         std::string_view current_;  // Encoded grapheme cluster
@@ -273,7 +274,6 @@ namespace Crow {
         return is_valid_utf(std::basic_string_view<C>(str), hard);
     }
 
-    size_t utf_size(std::string_view str, Usize mode);
     std::string to_nfc(std::string_view str);
     std::u32string to_nfc(std::u32string_view str);
     std::string to_nfd(std::string_view str);
