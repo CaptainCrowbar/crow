@@ -17,12 +17,12 @@ This header defines functions related to Unicode and UTF-8 encoding.
 ## Constants
 
 ```c++
-constexpr char32_t first_surrogate   = 0xd800;         // First UTF-16 surrogate code
-constexpr char32_t last_surrogate    = 0xdfff;         // Last UTF-16 surrogate code
-constexpr char32_t byte_order_mark   = 0xfeff;         // Byte order mark
-constexpr char32_t replacement_char  = 0xfffd;         // Unicode replacement character
-constexpr char32_t max_unicode       = 0x10ffff;       // Highest possible Unicode code point
-constexpr char32_t not_unicode       = ~ char32_t(0);  // Returned as an error code
+constexpr char32_t first_surrogate        = 0xd800;         // First UTF-16 surrogate code
+constexpr char32_t last_surrogate         = 0xdfff;         // Last UTF-16 surrogate code
+constexpr char32_t byte_order_mark        = 0xfeff;         // Byte order mark
+constexpr char32_t replacement_character  = 0xfffd;         // Unicode replacement character
+constexpr char32_t max_unicode            = 0x10ffff;       // Highest possible Unicode code point
+constexpr char32_t not_unicode            = ~ char32_t(0);  // Returned as an error code
 ```
 
 Some code points defined for convenience. The `not_unicode` value is returned

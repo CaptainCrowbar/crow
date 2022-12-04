@@ -338,7 +338,7 @@ namespace Crow {
             if (char_ == not_unicode) {
                 if (checked_)
                     throw UnicodeError(utf8_, pos_);
-                char_ = replacement_char;
+                char_ = replacement_character;
             }
         }
         return *this;
@@ -442,7 +442,7 @@ namespace Crow {
             if (uchars_[0] == not_unicode) {
                 if (checked_)
                     throw UnicodeError(source_, peek_pos);
-                uchars_[0] = replacement_char;
+                uchars_[0] = replacement_character;
             }
 
             // Append peek to current
