@@ -1,8 +1,8 @@
 #include "crow/enum.hpp"
 #include "crow/types.hpp"
-#include <map>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 namespace Crow {
 
@@ -51,8 +51,8 @@ namespace Crow {
         )
 
         CROW_ENUM_CLASS(Grapheme_Cluster_Break, int, 1,
-            CR,
             Control,
+            CR,
             Extend,
             L,
             LF,
@@ -76,12 +76,13 @@ namespace Crow {
             V
         )
 
-        using GeneralCategoryTable                = std::map<char32_t, GC>;
-        using CanonicalCombiningClassTable        = std::map<char32_t, int>;
-        using CanonicalDecompositionMappingTable  = std::unordered_map<char32_t, std::pair<char32_t, char32_t>>;
-        using EastAsianWidthTable                 = std::map<char32_t, East_Asian_Width>;
-        using GraphemeClusterBreakTable           = std::map<char32_t, Grapheme_Cluster_Break>;
-        using BooleanPropertyTable                = std::map<char32_t, bool>;
+        template <typename T> using UcdPropertyTable  = std::vector<std::pair<char32_t, T>>;
+        using BooleanPropertyTable                    = UcdPropertyTable<bool>;
+        using CanonicalCombiningClassTable            = UcdPropertyTable<int>;
+        using EastAsianWidthTable                     = UcdPropertyTable<East_Asian_Width>;
+        using GeneralCategoryTable                    = UcdPropertyTable<GC>;
+        using GraphemeClusterBreakTable               = UcdPropertyTable<Grapheme_Cluster_Break>;
+        using CanonicalDecompositionMappingTable      = std::unordered_map<char32_t, std::pair<char32_t, char32_t>>;
 
         const GeneralCategoryTable&                general_category_table();
         const CanonicalCombiningClassTable&        canonical_combining_class_table();

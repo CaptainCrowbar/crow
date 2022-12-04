@@ -478,10 +478,12 @@ namespace Crow {
 
     namespace {
 
-        template <typename K, typename T>
-        T find_in_ucd_table(K key, const std::map<K, T>& table) {
-            auto it = table.upper_bound(key);
-            --it;
+        template <typename T>
+        T find_in_ucd_table(char32_t c, const Detail::UcdPropertyTable<T>& table) noexcept {
+            auto pair = std::make_pair(c, T());
+            auto it = std::lower_bound(table.begin(), table.end(), pair);
+            if (it == table.end() || it->first > c)
+                --it;
             return it->second;
         }
 
