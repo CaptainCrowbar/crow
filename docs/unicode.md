@@ -206,9 +206,9 @@ class GraphemeIterator {
     const std::string_view& operator*() const noexcept;
 };
 using GraphemeRange = Irange<GraphemeIterator>;
-GraphemeIterator graphemes_begin(std::string_view utf8, bool checked = false) noexcept;
-GraphemeIterator graphemes_end(std::string_view utf8, bool checked = false) noexcept;
-GraphemeRange graphemes(std::string_view utf8, bool checked = false) noexcept;
+GraphemeIterator graphemes_begin(std::string_view utf8, bool checked = false);
+GraphemeIterator graphemes_end(std::string_view utf8, bool checked = false);
+GraphemeRange graphemes(std::string_view utf8, bool checked = false);
 ```
 
 An iterator over the extended grapheme clusters in a UTF-8 string. Standard

@@ -235,15 +235,15 @@ namespace Crow {
 
     using GraphemeRange = Irange<GraphemeIterator>;
 
-    inline GraphemeIterator graphemes_begin(std::string_view utf8, bool checked = false) noexcept {
+    inline GraphemeIterator graphemes_begin(std::string_view utf8, bool checked = false) {
         return GraphemeIterator(utf8, 0, checked);
     }
 
-    inline GraphemeIterator graphemes_end(std::string_view utf8, bool checked = false) noexcept {
+    inline GraphemeIterator graphemes_end(std::string_view utf8, bool checked = false) {
         return GraphemeIterator(utf8, utf8.size(), checked);
     }
 
-    inline GraphemeRange graphemes(std::string_view utf8, bool checked = false) noexcept {
+    inline GraphemeRange graphemes(std::string_view utf8, bool checked = false) {
         return {graphemes_begin(utf8, checked), graphemes_end(utf8, checked)};
     }
 

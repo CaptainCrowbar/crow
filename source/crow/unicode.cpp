@@ -344,21 +344,6 @@ namespace Crow {
         return *this;
     }
 
-    GraphemeIterator::GraphemeIterator(std::string_view utf8, size_t pos, bool checked):
-    source_(utf8), current_(utf8.substr(pos, 0)), checked_(checked) {
-        using namespace Detail;
-        if (pos >= utf8.size())
-            return;
-        auto q = pos;
-        auto c = decode_char(source_, q);
-        peek_ = source_.substr(pos, q - pos);
-        uchars_ += c;
-        gcs_.push_back(general_category(c));
-        gcbs_.push_back(grapheme_cluster_break(c));
-        eps_.push_back(is_extended_pictographic(c));
-        ++*this;
-    }
-
     namespace {
 
         using GCB = Detail::Grapheme_Cluster_Break;
@@ -420,6 +405,21 @@ namespace Crow {
 
         }
 
+    }
+
+    GraphemeIterator::GraphemeIterator(std::string_view utf8, size_t pos, bool checked):
+    source_(utf8), current_(utf8.substr(pos, 0)), checked_(checked) {
+        using namespace Detail;
+        if (pos >= utf8.size())
+            return;
+        auto q = pos;
+        auto c = decode_char(source_, q);
+        peek_ = source_.substr(pos, q - pos);
+        uchars_ += c;
+        gcs_.push_back(general_category(c));
+        gcbs_.push_back(grapheme_cluster_break(c));
+        eps_.push_back(is_extended_pictographic(c));
+        ++*this;
     }
 
     GraphemeIterator& GraphemeIterator::operator++() {
