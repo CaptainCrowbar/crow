@@ -15,6 +15,15 @@ namespace Crow;
 ## Algorithms
 
 ```c++
+template <ArithmeticType T> constexpr T binomial(T a, T b) noexcept;
+```
+
+Returns the binomial coefficient of `(a,b)`, equal to `a!/b!(a-b)!` if
+`b∈[0,a]`, otherwise zero). Behaviour is undefined if the correct result would
+be out of range for `T`, or if `T` is floating point and either argument is
+not an integer value.
+
+```c++
 template <ArithmeticType T> constexpr T const_abs(T x) noexcept;
 ```
 
@@ -63,6 +72,21 @@ template <ArithmeticType T> constexpr T fraction(T x) noexcept;
 Returns the fractional part of a floating point number (defined as
 `x-floor(x)`; equivalent to `euclidean_remainder(x,1)`). For integer types
 this will always return zero.
+
+```c++
+template <typename T, std::integral U>
+    constexpr T integer_power(T x, U y);
+template <typename T, std::integral U, typename BinaryFunction>
+    constexpr T integer_power(T x, U y, BinaryFunction f,
+        T unit = T(1));
+```
+
+Raise `x` to the power of `y`, using an _O(log y)_ algorithm. `T` can be any
+type supported by the binary function, which defaults to multiplication. `U`
+must be a standard integer type. If `y` is zero, this will return `unit`,
+regardless of the value of `x`; behaviour is undefined if `y` is negative.
+The function and unit arguments must be supplied if `T` is not constructible
+from an integer.
 
 ```c++
 template <std::floating_point X, ArithmeticType Y>

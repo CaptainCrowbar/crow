@@ -1,5 +1,5 @@
 #include "crow/dice.hpp"
-#include "crow/algorithm.hpp"
+#include "crow/maths.hpp"
 #include "crow/regex.hpp"
 #include <algorithm>
 #include <cmath>

@@ -2,7 +2,9 @@
 
 #include "crow/constants.hpp"
 #include "crow/types.hpp"
+#include <bit>
 #include <concepts>
+#include <functional>
 #include <limits>
 #include <numbers>
 #include <type_traits>
@@ -11,6 +13,25 @@
 namespace Crow {
 
     // Algorithms
+
+    template <ArithmeticType T>
+    constexpr T binomial(T a, T b) noexcept {
+        if (b < 0 || b > a)
+            return 0;
+        if (b == 0 || b == a)
+            return 1;
+        if (b > a / 2)
+            b = a - b;
+        T n = 1;
+        T d = 1;
+        while (b > 0) {
+            n *= a;
+            d *= b;
+            a -= 1;
+            b -= 1;
+        }
+        return n / d;
+    }
 
     template <ArithmeticType T>
     constexpr T const_abs(T x) noexcept {
@@ -99,6 +120,31 @@ namespace Crow {
         } else {
             return 0;
         }
+    }
+
+    template <typename T, std::integral U, typename BinaryFunction>
+    requires std::invocable<BinaryFunction, T, T>
+        && requires (T t, BinaryFunction f) {
+            { f(t, t) } -> std::convertible_to<T>;
+        }
+    constexpr T integer_power(T x, U y, BinaryFunction f, T unit = T(1)) {
+        static_assert(std::is_integral_v<U>);
+        using U2 = std::make_unsigned_t<U>;
+        U2 y2 = U2(y);
+        U2 mask = std::bit_floor(y2);
+        T z = unit;
+        while (mask != 0) {
+            z = f(z, z);
+            if ((y2 & mask) != 0)
+                z = f(z, x);
+            mask >>= 1;
+        }
+        return z;
+    }
+
+    template <typename T, std::integral U>
+    constexpr T integer_power(T x, U y) {
+        return integer_power(x, y, std::multiplies<T>());
     }
 
     template <std::floating_point X, typename Y>

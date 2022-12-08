@@ -12,32 +12,6 @@ namespace Crow;
 * TOC
 {:toc}
 
-## Arithmetic algorithms
-
-```c++
-template <ArithmeticType T> constexpr T binomial(T a, T b) noexcept;
-```
-
-Returns the binomial coefficient of `(a,b)`, equal to `a!/b!(a-b)!` if
-`b∈[0,a]`, otherwise zero). Behaviour is undefined if the correct result would
-be out of range for `T`, or if `T` is floating point and either argument is
-not an integer value.
-
-```c++
-template <typename T, std::integral U>
-    constexpr T integer_power(T x, U y);
-template <typename T, std::integral U, typename BinaryFunction>
-    constexpr T integer_power(T x, U y, BinaryFunction f,
-        T unit = T(1));
-```
-
-Raise `x` to the power of `y`, using an _O(log y)_ algorithm. `T` can be any
-type supported by the binary function, which defaults to multiplication. `U`
-must be a standard integer type. If `y` is zero, this will return `unit`,
-regardless of the value of `x`; behaviour is undefined if `y` is negative.
-The function and unit arguments must be supplied if `T` is not constructible
-from an integer.
-
 ## Container algorithms
 
 ```c++
