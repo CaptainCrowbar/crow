@@ -33,10 +33,13 @@ Satisfied by any integral or floating point type, except `bool`.
 
 ```c++
 template <typename T> concept NumericType;
+template <typename T> concept IntegralNumericType;
+template <typename T> concept RealNumericType;
 ```
 
-Satisfied by any type for which a specialisation of `std::numeric_limits`
-exists.
+`NumericType` is satisfied by any type for which a specialisation of
+`std::numeric_limits` exists. The other concepts break this down into
+integral and non-integral types.
 
 ```c++
 template <typename T> concept PrimitiveScalarType;
