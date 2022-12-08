@@ -540,6 +540,7 @@ void maths_test_group() {
     UNIT_TEST(crow_maths_integer_power_generalised)
     UNIT_TEST(crow_maths_interpolate)
     UNIT_TEST(crow_maths_symmetric_division)
+    UNIT_TEST(crow_maths_sign)
     UNIT_TEST(crow_maths_numeric_literals)
 }
 

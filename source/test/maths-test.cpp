@@ -384,6 +384,24 @@ void test_crow_maths_symmetric_division() {
 
 }
 
+void test_crow_maths_sign() {
+
+    TEST_EQUAL(sign_of(-42),    -1);
+    TEST_EQUAL(sign_of(-1),     -1);
+    TEST_EQUAL(sign_of(0),      0);
+    TEST_EQUAL(sign_of(1),      1);
+    TEST_EQUAL(sign_of(42),     1);
+    TEST_EQUAL(sign_of(0u),     0);
+    TEST_EQUAL(sign_of(1u),     1);
+    TEST_EQUAL(sign_of(42u),    1);
+    TEST_EQUAL(sign_of(-42.0),  -1);
+    TEST_EQUAL(sign_of(-1.0),   -1);
+    TEST_EQUAL(sign_of(0.0),    0);
+    TEST_EQUAL(sign_of(1.0),    1);
+    TEST_EQUAL(sign_of(42.0),   1);
+
+}
+
 void test_crow_maths_numeric_literals() {
 
     using namespace Crow::Literals;

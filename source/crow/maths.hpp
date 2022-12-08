@@ -156,6 +156,11 @@ namespace Crow {
         return y1 + (y2 - y1) * ((x3 - x1) / (x2 - x1));
     }
 
+    template <typename T>
+    constexpr int sign_of(T t) noexcept {
+        return t > T() ? 1 : t == T() ? 0 : -1;
+    }
+
     template <std::floating_point T>
     constexpr T to_degrees(T rad) noexcept {
         using std::numbers::pi_v;

@@ -99,6 +99,14 @@ must be a floating point arithmetic type; `Y` only needs to define `Y-Y` and
 `X*Y`, and need not be an arithmetic type. Behaviour is undefined if `x1=x2`.
 
 ```c++
+template <typename T> constexpr int sign_of(T t) noexcept;
+```
+
+Returns the sign of `t` (-1, 0, or 1). `T` must be default constructible and
+less-than comparable; the default constructed value is assumed to be zero.
+Behaviour is undefined if `t` has an unordered value such as NaN.
+
+```c++
 template <std::floating_point T> constexpr T to_degrees(T rad) noexcept;
 template <std::floating_point T> constexpr T to_radians(T deg) noexcept;
 ```
