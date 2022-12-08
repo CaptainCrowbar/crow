@@ -25,6 +25,15 @@ void test_crow_types_concepts() {
     TEST(! ArithmeticType<int*>);
     TEST(! ArithmeticType<std::string>);
 
+    TEST(NumericType<int>);
+    TEST(NumericType<const int>);
+    TEST(NumericType<float>);
+    TEST(NumericType<const float>);
+    TEST(! NumericType<void>);
+    TEST(NumericType<bool>);
+    TEST(! NumericType<int*>);
+    TEST(! NumericType<std::string>);
+
     TEST(PrimitiveScalarType<int>);
     TEST(PrimitiveScalarType<const int>);
     TEST(PrimitiveScalarType<float>);

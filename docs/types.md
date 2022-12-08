@@ -32,6 +32,13 @@ template <typename T> concept ArithmeticType;
 Satisfied by any integral or floating point type, except `bool`.
 
 ```c++
+template <typename T> concept NumericType;
+```
+
+Satisfied by any type for which a specialisation of `std::numeric_limits`
+exists.
+
+```c++
 template <typename T> concept PrimitiveScalarType;
 ```
 

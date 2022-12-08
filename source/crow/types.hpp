@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <functional>
 #include <iterator>
+#include <limits>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -49,6 +50,9 @@ namespace Crow {
 
     template <typename T>
     concept ArithmeticType = std::is_arithmetic_v<T> && ! std::is_same_v<T, bool>;
+
+    template <typename T>
+    concept NumericType = std::numeric_limits<T>::is_specialized;
 
     template <typename T>
     concept PrimitiveScalarType = std::is_scalar_v<T>;
