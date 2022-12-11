@@ -521,6 +521,38 @@ void linear_map_test_group() {
     UNIT_TEST(crow_linear_map)
 }
 
+void log_scale_arithmetic_test_group() {
+    UNIT_TEST(crow_log_scale_arithmetic)
+    UNIT_TEST(crow_log_scale_comparison)
+    UNIT_TEST(crow_log_scale_elementary_functions)
+}
+
+void log_scale_basics_test_group() {
+    UNIT_TEST(crow_log_scale_properties)
+    UNIT_TEST(crow_log_scale_construction_from_value)
+    UNIT_TEST(crow_log_scale_construction_from_log_and_sign)
+    UNIT_TEST(crow_log_scale_range)
+    UNIT_TEST(crow_log_scale_hash)
+}
+
+void log_scale_formatting_test_group() {
+    UNIT_TEST(crow_log_scale_format_default)
+    UNIT_TEST(crow_log_scale_format_digits)
+    UNIT_TEST(crow_log_scale_format_exponential)
+    UNIT_TEST(crow_log_scale_format_general)
+    UNIT_TEST(crow_log_scale_format_extreme_values)
+    UNIT_TEST(crow_log_scale_format_zeroes)
+}
+
+void log_scale_nested_test_group() {
+    UNIT_TEST(crow_log_scale_nested_construction)
+}
+
+void log_scale_parsing_test_group() {
+    UNIT_TEST(crow_log_scale_parsing)
+    UNIT_TEST(crow_log_scale_parsing_extreme_values)
+}
+
 void markov_test_group() {
     UNIT_TEST(crow_markov_character_mode)
     UNIT_TEST(crow_markov_string_mode)
@@ -1204,6 +1236,11 @@ int main(int argc, char** argv) {
     interval_types_test_group();
     iterator_test_group();
     linear_map_test_group();
+    log_scale_arithmetic_test_group();
+    log_scale_basics_test_group();
+    log_scale_formatting_test_group();
+    log_scale_nested_test_group();
+    log_scale_parsing_test_group();
     markov_test_group();
     markup_test_group();
     maths_test_group();

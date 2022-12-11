@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.16)
 # and propagate the new version to version.hpp.
 
 project(Crow
-    VERSION 2.0.112
+    VERSION 2.0.113
     LANGUAGES CXX
 )
 
@@ -66,6 +66,7 @@ add_library(${library} STATIC
     ${library}/http.cpp
     ${library}/image.cpp
     ${library}/interval.cpp
+    ${library}/log-scale.cpp
     ${library}/markup.cpp
     ${library}/mp-integer.cpp
     ${library}/name.cpp
@@ -191,6 +192,11 @@ add_executable(${unittest}
     test/interval-types-test.cpp
     test/iterator-test.cpp
     test/linear-map-test.cpp
+    test/log-scale-arithmetic-test.cpp
+    test/log-scale-basics-test.cpp
+    test/log-scale-formatting-test.cpp
+    test/log-scale-nested-test.cpp
+    test/log-scale-parsing-test.cpp
     test/markov-test.cpp
     test/markup-test.cpp
     test/maths-test.cpp

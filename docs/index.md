@@ -88,6 +88,7 @@ Other libraries required:
     * [crow/constants](constants.html) - Constants
     * [crow/fixed-binary](fixed-binary.html) - Fixed-size binary numbers
     * [crow/formula](formula.html) - Useful formulae
+    * [crow/log-scale](log-scale.html) - Log scale floating point
     * [crow/maths](maths.html) - Mathematical utilities
     * [crow/mp-integer](mp-integer.html) - Multiple precision integers
     * [crow/prime](prime.html) - Prime numbers
