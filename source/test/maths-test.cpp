@@ -2,6 +2,7 @@
 #include "crow/unit-test.hpp"
 #include <numbers>
 #include <tuple>
+#include <utility>
 
 using namespace Crow;
 using namespace std::literals;
@@ -82,6 +83,38 @@ void test_crow_maths_rounding() {
     TEST_EQUAL(const_round<int>(3.50),   4);
     TEST_EQUAL(const_round<int>(3.75),   4);
     TEST_EQUAL(const_round<int>(4.00),   4);
+
+}
+
+void test_crow_maths_emodf() {
+
+    std::pair<double, double> p;
+
+    TRY(p = emodf(-3.00));  TEST_EQUAL(p.first, -3);  TEST_EQUAL(p.second, 0.00);
+    TRY(p = emodf(-2.75));  TEST_EQUAL(p.first, -3);  TEST_EQUAL(p.second, 0.25);
+    TRY(p = emodf(-2.50));  TEST_EQUAL(p.first, -3);  TEST_EQUAL(p.second, 0.50);
+    TRY(p = emodf(-2.25));  TEST_EQUAL(p.first, -3);  TEST_EQUAL(p.second, 0.75);
+    TRY(p = emodf(-2.00));  TEST_EQUAL(p.first, -2);  TEST_EQUAL(p.second, 0.00);
+    TRY(p = emodf(-1.75));  TEST_EQUAL(p.first, -2);  TEST_EQUAL(p.second, 0.25);
+    TRY(p = emodf(-1.50));  TEST_EQUAL(p.first, -2);  TEST_EQUAL(p.second, 0.50);
+    TRY(p = emodf(-1.25));  TEST_EQUAL(p.first, -2);  TEST_EQUAL(p.second, 0.75);
+    TRY(p = emodf(-1.00));  TEST_EQUAL(p.first, -1);  TEST_EQUAL(p.second, 0.00);
+    TRY(p = emodf(-0.75));  TEST_EQUAL(p.first, -1);  TEST_EQUAL(p.second, 0.25);
+    TRY(p = emodf(-0.50));  TEST_EQUAL(p.first, -1);  TEST_EQUAL(p.second, 0.50);
+    TRY(p = emodf(-0.25));  TEST_EQUAL(p.first, -1);  TEST_EQUAL(p.second, 0.75);
+    TRY(p = emodf(0.00));   TEST_EQUAL(p.first, 0);   TEST_EQUAL(p.second, 0.00);
+    TRY(p = emodf(0.25));   TEST_EQUAL(p.first, 0);   TEST_EQUAL(p.second, 0.25);
+    TRY(p = emodf(0.50));   TEST_EQUAL(p.first, 0);   TEST_EQUAL(p.second, 0.50);
+    TRY(p = emodf(0.75));   TEST_EQUAL(p.first, 0);   TEST_EQUAL(p.second, 0.75);
+    TRY(p = emodf(1.00));   TEST_EQUAL(p.first, 1);   TEST_EQUAL(p.second, 0.00);
+    TRY(p = emodf(1.25));   TEST_EQUAL(p.first, 1);   TEST_EQUAL(p.second, 0.25);
+    TRY(p = emodf(1.50));   TEST_EQUAL(p.first, 1);   TEST_EQUAL(p.second, 0.50);
+    TRY(p = emodf(1.75));   TEST_EQUAL(p.first, 1);   TEST_EQUAL(p.second, 0.75);
+    TRY(p = emodf(2.00));   TEST_EQUAL(p.first, 2);   TEST_EQUAL(p.second, 0.00);
+    TRY(p = emodf(2.25));   TEST_EQUAL(p.first, 2);   TEST_EQUAL(p.second, 0.25);
+    TRY(p = emodf(2.50));   TEST_EQUAL(p.first, 2);   TEST_EQUAL(p.second, 0.50);
+    TRY(p = emodf(2.75));   TEST_EQUAL(p.first, 2);   TEST_EQUAL(p.second, 0.75);
+    TRY(p = emodf(3.00));   TEST_EQUAL(p.first, 3);   TEST_EQUAL(p.second, 0.00);
 
 }
 
@@ -173,33 +206,89 @@ void test_crow_maths_euclidean_division() {
 
 }
 
-void test_crow_maths_fraction() {
+void test_crow_maths_symmetric_division() {
 
-    TEST_EQUAL(fraction(-3.00),  0.00);
-    TEST_EQUAL(fraction(-2.75),  0.25);
-    TEST_EQUAL(fraction(-2.50),  0.50);
-    TEST_EQUAL(fraction(-2.25),  0.75);
-    TEST_EQUAL(fraction(-2.00),  0.00);
-    TEST_EQUAL(fraction(-1.75),  0.25);
-    TEST_EQUAL(fraction(-1.50),  0.50);
-    TEST_EQUAL(fraction(-1.25),  0.75);
-    TEST_EQUAL(fraction(-1.00),  0.00);
-    TEST_EQUAL(fraction(-0.75),  0.25);
-    TEST_EQUAL(fraction(-0.50),  0.50);
-    TEST_EQUAL(fraction(-0.25),  0.75);
-    TEST_EQUAL(fraction(0.00),   0.00);
-    TEST_EQUAL(fraction(0.25),   0.25);
-    TEST_EQUAL(fraction(0.50),   0.50);
-    TEST_EQUAL(fraction(0.75),   0.75);
-    TEST_EQUAL(fraction(1.00),   0.00);
-    TEST_EQUAL(fraction(1.25),   0.25);
-    TEST_EQUAL(fraction(1.50),   0.50);
-    TEST_EQUAL(fraction(1.75),   0.75);
-    TEST_EQUAL(fraction(2.00),   0.00);
-    TEST_EQUAL(fraction(2.25),   0.25);
-    TEST_EQUAL(fraction(2.50),   0.50);
-    TEST_EQUAL(fraction(2.75),   0.75);
-    TEST_EQUAL(fraction(3.00),   0.00);
+    {
+
+        int x = 0, y = 0, q = 0, r = 0;
+
+        x = -8;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -2);  TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
+        x = -7;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -2);  TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
+        x = -6;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -2);  TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
+        x = -5;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
+        x = -4;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
+        x = -3;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
+        x = -2;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
+        x = -1;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
+        x = 0;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
+        x = 1;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
+        x = 2;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
+        x = 3;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
+        x = 4;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
+        x = 5;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
+        x = 6;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
+        x = 7;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 2);   TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
+        x = 8;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 2);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
+        x = -8;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 2);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
+        x = -7;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 2);   TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
+        x = -6;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 2);   TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
+        x = -5;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
+        x = -4;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
+        x = -3;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
+        x = -2;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
+        x = -1;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
+        x = 0;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
+        x = 1;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
+        x = 2;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
+        x = 3;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
+        x = 4;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
+        x = 5;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
+        x = 6;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
+        x = 7;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -2);  TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
+        x = 8;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -2);  TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
+
+    }
+
+    {
+
+        double x = 0, y = 0, q = 0, r = 0;
+
+        x = -8;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -2);  TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
+        x = -7;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -2);  TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
+        x = -6;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -2);  TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
+        x = -5;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
+        x = -4;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
+        x = -3;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
+        x = -2;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
+        x = -1;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
+        x = 0;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
+        x = 1;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
+        x = 2;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
+        x = 3;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
+        x = 4;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
+        x = 5;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
+        x = 6;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
+        x = 7;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 2);   TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
+        x = 8;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 2);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
+        x = -8;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 2);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
+        x = -7;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 2);   TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
+        x = -6;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 2);   TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
+        x = -5;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
+        x = -4;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
+        x = -3;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
+        x = -2;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
+        x = -1;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
+        x = 0;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
+        x = 1;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
+        x = 2;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
+        x = 3;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
+        x = 4;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
+        x = 5;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
+        x = 6;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
+        x = 7;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -2);  TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
+        x = 8;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -2);  TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
+
+    }
 
 }
 
@@ -295,92 +384,6 @@ void test_crow_maths_interpolate() {
     TEST_EQUAL(interpolate(2.0, 1.0, 6.0, 2.0, 6.0), 2.00);
     TEST_EQUAL(interpolate(2.0, 1.0, 6.0, 2.0, 7.0), 2.25);
     TEST_EQUAL(interpolate(2.0, 1.0, 6.0, 2.0, 8.0), 2.50);
-
-}
-
-void test_crow_maths_symmetric_division() {
-
-    {
-
-        int x = 0, y = 0, q = 0, r = 0;
-
-        x = -8;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -2);  TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
-        x = -7;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -2);  TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
-        x = -6;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -2);  TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
-        x = -5;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
-        x = -4;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
-        x = -3;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
-        x = -2;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
-        x = -1;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
-        x = 0;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
-        x = 1;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
-        x = 2;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
-        x = 3;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
-        x = 4;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
-        x = 5;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
-        x = 6;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
-        x = 7;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 2);   TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
-        x = 8;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 2);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
-        x = -8;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 2);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
-        x = -7;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 2);   TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
-        x = -6;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 2);   TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
-        x = -5;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
-        x = -4;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
-        x = -3;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
-        x = -2;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
-        x = -1;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
-        x = 0;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
-        x = 1;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
-        x = 2;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
-        x = 3;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
-        x = 4;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
-        x = 5;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
-        x = 6;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
-        x = 7;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -2);  TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
-        x = 8;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -2);  TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
-
-    }
-
-    {
-
-        double x = 0, y = 0, q = 0, r = 0;
-
-        x = -8;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -2);  TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
-        x = -7;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -2);  TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
-        x = -6;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -2);  TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
-        x = -5;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
-        x = -4;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
-        x = -3;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
-        x = -2;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
-        x = -1;  y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
-        x = 0;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
-        x = 1;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
-        x = 2;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
-        x = 3;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
-        x = 4;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
-        x = 5;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
-        x = 6;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
-        x = 7;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 2);   TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
-        x = 8;   y = 4;   TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 2);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
-        x = -8;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 2);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
-        x = -7;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 2);   TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
-        x = -6;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 2);   TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
-        x = -5;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
-        x = -4;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
-        x = -3;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
-        x = -2;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 1);   TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
-        x = -1;  y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
-        x = 0;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
-        x = 1;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
-        x = 2;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, 0);   TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
-        x = 3;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
-        x = 4;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
-        x = 5;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 1);   TEST_EQUAL(q * y + r, x);
-        x = 6;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -1);  TEST_EQUAL(r, 2);   TEST_EQUAL(q * y + r, x);
-        x = 7;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -2);  TEST_EQUAL(r, -1);  TEST_EQUAL(q * y + r, x);
-        x = 8;   y = -4;  TRY(std::tie(q, r) = symmetric_divide(x, y));  TEST_EQUAL(q, -2);  TEST_EQUAL(r, 0);   TEST_EQUAL(q * y + r, x);
-
-    }
 
 }
 

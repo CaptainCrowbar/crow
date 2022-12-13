@@ -40,6 +40,16 @@ guaranteed to be `constexpr`). Behaviour is undefined if the result is not
 representable in `T2`.
 
 ```c++
+template <NumericType T> std::pair<T, T> emodf(T x) noexcept;
+template <NumericType T> T fraction(T x) noexcept;
+```
+
+A Euclidean version of `modf()`, returning the integer and fractional parts of
+a number, with the fractional part always in the range `[0,1)`. If `T` is an
+integer type, this will return `{x,0}`. The `fraction()` function is
+shorthand for `emodf(x).second`.
+
+```c++
 template <typename T>
     constexpr std::pair<T, T> euclidean_divide(T x, T y) noexcept;
 template <typename T>
@@ -59,19 +69,11 @@ always in the range `[0,|y|)`. Behaviour is undefined if `y=0`, or if the
 correct result is outside the range of `T`.
 
 The symmetric division functions perform division in which the remainder is in
-the range `(-|y|/2,|y|/2]`. Behaviour is undefined if `y<=0` or if the correct
+the range `(-|y|/2,|y|/2]`. Behaviour is undefined if `y=0` or if the correct
 result is outside the range of `T`.
 
 The argument type is not constrained here in order to allow these to be used
-with non-standard integer types.
-
-```c++
-template <ArithmeticType T> constexpr T fraction(T x) noexcept;
-```
-
-Returns the fractional part of a floating point number (defined as
-`x-floor(x)`; equivalent to `euclidean_remainder(x,1)`). For integer types
-this will always return zero.
+with non-standard arithmetic types.
 
 ```c++
 template <typename T, std::integral U>

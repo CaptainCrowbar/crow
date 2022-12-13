@@ -3,7 +3,9 @@
 #include "crow/constants.hpp"
 #include "crow/types.hpp"
 #include <bit>
+#include <cmath>
 #include <concepts>
+#include <cstdlib>
 #include <functional>
 #include <limits>
 #include <numbers>
@@ -50,6 +52,27 @@ namespace Crow {
         else if (d > T1(0.5))
             --y;
         return y;
+    }
+
+    template <NumericType T>
+    std::pair<T, T> emodf(T x) noexcept {
+        if constexpr (RealNumericType<T>) {
+            using std::modf;
+            T i, f;
+            f = modf(x, &i);
+            if (f < T(0)) {
+                f += T(1);
+                i -= T(1);
+            }
+            return {i, f};
+        } else {
+            return {x, {}};
+        }
+    }
+
+    template <NumericType T>
+    T fraction(T x) noexcept {
+        return emodf(x).second;
     }
 
     template <typename T>
@@ -105,21 +128,6 @@ namespace Crow {
     template <typename T>
     constexpr T symmetric_remainder(T x, T y) noexcept {
         return symmetric_divide(x, y).second;
-    }
-
-    template <ArithmeticType T>
-    constexpr T fraction(T x) noexcept {
-        if constexpr (std::is_floating_point_v<T>) {
-            using limits64 = std::numeric_limits<int64_t>;
-            if (x >= T(limits64::max()) || x <= T(limits64::min()))
-                return 0;
-            T f = x - int64_t(x);
-            if (f < 0)
-                f += 1;
-            return f;
-        } else {
-            return 0;
-        }
     }
 
     template <typename T, std::integral U, typename BinaryFunction>
