@@ -85,7 +85,7 @@ void test_crow_string_word_wrap() {
         //...:....1....:....2....:....3....:....4....:....5
     t = "Lorem ipsum dolor sit amet, consectetur\n"
         "adipisicing elit.\n";
-    TEST_EQUAL(wrap_lines(s, 40), t);
+    TEST_EQUAL(wrap_lines(s, Usize::columns, 40), t);
 
     s = "Lorem ipsum dolor sit amet,\n"
         "consectetur adipisicing elit,\n"
@@ -99,7 +99,7 @@ void test_crow_string_word_wrap() {
         "aliqua. Ut enim ad minim veniam, quis\n"
         "nostrud exercitation ullamco laboris\n"
         "nisi ut aliquip ex ea commodo consequat.\n";
-    TEST_EQUAL(wrap_lines(s, 40), t);
+    TEST_EQUAL(wrap_lines(s, Usize::columns, 40), t);
 
     s = "\n"
         "\n"
@@ -135,7 +135,7 @@ void test_crow_string_word_wrap() {
         "adipisicing elit.\n"
         "\n"
         "\n";
-    TEST_EQUAL(wrap_lines(s, 40), t);
+    TEST_EQUAL(wrap_lines(s, Usize::columns, 40), t);
 
     s = "Lorem ipsum dolor sit amet,\n"
         "consectetur adipisicing elit,\n"
@@ -163,7 +163,7 @@ void test_crow_string_word_wrap() {
         "\n"
         "        Lorem ipsum dolor sit amet, consectetur\n"
         "        adipisicing elit.\n";
-    TEST_EQUAL(wrap_lines(s, 50, 8), t);
+    TEST_EQUAL(wrap_lines(s, Usize::columns, 50, 8), t);
 
     s = "    Lorem ipsum dolor sit amet,\n"
         "consectetur adipisicing elit,\n"
@@ -190,6 +190,6 @@ void test_crow_string_word_wrap() {
         "\n"
         "Lorem ipsum dolor sit amet, consectetur\n"
         "adipisicing elit.\n";
-    TEST_EQUAL(wrap_lines(s, 50), t);
+    TEST_EQUAL(wrap_lines(s, Usize::columns, 50), t);
 
 }

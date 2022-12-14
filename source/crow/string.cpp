@@ -357,7 +357,7 @@ namespace Crow {
         return result;
     }
 
-    std::string wrap_lines(std::string_view str, size_t width, size_t margin, bool checked) {
+    std::string wrap_lines(std::string_view str, Usize mode, size_t width, size_t margin, bool checked) {
 
         if (width == npos)
             width = get_columns() - 1;
@@ -397,7 +397,7 @@ namespace Crow {
             if (margin == npos) {
                 prefix = line_j->substr(0, line_j->find_first_not_of("\t "));
                 prefix = replace(prefix, "\t", "    ");
-                prefix_size = utf_size(prefix, Usize::columns);
+                prefix_size = utf_size(prefix, mode);
             }
 
             for (; line_j != line_i; ++line_j) {
@@ -406,7 +406,7 @@ namespace Crow {
 
                 for (auto& word: words) {
 
-                    auto word_size = utf_size(word, Usize::columns);
+                    auto word_size = utf_size(word, mode);
 
                     if (current_width > 0 && current_width + word_size + 1 > width) {
                         result += '\n';

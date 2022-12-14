@@ -135,7 +135,8 @@ namespace Crow {
     std::string trim_right(std::string_view str, std::string_view chars = ascii_whitespace);
     std::string unqualify(std::string_view str, std::string_view delimiters = ".:");
     std::string unwrap_lines(std::string_view str);
-    std::string wrap_lines(std::string_view str, size_t width = npos, size_t margin = npos, bool checked = false);
+    std::string wrap_lines(std::string_view str, Usize mode = Usize::columns,
+        size_t width = npos, size_t margin = npos, bool checked = false);
     std::string indent_lines(std::string_view str, size_t spaces = 4);
 
     template <typename Range>

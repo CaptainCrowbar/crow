@@ -228,13 +228,16 @@ with a space replacing the line break between them. Empty lines are left
 unchanged.
 
 ```c++
-std::string wrap_lines(std::string_view str, size_t width = npos,
-    size_t margin = npos, bool checked = false);
+std::string wrap_lines(std::string_view str, Usize mode = Usize::columns,
+    size_t width = npos, size_t margin = npos, bool checked = false);
 ```
 
 Paragraphs are word wrapped to the given width. Words are delimited by ASCII
 whitespace; paragraphs are delimited by at least one empty line (the empty
 lines appear in the output).
+
+The `mode` argument determines how line lengths are measured (see
+[`crow/unicode`](unicode.html)).
 
 If `width=npos`, the width defaults to the value of the `COLUMNS` environment
 variable minus 1. If `COLUMNS` is not set to a positive integer value, the
