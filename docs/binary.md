@@ -12,6 +12,20 @@ namespace Crow;
 * TOC
 {:toc}
 
+## Bit manipulation
+
+```c++
+template <BitwiseType T>
+    constexpr bool has_bit(T flags, T required) noexcept;
+template <BitwiseType T>
+    constexpr bool has_bits(T flags, T required) noexcept;
+```
+
+Test for the presence of specific bits. The `has_bit()` function returns true
+if `flags` and `required` have any bits in common; `has_bits()` returns true
+if `flags` contains all of the bits in `required`. Both functions will return
+false if `required=0`.
+
 ## Byte order
 
 ```c++

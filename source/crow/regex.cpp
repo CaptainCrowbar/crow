@@ -1,4 +1,5 @@
 #include "crow/regex.hpp"
+#include "crow/binary.hpp"
 #include <algorithm>
 #include <cstdlib>
 #include <iterator>
@@ -53,21 +54,21 @@ namespace Crow {
 
             uint32_t options = 0;
 
-            if (! (flags & Regex::byte)) {
+            if (! has_bit(flags, Regex::byte)) {
                 options |= PCRE2_UTF;
-                if (! (flags & Regex::ascii))
+                if (! has_bit(flags, Regex::ascii))
                     options |= PCRE2_UCP;
             }
 
-            if (!! (flags & Regex::anchor))      options |= PCRE2_ANCHORED;
-            if (!! (flags & Regex::dollar_end))  options |= PCRE2_DOLLAR_ENDONLY;
-            if (!! (flags & Regex::dot_all))     options |= PCRE2_DOTALL;
-            if (!! (flags & Regex::extended))    options |= PCRE2_EXTENDED;
-            if (!! (flags & Regex::first_line))  options |= PCRE2_FIRSTLINE;
-            if (!! (flags & Regex::full))        options |= PCRE2_ANCHORED | PCRE2_ENDANCHORED;
-            if (!! (flags & Regex::icase))       options |= PCRE2_CASELESS;
-            if (!! (flags & Regex::multiline))   options |= PCRE2_MULTILINE;
-            if (!! (flags & Regex::no_capture))  options |= PCRE2_NO_AUTO_CAPTURE;
+            if (has_bit(flags, Regex::anchor))      options |= PCRE2_ANCHORED;
+            if (has_bit(flags, Regex::dollar_end))  options |= PCRE2_DOLLAR_ENDONLY;
+            if (has_bit(flags, Regex::dot_all))     options |= PCRE2_DOTALL;
+            if (has_bit(flags, Regex::extended))    options |= PCRE2_EXTENDED;
+            if (has_bit(flags, Regex::first_line))  options |= PCRE2_FIRSTLINE;
+            if (has_bit(flags, Regex::full))        options |= PCRE2_ANCHORED | PCRE2_ENDANCHORED;
+            if (has_bit(flags, Regex::icase))       options |= PCRE2_CASELESS;
+            if (has_bit(flags, Regex::multiline))   options |= PCRE2_MULTILINE;
+            if (has_bit(flags, Regex::no_capture))  options |= PCRE2_NO_AUTO_CAPTURE;
 
             return options;
 
@@ -77,13 +78,13 @@ namespace Crow {
 
             uint32_t options = 0;
 
-            if (!! (flags & Regex::anchor))           options |= PCRE2_ANCHORED;
-            if (!! (flags & Regex::full))             options |= PCRE2_ANCHORED | PCRE2_ENDANCHORED;
-            if (!! (flags & Regex::not_empty))        options |= PCRE2_NOTEMPTY;
-            if (!! (flags & Regex::not_empty_start))  options |= PCRE2_NOTEMPTY_ATSTART;
-            if (!! (flags & Regex::not_line))         options |= PCRE2_NOTBOL | PCRE2_NOTEOL;
-            if (!! (flags & Regex::partial_hard))     options |= PCRE2_PARTIAL_HARD;
-            if (!! (flags & Regex::partial_soft))     options |= PCRE2_PARTIAL_SOFT;
+            if (has_bit(flags, Regex::anchor))           options |= PCRE2_ANCHORED;
+            if (has_bit(flags, Regex::full))             options |= PCRE2_ANCHORED | PCRE2_ENDANCHORED;
+            if (has_bit(flags, Regex::not_empty))        options |= PCRE2_NOTEMPTY;
+            if (has_bit(flags, Regex::not_empty_start))  options |= PCRE2_NOTEMPTY_ATSTART;
+            if (has_bit(flags, Regex::not_line))         options |= PCRE2_NOTBOL | PCRE2_NOTEOL;
+            if (has_bit(flags, Regex::partial_hard))     options |= PCRE2_PARTIAL_HARD;
+            if (has_bit(flags, Regex::partial_soft))     options |= PCRE2_PARTIAL_SOFT;
 
             return options;
 
@@ -95,7 +96,7 @@ namespace Crow {
 
     Regex::Regex(std::string_view pattern, flag_type flags) {
 
-        if (!! (flags & ~ flags_mask))
+        if (has_bit(flags, ~ flags_mask))
             throw error(PCRE2_ERROR_BADOPTION);
 
         pattern_ = pattern;
@@ -110,13 +111,13 @@ namespace Crow {
             throw std::bad_alloc();
 
         context_.reset(context_ptr, pcre2_compile_context_free);
-        pcre2_set_bsr(context_ptr, !! (flags & byte) ? PCRE2_BSR_ANYCRLF : PCRE2_BSR_UNICODE);
-        pcre2_set_newline(context_ptr, !! (flags & crlf) ? PCRE2_NEWLINE_CRLF : PCRE2_NEWLINE_LF);
+        pcre2_set_bsr(context_ptr, has_bit(flags, byte) ? PCRE2_BSR_ANYCRLF : PCRE2_BSR_UNICODE);
+        pcre2_set_newline(context_ptr, has_bit(flags, crlf) ? PCRE2_NEWLINE_CRLF : PCRE2_NEWLINE_LF);
 
         uint32_t extra = 0;
-        if (!! (flags & Regex::line))
+        if (has_bit(flags, Regex::line))
             extra |= PCRE2_EXTRA_MATCH_LINE;
-        if (!! (flags & Regex::word))
+        if (has_bit(flags, Regex::word))
             extra |= PCRE2_EXTRA_MATCH_WORD;
         pcre2_set_compile_extra_options(context_ptr, extra);
 
@@ -185,12 +186,12 @@ namespace Crow {
             return;
         }
 
-        if (!! (flags & ~ runtime_mask))
+        if (has_bit(flags, ~ runtime_mask))
             throw error(PCRE2_ERROR_BADOPTION);
 
         flags |= flags_;
         uint32_t replace_options = default_options | translate_match_flags(flags);
-        if (!! (flags & global))
+        if (has_bit(flags, global))
             replace_options |= PCRE2_SUBSTITUTE_GLOBAL;
 
         auto code_ptr = static_cast<pcre2_code*>(code_.get());
@@ -389,7 +390,7 @@ namespace Crow {
     }
 
     Regex::match::match(const Regex& re, std::string_view str, flag_type flags) {
-        if (!! (flags & ~ runtime_mask))
+        if (has_bit(flags, ~ runtime_mask))
             throw error(PCRE2_ERROR_BADOPTION);
         if (re.is_null() || ! str.data())
             return;

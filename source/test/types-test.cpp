@@ -25,6 +25,15 @@ void test_crow_types_concepts() {
     TEST(! ArithmeticType<int*>);
     TEST(! ArithmeticType<std::string>);
 
+    TEST(BitwiseType<int>);
+    TEST(BitwiseType<const int>);
+    TEST(! BitwiseType<float>);
+    TEST(! BitwiseType<const float>);
+    TEST(! BitwiseType<void>);
+    TEST(BitwiseType<bool>);
+    TEST(! BitwiseType<int*>);
+    TEST(! BitwiseType<std::string>);
+
     TEST(NumericType<int>);
     TEST(NumericType<const int>);
     TEST(NumericType<float>);

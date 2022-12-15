@@ -4,6 +4,56 @@
 
 using namespace Crow;
 
+void test_crow_binary_bit_manipulation() {
+
+    TEST(! has_bit(0, 0));  // 0000 0000
+    TEST(! has_bit(1, 0));  // 0001 0000
+    TEST(! has_bit(0, 1));  // 0000 0001
+    TEST(has_bit(1, 1));    // 0001 0001
+    TEST(! has_bit(2, 1));  // 0010 0001
+    TEST(has_bit(3, 1));    // 0011 0001
+    TEST(! has_bit(0, 6));  // 0000 0110
+    TEST(! has_bit(1, 6));  // 0001 0110
+    TEST(has_bit(2, 6));    // 0010 0110
+    TEST(has_bit(3, 6));    // 0011 0110
+    TEST(has_bit(4, 6));    // 0100 0110
+    TEST(has_bit(5, 6));    // 0101 0110
+    TEST(has_bit(6, 6));    // 0110 0110
+    TEST(has_bit(7, 6));    // 0111 0110
+    TEST(! has_bit(8, 6));  // 1000 0110
+    TEST(! has_bit(9, 6));  // 1001 0110
+    TEST(has_bit(10, 6));   // 1010 0110
+    TEST(has_bit(11, 6));   // 1011 0110
+    TEST(has_bit(12, 6));   // 1100 0110
+    TEST(has_bit(13, 6));   // 1101 0110
+    TEST(has_bit(14, 6));   // 1110 0110
+    TEST(has_bit(15, 6));   // 1111 0110
+
+    TEST(! has_bits(0, 0));   // 0000 0000
+    TEST(! has_bits(1, 0));   // 0001 0000
+    TEST(! has_bits(0, 1));   // 0000 0001
+    TEST(has_bits(1, 1));     // 0001 0001
+    TEST(! has_bits(2, 1));   // 0010 0001
+    TEST(has_bits(3, 1));     // 0011 0001
+    TEST(! has_bits(0, 6));   // 0000 0110
+    TEST(! has_bits(1, 6));   // 0001 0110
+    TEST(! has_bits(2, 6));   // 0010 0110
+    TEST(! has_bits(3, 6));   // 0011 0110
+    TEST(! has_bits(4, 6));   // 0100 0110
+    TEST(! has_bits(5, 6));   // 0101 0110
+    TEST(has_bits(6, 6));     // 0110 0110
+    TEST(has_bits(7, 6));     // 0111 0110
+    TEST(! has_bits(8, 6));   // 1000 0110
+    TEST(! has_bits(9, 6));   // 1001 0110
+    TEST(! has_bits(10, 6));  // 1010 0110
+    TEST(! has_bits(11, 6));  // 1011 0110
+    TEST(! has_bits(12, 6));  // 1100 0110
+    TEST(! has_bits(13, 6));  // 1101 0110
+    TEST(has_bits(14, 6));    // 1110 0110
+    TEST(has_bits(15, 6));    // 1111 0110
+
+}
+
 void test_crow_binary_byte_order() {
 
     // The tests here assume a little endian system

@@ -32,6 +32,12 @@ template <typename T> concept ArithmeticType;
 Satisfied by any integral or floating point type, except `bool`.
 
 ```c++
+template <typename T> concept BitwiseType;
+```
+
+Satisfied by a type that implements the bitwise operators `~ & | ^`.
+
+```c++
 template <typename T> concept NumericType;
 template <typename T> concept IntegralNumericType;
 template <typename T> concept RealNumericType;

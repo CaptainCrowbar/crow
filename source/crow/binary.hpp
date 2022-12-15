@@ -10,6 +10,18 @@
 
 namespace Crow {
 
+    // Bit manipulation
+
+    template <BitwiseType T>
+    constexpr bool has_bit(T flags, T required) noexcept {
+        return (flags & required) != T();
+    }
+
+    template <BitwiseType T>
+    constexpr bool has_bits(T flags, T required) noexcept {
+        return required != T() && (flags & required) == required;
+    }
+
     // Byte order
 
     template <PrimitiveScalarType T>

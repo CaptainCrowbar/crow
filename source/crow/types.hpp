@@ -52,6 +52,14 @@ namespace Crow {
     concept ArithmeticType = std::is_arithmetic_v<T> && ! std::is_same_v<T, bool>;
 
     template <typename T>
+    concept BitwiseType = requires (T t, T u) {
+        { ~ t };
+        { t & u };
+        { t | u };
+        { t ^ u };
+    };
+
+    template <typename T>
     concept NumericType = std::numeric_limits<T>::is_specialized;
 
     template <typename T>

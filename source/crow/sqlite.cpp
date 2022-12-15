@@ -1,5 +1,7 @@
 #include "crow/sqlite.hpp"
+#include "crow/binary.hpp"
 #include <algorithm>
+#include <bit>
 #include <utility>
 #include <sqlite3.h>
 
@@ -46,26 +48,19 @@ namespace Crow::Sqlite {
 
         static constexpr int* int_nullptr = nullptr;
         static constexpr const char* memory_file = ":memory:";
+        static constexpr Mode open_flags = Mode::read | Mode::write | Mode::create | Mode::memory | Mode::tempfile;
 
-        bool anonymous = file.empty();
-        bool read_flag = !! (flags & Mode::read);
-        bool write_flag = !! (flags & Mode::write);
-        bool create_flag = !! (flags & Mode::create);
-        bool memory_flag = !! (flags & Mode::memory);
-        bool tempfile_flag = !! (flags & Mode::tempfile);
-        bool nofollow_flag = !! (flags & Mode::nofollow);
-        bool nomutex_flag = !! (flags & Mode::nomutex);
-        bool uri_flag = !! (flags & Mode::uri);
-
-        if (int(read_flag) + int(write_flag) + int(create_flag) + int(memory_flag) + int(tempfile_flag) > 1
-                || ((memory_flag || tempfile_flag) && (nofollow_flag || uri_flag))
-                || !! (flags & Mode::persistent))
+        if (std::popcount(uint32_t(flags & open_flags)) > 1
+                || ((has_bit(flags, Mode::memory) || has_bit(flags, Mode::tempfile))
+                    && (has_bit(flags, Mode::nofollow) || has_bit(flags, Mode::uri)))
+                || has_bit(flags, Mode::persistent))
             throw InvalidArgument("Invalid Sqlite connection mode flags");
 
         auto name = file;
+        bool anonymous = file.empty();
         int sqlite_flags = 0;
 
-        if (memory_flag) {
+        if (has_bit(flags, Mode::memory)) {
 
             if (! anonymous && name != memory_file)
                 throw InvalidArgument("File name cannot be used with in-memory Sqlite database");
@@ -73,7 +68,7 @@ namespace Crow::Sqlite {
             name = memory_file;
             sqlite_flags |= SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
 
-        } else if (tempfile_flag) {
+        } else if (has_bit(flags, Mode::tempfile)) {
 
             if (! anonymous)
                 throw InvalidArgument("File name cannot be used with anonymous temporary Sqlite database");
@@ -85,22 +80,22 @@ namespace Crow::Sqlite {
             if (anonymous)
                 throw InvalidArgument("No file name was supplied for Sqlite database");
 
-            if (create_flag)
+            if (has_bit(flags, Mode::create))
                 sqlite_flags |= SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
-            else if (write_flag)
+            else if (has_bit(flags, Mode::write))
                 sqlite_flags |= SQLITE_OPEN_READWRITE;
             else
                 sqlite_flags |= SQLITE_OPEN_READONLY;
 
-            if (uri_flag)
+            if (has_bit(flags, Mode::uri))
                 sqlite_flags |= SQLITE_OPEN_URI;
 
         }
 
-        if (nofollow_flag)
+        if (has_bit(flags, Mode::nofollow))
             sqlite_flags |= SQLITE_OPEN_NOFOLLOW;
 
-        if (nomutex_flag)
+        if (has_bit(flags, Mode::nomutex))
             sqlite_flags |= SQLITE_OPEN_NOMUTEX;
         else
             sqlite_flags |= SQLITE_OPEN_FULLMUTEX;
@@ -136,9 +131,9 @@ namespace Crow::Sqlite {
         Query qry;
         qry.sqlite_ = sqlite_;
         int stmt_flags = 0;
-        if (!! (flags & ~ Mode::persistent))
+        if (has_bit(flags, ~ Mode::persistent))
             throw InvalidArgument("Flags other than persistent cannot be used when preparing a query");
-        if (!! (flags & Mode::persistent))
+        if (has_bit(flags, Mode::persistent))
             stmt_flags |= SQLITE_PREPARE_PERSISTENT;
         sqlite3_stmt* handle = nullptr;
         check_result(sqlite3_prepare_v3(native_handle(), sql.data(), int(sql.size()), stmt_flags, &handle, nullptr),

@@ -36,6 +36,7 @@ void algorithm_test_group() {
 }
 
 void binary_test_group() {
+    UNIT_TEST(crow_binary_bit_manipulation)
     UNIT_TEST(crow_binary_byte_order)
     UNIT_TEST(crow_binary_signed_overflow_detection)
     UNIT_TEST(crow_binary_unsigned_overflow_detection)
