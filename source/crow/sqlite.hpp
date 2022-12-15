@@ -1,5 +1,6 @@
 #pragma once
 
+#include "crow/enum.hpp"
 #include "crow/format.hpp"
 #include "crow/iterator.hpp"
 #include "crow/string.hpp"
@@ -26,6 +27,24 @@ namespace Crow::Sqlite {
 
     std::array<int, 3> compile_version() noexcept;
     std::array<int, 3> runtime_version() noexcept;
+
+    enum class Mode: uint32_t {
+        none        = 0,
+        // Open mode flags
+        read        = 1u << 0,  // Open database in read only mode; fail if it does not exist (default)
+        write       = 1u << 1,  // Open database in read/write mode; fail if it does not exist
+        create      = 1u << 2,  // Open database in read/write mode; create the file if necessary
+        memory      = 1u << 3,  // Create anonymous temporary database in memory
+        tempfile    = 1u << 4,  // Create anonymous temporary database on disk
+        // Other connection flags
+        nofollow    = 1u << 5,  // File may not be a symlink
+        nomutex     = 1u << 6,  // Connections may not be shared between threads
+        uri         = 1u << 7,  // Enable URI file names
+        // Query usage hints
+        persistent  = 1u << 8,  // Hint that a query should be persistent
+    };
+
+    CROW_BITMASK_OPERATORS(Mode)
 
     class Exception:
     public std::runtime_error {
@@ -61,29 +80,19 @@ namespace Crow::Sqlite {
 
     public:
 
-        static constexpr int read        = 1 << 0;  // Open database in read only mode; fail if it does not exist (default)
-        static constexpr int write       = 1 << 1;  // Open database in read/write mode; fail if it does not exist
-        static constexpr int create      = 1 << 2;  // Open database in read/write mode; create the file if necessary
-        static constexpr int memory      = 1 << 3;  // Create anonymous temporary database in memory
-        static constexpr int tempfile    = 1 << 4;  // Create anonymous temporary database on disk
-        static constexpr int nofollow    = 1 << 5;  // File may not be a symlink
-        static constexpr int nomutex     = 1 << 6;  // Connections may not be shared between threads
-        static constexpr int uri         = 1 << 7;  // Enable URI file names
-        static constexpr int persistent  = 1 << 8;  // Hint that a query should be persistent
-
         Connect() = default;
-        explicit Connect(int flags): Connect({}, flags) {}
-        explicit Connect(const std::string& file, int flags = read);
+        explicit Connect(Mode flags): Connect({}, flags) {}
+        explicit Connect(const std::string& file, Mode flags = Mode::read);
         Connect(const Connect&) = delete;
         Connect(Connect&&) = default;
         ~Connect() = default;
         Connect& operator=(const Connect&) = delete;
         Connect& operator=(Connect&&) = default;
 
-        Query query(const std::string& sql, int hints = 0);
+        Query query(const std::string& sql, Mode flags = Mode::none);
         Result run(const std::string& sql);
         Result operator()(const std::string& sql);
-        void set_pragma(const std::string& name, const std::string& value);
+        template <typename T> void set_pragma(const std::string& name, const T& value);
         template <typename R, typename P> void set_timeout(std::chrono::duration<R, P> t);
         sqlite3* native_handle() const noexcept { return sqlite_.get(); }
 
@@ -93,10 +102,16 @@ namespace Crow::Sqlite {
 
         std::shared_ptr<sqlite3> sqlite_;
 
+        void do_set_pragma(const std::string& name, const std::string& value);
         void do_set_timeout(std::chrono::milliseconds t);
         void run_unchecked(const std::string& sql) noexcept;
 
     };
+
+        template <typename T>
+        void Connect::set_pragma(const std::string& name, const T& value) {
+            do_set_pragma(name, format_object(value));
+        }
 
         template <typename R, typename P>
         void Connect::set_timeout(std::chrono::duration<R, P> t) {
@@ -139,11 +154,12 @@ namespace Crow::Sqlite {
         template <typename T, typename... Args> void bind_helper(int index, const T& arg1, const Args&... args);
         void bind_null(int index);
         void bind_integer(int index, int64_t value);
-        void bind_floating(int index, double value);
+        void bind_real(int index, double value);
         void bind_string(int index, const std::string& value);
         void check_arg_bindings() const;
         void check_arg_count(int argc) const;
         void check_arg_index(int index) const;
+        int check_arg_name(const std::string& name) const;
 
     };
 
@@ -155,9 +171,7 @@ namespace Crow::Sqlite {
 
         template <typename T>
         void Query::set(const std::string& name, const T& value) {
-            int index = get_index(name);
-            if (index == 0)
-                throw InvalidArgument("Unknown query parameter: " + Crow::quote(name));
+            int index = check_arg_name(name);
             bind_helper(index, value);
         }
 
@@ -171,11 +185,11 @@ namespace Crow::Sqlite {
             else if constexpr (std::is_integral_v<T>)
                 bind_integer(index, int64_t(arg1));
             else if constexpr (std::is_floating_point_v<T>)
-                bind_floating(index, float(arg1));
+                bind_real(index, float(arg1));
             else if constexpr (std::is_convertible_v<T, std::string>)
                 bind_string(index, std::string(arg1));
             else
-                static_assert(Crow::dependent_false<T>, "Unknown parameter type in Query::bind()");
+                static_assert(dependent_false<T>, "Unknown parameter type in Query::bind()");
             params_[index - 1] = true;
             if constexpr (sizeof...(Args) > 0)
                 bind_helper(index + 1, args...);
@@ -212,6 +226,7 @@ namespace Crow::Sqlite {
         std::shared_ptr<sqlite3_stmt> stmt_;
         int64_t count_ = 0;
 
+        void check_arg_count(int argc) const;
         void close() noexcept;
         template <typename T, typename... Args> void do_read(int col, T& t, Args&... args) const;
         int64_t get_int(int col) const;
@@ -230,15 +245,12 @@ namespace Crow::Sqlite {
             else if constexpr (std::is_convertible_v<std::string, T>)
                 t = static_cast<T>(get_string(col));
             else
-                static_assert(Crow::dependent_false<T>, "Unknown parameter type in Result::get()");
+                static_assert(dependent_false<T>, "Unknown parameter type in Result::get()");
         }
 
         template <typename... Args>
         void Result::read(Args&... args) const {
-            using namespace Crow::Literals;
-            int n_columns = columns();
-            if (int(sizeof...(Args)) != n_columns)
-                throw InvalidArgument("Wrong number of columns in Sqlite result: found {0}, expected {1}"_fmt(sizeof...(Args), n_columns));
+            check_arg_count(int(sizeof...(Args)));
             do_read(0, args...);
         }
 
@@ -275,7 +287,7 @@ namespace Crow::Sqlite {
         }
 
         class Result::iterator:
-        public Crow::InputIterator<Result::iterator, const Row> {
+        public InputIterator<Result::iterator, const Row> {
         public:
             iterator() = default;
             explicit iterator(Result& res) noexcept: row_(res) {}

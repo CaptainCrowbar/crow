@@ -3,8 +3,6 @@
 #include <utility>
 #include <sqlite3.h>
 
-using namespace Crow::Literals;
-
 namespace Crow::Sqlite {
 
     namespace {
@@ -18,8 +16,7 @@ namespace Crow::Sqlite {
         }
 
         std::array<int, 3> expand_version(unsigned ver) {
-            int v = int(ver);
-            return {{v / 1'000'000, v / 1000 % 1000, v % 1000}};
+            return {int(ver / 1'000'000), int(ver / 1000 % 1000), int(ver % 1000)};
         }
 
     }
@@ -37,7 +34,7 @@ namespace Crow::Sqlite {
     // Exceptions
 
     std::string SqliteError::format_message(int error, const std::string& function, const std::string& extra) {
-        auto message = "Sqlite error {0} in {1}: {2}"_fmt(error, function, sqlite3_errstr(error));
+        auto message = fmt("Sqlite error {0} in {1}: {2}", error, function, sqlite3_errstr(error));
         if (! extra.empty())
             message += ": " + extra;
         return message;
@@ -45,26 +42,25 @@ namespace Crow::Sqlite {
 
     // Connect class
 
-    Connect::Connect(const std::string& file, int flags) {
+    Connect::Connect(const std::string& file, Mode flags) {
 
         static constexpr int* int_nullptr = nullptr;
         static constexpr const char* memory_file = ":memory:";
 
         bool anonymous = file.empty();
-        bool read_flag = (flags & read) != 0;
-        bool write_flag = (flags & write) != 0;
-        bool create_flag = (flags & create) != 0;
-        bool memory_flag = (flags & memory) != 0;
-        bool tempfile_flag = (flags & tempfile) != 0;
-        bool nofollow_flag = (flags & nofollow) != 0;
-        bool nomutex_flag = (flags & nomutex) != 0;
-        bool uri_flag = (flags & uri) != 0;
+        bool read_flag = !! (flags & Mode::read);
+        bool write_flag = !! (flags & Mode::write);
+        bool create_flag = !! (flags & Mode::create);
+        bool memory_flag = !! (flags & Mode::memory);
+        bool tempfile_flag = !! (flags & Mode::tempfile);
+        bool nofollow_flag = !! (flags & Mode::nofollow);
+        bool nomutex_flag = !! (flags & Mode::nomutex);
+        bool uri_flag = !! (flags & Mode::uri);
 
         if (int(read_flag) + int(write_flag) + int(create_flag) + int(memory_flag) + int(tempfile_flag) > 1
-                || ((memory_flag || tempfile_flag) && (nofollow_flag || uri_flag)))
-            throw InvalidArgument("Inconsistent Sqlite I/O mode flags");
-        if ((flags & persistent) != 0)
-            throw InvalidArgument("Persistent flag cannot be used when opening a connection");
+                || ((memory_flag || tempfile_flag) && (nofollow_flag || uri_flag))
+                || !! (flags & Mode::persistent))
+            throw InvalidArgument("Invalid Sqlite connection mode flags");
 
         auto name = file;
         int sqlite_flags = 0;
@@ -132,17 +128,17 @@ namespace Crow::Sqlite {
         check_result(sqlite3_db_config(native_handle(), SQLITE_DBCONFIG_TRUSTED_SCHEMA, 0, int_nullptr),
             "sqlite3_db_config()", sqlite_);
 
-        set_pragma("recursive_triggers", "true");
+        set_pragma("recursive_triggers", true);
 
     }
 
-    Query Connect::query(const std::string& sql, int hints) {
+    Query Connect::query(const std::string& sql, Mode flags) {
         Query qry;
         qry.sqlite_ = sqlite_;
         int stmt_flags = 0;
-        if ((hints & ~ persistent) != 0)
+        if (!! (flags & ~ Mode::persistent))
             throw InvalidArgument("Flags other than persistent cannot be used when preparing a query");
-        if ((hints & persistent) != 0)
+        if (!! (flags & Mode::persistent))
             stmt_flags |= SQLITE_PREPARE_PERSISTENT;
         sqlite3_stmt* handle = nullptr;
         check_result(sqlite3_prepare_v3(native_handle(), sql.data(), int(sql.size()), stmt_flags, &handle, nullptr),
@@ -162,8 +158,8 @@ namespace Crow::Sqlite {
         return run(sql);
     }
 
-    void Connect::set_pragma(const std::string& name, const std::string& value) {
-        auto sql = "pragma {0} = {1}"_fmt(name, value);
+    void Connect::do_set_pragma(const std::string& name, const std::string& value) {
+        auto sql = fmt("pragma {0} = {1}", name, value);
         Query qry = query(sql);
         qry.run();
     }
@@ -225,7 +221,7 @@ namespace Crow::Sqlite {
             "sqlite3_bind_int64()", sqlite_);
     }
 
-    void Query::bind_floating(int index, double value) {
+    void Query::bind_real(int index, double value) {
         check_result(sqlite3_bind_double(native_handle(), index, value),
             "sqlite3_bind_double()", sqlite_);
     }
@@ -238,17 +234,24 @@ namespace Crow::Sqlite {
     void Query::check_arg_bindings() const {
         auto n_set = std::count(params_.begin(), params_.end(), true);
         if (n_set < ptrdiff_t(params_.size()))
-            throw InvalidArgument("Not all parameters set in query ({0} out of {1} set)"_fmt(n_set, params_.size()));
+            throw InvalidArgument(fmt("Not all parameters set in query ({0} out of {1} set)", n_set, params_.size()));
     }
 
     void Query::check_arg_count(int argc) const {
         if (argc != parameters())
-            throw InvalidArgument("Wrong number of parameters in Sqlite query: found {0}, expected {1}"_fmt(argc, parameters()));
+            throw InvalidArgument(fmt("Wrong number of parameters in query: found {0}, expected {1}", argc, parameters()));
     }
 
     void Query::check_arg_index(int index) const {
         if (index < 1 || index > parameters())
-            throw InvalidArgument("Invalid parameter index in Sqlite query: index {0} of {1}"_fmt(index, parameters()));
+            throw InvalidArgument(fmt("Invalid parameter index in query: index {0} of {1}", index, parameters()));
+    }
+
+    int Query::check_arg_name(const std::string& name) const {
+        int index = get_index(name);
+        if (index == 0)
+            throw InvalidArgument("Unknown query parameter: " + quote(name));
+        return index;
     }
 
     // Result class
@@ -278,6 +281,12 @@ namespace Crow::Sqlite {
 
     int Result::columns() const noexcept {
         return stmt_ ? sqlite3_column_count(stmt_.get()) : 0;
+    }
+
+    void Result::check_arg_count(int argc) const {
+        int n_columns = columns();
+        if (argc != n_columns)
+            throw InvalidArgument(fmt("Wrong number of columns in query result: found {0}, expected {1}", argc, n_columns));
     }
 
     void Result::close() noexcept {

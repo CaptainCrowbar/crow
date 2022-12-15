@@ -21,6 +21,38 @@ std::array<int, 3> runtime_version() noexcept;
 
 Return the version numbers of the Sqlite library.
 
+## Supporting types
+
+```c++
+enum class Mode;
+```
+
+| Flag                | Meaning                                                |
+| ----                | -------                                                |
+| `Mode::none`        | No flags                                               |
+|                     | **Open mode flags**                                    |
+| `Mode::read`        | Open in read only mode; fail if it does not exist      |
+| `Mode::write`       | Open in read/write mode; fail if it does not exist     |
+| `Mode::create`      | Open in read/write mode; create the file if necessary  |
+| `Mode::memory`      | Create anonymous temporary database in memory          |
+| `Mode::tempfile`    | Create anonymous temporary database on disk            |
+|                     | **Other connection flags**                             |
+| `Mode::nofollow`    | File may not be a symlink                              |
+| `Mode::nomutex`     | No mutex on connection; UB if shared between threads   |
+| `Mode::uri`         | File name may be a URI                                 |
+|                     | **Query usage hints**                                  |
+| `Mode::persistent`  | Query is likely to be frequently used                  |
+
+Bitmask flags used when a connection or query is constructed. At most one of
+the open mode flags may be passed to the `Connection` constructor; `read` is
+the default. The other connection flags may be added to these; the `nofollow`
+and `uri` flags may not be combined with `memory` or `tempfile`.
+
+The `persistent` flag may be used when preparing a query using
+`Connect::query()`. It does not change the semantics of the query but acts as
+an optimization hint to the Sqlite engine, indicating that the query is likely
+to be frequently used.
+
 ## Exceptions
 
 ```c++
@@ -34,10 +66,12 @@ class SqliteError: public Exception {
 
 Exceptions thrown by functions in this module:
 
-* `InvalidArgument` is thrown to report that a function was called with invalid arguments.
+* `InvalidArgument` is thrown to report that a function was called with
+  invalid arguments.
 * `InvalidOperation` is thrown to report that a SQL operation was invoked when
   it should not be possible (e.g. double commit or rollback).
-* `SqliteError` is thrown to propagate an error reported by a Sqlite library call.
+* `SqliteError` is thrown to propagate an error reported by a Sqlite library
+  call.
 
 ## Database connection class
 
@@ -47,31 +81,6 @@ class Connect;
 
 Represents an open Sqlite database.
 
-| Flag                   | Meaning                                                |
-| ----                   | -------                                                |
-|                        | **Open mode flags**                                    |
-| `Connect::read`        | Open in read only mode; fail if it does not exist      |
-| `Connect::write`       | Open in read/write mode; fail if it does not exist     |
-| `Connect::create`      | Open in read/write mode; create the file if necessary  |
-| `Connect::memory`      | Create anonymous temporary database in memory          |
-| `Connect::tempfile`    | Create anonymous temporary database on disk            |
-|                        | **Other connection flags**                             |
-| `Connect::nofollow`    | File may not be a symlink                              |
-| `Connect::nomutex`     | No mutex on connection; UB if shared between threads   |
-| `Connect::uri`         | File name may be a URI                                 |
-|                        | **Query usage hints**                                  |
-| `Connect::persistent`  | Query is likely to be frequently used                  |
-
-Bitmask flags used when a connection or query is constructed. At most one of
-the open mode flags may be passed to the `Connection` constructor; `read` is
-the default. The other connection flags may be added to these; the `nofollow`
-and `uri` flags may not be combined with `memory` or `tempfile`.
-
-The `persistent` flag may be used when preparing a query using
-`Connect::query()`. It does not change the semantics of the query but acts as
-an optimization hint to the Sqlite engine, indicating that the query is likely
-to be frequently used.
-
 ```c++
 Connect::Connect();
 ```
@@ -80,8 +89,8 @@ A default constructed object does not open a database; any attempt to run
 queries on it will fail.
 
 ```c++
-explicit Connect::Connect(int flags);
-explicit Connect::Connect(const std::string& file, int flags = read);
+explicit Connect::Connect(Mode flags);
+explicit Connect::Connect(const std::string& file, Mode flags = Mode::read);
 ```
 
 The constructors take an optional file name and flags. These will throw
@@ -99,7 +108,7 @@ Connect& Connect::operator=(Connect&& c) noexcept;
 Other life cycle operations. `Connect` is movable but not not copyable.
 
 ```c++
-Query Connect::query(const std::string& sql, int flags = 0);
+Query Connect::query(const std::string& sql, Mode flags = Mode::none);
 ```
 
 Prepare a query from a SQL string. Optionally the `persistent` flag can be
@@ -116,7 +125,8 @@ Result Connect::operator()(const std::string& sql);
 Run a parameterless query and return the result. This may throw `SqliteError`.
 
 ```c++
-void Connect::set_pragma(const std::string& name, const std::string& value);
+template <typename T>
+    void Connect::set_pragma(const std::string& name, const T& value);
 ```
 
 Sets a Sqlite pragma. This may throw `SqliteError`.
@@ -128,10 +138,8 @@ template <typename R, typename P>
 
 Sets the timeout for database operations. This may throw `SqliteError`.
 
-```c++ sqlite3* explicit Connect::native_handle() const noexcept; The
-conversion operator returns the first column of the first row, and is
-intended for simple scalar-valued queries.
-
+```c++
+sqlite3* Connect::native_handle() const noexcept;
 ```
 
 Returns the native Sqlite connection handle.

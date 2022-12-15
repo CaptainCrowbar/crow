@@ -21,7 +21,7 @@ void test_crow_sqlite_connection() {
     TEST_THROW_MESSAGE(Connect("NoSuchFile"), SqliteError,
         "Sqlite error 14 in sqlite3_open_v2(): unable to open database file");
 
-    TRY(dbc = Connect(Connect::memory));
+    TRY(dbc = Connect(Mode::memory));
     TRY(dbc.run(
         "create table tango("
             "number integer not null primary key,"
@@ -47,7 +47,7 @@ void test_crow_sqlite_connection() {
     TEST_THROW_MESSAGE(query.run(), InvalidArgument,
         "Not all parameters set in query (0 out of 2 set)");
     TEST_THROW_MESSAGE(query.bind(42), InvalidArgument,
-        "Wrong number of parameters in Sqlite query: found 1, expected 2");
+        "Wrong number of parameters in query: found 1, expected 2");
 
     TRY(query.bind(42, "Douglas Adams"));
     TRY(result = query.run());
