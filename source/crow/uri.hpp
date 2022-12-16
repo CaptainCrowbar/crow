@@ -1,5 +1,6 @@
 #pragma once
 
+#include "crow/binary.hpp"
 #include "crow/io-utility.hpp"
 #include "crow/string.hpp"
 #include "crow/types.hpp"
@@ -106,11 +107,10 @@ namespace Crow {
 
         template <typename R>
         std::string Uri::make_query(const R& range, char delimiter, int flags) {
-            bool lone = (flags & lone_keys) != 0;
             std::string q;
             for (auto& [k,v]: range) {
                 q += encode(k);
-                if (! lone || ! v.empty())
+                if (! has_bit(flags, lone_keys) || ! v.empty())
                     q += '=';
                 q += encode(v);
                 q += delimiter;

@@ -279,34 +279,34 @@ void test_crow_algorithm_hash_compare() {
 
 void test_crow_algorithm_interpolation() {
 
-    TEST_EQUAL(interpolate(1.0, 10.0, 2.0, 20.0, 0.75),                  7.5);
-    TEST_EQUAL(interpolate(1.0, 10.0, 2.0, 20.0, 1.00),                  10.0);
-    TEST_EQUAL(interpolate(1.0, 10.0, 2.0, 20.0, 1.25),                  12.5);
-    TEST_EQUAL(interpolate(1.0, 10.0, 2.0, 20.0, 1.50),                  15.0);
-    TEST_EQUAL(interpolate(1.0, 10.0, 2.0, 20.0, 1.75),                  17.5);
-    TEST_EQUAL(interpolate(1.0, 10.0, 2.0, 20.0, 2.00),                  20.0);
-    TEST_EQUAL(interpolate(1.0, 10.0, 2.0, 20.0, 2.25),                  22.5);
-    TEST_NEAR(interpolate(2.0, 10.0, 32.0, 20.0, 1.0, log_x),            7.5,    1e-6);
-    TEST_NEAR(interpolate(2.0, 10.0, 32.0, 20.0, 2.0, log_x),            10.0,   1e-6);
-    TEST_NEAR(interpolate(2.0, 10.0, 32.0, 20.0, 4.0, log_x),            12.5,   1e-6);
-    TEST_NEAR(interpolate(2.0, 10.0, 32.0, 20.0, 8.0, log_x),            15.0,   1e-6);
-    TEST_NEAR(interpolate(2.0, 10.0, 32.0, 20.0, 16.0, log_x),           17.5,   1e-6);
-    TEST_NEAR(interpolate(2.0, 10.0, 32.0, 20.0, 32.0, log_x),           20.0,   1e-6);
-    TEST_NEAR(interpolate(2.0, 10.0, 32.0, 20.0, 64.0, log_x),           22.5,   1e-6);
-    TEST_NEAR(interpolate(1.0, 20.0, 2.0, 320.0, 0.75, log_y),           10.0,   1e-6);
-    TEST_NEAR(interpolate(1.0, 20.0, 2.0, 320.0, 1.00, log_y),           20.0,   1e-6);
-    TEST_NEAR(interpolate(1.0, 20.0, 2.0, 320.0, 1.25, log_y),           40.0,   1e-6);
-    TEST_NEAR(interpolate(1.0, 20.0, 2.0, 320.0, 1.50, log_y),           80.0,   1e-6);
-    TEST_NEAR(interpolate(1.0, 20.0, 2.0, 320.0, 1.75, log_y),           160.0,  1e-6);
-    TEST_NEAR(interpolate(1.0, 20.0, 2.0, 320.0, 2.00, log_y),           320.0,  1e-6);
-    TEST_NEAR(interpolate(1.0, 20.0, 2.0, 320.0, 2.25, log_y),           640.0,  1e-6);
-    TEST_NEAR(interpolate(2.0, 20.0, 32.0, 320.0, 1.0, log_x | log_y),   10.0,   1e-6);
-    TEST_NEAR(interpolate(2.0, 20.0, 32.0, 320.0, 2.0, log_x | log_y),   20.0,   1e-6);
-    TEST_NEAR(interpolate(2.0, 20.0, 32.0, 320.0, 4.0, log_x | log_y),   40.0,   1e-6);
-    TEST_NEAR(interpolate(2.0, 20.0, 32.0, 320.0, 8.0, log_x | log_y),   80.0,   1e-6);
-    TEST_NEAR(interpolate(2.0, 20.0, 32.0, 320.0, 16.0, log_x | log_y),  160.0,  1e-6);
-    TEST_NEAR(interpolate(2.0, 20.0, 32.0, 320.0, 32.0, log_x | log_y),  320.0,  1e-6);
-    TEST_NEAR(interpolate(2.0, 20.0, 32.0, 320.0, 64.0, log_x | log_y),  640.0,  1e-6);
+    TEST_EQUAL(interpolate(1.0, 10.0, 2.0, 20.0, 0.75),                                7.5);
+    TEST_EQUAL(interpolate(1.0, 10.0, 2.0, 20.0, 1.00),                                10.0);
+    TEST_EQUAL(interpolate(1.0, 10.0, 2.0, 20.0, 1.25),                                12.5);
+    TEST_EQUAL(interpolate(1.0, 10.0, 2.0, 20.0, 1.50),                                15.0);
+    TEST_EQUAL(interpolate(1.0, 10.0, 2.0, 20.0, 1.75),                                17.5);
+    TEST_EQUAL(interpolate(1.0, 10.0, 2.0, 20.0, 2.00),                                20.0);
+    TEST_EQUAL(interpolate(1.0, 10.0, 2.0, 20.0, 2.25),                                22.5);
+    TEST_NEAR(interpolate(2.0, 10.0, 32.0, 20.0, 1.0, Inter::log_x),                   7.5, 1e-6);
+    TEST_NEAR(interpolate(2.0, 10.0, 32.0, 20.0, 2.0, Inter::log_x),                   10.0, 1e-6);
+    TEST_NEAR(interpolate(2.0, 10.0, 32.0, 20.0, 4.0, Inter::log_x),                   12.5, 1e-6);
+    TEST_NEAR(interpolate(2.0, 10.0, 32.0, 20.0, 8.0, Inter::log_x),                   15.0, 1e-6);
+    TEST_NEAR(interpolate(2.0, 10.0, 32.0, 20.0, 16.0, Inter::log_x),                  17.5, 1e-6);
+    TEST_NEAR(interpolate(2.0, 10.0, 32.0, 20.0, 32.0, Inter::log_x),                  20.0, 1e-6);
+    TEST_NEAR(interpolate(2.0, 10.0, 32.0, 20.0, 64.0, Inter::log_x),                  22.5, 1e-6);
+    TEST_NEAR(interpolate(1.0, 20.0, 2.0, 320.0, 0.75, Inter::log_y),                  10.0, 1e-6);
+    TEST_NEAR(interpolate(1.0, 20.0, 2.0, 320.0, 1.00, Inter::log_y),                  20.0, 1e-6);
+    TEST_NEAR(interpolate(1.0, 20.0, 2.0, 320.0, 1.25, Inter::log_y),                  40.0, 1e-6);
+    TEST_NEAR(interpolate(1.0, 20.0, 2.0, 320.0, 1.50, Inter::log_y),                  80.0, 1e-6);
+    TEST_NEAR(interpolate(1.0, 20.0, 2.0, 320.0, 1.75, Inter::log_y),                  160.0, 1e-6);
+    TEST_NEAR(interpolate(1.0, 20.0, 2.0, 320.0, 2.00, Inter::log_y),                  320.0, 1e-6);
+    TEST_NEAR(interpolate(1.0, 20.0, 2.0, 320.0, 2.25, Inter::log_y),                  640.0, 1e-6);
+    TEST_NEAR(interpolate(2.0, 20.0, 32.0, 320.0, 1.0, Inter::log_x | Inter::log_y),   10.0, 1e-6);
+    TEST_NEAR(interpolate(2.0, 20.0, 32.0, 320.0, 2.0, Inter::log_x | Inter::log_y),   20.0, 1e-6);
+    TEST_NEAR(interpolate(2.0, 20.0, 32.0, 320.0, 4.0, Inter::log_x | Inter::log_y),   40.0, 1e-6);
+    TEST_NEAR(interpolate(2.0, 20.0, 32.0, 320.0, 8.0, Inter::log_x | Inter::log_y),   80.0, 1e-6);
+    TEST_NEAR(interpolate(2.0, 20.0, 32.0, 320.0, 16.0, Inter::log_x | Inter::log_y),  160.0, 1e-6);
+    TEST_NEAR(interpolate(2.0, 20.0, 32.0, 320.0, 32.0, Inter::log_x | Inter::log_y),  320.0, 1e-6);
+    TEST_NEAR(interpolate(2.0, 20.0, 32.0, 320.0, 64.0, Inter::log_x | Inter::log_y),  640.0, 1e-6);
 
 }
 
@@ -363,7 +363,7 @@ void test_crow_algorithm_interpolated_map() {
 
 void test_crow_algorithm_interpolated_map_lin_log() {
 
-    InterpolatedMap<double, log_y> map;
+    InterpolatedMap<double, Inter::log_y> map;
     double y = 0;
 
     TRY((map = {
@@ -393,7 +393,7 @@ void test_crow_algorithm_interpolated_map_lin_log() {
 
 void test_crow_algorithm_interpolated_map_log_log() {
 
-    InterpolatedMap<double, log_x | log_y> map;
+    InterpolatedMap<double, Inter::log_x | Inter::log_y> map;
     double y = 0;
 
     TRY(map.insert(4, 1e20));

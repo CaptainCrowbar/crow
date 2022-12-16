@@ -1,6 +1,6 @@
 #pragma once
 
-#include "crow/log.hpp"
+#include "crow/binary.hpp"
 #include "crow/random.hpp"
 #include "crow/types.hpp"
 #include <algorithm>
@@ -78,7 +78,7 @@ namespace Crow {
             if (example.empty())
                 return;
 
-            if (!! (flags_ & MarkovFlags::exclusive))
+            if (has_bit(flags_, MarkovFlags::exclusive))
                 corpus_.insert(example);
 
             auto i = example.begin();

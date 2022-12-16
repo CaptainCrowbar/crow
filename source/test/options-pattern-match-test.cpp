@@ -16,10 +16,10 @@ void test_crow_options_pattern_match() {
 
     Options opt1("Hello", "", "Says hello.");
     TRY(opt1.set_colour(false));
-    TRY(opt1.add(h, "hello", 'h', "Hello option", 0, "", "He.*"));
-    TRY(opt1.add(g, "goodbye", 'g', "Goodbye option", 0, "", "(?i)go.*"));
-    TEST_THROW(opt1.add(f, "fubar", 'f', "Fubar option", 0, "", "*"), Options::setup_error);
-    TEST_THROW(opt1.add(f, "fubar", 'f', "Fubar option", 0, "", "fu.*"), Options::setup_error);
+    TRY(opt1.add(h, "hello", 'h', "Hello option", Options::none, "", "He.*"));
+    TRY(opt1.add(g, "goodbye", 'g', "Goodbye option", Options::none, "", "(?i)go.*"));
+    TEST_THROW(opt1.add(f, "fubar", 'f', "Fubar option", Options::none, "", "*"), Options::setup_error);
+    TEST_THROW(opt1.add(f, "fubar", 'f', "Fubar option", Options::none, "", "fu.*"), Options::setup_error);
 
     {
         Options opt2 = opt1;

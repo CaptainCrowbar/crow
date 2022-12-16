@@ -170,19 +170,19 @@ Complexity: _O(n)_.
 ## Interpolation
 
 ```c++
-enum Interpolate: int {
-    log_x = 1,
-    log_y = 2,
+enum class Inter: int {
+    none   = 0,
+    log_x  = 1,
+    log_y  = 2,
 };
 ```
 
-The interpolation functions take a flags parameter, which is a combination of
-these bitmask flags, to indicate which of the X and Y scales are
-logarithmic.
+Bitmask flags to indicate which of the X and Y scales are logarithmic.
 
 ```c++
 template <std::floating_point T>
-    T interpolate(T x1, T y1, T x2, T y2, T x, int flags = 0) noexcept;
+    T interpolate(T x1, T y1, T x2, T y2, T x,
+        Inter flags = Inter::none) noexcept;
 ```
 
 Interpolate or extrapolate to a third point, given two points. Behaviour is
@@ -191,7 +191,8 @@ are less than or equal to zero; or if the `log_y` flag is used and either of
 the Y values is less than or equal to zero.
 
 ```c++
-template <std::floating_point T, int Flags = 0> class InterpolatedMap {
+template <std::floating_point T, Inter Flags = Inter::none>
+class InterpolatedMap {
     InterpolatedMap();
     InterpolatedMap(std::initializer_list<std::pair<const T, T>> list);
     explicit InterpolatedMap(const std::vector<std::pair<T, T>> points);
@@ -209,7 +210,8 @@ earlier one. The constructors and `insert()` function will throw
 log-scaled parameter.
 
 ```c++
-template <std::floating_point T, int Flags = 0> class CubicSplineMap {
+template <std::floating_point T, Inter Flags = Inter::none>
+class CubicSplineMap {
     CubicSplineMap();
     CubicSplineMap(std::initializer_list<std::pair<T, T>> list);
     explicit CubicSplineMap(const std::vector<std::pair<T, T>> points);

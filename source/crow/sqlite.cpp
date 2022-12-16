@@ -51,8 +51,8 @@ namespace Crow::Sqlite {
         static constexpr Mode open_flags = Mode::read | Mode::write | Mode::create | Mode::memory | Mode::tempfile;
 
         if (std::popcount(uint32_t(flags & open_flags)) > 1
-                || ((has_bit(flags, Mode::memory) || has_bit(flags, Mode::tempfile))
-                    && (has_bit(flags, Mode::nofollow) || has_bit(flags, Mode::uri)))
+                || (has_bit(flags, Mode::memory | Mode::tempfile)
+                    && has_bit(flags, Mode::nofollow | Mode::uri))
                 || has_bit(flags, Mode::persistent))
             throw InvalidArgument("Invalid Sqlite connection mode flags");
 

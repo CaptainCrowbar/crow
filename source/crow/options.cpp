@@ -86,7 +86,7 @@ namespace Crow {
 
                 if (current == nullptr) {
                     auto it = std::find_if(options_.begin(), options_.end(), [] (auto& opt) {
-                        return opt.is_anon && (opt.kind == mode::multiple || ! opt.found);
+                        return has_bit(opt.flags, anon) && (opt.kind == mode::multiple || ! opt.found);
                     });
                     if (it == options_.end())
                         throw user_error("Argument not associated with an option: {0:q}"_fmt(arg));
@@ -194,7 +194,9 @@ namespace Crow {
             return false;
         }
 
-        auto it = std::find_if(options_.begin(), options_.end(), [] (auto& opt) { return opt.is_required && ! opt.found; });
+        auto it = std::find_if(options_.begin(), options_.end(),
+            [] (auto& opt) { return has_bit(opt.flags, required) && ! opt.found; });
+
         if (it != options_.end())
             throw user_error("Required option not found: --" + it->name);
 
@@ -214,24 +216,23 @@ namespace Crow {
 
     void Options::do_add(setter_type setter, validator_type validator, const std::string& name, char abbrev,
             const std::string& description, const std::string& placeholder, const std::string& default_value,
-            mode kind, int flags, const std::string& group) {
+            mode kind, flag_type flags, const std::string& group) {
+
+        option_info info = {
+            .setter         = setter,
+            .validator      = validator,
+            .name           = trim_name(name),
+            .description    = trim(description),
+            .placeholder    = placeholder,
+            .default_value  = default_value,
+            .group          = group,
+            .abbrev         = abbrev,
+            .kind           = kind,
+            .flags          = flags,
+            .found          = false,
+        };
 
         bool anon_complete = false;
-        option_info info;
-
-        info.setter = setter;
-        info.validator = validator;
-        info.name = trim_name(name);
-        info.description = trim(description);
-        info.placeholder = placeholder;
-        info.default_value = default_value;
-        info.group = group;
-        info.abbrev = abbrev;
-        info.kind = kind;
-        info.is_anon = (flags & anon) != 0;
-        info.is_no_default = (flags & no_default) != 0;
-        info.is_required = (flags & required) != 0;
-
         std::string long_name = "--" + info.name;
         std::string short_name = {'-', info.abbrev};
 
@@ -250,18 +251,18 @@ namespace Crow {
                 throw setup_error("Duplicate short option: -"s + info.abbrev);
         }
 
-        if (info.kind == mode::boolean && info.is_anon)
+        if (info.kind == mode::boolean && has_bit(info.flags, anon))
             throw setup_error("Boolean options can't be anonymous: --" + info.name);
-        if (info.kind == mode::boolean && info.is_required)
+        if (info.kind == mode::boolean && has_bit(info.flags, required))
             throw setup_error("Boolean options can't be required: --" + info.name);
 
-        if (info.is_anon) {
+        if (has_bit(info.flags, anon)) {
             if (anon_complete)
                 throw setup_error("All anonymous arguments are already accounted for: --" + info.name);
             anon_complete = info.kind == mode::multiple;
         }
 
-        if (info.is_required && ! group.empty())
+        if (has_bit(info.flags, required) && ! group.empty())
             throw setup_error("Required options can't be in a mutual exclusion group: --" + info.name);
 
         if (info.description.empty())
@@ -294,12 +295,12 @@ namespace Crow {
 
             block.clear();
 
-            if (info.is_anon)
+            if (has_bit(info.flags, anon))
                 block += '[';
             block += "--" + info.name;
             if (info.abbrev != '\0')
                 block += ", -" + std::string{info.abbrev};
-            if (info.is_anon)
+            if (has_bit(info.flags, anon))
                 block += ']';
 
             if (info.kind != mode::boolean) {
@@ -311,16 +312,16 @@ namespace Crow {
             left.push_back(block);
             left_width = std::max(left_width, block.size());
             block = info.description;
-            bool show_default = ! info.is_no_default && ! info.default_value.empty();
+            bool show_default = ! has_bit(info.flags, no_default) && ! info.default_value.empty();
 
-            if (info.is_required || show_default) {
+            if (has_bit(info.flags, required) || show_default) {
                 if (block.back() == ')') {
                     block.pop_back();
                     block += "; ";
                 } else {
                     block += " (";
                 }
-                if (info.is_required)
+                if (has_bit(info.flags, required))
                     block += "required";
                 else if (show_default)
                     block += "default " + info.default_value;

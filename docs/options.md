@@ -74,10 +74,11 @@ the following information on standard output:
 ### Member types
 
 ```c++
-enum Options::flag_type;
+enum class Options::flag_type;
     Options::anon;
     Options::no_default;
     Options::required;
+using enum Options::flag_type;
 ```
 
 These are bitmasks that can be used in the flags argument of `Options::add()`.
@@ -132,9 +133,10 @@ Other life cycle functions.
 ### Configuration functions
 
 ```c++
-template <typename T> Options& Options::add(T& var, const std::string& name,
-    char abbrev, const std::string& description, int flags = 0,
-    const std::string& group = {}, const std::string& pattern = {});
+template <typename T> Options& Options::add(T& var,
+    const std::string& name, char abbrev, const std::string& description,
+    flag_type flags = flag_type::none, const std::string& group = {},
+    const std::string& pattern = {});
 ```
 
 Adds an option to the configuration. The arguments are:
@@ -170,11 +172,11 @@ following types:
   supplied), but simply copies an argument string from the command line.
 * Any standard arithmetic type -- The argument supplied on the command line
   will be parsed as an integer or floating point value, including range
-  checking, raising a user error if an invalid value is passed.
+  checking, throwing `user_error` if an invalid value is passed.
 * An enumeration type -- The argument passed on the command line must match
   one of the type's enumeration values. This will only work with enumerations
-  defined using the `RS_DEFINE_ENUM()` or `RS_DEFINE_ENUM_CLASS()` macros;
-  behaviour is undefined if any other enumeration type is used.
+  defined using the `CROW_DEFINE_ENUM[_CLASS]()` macros; behaviour is
+  undefined if any other enumeration type is used.
 * A container of any of the above types. The type can be any STL compatible
   container (except `std::basic_string`) that accepts insertion of one of
   these types. Any of the standard sequential containers (`vector`, `deque`,
@@ -186,7 +188,7 @@ following types:
 
 The initial value of the variable is used as a default if the option is not
 present on the command line. Behaviour is undefined if the variable's value
-is changed between the calls to `add()` and `parse()`.
+is changed between calls to `add()` and `parse()`.
 
 The `Options` class will automatically add the `--help` and `--version`
 options, after all caller-supplied options, with the abbreviations `-h` and
@@ -195,20 +197,23 @@ options, after all caller-supplied options, with the abbreviations `-h` and
 The `add()` function will throw `setup_error` under any of the following
 conditions:
 
-* The option name has less than two characters (not counting any leading hyphens).
+* The option name has less than two characters (not counting any leading
+  hyphens).
 * The name or abbreviation contains any whitespace or control characters.
 * The abbreviation is not an ASCII character.
 * The name or abbreviation has already been used by another option.
-* The description string is empty or contains only whitespace.
+* The description string is empty (or contains only whitespace).
 * The `anon` or `required` flag is used with a boolean option.
 * Any anonymous options appear after an anonymous, container-valued option
   (which will have already swallowed up any remaining unattached arguments).
 * A required option is in a mutual exclusion group.
 * A pattern is supplied for a variable of any type other than `std::string`.
-* The pattern is not a valid regular expression (using PCRE2).
-* Both a default value and a pattern are supplied, but the value does not match the pattern.
-* A container variable is not empty (container-valued options can't have default values).
-* You try to create the `--help` or `--version` options manually.
+* The pattern is not a valid PCRE2 regular expression.
+* Both a default value and a pattern are supplied, but the value does not
+  match the pattern.
+* A container variable is not empty (container-valued options can't have
+  default values).
+* You try to create the `--help` or `--version` options explicitly.
 
 Behaviour is undefined if `add()` is called after `parse()`.
 
@@ -258,11 +263,16 @@ conditions:
 * The same option appears more than once, but is not container-valued.
 * A required option is missing.
 * More than one option from the same mutual exclusion group is supplied.
-* The argument supplied for a numeric option can't be parsed as the correct data type.
-* The argument supplied for a numeric option is out of range for its data type.
-* The argument supplied for an enumeration-valued option is not one of the valid enumeration values.
-* The argument supplied for a string option does not match the pattern specified for it.
-* There are unclaimed arguments left over after all options have been satisfied.
+* The argument supplied for a numeric option can't be parsed as the correct
+  data type.
+* The argument supplied for a numeric option is out of range for its data
+  type.
+* The argument supplied for an enumeration-valued option is not one of the
+  valid enumeration values.
+* The argument supplied for a string option does not match the pattern
+  specified for it.
+* There are unclaimed arguments left over after all options have been
+  satisfied.
 
 ```c++
 bool Options::found(const std::string& name) const;

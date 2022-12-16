@@ -1,4 +1,5 @@
 #include "crow/dso.hpp"
+#include "crow/binary.hpp"
 #include "crow/string.hpp"
 #include <system_error>
 #include <utility>
@@ -44,37 +45,37 @@ namespace Crow {
 
         native_flag_type translate_flags(Dso::flag_type flags) noexcept {
 
-            #define TRANSLATE_FLAG(from, to) if (!! (flags & Dso::from)) native_flags |= to
+            #define TRANSLATE_FLAG(from, to) if (has_bit(flags, Dso::from)) native_flags |= to;
 
             native_flag_type native_flags = 0;
 
             #ifdef _XOPEN_SOURCE
 
-                TRANSLATE_FLAG(global,  RTLD_GLOBAL);
-                TRANSLATE_FLAG(lazy,    RTLD_LAZY);
-                TRANSLATE_FLAG(local,   RTLD_LOCAL);
-                TRANSLATE_FLAG(now,     RTLD_NOW);
+                TRANSLATE_FLAG(global,  RTLD_GLOBAL)
+                TRANSLATE_FLAG(lazy,    RTLD_LAZY)
+                TRANSLATE_FLAG(local,   RTLD_LOCAL)
+                TRANSLATE_FLAG(now,     RTLD_NOW)
 
                 #ifdef __APPLE__
 
-                    TRANSLATE_FLAG(first,     RTLD_FIRST);
-                    TRANSLATE_FLAG(nodelete,  RTLD_NODELETE);
-                    TRANSLATE_FLAG(noload,    RTLD_NOLOAD);
+                    TRANSLATE_FLAG(first,     RTLD_FIRST)
+                    TRANSLATE_FLAG(nodelete,  RTLD_NODELETE)
+                    TRANSLATE_FLAG(noload,    RTLD_NOLOAD)
 
                 #endif
 
             #else
 
-                TRANSLATE_FLAG(alter_search,        LOAD_WITH_ALTERED_SEARCH_PATH);
-                TRANSLATE_FLAG(datafile,            LOAD_LIBRARY_AS_DATAFILE);
-                TRANSLATE_FLAG(datafile_exclusive,  LOAD_LIBRARY_AS_DATAFILE_EXCLUSIVE);
-                TRANSLATE_FLAG(ignore_authz,        LOAD_IGNORE_CODE_AUTHZ_LEVEL);
-                TRANSLATE_FLAG(image_resource,      LOAD_LIBRARY_AS_IMAGE_RESOURCE);
-                TRANSLATE_FLAG(search_application,  LOAD_LIBRARY_SEARCH_APPLICATION_DIR);
-                TRANSLATE_FLAG(search_default,      LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
-                TRANSLATE_FLAG(search_dll,          LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR);
-                TRANSLATE_FLAG(search_system,       LOAD_LIBRARY_SEARCH_SYSTEM32);
-                TRANSLATE_FLAG(search_user,         LOAD_LIBRARY_SEARCH_USER_DIRS);
+                TRANSLATE_FLAG(alter_search,        LOAD_WITH_ALTERED_SEARCH_PATH)
+                TRANSLATE_FLAG(datafile,            LOAD_LIBRARY_AS_DATAFILE)
+                TRANSLATE_FLAG(datafile_exclusive,  LOAD_LIBRARY_AS_DATAFILE_EXCLUSIVE)
+                TRANSLATE_FLAG(ignore_authz,        LOAD_IGNORE_CODE_AUTHZ_LEVEL)
+                TRANSLATE_FLAG(image_resource,      LOAD_LIBRARY_AS_IMAGE_RESOURCE)
+                TRANSLATE_FLAG(search_application,  LOAD_LIBRARY_SEARCH_APPLICATION_DIR)
+                TRANSLATE_FLAG(search_default,      LOAD_LIBRARY_SEARCH_DEFAULT_DIRS)
+                TRANSLATE_FLAG(search_dll,          LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR)
+                TRANSLATE_FLAG(search_system,       LOAD_LIBRARY_SEARCH_SYSTEM32)
+                TRANSLATE_FLAG(search_user,         LOAD_LIBRARY_SEARCH_USER_DIRS)
 
             #endif
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "crow/binary.hpp"
 #include "crow/enum.hpp"
 #include "crow/maths.hpp"
 #include "crow/matrix.hpp"
@@ -62,10 +63,10 @@ namespace Crow {
         { CS::to_base(Vector<float, CS::count>()) } -> std::convertible_to<Vector<float, CS::base::count>>;
     };
 
-    template <typename CS> concept LinearColourSpace = ColourSpace<CS> && !! (CS::properties & Csp::linear);
-    template <typename CS> concept PolarColourSpace = ColourSpace<CS> && !! (CS::properties & Csp::polar);
-    template <typename CS> concept RgbColourSpace = ColourSpace<CS> && !! (CS::properties & Csp::rgb);
-    template <typename CS> concept UnitColourSpace = ColourSpace<CS> && !! (CS::properties & Csp::unit);
+    template <typename CS> concept LinearColourSpace = ColourSpace<CS> && has_bit(CS::properties, Csp::linear);
+    template <typename CS> concept PolarColourSpace = ColourSpace<CS> && has_bit(CS::properties, Csp::polar);
+    template <typename CS> concept RgbColourSpace = ColourSpace<CS> && has_bit(CS::properties, Csp::rgb);
+    template <typename CS> concept UnitColourSpace = ColourSpace<CS> && has_bit(CS::properties, Csp::unit);
 
     // Utility functions
 

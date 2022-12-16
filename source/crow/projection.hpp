@@ -1,6 +1,7 @@
 #pragma once
 
 #include "crow/algorithm.hpp"
+#include "crow/binary.hpp"
 #include "crow/enum.hpp"
 #include "crow/maths.hpp"
 #include "crow/matrix.hpp"
@@ -120,7 +121,7 @@ namespace Crow {
 
         std::string list;
         for (auto& [flag, str]: all_flags)
-            if (!! (m & flag))
+            if (has_bit(m, flag))
                 list += str + ',';
         if (list.empty())
             list = "none";

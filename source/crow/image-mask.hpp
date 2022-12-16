@@ -127,7 +127,7 @@ namespace Crow::Detail {
                 modified_fg.alpha() = fga2;
                 C result = alpha_blend(modified_fg, bg);
 
-                if (!! pma)
+                if (pma != Pma::none)
                     result.multiply_alpha();
 
                 return result;

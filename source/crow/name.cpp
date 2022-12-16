@@ -1,4 +1,5 @@
 #include "crow/name.hpp"
+#include "crow/binary.hpp"
 #include "crow/english.hpp"
 #include "crow/format.hpp"
 #include "crow/regex.hpp"
@@ -40,7 +41,7 @@ namespace Crow {
         static const Regex word_pattern(fmt(word_template, ""), pattern_flags);
         static const Regex apos_pattern(fmt(word_template, "'?"), pattern_flags);
 
-        auto& pattern = !! (pf & apos) ? apos_pattern : word_pattern;
+        auto& pattern = has_bit(pf, apos) ? apos_pattern : word_pattern;
 
         for (auto& match: pattern.grep(s))
             words_.push_back(std::string(match));
@@ -87,10 +88,10 @@ namespace Crow {
 
         std::string result;
         char casing = head_case;
-        bool use_stopwords = !! (ff & stop);
 
         for (auto& w: words_) {
-            result += to_case(w, casing, use_stopwords && ! result.empty());
+            bool use_stopwords = has_bit(ff, stop) && ! result.empty();
+            result += to_case(w, casing, use_stopwords);
             if (delimiter != 0)
                 result += delimiter;
             casing = tail_case;

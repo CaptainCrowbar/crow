@@ -19,9 +19,9 @@ void test_crow_options_mutual_exclusion() {
     Options opt1("Hello", "", "Says hello.");
     TRY(opt1.set_colour(false));
     TRY(opt1.add(a, "alpha", 'a', "Alpha option"));
-    TRY(opt1.add(b, "bravo", 'b', "Bravo option", 0, "group1"));
-    TRY(opt1.add(c, "charlie", 'c', "Charlie option", 0, "group1"));
-    TRY(opt1.add(d, "delta", 'd', "Delta option", 0, "group1"));
+    TRY(opt1.add(b, "bravo", 'b', "Bravo option", Options::none, "group1"));
+    TRY(opt1.add(c, "charlie", 'c', "Charlie option", Options::none, "group1"));
+    TRY(opt1.add(d, "delta", 'd', "Delta option", Options::none, "group1"));
     TRY(opt1.add(e, "echo", 'e', "Echo option"));
 
     {

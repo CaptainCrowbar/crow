@@ -1,6 +1,7 @@
 #pragma once
 
 #include "crow/binary.hpp"
+#include "crow/enum.hpp"
 #include "crow/iterator.hpp"
 #include "crow/types.hpp"
 #include "crow/vector.hpp"
@@ -498,43 +499,43 @@ namespace Crow {
 
     // Interpolation
 
-    enum Interpolate: int {
-        log_x = 1,
-        log_y = 2,
+    enum class Inter: int {
+        none   = 0,
+        log_x  = 1,
+        log_y  = 2,
     };
 
+    CROW_BITMASK_OPERATORS(Inter)
+
     template <std::floating_point T>
-    T interpolate(T x1, T y1, T x2, T y2, T x, int flags = 0) noexcept {
-        if ((flags & Interpolate::log_x) != 0) {
+    T interpolate(T x1, T y1, T x2, T y2, T x, Inter flags = Inter::none) noexcept {
+        if (has_bit(flags, Inter::log_x)) {
             x1 = std::log(x1);
             x2 = std::log(x2);
             x = std::log(x);
         }
-        if ((flags & Interpolate::log_y) != 0) {
+        if (has_bit(flags, Inter::log_y)) {
             y1 = std::log(y1);
             y2 = std::log(y2);
         }
         T y = y1 + (y2 - y1) * ((x - x1) / (x2 - x1));
-        if ((flags & Interpolate::log_y) != 0)
+        if (has_bit(flags, Inter::log_y))
             y = std::exp(y);
         return y;
     }
 
-    template <std::floating_point T, int Flags = 0>
+    template <std::floating_point T, Inter Flags = Inter::none>
     class InterpolatedMapBase {
 
     protected:
 
-        static constexpr bool x_log = (Flags & Interpolate::log_x) != 0;
-        static constexpr bool y_log = (Flags & Interpolate::log_y) != 0;
-
-        static T x_in(T x) noexcept { if constexpr (x_log) return std::log(x); else return x; }
-        static T y_in(T y) noexcept { if constexpr (y_log) return std::log(y); else return y; }
-        static T y_out(T y) noexcept { if constexpr (y_log) return std::exp(y); else return y; }
+        static T x_in(T x) noexcept { if constexpr (has_bit(Flags, Inter::log_x)) return std::log(x); else return x; }
+        static T y_in(T y) noexcept { if constexpr (has_bit(Flags, Inter::log_y)) return std::log(y); else return y; }
+        static T y_out(T y) noexcept { if constexpr (has_bit(Flags, Inter::log_y)) return std::exp(y); else return y; }
 
     };
 
-    template <std::floating_point T, int Flags = 0>
+    template <std::floating_point T, Inter Flags = Inter::none>
     class InterpolatedMap:
     public InterpolatedMapBase<T, Flags> {
 
@@ -557,7 +558,7 @@ namespace Crow {
 
     };
 
-        template <std::floating_point T, int Flags>
+        template <std::floating_point T, Inter Flags>
         InterpolatedMap<T, Flags>& InterpolatedMap<T, Flags>::insert(T x, T y) {
             x = this->x_in(x);
             y = this->y_in(y);
@@ -565,7 +566,7 @@ namespace Crow {
             return *this;
         }
 
-        template <std::floating_point T, int Flags>
+        template <std::floating_point T, Inter Flags>
         T InterpolatedMap<T, Flags>::operator()(T x) const noexcept {
 
             if (map_.empty())
@@ -595,7 +596,7 @@ namespace Crow {
 
         }
 
-    template <std::floating_point T, int Flags = 0>
+    template <std::floating_point T, Inter Flags = Inter::none>
     class CubicSplineMap:
     public InterpolatedMapBase<T, Flags> {
 
@@ -619,7 +620,7 @@ namespace Crow {
 
     };
 
-        template <std::floating_point T, int Flags>
+        template <std::floating_point T, Inter Flags>
         T CubicSplineMap<T, Flags>::operator()(T x) const noexcept {
 
             x = this->x_in(x);
@@ -646,7 +647,7 @@ namespace Crow {
 
         }
 
-        template <std::floating_point T, int Flags>
+        template <std::floating_point T, Inter Flags>
         void CubicSplineMap<T, Flags>::init() {
 
             count_ = int(points_.size());
@@ -660,12 +661,12 @@ namespace Crow {
             if (it != points_.end())
                 throw std::invalid_argument("Degenerate points in cubic spline");
 
-            if constexpr (Flags != 0) {
+            if constexpr (has_bit(Flags, Inter::log_x | Inter::log_y)) {
                 for (auto& [x,y]: points_) {
-                    if constexpr (this->x_log)
+                    if constexpr (has_bit(Flags, Inter::log_x))
                         if (x <= 0)
                             throw std::invalid_argument("Invalid X value in logarithmic cubic spline");
-                    if constexpr (this->y_log)
+                    if constexpr (has_bit(Flags, Inter::log_y))
                         if (y <= 0)
                             throw std::invalid_argument("Invalid Y value in logarithmic cubic spline");
                     x = this->x_in(x);

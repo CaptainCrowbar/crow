@@ -514,16 +514,16 @@ namespace Crow {
         convert_colour(a, fa);
         convert_colour(b, fb);
 
-        if (! (flags & Pma::first))
+        if (! has_bit(flags, Pma::first))
             fa = fa.multiply_alpha();
 
-        if (! (flags & Pma::second))
+        if (! has_bit(flags, Pma::second))
             fb = fb.multiply_alpha();
 
         for (int i = 0; i < CT::channels; ++i)
             fc[i] = fa[i] + fb[i] * (1 - fa.alpha());
 
-        if (! (flags & Pma::result))
+        if (! has_bit(flags, Pma::result))
             fc = fc.unmultiply_alpha();
 
         CT c;

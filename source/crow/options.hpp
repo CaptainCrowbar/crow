@@ -1,5 +1,6 @@
 #pragma once
 
+#include "crow/binary.hpp"
 #include "crow/enum.hpp"
 #include "crow/format.hpp"
 #include "crow/regex.hpp"
@@ -53,11 +54,14 @@ namespace Crow {
 
     public:
 
-        enum flag_type: int {
+        enum class flag_type: int {
+            none        = 0,
             anon        = 1,  // Arguments not claimed by other options are assigned to this
             no_default  = 2,  // Don't show default value in help
             required    = 4,  // Required option
         };
+
+        using enum flag_type;
 
         class setup_error:
         public std::logic_error {
@@ -75,8 +79,10 @@ namespace Crow {
         Options(const std::string& app, const std::string& version,
             const std::string& description, const std::string& extra = {});
 
-        template <Detail::OptionArgumentType T> Options& add(T& var, const std::string& name, char abbrev,
-            const std::string& description, int flags = 0, const std::string& group = {}, const std::string& pattern = {});
+        template <Detail::OptionArgumentType T>
+        Options& add(T& var, const std::string& name, char abbrev, const std::string& description,
+            flag_type flags = flag_type::none, const std::string& group = {}, const std::string& pattern = {});
+
         void auto_help() noexcept { auto_help_ = true; }
         void set_colour(bool b) noexcept { colour_ = int(b); }
         bool parse(std::vector<std::string> args, std::ostream& out = std::cout);
@@ -100,9 +106,7 @@ namespace Crow {
             std::string group;
             char abbrev = '\0';
             mode kind = mode::single;
-            bool is_anon = false;
-            bool is_no_default = false;
-            bool is_required = false;
+            flag_type flags = flag_type::none;
             bool found = false;
         };
 
@@ -117,7 +121,7 @@ namespace Crow {
 
         void do_add(setter_type setter, validator_type validator, const std::string& name, char abbrev,
             const std::string& description, const std::string& placeholder, const std::string& default_value,
-            mode kind, int flags, const std::string& group);
+            mode kind, flag_type flags, const std::string& group);
         std::string format_help() const;
         std::string group_list(const std::string& group) const;
         size_t option_index(const std::string& name) const;
@@ -129,9 +133,11 @@ namespace Crow {
 
     };
 
+    CROW_BITMASK_OPERATORS(Options::flag_type)
+
         template <Detail::OptionArgumentType T>
-        Options& Options::add(T& var, const std::string& name, char abbrev,
-                const std::string& description, int flags, const std::string& group, const std::string& pattern) {
+        Options& Options::add(T& var, const std::string& name, char abbrev, const std::string& description,
+                flag_type flags, const std::string& group, const std::string& pattern) {
 
             using namespace Detail;
 
@@ -157,7 +163,7 @@ namespace Crow {
                     if (validator && ! validator(var))
                         throw setup_error("Default value does not match pattern: --" + name);
 
-                if ((flags & required) == 0 && (std::is_enum_v<T> || var != T())) {
+                if (! has_bit(flags, required) && (std::is_enum_v<T> || var != T())) {
                     default_value = format_object(var);
                     if constexpr (! ArithmeticType<T> && ! std::is_enum_v<T>)
                         if (! default_value.empty())

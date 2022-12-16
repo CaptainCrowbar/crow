@@ -1,4 +1,5 @@
 #include "crow/time.hpp"
+#include "crow/binary.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
@@ -141,7 +142,7 @@ namespace Crow {
         double fraction = duration_cast<duration<double>>(diff).count();
         std::tm tm;
 
-        if (!! (flags_ & DT::local))
+        if (has_bit(flags_, DT::local))
             tm = *std::localtime(&tt);
         else
             tm = *std::gmtime(&tt);
@@ -168,7 +169,7 @@ namespace Crow {
             else if (code == "MM")         result += format_integer(tm.tm_min, "n2");
             else if (code == "SS")         result += format_integer(tm.tm_sec, "n2");
             else if (code[0] == 's')       result += fraction_str(fraction, code.size());
-            else if (code == "ZZZZ")       result += !! (flags_ & DT::local) ? zone_offset(tm) : "+0000";
+            else if (code == "ZZZZ")       result += has_bit(flags_, DT::local) ? zone_offset(tm) : "+0000";
         }
 
         return result;

@@ -150,11 +150,11 @@ namespace Crow {
         static constexpr int channels = colour_type::channels;
         static constexpr ColourLayout colour_layout = CT::layout;
         static constexpr bool has_alpha = colour_type::has_alpha;
-        static constexpr bool is_bottom_up = !! (Flags & ImageFlags::invert);
+        static constexpr bool is_bottom_up = has_bit(Flags, ImageFlags::invert);
         static constexpr bool is_top_down = ! is_bottom_up;
         static constexpr bool is_hdr = colour_type::is_hdr;
         static constexpr bool is_linear = colour_type::is_linear;
-        static constexpr bool is_premultiplied = !! (Flags & ImageFlags::pma);
+        static constexpr bool is_premultiplied = has_bit(Flags, ImageFlags::pma);
 
         static_assert(colour_type::can_premultiply || ! is_premultiplied);
 
@@ -393,9 +393,6 @@ namespace Crow {
         using working_colour = Colour<working_channel, working_space, colour_layout>;
         using working_image = Image<working_colour, Flags>;
 
-        bool use_unlock = !! (rflags & ImageResize::unlock);
-        bool use_wrap = !! (rflags & ImageResize::wrap);
-
         auto fail = [new_shape] {
             throw std::invalid_argument(fmt("Invalid image dimensions: {0}", new_shape));
         };
@@ -404,12 +401,12 @@ namespace Crow {
             fail();
         if (new_shape.x() == 0 && new_shape.y() == 0)
             fail();
-        if ((new_shape.x() == 0 || new_shape.y() == 0) && use_unlock)
+        if ((new_shape.x() == 0 || new_shape.y() == 0) && has_bit(rflags, ImageResize::unlock))
             fail();
 
         Point actual_shape = new_shape;
 
-        if (! use_unlock) {
+        if (! has_bit(rflags, ImageResize::unlock)) {
 
             Double2 rshape(new_shape.x(), new_shape.y());
             double ratio = double(width()) / double(height());
@@ -429,7 +426,7 @@ namespace Crow {
         }
 
         int stb_flags = is_premultiplied ? stbir_flag_alpha_premultiplied : 0;
-        int stb_edge = use_wrap ? stbir_edge_wrap : stbir_edge_clamp;
+        int stb_edge = has_bit(rflags, ImageResize::wrap) ? stbir_edge_wrap : stbir_edge_clamp;
         int stb_filter = stbir_filter_default;
         int stb_space = std::is_same_v<colour_space, sRGB> ? stbir_colorspace_srgb : stbir_colorspace_linear;
 

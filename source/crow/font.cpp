@@ -1,5 +1,5 @@
 #include "crow/font.hpp"
-#include "crow/enum.hpp"
+#include "crow/binary.hpp"
 #include "crow/stdio.hpp"
 #include "crow/unicode.hpp"
 #include <algorithm>
@@ -752,7 +752,6 @@ namespace Crow {
         };
 
         int style_index = int(style) & 3;
-        bool use_fallback = !! (style & FontStyle::fallback);
 
         for (auto& family: families) {
             auto fam_it = table_.find(family);
@@ -768,7 +767,7 @@ namespace Crow {
             }
         }
 
-        if (style_index == 0 || use_fallback) {
+        if (style_index == 0 || has_bit(style, FontStyle::fallback)) {
             for (auto& family: families) {
                 auto fam_it = table_.find(family);
                 if (fam_it != table_.end()) {
@@ -802,7 +801,7 @@ namespace Crow {
                     table_[font.family()][font.subfamily()] = {file, index++};
             }
         };
-        if (!! (flags & Path::recurse)) {
+        if (has_bit(flags, Path::recurse)) {
             for (auto& file: dir.deep_search())
                 check_file(file);
         } else {

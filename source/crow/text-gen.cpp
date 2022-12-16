@@ -128,15 +128,15 @@ namespace Crow {
         if (! base_)
             return {};
         auto text = base_->gen(rng);
-        if (!! (options_ & option::lower))
+        if (has_bit(options_, option::lower))
             text = ascii_lowercase(text);
-        else if (!! (options_ & option::upper))
+        else if (has_bit(options_, option::upper))
             text = ascii_uppercase(text);
-        else if (!! (options_ & option::title))
+        else if (has_bit(options_, option::title))
             text = ascii_titlecase(text);
-        else if (!! (options_ & option::xtitle))
+        else if (has_bit(options_, option::xtitle))
             text = extended_titlecase(text);
-        else if (!! (options_ & option::sentence))
+        else if (has_bit(options_, option::sentence))
             text = sentence_case(text);
         return text;
     }
