@@ -137,15 +137,15 @@ namespace Crow {
         }
     constexpr T integer_power(T x, U y, BinaryFunction f, T unit = T(1)) {
         static_assert(std::is_integral_v<U>);
-        using U2 = std::make_unsigned_t<U>;
-        U2 y2 = U2(y);
-        U2 mask = std::bit_floor(y2);
-        T z = unit;
-        while (mask != 0) {
+        using V = std::make_unsigned_t<U>;
+        if (y < U(1))
+            return unit;
+        T z = x;
+        V v = V(y);
+        for (int mask = std::bit_floor(v) >> 1; mask != 0; mask >>= 1) {
             z = f(z, z);
-            if ((y2 & mask) != 0)
+            if ((v & mask) != 0)
                 z = f(z, x);
-            mask >>= 1;
         }
         return z;
     }

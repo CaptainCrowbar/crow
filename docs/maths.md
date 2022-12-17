@@ -79,8 +79,7 @@ with non-standard arithmetic types.
 template <typename T, std::integral U>
     constexpr T integer_power(T x, U y);
 template <typename T, std::integral U, typename BinaryFunction>
-    constexpr T integer_power(T x, U y, BinaryFunction f,
-        T unit = T(1));
+    constexpr T integer_power(T x, U y, BinaryFunction f, T unit = T(1));
 ```
 
 Raise `x` to the power of `y`, using an _O(log y)_ algorithm. `T` can be any
