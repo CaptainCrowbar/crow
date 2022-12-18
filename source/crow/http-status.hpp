@@ -80,7 +80,6 @@ namespace Crow {
     constexpr bool is_redirection(HttpStatus status) noexcept { return int(status) / 100 == 3; }
     constexpr bool is_client_error(HttpStatus status) noexcept { return int(status) / 100 == 4; }
     constexpr bool is_server_error(HttpStatus status) noexcept { return int(status) / 100 == 5; }
-
     std::string to_string(HttpStatus status);
 
     inline std::ostream& operator<<(std::ostream& out, HttpStatus status) {

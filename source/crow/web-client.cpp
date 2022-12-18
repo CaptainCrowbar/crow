@@ -2,7 +2,6 @@
 #include "crow/curl-api.hpp"
 #include "crow/string.hpp"
 #include <algorithm>
-#include <cstdio>
 #include <cstring>
 
 namespace Crow {
