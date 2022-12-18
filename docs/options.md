@@ -24,8 +24,10 @@ commonly expected command line features:
 
 * Long option names prefixed with two hyphens, e.g. `--long-option`.
 * Single letter abbreviations, e.g. `-x`.
-* Combinations of abbreviated options, e.g. `-abc` is equivalent to `-a -b -c`.
-* Options can be followed by arguments, delimited by a space or an equals sign, e.g. `--name value` or `--name=value`.
+* Combinations of abbreviated options, e.g. `-abc` is equivalent to
+  `-a -b -c`.
+* Options can be followed by arguments, delimited by a space or an equals
+  sign, e.g. `--name value` or `--name=value`.
 * Options can have default arguments.
 * Options may take multiple arguments, e.g. `--option arg1 arg2 arg3`.
 * Boolean options can be prefixed with `--no-` to invert them.
@@ -75,24 +77,36 @@ the following information on standard output:
 
 ```c++
 enum class Options::flag_type;
+    Options::none = 0;
     Options::anon;
     Options::no_default;
     Options::required;
+    Options::dir_exists;
+    Options::file_exists;
+    Options::parent_exists;
+    Options::not_exists;
 using enum Options::flag_type;
 ```
 
 These are bitmasks that can be used in the flags argument of `Options::add()`.
 
-The `anon` flag indicates that the option name can be left out on the command
-line; the first unclaimed argument (not yet assigned to any other option)
-will be assigned to it. If this is a container-valued option, all remaining
-unclaimed arguments will be assigned to it.
-
-The `no_default` flag suppresses the display of the default value in the help
-text.
-
-The `required` flag indicates that this option must be supplied (this does not
-apply if the user selects the `--help` or `--version` options).
+* The `anon` flag indicates that the option name can be left out on the
+  command line; the first unclaimed argument (not yet assigned to any other
+  option) will be assigned to it. If this is a container-valued option, all
+  remaining unclaimed arguments will be assigned to it.
+* The `no_default` flag suppresses the display of the default value in the
+  help text.
+* The `required` flag indicates that this option must be supplied (this does
+  not apply if the user selects the `--help` or `--version` options).
+* The `dir_exists` and `file_exists` flags indicate that the argument must be
+  a path (absolute or relative) to an existing directory or non-directory
+  file, respectively. If both flags are supplied, then either a directory or
+  file is acceptable.
+* The `parent_exists` flag indicates that the argument must be a syntactically
+  valid path that may or may not exist, but its parent directory must exist.
+  This has no effect if combined with `dir_exists` or `file_exists`.
+* The `not_exists` flag indicates that the argument must not be the path to an
+  existing file or directory.
 
 ```c++
 class Options::setup_error: public std::logic_error;
@@ -187,8 +201,8 @@ following types:
   the container.
 
 The initial value of the variable is used as a default if the option is not
-present on the command line. Behaviour is undefined if the variable's value
-is changed between calls to `add()` and `parse()`.
+present on the command line. Behaviour is undefined if the variable's value is
+changed after `add()` has been called on it (other than by `parse()`).
 
 The `Options` class will automatically add the `--help` and `--version`
 options, after all caller-supplied options, with the abbreviations `-h` and
@@ -204,16 +218,23 @@ conditions:
 * The name or abbreviation has already been used by another option.
 * The description string is empty (or contains only whitespace).
 * The `anon` or `required` flag is used with a boolean option.
+* The `not_exists` flag is combined with `dir_exists` or `file_exists`.
+* Any of the file-related flags are used with an argument type other than
+  `std::string` or a container of `std::string`.
 * Any anonymous options appear after an anonymous, container-valued option
   (which will have already swallowed up any remaining unattached arguments).
 * A required option is in a mutual exclusion group.
 * A pattern is supplied for a variable of any type other than `std::string`.
 * The pattern is not a valid PCRE2 regular expression.
 * Both a default value and a pattern are supplied, but the value does not
-  match the pattern.
+  match the pattern (except that an empty default is accepted even if an
+  empty string does not match the pattern).
 * A container variable is not empty (container-valued options can't have
   default values).
 * You try to create the `--help` or `--version` options explicitly.
+
+(If more than one of these error conditions exists for the same option, it is
+unspecified which one will be reported.)
 
 Behaviour is undefined if `add()` is called after `parse()`.
 
@@ -271,8 +292,13 @@ conditions:
   valid enumeration values.
 * The argument supplied for a string option does not match the pattern
   specified for it.
+* The argument supplied for a file option does not meet the flag condition, or
+  is not a valid file path for this operating system.
 * There are unclaimed arguments left over after all options have been
   satisfied.
+
+(If more than one of these error conditions exists for the same argument, it
+is unspecified which one will be reported.)
 
 ```c++
 bool Options::found(const std::string& name) const;

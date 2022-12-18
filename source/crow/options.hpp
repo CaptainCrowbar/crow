@@ -40,6 +40,11 @@ namespace Crow {
         template <typename T>
         concept OptionArgumentType = ScalarOptionType<T> || ContainerOptionType<T>;
 
+        template <typename T, bool C = ContainerOptionType<T>>
+        struct IsStringValued: std::is_same<T, std::string> {};
+        template <typename T>
+        struct IsStringValued<T, true>: std::is_same<typename T::value_type, std::string> {};
+
         template <typename T>
         T parse_enum_unchecked(const std::string& arg) {
             // The string has already been validated
@@ -54,11 +59,15 @@ namespace Crow {
 
     public:
 
-        enum class flag_type: int {
-            none        = 0,
-            anon        = 1,  // Arguments not claimed by other options are assigned to this
-            no_default  = 2,  // Don't show default value in help
-            required    = 4,  // Required option
+        enum class flag_type: uint32_t {
+            none           = 0,
+            anon           = 1u << 0,  // Arguments not claimed by other options are assigned to this
+            no_default     = 1u << 1,  // Don't show default value in help
+            required       = 1u << 2,  // Required option
+            dir_exists     = 1u << 3,  // Must be an existing directory
+            file_exists    = 1u << 4,  // Must be an existing file
+            parent_exists  = 1u << 5,  // Parent directory must exist
+            not_exists     = 1u << 6,  // Must not be an existing file or directory
         };
 
         using enum flag_type;
@@ -81,7 +90,7 @@ namespace Crow {
 
         template <Detail::OptionArgumentType T>
         Options& add(T& var, const std::string& name, char abbrev, const std::string& description,
-            flag_type flags = flag_type::none, const std::string& group = {}, const std::string& pattern = {});
+            flag_type flags = none, const std::string& group = {}, const std::string& pattern = {});
 
         void auto_help() noexcept { auto_help_ = true; }
         void set_colour(bool b) noexcept { colour_ = int(b); }
@@ -106,7 +115,7 @@ namespace Crow {
             std::string group;
             char abbrev = '\0';
             mode kind = mode::single;
-            flag_type flags = flag_type::none;
+            flag_type flags = none;
             bool found = false;
         };
 
@@ -127,13 +136,15 @@ namespace Crow {
         size_t option_index(const std::string& name) const;
         size_t option_index(char abbrev) const;
 
+        static void validate_path(const std::string& name, flag_type flags);
+
         template <Detail::ScalarOptionType T> static T parse_argument(const std::string& arg);
         template <Detail::ScalarOptionType T> static validator_type type_validator(const std::string& name, std::string pattern);
         template <Detail::ScalarOptionType T> static std::string type_placeholder();
 
     };
 
-    CROW_BITMASK_OPERATORS(Options::flag_type)
+        CROW_BITMASK_OPERATORS(Options::flag_type)
 
         template <Detail::OptionArgumentType T>
         Options& Options::add(T& var, const std::string& name, char abbrev, const std::string& description,
@@ -146,6 +157,10 @@ namespace Crow {
             std::string placeholder;
             std::string default_value;
             mode kind;
+
+            if constexpr (! IsStringValued<T>::value)
+                if (has_bit(flags, dir_exists | file_exists | parent_exists | not_exists))
+                    throw setup_error("File or directory flags can only be used with string-valued options: --" + name);
 
             if constexpr (std::same_as<T, bool>) {
 
@@ -212,13 +227,11 @@ namespace Crow {
         template <Detail::ScalarOptionType T>
         Options::validator_type Options::type_validator(const std::string& name, std::string pattern) {
 
-            using namespace Literals;
-
             validator_type validator;
 
             if constexpr (! std::same_as<T, std::string>)
                 if (! pattern.empty())
-                    throw setup_error("Pattern is only allowed for string-valued options: {0:q}"_fmt("--" + name));
+                    throw setup_error(fmt("Pattern is only allowed for string-valued options: {0:q}", "--" + name));
 
             if constexpr (std::is_enum_v<T>)
                 validator = [] (const std::string& str) {

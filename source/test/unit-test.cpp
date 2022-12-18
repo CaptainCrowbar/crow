@@ -742,6 +742,10 @@ void options_parsing_test_group() {
     UNIT_TEST(crow_options_parsing)
 }
 
+void options_path_test_group() {
+    UNIT_TEST(crow_options_path)
+}
+
 void options_pattern_match_test_group() {
     UNIT_TEST(crow_options_pattern_match)
 }
@@ -1269,6 +1273,7 @@ int main(int argc, char** argv) {
     options_help_test_group();
     options_mutual_exclusion_test_group();
     options_parsing_test_group();
+    options_path_test_group();
     options_pattern_match_test_group();
     options_required_test_group();
     options_traits_test_group();

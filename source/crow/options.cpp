@@ -1,17 +1,15 @@
 #include "crow/options.hpp"
+#include "crow/path.hpp"
 #include "crow/terminal.hpp"
 #include <set>
 
-using namespace Crow::Literals;
 using namespace std::literals;
 
 namespace Crow {
 
     namespace {
 
-        std::string trim_name(const std::string& name) {
-            return trim(name, std::string(ascii_whitespace) + '-');
-        }
+        constexpr const char* trim_name_chars = "\t -";
 
     }
 
@@ -66,7 +64,7 @@ namespace Crow {
                 throw user_error("Repeated option: --" + opt.name);
             if (! opt.group.empty()) {
                 if (groups_found.count(opt.group) == 1)
-                    throw user_error("Options {0} are mutually exclusive"_fmt(group_list(opt.group)));
+                    throw user_error(fmt("Options {0} are mutually exclusive", group_list(opt.group)));
                 groups_found.insert(opt.group);
             }
             opt.found = true;
@@ -89,12 +87,14 @@ namespace Crow {
                         return has_bit(opt.flags, anon) && (opt.kind == mode::multiple || ! opt.found);
                     });
                     if (it == options_.end())
-                        throw user_error("Argument not associated with an option: {0:q}"_fmt(arg));
+                        throw user_error(fmt("Argument not associated with an option: {0:q}", arg));
                     on_match(*it);
                 }
 
                 if (current->validator && ! current->validator(arg))
-                    throw user_error("Argument does not match expected pattern: {0:q}"_fmt(arg));
+                    throw user_error(fmt("Argument does not match expected pattern: {0:q}", arg));
+
+                validate_path(arg, current->flags);
 
                 try {
                     current->setter(arg);
@@ -132,7 +132,7 @@ namespace Crow {
                     if (! invert) {
                         opt_index = option_index(arg.substr(2));
                         if (opt_index == npos)
-                            throw user_error("Unknown option: {0:q}"_fmt(arg));
+                            throw user_error(fmt("Unknown option: {0:q}", arg));
                     }
                     on_match(options_[opt_index]);
                     ++arg_index;
@@ -152,7 +152,7 @@ namespace Crow {
 
                 } else {
 
-                    throw user_error("Invalid option: {0:q}"_fmt(arg));
+                    throw user_error(fmt("Invalid option: {0:q}", arg));
 
                 }
 
@@ -174,7 +174,7 @@ namespace Crow {
                 paired = false;
                 size_t opt_index = option_index(arg[1]);
                 if (opt_index == npos)
-                    throw user_error("Unknown option: {0:q}"_fmt(arg));
+                    throw user_error(fmt("Unknown option: {0:q}", arg));
                 on_match(options_[opt_index]);
                 ++arg_index;
 
@@ -221,7 +221,7 @@ namespace Crow {
         option_info info = {
             .setter         = setter,
             .validator      = validator,
-            .name           = trim_name(name),
+            .name           = trim(name, trim_name_chars),
             .description    = trim(description),
             .placeholder    = placeholder,
             .default_value  = default_value,
@@ -265,6 +265,9 @@ namespace Crow {
         if (has_bit(info.flags, required) && ! group.empty())
             throw setup_error("Required options can't be in a mutual exclusion group: --" + info.name);
 
+        if (has_bit(info.flags, not_exists) && has_bit(info.flags, dir_exists | file_exists))
+            throw setup_error("File cannot both exist and not exist: --" + info.name);
+
         if (info.description.empty())
             throw setup_error("Option description is empty: --" + info.name);
 
@@ -280,12 +283,14 @@ namespace Crow {
         auto prefix_colour = xterm.rgb(1, 5, 1);
         auto suffix_colour = xterm.rgb(2, 4, 5);
 
-        std::string text = "\n"
+        std::string text = fmt(
+            "\n"
             "{3}{4}{0}{1}{6}\n\n"
             "{5}{2}{6}\n\n"
-            "{5}Options:{6}\n"_fmt
-        (app_, version_, description_,
-            xterm.bold(), head_colour, body_colour, xterm.reset());
+            "{5}Options:{6}\n",
+            app_, version_, description_,
+            xterm.bold(), head_colour, body_colour, xterm.reset()
+        );
 
         std::vector<std::string> left, right;
         std::string block;
@@ -334,13 +339,13 @@ namespace Crow {
 
         for (size_t i = 0; i < left.size(); ++i) {
             left[i].resize(left_width, ' ');
-            text += "    {2}{0}  {3}= {1}{4}\n"_fmt
-                (left[i], right[i], prefix_colour, suffix_colour, xterm.reset());
+            text += fmt("    {2}{0}  {3}= {1}{4}\n",
+                left[i], right[i], prefix_colour, suffix_colour, xterm.reset());
         }
 
         text += '\n';
         if (! extra_.empty())
-            text += "{1}{0}{2}\n\n"_fmt(extra_, body_colour, xterm.reset());
+            text += fmt("{1}{0}{2}\n\n", extra_, body_colour, xterm.reset());
 
         return text;
 
@@ -355,7 +360,7 @@ namespace Crow {
     }
 
     size_t Options::option_index(const std::string& name) const {
-        auto key = trim_name(name);
+        auto key = trim(name, trim_name_chars);
         auto it = std::find_if(options_.begin(), options_.end(),
             [&key] (const option_info& opt) { return opt.name == key; });;
         return it == options_.end() ? npos : size_t(it - options_.begin());
@@ -367,6 +372,35 @@ namespace Crow {
         auto it = std::find_if(options_.begin(), options_.end(),
             [abbrev] (const option_info& opt) { return opt.abbrev == abbrev; });;
         return it == options_.end() ? npos : size_t(it - options_.begin());
+    }
+
+    void Options::validate_path(const std::string& name, flag_type flags) {
+
+        if (! has_bit(flags, dir_exists | file_exists | parent_exists | not_exists))
+            return;
+
+        Path path(name);
+
+        if (! path.is_legal()) {
+            throw user_error(fmt("Invalid file path: {0:q}", name));
+        } else if (has_bits(flags, dir_exists | file_exists)) {
+            if (! path.exists())
+                throw user_error(fmt("File not found: {0:q}", name));
+        } else if (has_bit(flags, dir_exists)) {
+            if (! path.is_directory())
+                throw user_error(fmt("Directory not found: {0:q}", name));
+        } else if (has_bit(flags, file_exists)) {
+            if (! (path.exists() && ! path.is_directory()))
+                throw user_error(fmt("File not found: {0:q}", name));
+        } else if (has_bit(flags, parent_exists)) {
+            auto parent = path.split_path().first;
+            if (! parent.is_directory())
+                throw user_error(fmt("Directory not found: {0:q}", parent));
+        } else if (has_bit(flags, not_exists)) {
+            if (path.exists())
+                throw user_error(fmt("File exists: {0:q}", name));
+        }
+
     }
 
 }
