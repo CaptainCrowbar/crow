@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.16)
 # and propagate the new version to version.hpp.
 
 project(Crow
-    VERSION 2.0.119
+    VERSION 2.0.120
     LANGUAGES CXX
 )
 
@@ -63,7 +63,7 @@ add_library(${library} STATIC
     ${library}/format-type.cpp
     ${library}/hash.cpp
     ${library}/hexmap.cpp
-    ${library}/http.cpp
+    ${library}/http-status.cpp
     ${library}/image.cpp
     ${library}/interval.cpp
     ${library}/log-scale.cpp

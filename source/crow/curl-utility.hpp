@@ -1,6 +1,6 @@
 // Although some of the classes in here are public, this header itself is not
 // part of the public interface. The public types are documented as part of
-// client.hpp. The implementations are in curl-api.cpp
+// web-client.hpp. The implementations are in curl-api.cpp
 
 #pragma once
 
