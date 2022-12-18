@@ -229,8 +229,6 @@ conditions:
 * Both a default value and a pattern are supplied, but the value does not
   match the pattern (except that an empty default is accepted even if an
   empty string does not match the pattern).
-* A container variable is not empty (container-valued options can't have
-  default values).
 * You try to create the `--help` or `--version` options explicitly.
 
 (If more than one of these error conditions exists for the same option, it is

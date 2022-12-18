@@ -100,14 +100,16 @@ namespace Crow {
 
     private:
 
-        using setter_type = std::function<void(const std::string&)>;
-        using validator_type = std::function<bool(const std::string&)>;
+        using setter_callback = std::function<void(const std::string&)>;
+        using validator_callback = std::function<bool(const std::string&)>;
+        using void_callback = std::function<void()>;
 
         enum class mode { boolean, single, multiple };
 
         struct option_info {
-            setter_type setter;
-            validator_type validator;
+            void_callback reset;
+            setter_callback setter;
+            validator_callback validator;
             std::string name;
             std::string description;
             std::string placeholder;
@@ -128,8 +130,9 @@ namespace Crow {
         bool allow_help_ = false;
         bool auto_help_ = false;
 
-        void do_add(setter_type setter, validator_type validator, const std::string& name, char abbrev,
-            const std::string& description, const std::string& placeholder, const std::string& default_value,
+        void do_add(void_callback reset, setter_callback setter, validator_callback validator,
+            const std::string& name, char abbrev, const std::string& description,
+            const std::string& placeholder, const std::string& default_value,
             mode kind, flag_type flags, const std::string& group);
         std::string format_help() const;
         std::string group_list(const std::string& group) const;
@@ -138,9 +141,12 @@ namespace Crow {
 
         static void validate_path(const std::string& name, flag_type flags);
 
-        template <Detail::ScalarOptionType T> static T parse_argument(const std::string& arg);
-        template <Detail::ScalarOptionType T> static validator_type type_validator(const std::string& name, std::string pattern);
-        template <Detail::ScalarOptionType T> static std::string type_placeholder();
+        template <Detail::ScalarOptionType T>
+            static T parse_argument(const std::string& arg);
+        template <Detail::ScalarOptionType T>
+            static validator_callback type_validator(const std::string& name, std::string pattern);
+        template <Detail::ScalarOptionType T>
+            static std::string type_placeholder();
 
     };
 
@@ -152,8 +158,9 @@ namespace Crow {
 
             using namespace Detail;
 
-            setter_type setter;
-            validator_type validator;
+            void_callback reset;
+            setter_callback setter;
+            validator_callback validator;
             std::string placeholder;
             std::string default_value;
             mode kind;
@@ -187,19 +194,35 @@ namespace Crow {
 
             } else {
 
-                using VT = typename T::value_type;
+                using V = typename T::value_type;
 
-                if (! var.empty())
-                    throw setup_error("Multi-valued options may not have default values: --" + name);
-
-                setter = [&var] (const std::string& str) { var.insert(var.end(), parse_argument<VT>(str)); };
-                validator = type_validator<VT>(name, pattern);
-                placeholder = type_placeholder<VT>();
+                reset = [&var] { var.clear(); };
+                setter = [&var] (const std::string& str) { var.insert(var.end(), parse_argument<V>(str)); };
+                validator = type_validator<V>(name, pattern);
+                placeholder = type_placeholder<V>();
                 kind = mode::multiple;
+
+                if constexpr (std::same_as<V, std::string>)
+                    if (validator)
+                        for (auto& v: var)
+                            if (! validator(v))
+                                throw setup_error("Default value does not match pattern: --" + name);
+
+                if (! has_bit(flags, required)) {
+                    if (var.size() == 1) {
+                        default_value = format_object(*var.begin());
+                        if constexpr (! ArithmeticType<V> && ! std::is_enum_v<V>)
+                            if (! default_value.empty())
+                                default_value = quote(default_value);
+                    } else if (var.size() > 1) {
+                        default_value = format_object(var);
+                    }
+                }
 
             }
 
-            do_add(setter, validator, name, abbrev, description, placeholder, default_value, kind, flags, group);
+            do_add(reset, setter, validator, name, abbrev, description, placeholder, default_value,
+                kind, flags, group);
 
             return *this;
 
@@ -225,9 +248,9 @@ namespace Crow {
         }
 
         template <Detail::ScalarOptionType T>
-        Options::validator_type Options::type_validator(const std::string& name, std::string pattern) {
+        Options::validator_callback Options::type_validator(const std::string& name, std::string pattern) {
 
-            validator_type validator;
+            validator_callback validator;
 
             if constexpr (! std::same_as<T, std::string>)
                 if (! pattern.empty())

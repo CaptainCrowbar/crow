@@ -68,7 +68,9 @@ namespace Crow {
                 groups_found.insert(opt.group);
             }
             opt.found = true;
-            if (opt.kind == mode::boolean && !paired) {
+            if (opt.kind == mode::multiple)
+                opt.reset();
+            if (opt.kind == mode::boolean && ! paired) {
                 opt.setter("t");
                 current = nullptr;
             }
@@ -183,12 +185,14 @@ namespace Crow {
         }
 
         size_t index = option_index("help");
+
         if (options_[index].found) {
             out << format_help();
             return false;
         }
 
         index = option_index("version");
+
         if (options_[index].found) {
             out << app_ << version_ << "\n";
             return false;
@@ -214,11 +218,13 @@ namespace Crow {
         return i != npos && options_[i].found;
     }
 
-    void Options::do_add(setter_type setter, validator_type validator, const std::string& name, char abbrev,
-            const std::string& description, const std::string& placeholder, const std::string& default_value,
+    void Options::do_add(void_callback reset, setter_callback setter, validator_callback validator,
+            const std::string& name, char abbrev, const std::string& description,
+            const std::string& placeholder, const std::string& default_value,
             mode kind, flag_type flags, const std::string& group) {
 
         option_info info = {
+            .reset          = reset,
             .setter         = setter,
             .validator      = validator,
             .name           = trim(name, trim_name_chars),

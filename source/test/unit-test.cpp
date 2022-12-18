@@ -724,6 +724,7 @@ void options_boolean_test_group() {
 
 void options_container_test_group() {
     UNIT_TEST(crow_options_container)
+    UNIT_TEST(crow_options_container_defaults)
 }
 
 void options_enumeration_test_group() {
