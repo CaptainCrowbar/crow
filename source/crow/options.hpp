@@ -231,55 +231,51 @@ namespace Crow {
         template <Detail::ScalarOptionType T>
         T Options::parse_argument(const std::string& arg) {
             using namespace Detail;
-            if constexpr (std::is_enum_v<T>)
-                return parse_enum_unchecked<T>(arg);
-            else if constexpr (std::same_as<T, std::string>)
-                return arg;
-            else if constexpr (std::same_as<T, bool>)
-                return to_boolean(arg);
-            else if constexpr (std::integral<T>)
-                return to_integer<T>(arg);
-            else if constexpr (std::floating_point<T>)
-                return to_floating<T>(arg);
-            else if constexpr (std::constructible_from<T, int>)
-                return static_cast<T>(to_int64(arg));
-            else
-                return static_cast<T>(arg);
+            try {
+                if constexpr (std::is_enum_v<T>)
+                    return parse_enum_unchecked<T>(arg);
+                else if constexpr (std::same_as<T, std::string>)
+                    return arg;
+                else if constexpr (std::same_as<T, bool>)
+                    return to_boolean(arg);
+                else if constexpr (std::integral<T>)
+                    return to_integer<T>(arg);
+                else if constexpr (std::floating_point<T>)
+                    return to_floating<T>(arg);
+                else if constexpr (std::constructible_from<T, int>)
+                    return static_cast<T>(to_int64(arg));
+                else
+                    return static_cast<T>(arg);
+            }
+            catch (const std::invalid_argument& ex) {
+                throw setup_error(ex.what());
+            }
         }
 
         template <Detail::ScalarOptionType T>
         Options::validator_callback Options::type_validator(const std::string& name, std::string pattern) {
-
-            validator_callback validator;
 
             if constexpr (! std::same_as<T, std::string>)
                 if (! pattern.empty())
                     throw setup_error(fmt("Pattern is only allowed for string-valued options: {0:q}", "--" + name));
 
             if constexpr (std::is_enum_v<T>)
-                validator = [] (const std::string& str) {
+                return [] (const std::string& str) {
                     auto& names = list_enum_names(T());
                     return std::find(names.begin(), names.end(), str) != names.end();
                 };
-            else if constexpr (std::signed_integral<T>)
-                pattern = R"([+-]?\d+)";
-            else if constexpr (std::unsigned_integral<T>)
-                pattern = R"(\+?\d+)";
-            else if constexpr (std::floating_point<T>)
-                pattern = R"([+-]?(\d+(\.\d*)?|\.\d+)([Ee][+-]?\d+)?)";
 
-            if (! pattern.empty()) {
-                Regex re;
+            if (pattern.empty()) {
+                return {};
+            } else {
                 try {
-                    re = Regex(pattern, Regex::full | Regex::no_capture);
+                    auto re = Regex(pattern, Regex::full | Regex::no_capture);
+                    return [re] (const std::string& str) { return re(str).matched(); };
                 }
                 catch (const Regex::error& ex) {
                     throw setup_error(ex.what());
                 }
-                validator = [re] (const std::string& str) { return re(str).matched(); };
             }
-
-            return validator;
 
         }
 
