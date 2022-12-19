@@ -762,6 +762,7 @@ void options_traits_test_group() {
 void path_directory_test_group() {
     UNIT_TEST(crow_path_directory_iterators)
     UNIT_TEST(crow_path_current_directory)
+    UNIT_TEST(crow_path_current_directory_contents)
     UNIT_TEST(crow_path_deep_search)
 }
 

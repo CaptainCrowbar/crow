@@ -52,7 +52,9 @@ void test_crow_path_directory_iterators() {
 
 void test_crow_path_current_directory() {
 
-    Path dot = ".", parent = "..", test = "__test_cwd__";
+    Path dot = ".";
+    Path parent = "..";
+    Path test = "__test_cwd__";
     Path abs_dot, abs_test, cwd;
 
     TRY(abs_dot = dot.resolve());
@@ -69,6 +71,42 @@ void test_crow_path_current_directory() {
     TRY(cwd = Path::current_directory());
     TEST_EQUAL(cwd, abs_dot);
     TRY(test.remove());
+
+}
+
+void test_crow_path_current_directory_contents() {
+
+    Path dot = ".";
+    Path cwd, empty, leaf2, leaf3;
+    Path::directory_range range;
+    std::vector<Path> files1, files2, files3;
+
+    TRY(range = empty.directory());
+    TRY(std::copy(range.begin(), range.end(), std::back_inserter(files1)));
+    TRY(range = dot.directory());
+    TRY(std::copy(range.begin(), range.end(), std::back_inserter(files2)));
+    TRY(cwd = Path::current_directory());
+    TRY(range = cwd.directory());
+    TRY(std::copy(range.begin(), range.end(), std::back_inserter(files3)));
+
+    TEST(! files1.empty());
+    TEST(! files2.empty());
+    TEST(! files3.empty());
+
+    TEST_EQUAL(files1.size(), files2.size());
+    TEST_EQUAL(files1.size(), files3.size());
+    TEST_EQUAL(files2.size(), files3.size());
+
+    size_t n = std::min({files1.size(), files2.size(), files3.size()});
+
+    for (size_t i = 0; i < n; ++i) {
+        TEST(files1[i].is_leaf());
+        TRY(leaf2 = files2[i].split_path().second);
+        TRY(leaf3 = files3[i].split_path().second);
+        TEST_EQUAL(files1[i], leaf2);
+        TEST_EQUAL(files1[i], leaf3);
+        TEST_EQUAL(leaf2, leaf3);
+    }
 
 }
 

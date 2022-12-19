@@ -2,10 +2,7 @@
 #include "crow/enum.hpp"
 #include "crow/format.hpp"
 #include "crow/unit-test.hpp"
-#include <set>
 #include <sstream>
-#include <stdexcept>
-#include <string>
 #include <vector>
 
 using namespace Crow;

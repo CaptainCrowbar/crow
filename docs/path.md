@@ -448,8 +448,10 @@ Path::search_range Path::deep_search(flag_type flags = no_flags) const;
 ```
 
 Return an iterator range over the files within a directory, either the
-immediate directory members (`directory()`) or a recursive search of all
-child directories (`deep_search()`).
+immediate directory members (`directory()`) or a recursive search of all child
+directories (`deep_search()`). If the path is empty, this will iterate over
+the current directory (yielding the same results as `Path(".").directory()`,
+but without the `"./"` prefix).
 
 The range will be empty if the path does not exist or is not a directory. The
 order in which files are returned is unspecified. If the directory's contents
