@@ -61,7 +61,7 @@ void test_crow_options_path() {
             "Says hello.\n"
             "\n"
             "Options:\n"
-            "    --dir, -d <file>             = Directory option\n"
+            "    --dir, -d <dir>              = Directory option\n"
             "    --file, -f <file>            = File option\n"
             "    --no-file, -n <file>         = No file option\n"
             "    --parent, -p <file>          = Parent option\n"

@@ -279,16 +279,25 @@ namespace Crow {
 
         template <Detail::ScalarOptionType T>
         std::string Options::type_placeholder(flag_type flags) {
+
             if constexpr (std::signed_integral<T>)
                 return "<int>";
             if constexpr (std::unsigned_integral<T>)
                 return "<uint>";
             if constexpr (std::floating_point<T>)
                 return "<real>";
-            if constexpr (std::same_as<T, std::string>)
+
+            if constexpr (std::same_as<T, std::string>) {
+                if (has_bits(flags, dir_exists | file_exists))
+                    return "<file>";
+                if (has_bit(flags, dir_exists))
+                    return "<dir>";
                 if (has_bit(flags, dir_exists | file_exists | not_exists | parent_exists))
                     return "<file>";
+            }
+
             return "<arg>";
+
         }
 
 }
