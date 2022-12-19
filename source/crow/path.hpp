@@ -49,6 +49,8 @@ namespace Crow {
             unicode       = 1 << 11,  // Skip files with non-Unicode names
         };
 
+        using enum flag_type;
+
         enum class form: int {
             empty,
             absolute,
@@ -57,8 +59,13 @@ namespace Crow {
             relative,
         };
 
-        using enum flag_type;
-        using enum form;
+        enum class kind: int {
+            none,
+            directory,
+            file,
+            special,
+            symlink
+        };
 
         class directory_iterator:
         public InputIterator<directory_iterator, const Path> {
@@ -171,6 +178,14 @@ namespace Crow {
         std::pair<string_type, string_type> split_os_leaf() const;
         std::pair<Path, Path> split_path() const;
         std::pair<Path, Path> split_root() const;
+        std::string base() const { return split_leaf().first; }
+        std::string ext() const { return split_leaf().second; }
+        string_type os_base() const { return split_os_leaf().first; }
+        string_type os_ext() const { return split_os_leaf().second; }
+        Path parent() const { return split_path().first; }
+        Path leaf() const { return split_path().second; }
+        Path root() const { return split_root().first; }
+        Path from_root() const { return split_root().second; }
 
         static Path common(const Path& lhs, const Path& rhs);
         template <typename Range> static Path common(const Range& files);
@@ -181,6 +196,7 @@ namespace Crow {
 
         friend std::ostream& operator<<(std::ostream& out, const Path& p) { return out << p.name(); }
         friend std::ostream& operator<<(std::ostream& out, form f);
+        friend std::ostream& operator<<(std::ostream& out, kind k);
         friend bool operator==(const Path& lhs, const Path& rhs) noexcept { return lhs.filename_ == rhs.filename_; }
         friend std::strong_ordering operator<=>(const Path& lhs, const Path& rhs) noexcept;
 
@@ -196,6 +212,7 @@ namespace Crow {
         bool exists(flag_type flags = no_flags) const noexcept;
         id_type id(flag_type flags = no_flags) const noexcept;
 
+        kind file_kind(flag_type flags = no_flags) const noexcept;
         bool is_directory(flag_type flags = no_flags) const noexcept;
         bool is_file(flag_type flags = no_flags) const noexcept;
         bool is_special(flag_type flags = no_flags) const noexcept;

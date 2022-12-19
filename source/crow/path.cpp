@@ -371,11 +371,11 @@ namespace Crow {
     }
 
     Path::form Path::path_form() const noexcept {
-        if (filename_.empty())         return empty;
-        else if (is_drive_absolute())  return drive_absolute;
-        else if (is_drive_relative())  return drive_relative;
-        else if (is_absolute())        return absolute;
-        else                           return relative;
+        if (filename_.empty())         return form::empty;
+        else if (is_drive_absolute())  return form::drive_absolute;
+        else if (is_drive_relative())  return form::drive_relative;
+        else if (is_absolute())        return form::absolute;
+        else                           return form::relative;
     }
 
     Path Path::relative_to(const Path& base, flag_type flags) const {
@@ -383,13 +383,13 @@ namespace Crow {
         auto base_form = base.path_form();
         auto this_form = path_form();
 
-        if (! (base_form == absolute && this_form == absolute)
-                && ! (base_form == relative && this_form == relative))
+        if (! (base_form == form::absolute && this_form == form::absolute)
+                && ! (base_form == form::relative && this_form == form::relative))
             throw std::invalid_argument("Invalid combination of arguments to Path::relative_to()");
 
         auto base_vec = base.os_breakdown(), this_vec = os_breakdown();
 
-        if (this_form == absolute && base_vec[0] != this_vec[0])
+        if (this_form == form::absolute && base_vec[0] != this_vec[0])
             return *this;
 
         Path prefix;
@@ -401,7 +401,7 @@ namespace Crow {
                 prefix.filename_.assign(len, OS_CHAR('.'));
                 for (size_t i = 2; i < len; i += 3)
                     prefix.filename_[i] = native_delimiter;
-            } else if (base_form == relative) {
+            } else if (base_form == form::relative) {
                 throw std::invalid_argument("Invalid combination of arguments to Path::relative_to()");
             } else {
                 return *this;
@@ -479,12 +479,24 @@ namespace Crow {
 
     std::ostream& operator<<(std::ostream& out, Path::form f) {
         switch (f) {
-            case Path::empty:           out << "empty"; break;
-            case Path::absolute:        out << "absolute"; break;
-            case Path::relative:        out << "relative"; break;
-            case Path::drive_absolute:  out << "drive_absolute"; break;
-            case Path::drive_relative:  out << "drive_relative"; break;
-            default:                    out << int(f); break;
+            case Path::form::empty:           out << "empty"; break;
+            case Path::form::absolute:        out << "absolute"; break;
+            case Path::form::relative:        out << "relative"; break;
+            case Path::form::drive_absolute:  out << "drive_absolute"; break;
+            case Path::form::drive_relative:  out << "drive_relative"; break;
+            default:                          out << int(f); break;
+        }
+        return out;
+    }
+
+    std::ostream& operator<<(std::ostream& out, Path::kind k) {
+        switch (k) {
+            case Path::kind::none:       out << "none"; break;
+            case Path::kind::directory:  out << "directory"; break;
+            case Path::kind::file:       out << "file"; break;
+            case Path::kind::special:    out << "special"; break;
+            case Path::kind::symlink:    out << "symlink"; break;
+            default:                     out << int(k); break;
         }
         return out;
     }
@@ -604,21 +616,11 @@ namespace Crow {
     }
 
     bool Path::exists([[maybe_unused]] flag_type flags) const noexcept {
-
         #ifdef _XOPEN_SOURCE
-
-            struct stat st;
-            if (has_bit(flags, no_follow))
-                return lstat(c_name(), &st) == 0;
-            else
-                return stat(c_name(), &st) == 0;
-
+            return get_stat(filename_, flags).ok;
         #else
-
             return get_attributes(filename_);
-
         #endif
-
     }
 
     Path::id_type Path::id([[maybe_unused]] flag_type flags) const noexcept {
@@ -648,6 +650,38 @@ namespace Crow {
         #endif
 
         return {device, file};
+
+    }
+
+    Path::kind Path::file_kind([[maybe_unused]] flag_type flags) const noexcept {
+
+        #ifdef _XOPEN_SOURCE
+
+            auto [st,ok] = get_stat(filename_, flags);
+            if (! ok)
+                return kind::none;
+            else if (has_bit(flags, no_follow) && S_ISLNK(st.st_mode))
+                return kind::symlink;
+            else if (S_ISDIR(st.st_mode))
+                return kind::directory;
+            else if (S_ISREG(st.st_mode))
+                return kind::file;
+            else
+                return kind::special;
+
+        #else
+
+            auto attr = get_attributes(filename_);
+            if (attr == 0)
+                return kind::none;
+            else if (has_bit(attr, FILE_ATTRIBUTE_DIRECTORY))
+                return kind::directory;
+            else if (has_bit(attr, FILE_ATTRIBUTE_DEVICE))
+                return kind::special;
+            else
+                return kind::file;
+
+        #endif
 
     }
 
@@ -895,7 +929,7 @@ namespace Crow {
             dst.make_directory();
 
             for (auto& child: directory())
-                child.copy_to(dst / child.split_path().second, recurse);
+                child.copy_to(dst / child.leaf(), recurse);
 
         } else {
 
@@ -964,10 +998,10 @@ namespace Crow {
 
         } else if (err == ENOENT && has_bit(flags, recurse) && ! is_empty()) {
 
-            Path parent = split_path().first;
-            if (parent == *this)
+            Path p = parent();
+            if (p == *this)
                 throw std::system_error(err, std::generic_category(), name());
-            parent.make_directory(flags);
+            p.make_directory(flags);
 
         }
 

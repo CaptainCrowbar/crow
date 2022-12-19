@@ -149,7 +149,6 @@ enum class Path::form: int {
     drive_relative,
     relative
 };
-using enum Path::form;
 std::ostream& operator<<(std::ostream& out, Path::form f);
 ```
 
@@ -159,9 +158,24 @@ forms, which can be queried using `path_form()` and related functions such as
 
 The concepts of a "drive absolute" path (e.g. `"\foo"` with no leading drive
 letter), or a "drive relative" path (e.g. `"C:foo"` with no backslash after
-the drive letter), are specific to Windows; on Unix, `path_form()` will never
-return one of those values. and `is_drive_absolute()` and
-`is_drive_relative()` are always false.
+the drive letter), are specific to Windows. On Unix, `path_form()` will never
+return one of those values; `is_drive_absolute()` and `is_drive_relative()`
+are always false.
+
+```c++
+enum class Path::kind: int {
+    none,
+    directory,
+    file,
+    special,
+    symlink
+};
+std::ostream& operator<<(std::ostream& out, Path::kind k);
+```
+
+These are used to indicate what kind of file a path refers to (`none`
+indicates that the file does not exist), which can be queried using
+`file_kind()`.
 
 ## Constants
 
@@ -345,9 +359,13 @@ not below the base directory, and the `no_backtrack` flag is set.
 ```c++
 std::pair<std::string, std::string> Path::split_leaf() const;
 std::pair<Path::string_type, Path::string_type> Path::split_os_leaf() const;
+std::string Path::base() const;
+std::string Path::ext() const;
+Path::string_type Path::os_base() const;
+Path::string_type Path::os_ext() const;
 ```
 
-Splits the path's leaf name into a base and extension; the extension begins
+Split the path's leaf name into a base and extension; the extension begins
 with the last dot, provided this is not the first or last character of the
 leaf name. The part of the path before the leaf name (i.e. up to the last
 path delimiter) is not included in the return value. If the path is a root
@@ -356,17 +374,21 @@ return `{"hello",".txt"}`.
 
 ```c++
 std::pair<Path, Path> Path::split_path() const;
+Path Path::parent() const;
+Path Path::leaf() const;
 ```
 
-Splits the path into a directory path and a leaf name. If the path is a root
+Split the path into a directory path and a leaf name. If the path is a root
 path, the leaf name will be empty. For example, `"/foo/bar/hello.txt"` will
 return `{"/foo/bar","hello.txt"}`.
 
 ```c++
 std::pair<Path, Path> Path::split_root() const;
+Path Path::root() const;
+Path Path::from_root() const;
 ```
 
-Splits the path into a root path and a path relative to the root. For example,
+Split the path into a root path and a path relative to the root. For example,
 `"/foo/bar/hello.txt"` will return `{"/","foo/bar/hello.txt"}`.
 
 ```c++
@@ -474,6 +496,16 @@ bool Path::exists(flag_type flags = no_flags) const noexcept;
 Query whether a file exists. This may give a false negative if the file exists
 but is not accessible to the calling process. The `no_follow` flag prevents
 this function from following symbolic links.
+
+```c++
+Path::kind Path::file_kind(flag_type flags = no_flags) const noexcept;
+```
+
+Returns the type of the file, or `none` if the file does not exist. This may
+give a false negative if the file exists but is not accessible to the calling
+process. If the `no_follow` flag is set, this will return `symlink` if the
+path names a symlink (`symlink` will never be returned in the absence of this
+flag).
 
 ```c++
 Path::id_type Path::id(flag_type flags = no_flags) const noexcept;

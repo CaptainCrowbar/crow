@@ -313,7 +313,7 @@ namespace Crow {
 
     template <ColourType CT, ImageFlags Flags>
     void Image<CT, Flags>::save(const Path& file, int quality) const {
-        auto format = ascii_lowercase(file.split_leaf().second);
+        auto format = ascii_lowercase(file.ext());
         if (format == ".hdr" || format == ".rgbe") {
             Image<Rgbaf> image;
             convert_image(*this, image);

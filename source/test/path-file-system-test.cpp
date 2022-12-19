@@ -55,7 +55,7 @@ void test_crow_path_resolution() {
 
 void test_crow_path_file_system_queries() {
 
-    static const Path null = "";
+    static const Path empty = "";
     static const Path dot1 = ".";
     static const Path dot2 = "..";
     static const Path cmcache = "CMakeCache.txt";
@@ -64,19 +64,33 @@ void test_crow_path_file_system_queries() {
 
     #ifdef _XOPEN_SOURCE
         static const Path root = "/";
+        static const Path null = "/dev/null";
     #else
         static const Path root = "C:/";
+        static const Path null = "NUL";
     #endif
 
     Path::id_type id0 = {}, id1 = {}, id2 = {};
 
-    TEST(! null.exists());   TEST(! null.is_directory());     TEST(! null.is_file());     TEST(! null.is_special());     TEST(! null.is_hidden());     TEST(! null.is_symlink());
+    TEST(! empty.exists());  TEST(! empty.is_directory());    TEST(! empty.is_file());    TEST(! empty.is_special());    TEST(! empty.is_hidden());    TEST(! empty.is_symlink());
     TEST(dot1.exists());     TEST(dot1.is_directory());       TEST(! dot1.is_file());     TEST(! dot1.is_special());     TEST(! dot1.is_hidden());     TEST(! dot1.is_symlink());
     TEST(dot2.exists());     TEST(dot2.is_directory());       TEST(! dot2.is_file());     TEST(! dot2.is_special());     TEST(! dot2.is_hidden());     TEST(! dot2.is_symlink());
     TEST(cmcache.exists());  TEST(! cmcache.is_directory());  TEST(cmcache.is_file());    TEST(! cmcache.is_special());  TEST(! cmcache.is_hidden());  TEST(! cmcache.is_symlink());
     TEST(cmfiles.exists());  TEST(cmfiles.is_directory());    TEST(! cmfiles.is_file());  TEST(! cmfiles.is_special());  TEST(! cmfiles.is_hidden());  TEST(! cmfiles.is_symlink());
     TEST(! none.exists());   TEST(! none.is_directory());     TEST(! none.is_file());     TEST(! none.is_special());     TEST(! none.is_hidden());     TEST(! none.is_symlink());
     TEST(root.exists());     TEST(root.is_directory());       TEST(! root.is_file());     TEST(! root.is_special());     TEST(! root.is_hidden());     TEST(! root.is_symlink());
+    TEST(null.exists());     TEST(! null.is_directory());     TEST(! null.is_file());     TEST(null.is_special());       TEST(! null.is_hidden());     TEST(! null.is_symlink());
+
+    Path::kind k = {};
+
+    TRY(k = empty.file_kind());    TEST_EQUAL(k, Path::kind::none);
+    TRY(k = dot1.file_kind());     TEST_EQUAL(k, Path::kind::directory);
+    TRY(k = dot2.file_kind());     TEST_EQUAL(k, Path::kind::directory);
+    TRY(k = cmcache.file_kind());  TEST_EQUAL(k, Path::kind::file);
+    TRY(k = cmfiles.file_kind());  TEST_EQUAL(k, Path::kind::directory);
+    TRY(k = none.file_kind());     TEST_EQUAL(k, Path::kind::none);
+    TRY(k = root.file_kind());     TEST_EQUAL(k, Path::kind::directory);
+    TRY(k = null.file_kind());     TEST_EQUAL(k, Path::kind::special);
 
     #ifdef _XOPEN_SOURCE
         TEST(Path("/").exists());
@@ -302,18 +316,29 @@ void test_crow_path_links() {
     TEST_EQUAL(file.size(), bytes);
 
     #ifdef _XOPEN_SOURCE
+
         TRY(file.make_symlink(link));
         TEST(link.exists());
         TEST(link.is_symlink());
         TEST_EQUAL(link.resolve_symlink(), file);
         TEST_EQUAL(link.size(), bytes);
         TEST_EQUAL(link.size(Path::no_follow), file.name().size());
+
+        Path::kind k;
+
+        TRY(k = link.file_kind());
+        TEST_EQUAL(k, Path::kind::file);
+        TRY(k = link.file_kind(Path::no_follow));
+        TEST_EQUAL(k, Path::kind::symlink);
+
     #else
+
         TEST_THROW(file.make_symlink(link), std::system_error);
         TRY(file.make_symlink(link, Path::may_copy));
         TEST(link.exists());
         TEST(! link.is_symlink());
         TEST_EQUAL(link.size(), bytes);
+
     #endif
 
     TRY(link.remove());

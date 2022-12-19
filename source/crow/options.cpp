@@ -382,29 +382,34 @@ namespace Crow {
 
     void Options::validate_path(const std::string& name, flag_type flags) {
 
-        if (! has_bit(flags, dir_exists | file_exists | parent_exists | not_exists))
+        if (! has_bit(flags, dir_exists | file_exists | not_exists | parent_exists))
             return;
 
         Path path(name);
 
-        if (! path.is_legal()) {
+        if (! path.is_legal())
             throw user_error(fmt("Invalid file path: {0:q}", name));
-        } else if (has_bits(flags, dir_exists | file_exists)) {
-            if (! path.exists())
+
+        auto kind = path.file_kind();
+
+        if (has_bits(flags, dir_exists | file_exists)) {
+            if (kind == Path::kind::none)
                 throw user_error(fmt("File not found: {0:q}", name));
         } else if (has_bit(flags, dir_exists)) {
-            if (! path.is_directory())
+            if (kind != Path::kind::directory)
                 throw user_error(fmt("Directory not found: {0:q}", name));
         } else if (has_bit(flags, file_exists)) {
-            if (! (path.exists() && ! path.is_directory()))
+            if (kind != Path::kind::file && kind != Path::kind::special)
                 throw user_error(fmt("File not found: {0:q}", name));
-        } else if (has_bit(flags, parent_exists)) {
-            auto parent = path.split_path().first;
+        }
+
+        if (has_bit(flags, not_exists) && kind != Path::kind::none)
+            throw user_error(fmt("File exists: {0:q}", name));
+
+        if (has_bit(flags, parent_exists)) {
+            auto parent = path.parent();
             if (! parent.is_directory())
                 throw user_error(fmt("Directory not found: {0:q}", parent));
-        } else if (has_bit(flags, not_exists)) {
-            if (path.exists())
-                throw user_error(fmt("File exists: {0:q}", name));
         }
 
     }

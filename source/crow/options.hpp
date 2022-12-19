@@ -64,8 +64,8 @@ namespace Crow {
             required       = 1u << 2,  // Required option
             dir_exists     = 1u << 3,  // Must be an existing directory
             file_exists    = 1u << 4,  // Must be an existing file
-            parent_exists  = 1u << 5,  // Parent directory must exist
-            not_exists     = 1u << 6,  // Must not be an existing file or directory
+            not_exists     = 1u << 5,  // Must not be an existing file or directory
+            parent_exists  = 1u << 6,  // Parent directory must exist
         };
 
         using enum flag_type;

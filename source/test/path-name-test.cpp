@@ -273,6 +273,36 @@ void test_crow_path_name_breakdown() {
         TRY(file = "/foo/bar");  TEST_EQUAL(file.split_root().first, "/");  TEST_EQUAL(file.split_root().second, "foo/bar");
         TRY(file = "foo/bar");   TEST_EQUAL(file.split_root().first, "");   TEST_EQUAL(file.split_root().second, "foo/bar");
 
+        TRY(file = "");                         TEST_EQUAL(file.base(), "");             TEST_EQUAL(file.ext(), "");
+        TRY(file = "hello.txt");                TEST_EQUAL(file.base(), "hello");        TEST_EQUAL(file.ext(), ".txt");
+        TRY(file = "hello.world.txt");          TEST_EQUAL(file.base(), "hello.world");  TEST_EQUAL(file.ext(), ".txt");
+        TRY(file = "hello");                    TEST_EQUAL(file.base(), "hello");        TEST_EQUAL(file.ext(), "");
+        TRY(file = ".hello");                   TEST_EQUAL(file.base(), ".hello");       TEST_EQUAL(file.ext(), "");
+        TRY(file = "/hello.txt");               TEST_EQUAL(file.base(), "hello");        TEST_EQUAL(file.ext(), ".txt");
+        TRY(file = "abc/def/hello.txt");        TEST_EQUAL(file.base(), "hello");        TEST_EQUAL(file.ext(), ".txt");
+        TRY(file = "abc/def/hello");            TEST_EQUAL(file.base(), "hello");        TEST_EQUAL(file.ext(), "");
+        TRY(file = "abc/def/hello.world.txt");  TEST_EQUAL(file.base(), "hello.world");  TEST_EQUAL(file.ext(), ".txt");
+        TRY(file = "abc/def/.hello");           TEST_EQUAL(file.base(), ".hello");       TEST_EQUAL(file.ext(), "");
+        TRY(file = "abc/def/.hello.txt");       TEST_EQUAL(file.base(), ".hello");       TEST_EQUAL(file.ext(), ".txt");
+
+        TRY(file = "");                         TEST_EQUAL(file.parent(), Path());           TEST_EQUAL(file.leaf(), Path());
+        TRY(file = "hello.txt");                TEST_EQUAL(file.parent(), Path());           TEST_EQUAL(file.leaf(), Path("hello.txt"));
+        TRY(file = "hello.world.txt");          TEST_EQUAL(file.parent(), Path());           TEST_EQUAL(file.leaf(), Path("hello.world.txt"));
+        TRY(file = "hello");                    TEST_EQUAL(file.parent(), Path());           TEST_EQUAL(file.leaf(), Path("hello"));
+        TRY(file = ".hello");                   TEST_EQUAL(file.parent(), Path());           TEST_EQUAL(file.leaf(), Path(".hello"));
+        TRY(file = "/hello.txt");               TEST_EQUAL(file.parent(), Path("/"));        TEST_EQUAL(file.leaf(), Path("hello.txt"));
+        TRY(file = "abc/def/hello.txt");        TEST_EQUAL(file.parent(), Path("abc/def"));  TEST_EQUAL(file.leaf(), Path("hello.txt"));
+        TRY(file = "abc/def/hello");            TEST_EQUAL(file.parent(), Path("abc/def"));  TEST_EQUAL(file.leaf(), Path("hello"));
+        TRY(file = "abc/def/hello.world.txt");  TEST_EQUAL(file.parent(), Path("abc/def"));  TEST_EQUAL(file.leaf(), Path("hello.world.txt"));
+        TRY(file = "abc/def/.hello");           TEST_EQUAL(file.parent(), Path("abc/def"));  TEST_EQUAL(file.leaf(), Path(".hello"));
+        TRY(file = "abc/def/.hello.txt");       TEST_EQUAL(file.parent(), Path("abc/def"));  TEST_EQUAL(file.leaf(), Path(".hello.txt"));
+
+        TRY(file = "");          TEST_EQUAL(file.root(), "");   TEST_EQUAL(file.from_root(), "");
+        TRY(file = "/");         TEST_EQUAL(file.root(), "/");  TEST_EQUAL(file.from_root(), "");
+        TRY(file = "/foo");      TEST_EQUAL(file.root(), "/");  TEST_EQUAL(file.from_root(), "foo");
+        TRY(file = "/foo/bar");  TEST_EQUAL(file.root(), "/");  TEST_EQUAL(file.from_root(), "foo/bar");
+        TRY(file = "foo/bar");   TEST_EQUAL(file.root(), "");   TEST_EQUAL(file.from_root(), "foo/bar");
+
     #else
 
         TRY(file = "");                TRY(vec = file.breakdown());  TEST_EQUAL(vec.size(), 0u);  TEST_EQUAL(format_range(vec), "[]");                   TEST_EQUAL(Path::join(vec), file);
@@ -321,6 +351,40 @@ void test_crow_path_name_breakdown() {
         TRY(file = "foo/bar");     TEST_EQUAL(file.split_root().first, Path());       TEST_EQUAL(file.split_root().second, Path("foo/bar"));
         TRY(file = "C:foo/bar");   TEST_EQUAL(file.split_root().first, Path("C:"));   TEST_EQUAL(file.split_root().second, Path("foo/bar"));
         TRY(file = "/foo/bar");    TEST_EQUAL(file.split_root().first, Path("/"));    TEST_EQUAL(file.split_root().second, Path("foo/bar"));
+
+        TRY(file = "");                         TEST_EQUAL(file.base(), "");             TEST_EQUAL(file.ext(), "");
+        TRY(file = "hello.txt");                TEST_EQUAL(file.base(), "hello");        TEST_EQUAL(file.ext(), ".txt");
+        TRY(file = "hello.world.txt");          TEST_EQUAL(file.base(), "hello.world");  TEST_EQUAL(file.ext(), ".txt");
+        TRY(file = "hello");                    TEST_EQUAL(file.base(), "hello");        TEST_EQUAL(file.ext(), "");
+        TRY(file = ".hello");                   TEST_EQUAL(file.base(), ".hello");       TEST_EQUAL(file.ext(), "");
+        TRY(file = "C:/hello.txt");             TEST_EQUAL(file.base(), "hello");        TEST_EQUAL(file.ext(), ".txt");
+        TRY(file = "C:hello.txt");              TEST_EQUAL(file.base(), "hello");        TEST_EQUAL(file.ext(), ".txt");
+        TRY(file = "abc/def/hello.txt");        TEST_EQUAL(file.base(), "hello");        TEST_EQUAL(file.ext(), ".txt");
+        TRY(file = "abc/def/hello");            TEST_EQUAL(file.base(), "hello");        TEST_EQUAL(file.ext(), "");
+        TRY(file = "abc/def/hello.world.txt");  TEST_EQUAL(file.base(), "hello.world");  TEST_EQUAL(file.ext(), ".txt");
+        TRY(file = "abc/def/.hello");           TEST_EQUAL(file.base(), ".hello");       TEST_EQUAL(file.ext(), "");
+        TRY(file = "abc/def/.hello.txt");       TEST_EQUAL(file.base(), ".hello");       TEST_EQUAL(file.ext(), ".txt");
+
+        TRY(file = "");                         TEST_EQUAL(file.parent(), Path());           TEST_EQUAL(file.leaf(), Path());
+        TRY(file = "hello.txt");                TEST_EQUAL(file.parent(), Path());           TEST_EQUAL(file.leaf(), Path("hello.txt"));
+        TRY(file = "hello.world.txt");          TEST_EQUAL(file.parent(), Path());           TEST_EQUAL(file.leaf(), Path("hello.world.txt"));
+        TRY(file = "hello");                    TEST_EQUAL(file.parent(), Path());           TEST_EQUAL(file.leaf(), Path("hello"));
+        TRY(file = ".hello");                   TEST_EQUAL(file.parent(), Path());           TEST_EQUAL(file.leaf(), Path(".hello"));
+        TRY(file = "C:/hello.txt");             TEST_EQUAL(file.parent(), Path("C:/"));      TEST_EQUAL(file.leaf(), Path("hello.txt"));
+        TRY(file = "C:hello.txt");              TEST_EQUAL(file.parent(), Path("C:"));       TEST_EQUAL(file.leaf(), Path("hello.txt"));
+        TRY(file = "abc/def/hello.txt");        TEST_EQUAL(file.parent(), Path("abc/def"));  TEST_EQUAL(file.leaf(), Path("hello.txt"));
+        TRY(file = "abc/def/hello");            TEST_EQUAL(file.parent(), Path("abc/def"));  TEST_EQUAL(file.leaf(), Path("hello"));
+        TRY(file = "abc/def/hello.world.txt");  TEST_EQUAL(file.parent(), Path("abc/def"));  TEST_EQUAL(file.leaf(), Path("hello.world.txt"));
+        TRY(file = "abc/def/.hello");           TEST_EQUAL(file.parent(), Path("abc/def"));  TEST_EQUAL(file.leaf(), Path(".hello"));
+        TRY(file = "abc/def/.hello.txt");       TEST_EQUAL(file.parent(), Path("abc/def"));  TEST_EQUAL(file.leaf(), Path(".hello.txt"));
+
+        TRY(file = "");            TEST_EQUAL(file.root(), Path());       TEST_EQUAL(file.from_root(), Path());
+        TRY(file = "C:/");         TEST_EQUAL(file.root(), Path("C:/"));  TEST_EQUAL(file.from_root(), Path());
+        TRY(file = "C:/foo");      TEST_EQUAL(file.root(), Path("C:/"));  TEST_EQUAL(file.from_root(), Path("foo"));
+        TRY(file = "C:/foo/bar");  TEST_EQUAL(file.root(), Path("C:/"));  TEST_EQUAL(file.from_root(), Path("foo/bar"));
+        TRY(file = "foo/bar");     TEST_EQUAL(file.root(), Path());       TEST_EQUAL(file.from_root(), Path("foo/bar"));
+        TRY(file = "C:foo/bar");   TEST_EQUAL(file.root(), Path("C:"));   TEST_EQUAL(file.from_root(), Path("foo/bar"));
+        TRY(file = "/foo/bar");    TEST_EQUAL(file.root(), Path("/"));    TEST_EQUAL(file.from_root(), Path("foo/bar"));
 
     #endif
 

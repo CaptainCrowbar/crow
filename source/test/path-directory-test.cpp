@@ -101,8 +101,8 @@ void test_crow_path_current_directory_contents() {
 
     for (size_t i = 0; i < n; ++i) {
         TEST(files1[i].is_leaf());
-        TRY(leaf2 = files2[i].split_path().second);
-        TRY(leaf3 = files3[i].split_path().second);
+        TRY(leaf2 = files2[i].leaf());
+        TRY(leaf3 = files3[i].leaf());
         TEST_EQUAL(files1[i], leaf2);
         TEST_EQUAL(files1[i], leaf3);
         TEST_EQUAL(leaf2, leaf3);

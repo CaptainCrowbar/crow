@@ -83,8 +83,8 @@ enum class Options::flag_type;
     Options::required;
     Options::dir_exists;
     Options::file_exists;
-    Options::parent_exists;
     Options::not_exists;
+    Options::parent_exists;
 using enum Options::flag_type;
 ```
 
@@ -102,11 +102,12 @@ These are bitmasks that can be used in the flags argument of `Options::add()`.
   a path (absolute or relative) to an existing directory or non-directory
   file, respectively. If both flags are supplied, then either a directory or
   file is acceptable.
-* The `parent_exists` flag indicates that the argument must be a syntactically
-  valid path that may or may not exist, but its parent directory must exist.
-  This has no effect if combined with `dir_exists` or `file_exists`.
 * The `not_exists` flag indicates that the argument must not be the path to an
   existing file or directory.
+* The `parent_exists` flag indicates that the argument must be a syntactically
+  valid path that may or may not exist, but its parent directory must exist.
+  This has no effect if combined with `dir_exists` or `file_exists`, but it
+  may be combined with `not_exists`.
 
 ```c++
 class Options::setup_error: public std::logic_error;
