@@ -144,7 +144,7 @@ namespace Crow {
         template <Detail::ScalarOptionType T>
             static validator_callback type_validator(const std::string& name, std::string pattern);
         template <Detail::ScalarOptionType T>
-            static std::string type_placeholder();
+            static std::string type_placeholder(flag_type flags);
 
     };
 
@@ -176,7 +176,7 @@ namespace Crow {
 
                 setter = [&var] (const std::string& str) { var = parse_argument<T>(str); };
                 validator = type_validator<T>(name, pattern);
-                placeholder = type_placeholder<T>();
+                placeholder = type_placeholder<T>(flags);
                 kind = mode::single;
 
                 if constexpr (std::same_as<T, std::string>)
@@ -197,7 +197,7 @@ namespace Crow {
                 reset = [&var] { var.clear(); };
                 setter = [&var] (const std::string& str) { var.insert(var.end(), parse_argument<V>(str)); };
                 validator = type_validator<V>(name, pattern);
-                placeholder = type_placeholder<V>();
+                placeholder = type_placeholder<V>(flags);
                 kind = mode::multiple;
 
                 if constexpr (std::same_as<V, std::string>)
@@ -278,15 +278,17 @@ namespace Crow {
         }
 
         template <Detail::ScalarOptionType T>
-        std::string Options::type_placeholder() {
+        std::string Options::type_placeholder(flag_type flags) {
             if constexpr (std::signed_integral<T>)
                 return "<int>";
-            else if constexpr (std::unsigned_integral<T>)
+            if constexpr (std::unsigned_integral<T>)
                 return "<uint>";
-            else if constexpr (std::floating_point<T>)
+            if constexpr (std::floating_point<T>)
                 return "<real>";
-            else
-                return "<arg>";
+            if constexpr (std::same_as<T, std::string>)
+                if (has_bit(flags, dir_exists | file_exists | not_exists | parent_exists))
+                    return "<file>";
+            return "<arg>";
         }
 
 }
