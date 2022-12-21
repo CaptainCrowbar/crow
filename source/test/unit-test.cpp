@@ -950,6 +950,20 @@ void signal_test_group() {
     UNIT_TEST(crow_signal_name)
 }
 
+void spectrum_formatting_test_group() {
+    UNIT_TEST(crow_spectrum_enumerations)
+    UNIT_TEST(crow_spectrum_formatting)
+}
+
+void spectrum_parsing_test_group() {
+    UNIT_TEST(crow_spectrum_parsing)
+}
+
+void spectrum_property_test_group() {
+    UNIT_TEST(crow_spectrum_basic_properties)
+    UNIT_TEST(crow_spectrum_physical_properties)
+}
+
 void sqlite_test_group() {
     UNIT_TEST(crow_sqlite_connection)
 }
@@ -1309,6 +1323,9 @@ int main(int argc, char** argv) {
     regex_runtime_flags_test_group();
     root_finding_test_group();
     signal_test_group();
+    spectrum_formatting_test_group();
+    spectrum_parsing_test_group();
+    spectrum_property_test_group();
     sqlite_test_group();
     stack_test_group();
     statistics_test_group();

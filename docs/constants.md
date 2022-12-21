@@ -11,8 +11,8 @@ All of the constants defined here follow the conventions of the standard
 `<numbers>` header. Each constant is defined in two forms:
 
 ```c++
-constexpr double name = value_as_double;
-template <std::floating_point T> constexpr T name_v = value_as_T;
+constexpr double name = [value as double];
+template <std::floating_point T> constexpr T name_v = [value as T];
 ```
 
 For the physical and astronomical constants, long and short versions of the
@@ -88,7 +88,7 @@ intrusive factors of 1000 in expressions.
 | `vacuum_impedance`           | `Z_0`        | 376.730 Ω                                                              |
 | `vacuum_permeability`        | `mu_0`       | 1.25664×10<sup>-6</sup> N A<sup>-2</sup>                               |
 | `vacuum_permittivity`        | `epsilon_0`  | 8.85419×10<sup>-12</sup> F m<sup>-1</sup>                              |
-| `von_klitzing_constant`      | `R_K`        | 25812.8. Ω                                                             |
+| `von_klitzing_constant`      | `R_K`        | 25812.8 Ω                                                              |
 | `wien_constant`              | `b_W`        | 2.89777×10<sup>-3</sup> m K                                            |
 
 ## Astronomical constants

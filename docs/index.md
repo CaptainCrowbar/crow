@@ -87,7 +87,6 @@ Other libraries required:
     * [crow/binary](binary.html) - Bitwise operations
     * [crow/constants](constants.html) - Constants
     * [crow/fixed-binary](fixed-binary.html) - Fixed-size binary numbers
-    * [crow/formula](formula.html) - Useful formulae
     * [crow/log-scale](log-scale.html) - Log scale floating point
     * [crow/maths](maths.html) - Mathematical utilities
     * [crow/mp-integer](mp-integer.html) - Multiple precision integers
@@ -101,6 +100,9 @@ Other libraries required:
     * [crow/noise](noise.html) - Pseudo-random noise
     * [crow/random](random.html) - Random number generators
     * [crow/text-gen](text-gen.html) - Text generators
+* Science
+    * [crow/formula](formula.html) - Useful formulae
+    * [crow/spectrum](spectrum.html) - Stellar spectral class
 * System facilities
     * [crow/dso](dso.html) - Dynamic libraries
     * [crow/process](process.html) - Process control
