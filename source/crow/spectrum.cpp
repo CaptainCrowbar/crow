@@ -60,115 +60,143 @@ namespace Crow {
 
         // Parsing tables
 
-        void parse_hr_type(LC& lc, Sp& cls, int& sub,
-                std::string_view sc_str, std::string_view sub_str, std::string_view lc_str) {
+        struct ParseResult {
+            LC lc = LC::none;
+            Sp cls = Sp::none;
+            int sub = 0;
+        };
 
-            if (lc_str == "Ia")
-                lc = LC::Ia;
-            else if (lc_str == "Ib")
-                lc = LC::Ib;
-            else if (lc_str == "II")
-                lc = LC::II;
-            else if (lc_str == "III")
-                lc = LC::III;
-            else if (lc_str == "IV")
-                lc = LC::IV;
-            else if (lc_str == "V")
-                lc = LC::V;
-            else
-                lc = LC::VI;
+        ParseResult parse_hr_type(std::string_view lc_str, std::string_view cls_str, std::string_view sub_str) {
 
-            switch (sc_str[0]) {
-                case 'O':  cls = Sp::O; break;
-                case 'B':  cls = Sp::B; break;
-                case 'A':  cls = Sp::A; break;
-                case 'F':  cls = Sp::F; break;
-                case 'G':  cls = Sp::G; break;
-                case 'K':  cls = Sp::K; break;
-                default:   cls = Sp::M; break;
-            }
+            static const std::unordered_map<std::string_view, LC> lc_map = {
+                { "I",    LC::Ia },
+                { "Ia",   LC::Ia },
+                { "Ib",   LC::Ib },
+                { "II",   LC::II },
+                { "III",  LC::III },
+                { "IV",   LC::IV },
+                { "V",    LC::V },
+                { "VI",   LC::VI },
+                { "c",    LC::Ia },
+                { "g",    LC::III },
+                { "sg",   LC::IV },
+                { "d",    LC::V },
+                { "sd",   LC::VI },
+            };
 
-            sub = to_int(std::string(sub_str));
+            static const std::unordered_map<char, Sp> sp_map = {
+                { 'O',  Sp::O },
+                { 'B',  Sp::B },
+                { 'A',  Sp::A },
+                { 'F',  Sp::F },
+                { 'G',  Sp::G },
+                { 'K',  Sp::K },
+                { 'M',  Sp::M },
+            };
 
-        }
-
-        void parse_brown_dwarf(LC& lc, Sp& cls, int& sub,
-                std::string_view sc_str, std::string_view sub_str) {
-
-            lc = LC::other;
-
-            switch (sc_str[0]) {
-                case 'L':  cls = Sp::L; break;
-                case 'T':  cls = Sp::T; break;
-                default:   cls = Sp::Y; break;
-            }
-
-            sub = to_int(std::string(sub_str));
+            return {
+                .lc = lc_map.find(lc_str)->second,
+                .cls = sp_map.find(cls_str[0])->second,
+                .sub = to_int(std::string(sub_str)),
+            };
 
         }
 
-        void parse_white_dwarf(LC& lc, Sp& cls, int& sub,
-                std::string_view sc_str, std::string_view sub_str) {
+        ParseResult parse_brown_dwarf(std::string_view cls_str, std::string_view sub_str) {
 
-            lc = LC::VII;
+            static const std::unordered_map<char, Sp> sp_map = {
+                { 'L', Sp::L },
+                { 'T', Sp::T },
+                { 'Y', Sp::Y },
+            };
 
-            switch (sc_str[0]) {
-                case 'A':  cls = Sp::DA; break;
-                case 'B':  cls = Sp::DB; break;
-                case 'C':  cls = Sp::DC; break;
-                case 'O':  cls = Sp::DO; break;
-                case 'Q':  cls = Sp::DQ; break;
-                case 'X':  cls = Sp::DX; break;
-                default:   cls = Sp::DZ; break;
-            }
-
-            sub = to_int(std::string(sub_str));
+            return {
+                .lc = LC::other,
+                .cls = sp_map.find(cls_str[0])->second,
+                .sub = to_int(std::string(sub_str)),
+            };
 
         }
 
-        void parse_wolf_rayet(LC& lc, Sp& cls, int& sub,
-                std::string_view sc_str, std::string_view sub_str) {
+        ParseResult parse_white_dwarf(std::string_view cls_str, std::string_view sub_str) {
 
-            lc = LC::other;
+            static const std::unordered_map<char, Sp> sp_map = {
+                { 'A', Sp::DA },
+                { 'B', Sp::DB },
+                { 'C', Sp::DC },
+                { 'O', Sp::DO },
+                { 'Q', Sp::DQ },
+                { 'X', Sp::DX },
+                { 'Z', Sp::DZ },
+            };
 
-            switch (sc_str[0]) {
-                case 'C':  cls = Sp::WC; break;
-                case 'N':  cls = Sp::WN; break;
-                default:   cls = Sp::WO; break;
-            }
+            ParseResult pr = {
+                .lc = LC::VII,
+                .cls = Sp::DA,
+                .sub = to_int(std::string(sub_str)),
+            };
 
-            sub = to_int(std::string(sub_str));
+            auto it = sp_map.find(cls_str[0]);
 
-        }
+            if (it != sp_map.end())
+                pr.cls = it->second;
 
-        void parse_carbon_star(LC& lc, Sp& cls, int& sub,
-                std::string_view sc_str, std::string_view sub_str) {
-
-            lc = LC::other;
-
-            switch (sc_str[0]) {
-                case 'H':  cls = sc_str[1] == 'd' ? Sp::CHd : Sp::CH; break;
-                case 'J':  cls = Sp::CJ; break;
-                case 'N':  cls = Sp::CN; break;
-                default:   cls = Sp::CR; break;
-            }
-
-            sub = to_int(std::string(sub_str));
+            return pr;
 
         }
 
-        void parse_s_star(LC& lc, Sp& cls, int& sub,
-                std::string_view sub_str) {
-            lc = LC::other;
-            cls = Sp::S;
-            sub = to_int(std::string(sub_str));
+        ParseResult parse_wolf_rayet(std::string_view cls_str, std::string_view sub_str) {
+
+            static const std::unordered_map<char, Sp> sp_map = {
+                { 'C', Sp::WC },
+                { 'N', Sp::WN },
+                { 'O', Sp::WO },
+            };
+
+            return {
+                .lc = LC::other,
+                .cls = sp_map.find(cls_str[0])->second,
+                .sub = to_int(std::string(sub_str)),
+            };
+
         }
 
-        void parse_stellar_remnant(LC& lc, Sp& cls, int& sub,
-                std::string_view sc_str) {
-            lc = LC::other;
-            cls = sc_str == "BH" ? Sp::BH : Sp::NS;
-            sub = 0;
+        ParseResult parse_c_star(std::string_view cls_str, std::string_view sub_str, std::string_view extra = {}) {
+
+            static const std::unordered_map<char, Sp> sp_map = {
+                { 'H', Sp::CH },
+                { 'J', Sp::CJ },
+                { 'N', Sp::CN },
+                { 'R', Sp::CR },
+            };
+
+            ParseResult pr = {
+                .lc = LC::other,
+                .cls = cls_str == "Hd" ? Sp::CHd : sp_map.find(cls_str[0])->second,
+                .sub = to_int(std::string(sub_str)),
+            };
+
+            if (pr.cls == Sp::CH && extra.find('d') != npos)
+                pr.cls = Sp::CHd;
+
+            return pr;
+
+        }
+
+        ParseResult parse_s_star(std::string_view sub_str) {
+            return {
+                .lc = LC::other,
+                .cls = Sp::S,
+                .sub = to_int(std::string(sub_str)),
+            };
+        }
+
+        ParseResult parse_stellar_remnant(std::string_view cls_str) {
+            return {
+                .lc = LC::other,
+                .cls = cls_str == "BH" ? Sp::BH : Sp::NS,
+                .sub = 0,
+            };
         }
 
         // Temperature tables
@@ -352,13 +380,16 @@ namespace Crow {
             return;
 
         static const Regex pattern(R"(
-            ([OBAFGKM]) (\d+) [ ]? (I[ab] | III? | IV | VI?)  # [1] [2] [3]
-            | ([LTY]) (\d+)                                   # [4] [5]
-            | D ([ABCOQXZ]) (\d+) (?: [ ]? VII) ?             # [6] [7]
-            | W ([CNO]) (\d+)                                 # [8] [9]
-            | C (\d+) - (Hd? | [JNR])                         # [10] [11]
-            | S (\d+)                                         # [12]
-            | (NS | PSR | BH)                                 # [13]
+            ([OBAFGKM]) (\d+) (?:\.\d+)? [a-z]* [ ]? (I[ab] | III? | IV | VI?) [a-z]*  # [1-3]    HR diagram stars
+            | ([cdg] | s[dg]) ([OBAFGKM]) (\d+) (?:\.\d+)? [a-z]*                      # [4-6]    HR diagram stars
+            | ([LTY]) (\d+) (?:\.\d+)? [a-z]*                                          # [7-8]    Brown dwarfs
+            | D ([A-Z]+) (\d+) (?:\.\d+)? [a-z]* (?: [ ]? VII)?                        # [9-10]   White dwarfs
+            | W ([CNO]) [A-Z]* (\d+) (?:\.\d+)? [a-z]*                                 # [11-12]  Wolf-Rayet stars
+            | C (\d+) (?:\.\d+)? (?:,\d+)? [a-z]* - (Hd? | [JNR]) [a-z]*               # [13-14]  Carbon stars
+            | C ([HJNR]) (\d+) (?:\.\d+)? (?:,\d+)? ([a-z]*)                           # [15-17]  Carbon stars
+            | ([NR]) (\d+) (?:\.\d+)? [a-z]*                                           # [18-19]  Carbon stars
+            | S (\d+) (?:\.\d+)? [a-z]*                                                # [20]     Carbon stars
+            | (NS | PSR | BH)                                                          # [21]     Stellar remnants
             )", Regex::extended | Regex::full);
 
         auto match = pattern(str);
@@ -366,26 +397,30 @@ namespace Crow {
         if (! match)
             throw std::invalid_argument("Invalid spectral type: " + quote(str));
 
-        LC lc = LC::none;
-        Sp cls = Sp::none;
-        int sub = 0;
+        ParseResult pr;
 
         if (match.matched(1))
-            parse_hr_type(lc, cls, sub, match[1], match[2], match[3]);
+            pr = parse_hr_type(match[3], match[1], match[2]);
         else if (match.matched(4))
-            parse_brown_dwarf(lc, cls, sub, match[4], match[5]);
-        else if (match.matched(6))
-            parse_white_dwarf(lc, cls, sub, match[6], match[7]);
-        else if (match.matched(8))
-            parse_wolf_rayet(lc, cls, sub, match[8], match[9]);
-        else if (match.matched(10))
-            parse_carbon_star(lc, cls, sub, match[11], match[10]);
-        else if (match.matched(12))
-            parse_s_star(lc, cls, sub, match[12]);
+            pr = parse_hr_type(match[4], match[5], match[6]);
+        else if (match.matched(7))
+            pr = parse_brown_dwarf(match[7], match[8]);
+        else if (match.matched(9))
+            pr = parse_white_dwarf(match[9], match[10]);
+        else if (match.matched(11))
+            pr = parse_wolf_rayet(match[11], match[12]);
+        else if (match.matched(13))
+            pr = parse_c_star(match[14], match[13]);
+        else if (match.matched(15))
+            pr = parse_c_star(match[15], match[16], match[17]);
+        else if (match.matched(18))
+            pr = parse_c_star(match[18], match[19]);
+        else if (match.matched(20))
+            pr = parse_s_star(match[20]);
         else
-            parse_stellar_remnant(lc, cls, sub, match[13]);
+            pr = parse_stellar_remnant(match[21]);
 
-        *this = Spectrum(cls, sub, lc);
+        *this = Spectrum(pr.cls, pr.sub, pr.lc);
 
     }
 

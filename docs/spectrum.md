@@ -90,8 +90,11 @@ explicit Spectrum(std::string_view str);
 ```
 
 Parses a spectral class in string format. An empty string will yield a default
-constructed object. This will throw `std::invalid_argument` if the string is
-not recognised as a valid spectral type.
+constructed object. Additional elements (e.g. letters after the main spectral
+class) will be accepted but not saved. Non-standard white dwarf types are
+recorded as DA. Neutron stars are abbreviated NS or PSR, black holes as BH.
+This will throw `std::invalid_argument` if the string is not recognised as a
+valid spectral type.
 
 ```c++
 Spectrum::Spectrum(const Spectrum& sp) noexcept;
