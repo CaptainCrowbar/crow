@@ -16,6 +16,8 @@
 #include <unordered_map>
 #include <vector>
 
+using namespace Crow::Constants;
+
 namespace Crow {
 
     namespace {
@@ -556,6 +558,14 @@ namespace Crow {
 
         return lt;
 
+    }
+
+    double Spectrum::M_bol() const {
+        return Mbol_sun - 2.5 * log_l();
+    }
+
+    double Spectrum::M_v() const {
+        return M_bol() - bc();
     }
 
     size_t Spectrum::hash() const noexcept {

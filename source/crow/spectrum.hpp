@@ -66,6 +66,8 @@ namespace Crow {
         double log_m() const;
         double log_r() const;
         double log_t() const;
+        double M_bol() const;
+        double M_v() const;
 
         size_t hash() const noexcept;
         std::string str() const;

@@ -61,14 +61,14 @@ for non-main-sequence types, the figure given is usually the midpoint of a
 wide range.
 
 ```c++
-constexpr Spectrum() noexcept;
+constexpr Spectrum::Spectrum() noexcept;
 ```
 
 The default constructor sets the luminosity class and spectral class to
 `none`, and the subclass to 0, representing an unknown spectral class.
 
 ```c++
-explicit Spectrum(Sp cls, int sub = 0, LC lc = LC::none);
+explicit Spectrum::Spectrum(Sp cls, int sub = 0, LC lc = LC::none);
 ```
 
 Constructor from a spectral class, subclass, and luminosity class. If no
@@ -86,7 +86,7 @@ will be used. Subclasses greater than 9 are allowed (up to 99), but
 | NS-BH  | 0         | other  | other       |
 
 ```c++
-explicit Spectrum(std::string_view str);
+explicit Spectrum::Spectrum(std::string_view str);
 ```
 
 Parses a spectral class in string format. An empty string will yield a default
@@ -107,22 +107,22 @@ Spectrum& Spectrum::operator=(Spectrum&& sp) noexcept;
 Other life cycle operations.
 
 ```c++
-constexpr LC lc() const noexcept;
-constexpr Sp cls() const noexcept;
-constexpr int sub() const noexcept;
+constexpr LC Spectrum::lc() const noexcept;
+constexpr Sp Spectrum::cls() const noexcept;
+constexpr int Spectrum::sub() const noexcept;
 ```
 
 Return the luminosity class, spectral class, or subclass.
 
 ```c++
-constexpr bool is_giant() const noexcept;
-constexpr bool is_main_sequence() const noexcept;
-constexpr bool is_hr_type() const noexcept;
-constexpr bool is_brown_dwarf() const noexcept;
-constexpr bool is_white_dwarf() const noexcept;
-constexpr bool is_wolf_rayet_star() const noexcept;
-constexpr bool is_carbon_star() const noexcept;
-constexpr bool is_stellar_remnant() const noexcept;
+constexpr bool Spectrum::is_giant() const noexcept;
+constexpr bool Spectrum::is_main_sequence() const noexcept;
+constexpr bool Spectrum::is_hr_type() const noexcept;
+constexpr bool Spectrum::is_brown_dwarf() const noexcept;
+constexpr bool Spectrum::is_white_dwarf() const noexcept;
+constexpr bool Spectrum::is_wolf_rayet_star() const noexcept;
+constexpr bool Spectrum::is_carbon_star() const noexcept;
+constexpr bool Spectrum::is_stellar_remnant() const noexcept;
 ```
 
 Boolean properties. Spectral types O-F Ia-III and G-M Ia-IV are counted as
@@ -130,12 +130,12 @@ giants; O-F IV-VI and G-M V-VI are main sequence. The `is_hr_type()` function
 is true for types on the HR diagram, i.e. O-M.
 
 ```c++
-double bc() const;           // Bolometric correction (mag)
-double b_v() const;          // B-V colour index (mag)
-double luminosity() const;   // Stellar luminosity (W)
-double mass() const;         // Stellar mass (kg)
-double radius() const;       // Stellar radius (m)
-double temperature() const;  // Effective temperature (K)
+double Spectrum::bc() const;           // Bolometric correction (mag)
+double Spectrum::b_v() const;          // B-V colour index (mag)
+double Spectrum::luminosity() const;   // Stellar luminosity (W)
+double Spectrum::mass() const;         // Stellar mass (kg)
+double Spectrum::radius() const;       // Stellar radius (m)
+double Spectrum::temperature() const;  // Effective temperature (K)
 ```
 
 Stellar physical parameters. Apart from the colour parameters, these are in SI
@@ -144,10 +144,10 @@ stellar remnant types, `bc()` and `b_v()` will return NaN; `luminosity()` and
 `temperature()` will return zero.
 
 ```c++
-double log_l() const;
-double log_m() const;
-double log_r() const;
-double log_t() const;
+double Spectrum::log_l() const;
+double Spectrum::log_m() const;
+double Spectrum::log_r() const;
+double Spectrum::log_t() const;
 ```
 
 Decimal logarithms of some of the physical parameters. For luminosity, mass,
@@ -155,14 +155,21 @@ and radius, this is given relative to the Sun. Where the original physical
 parameter function returns zero or NaN, these will return NaN.
 
 ```c++
-size_t hash() const noexcept;
+double Spectrum::M_bol() const;
+double Spectrum::M_v() const;
+```
+
+Absolute bolometric and visual magnitudes.
+
+```c++
+size_t Spectrum::hash() const noexcept;
 class std::hash<Spectrum>;
 ```
 
 Hash functions.
 
 ```c++
-std::string str() const;
+std::string Spectrum::str() const;
 std::ostream& operator<<(std::ostream& out, const Spectrum& sp);
 ```
 
