@@ -71,17 +71,6 @@ and _k_ is the number of differences.
 ## Edit distance
 
 ```c++
-template <ForwardRangeType Range1, ForwardRangeType Range2>
-    int edit_distance(const Range1& range1,
-        const Range2& range2);
-template <ForwardRangeType Range1, ForwardRangeType Range2,
-        ArithmeticType T>
-    T edit_distance(const Range1& range1,
-        const Range2& range2, T ins, T del, T sub);
-```
-
-
-```c++
 template <ArithmeticType T = double> class Levenshtein {
     Levenshtein() noexcept;
     Levenshtein(T ins, T del, T sub);
