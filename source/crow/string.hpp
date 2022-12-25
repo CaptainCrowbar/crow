@@ -155,17 +155,19 @@ namespace Crow {
     // String parsing functions
 
     bool to_boolean(const std::string& str);
+    inline bool to_boolean(std::string_view str) { return to_boolean(std::string(str)); }
+    inline bool to_boolean(const char* str) { return str != nullptr && to_boolean(std::string(str)); }
 
     template <std::integral T>
-    T to_integer(const std::string& str, int base = 10) {
+    T to_integer(const char* str, int base = 10) {
 
         static const char* const error_message = std::is_signed_v<T> ? "Invalid integer: " : "Invalid unsigned integer: ";
 
-        if (str.empty() || ascii_isspace(str[0]))
+        if (str == nullptr || *str == '\0' || ascii_isspace(*str))
             throw std::invalid_argument(error_message + quote(str));
 
         if constexpr (std::is_unsigned_v<T>)
-            if (str[0] == '-')
+            if (*str == '-')
                 throw std::invalid_argument(error_message + quote(str));
 
         if (base != 2 && base != 10 && base != 16)
@@ -176,8 +178,8 @@ namespace Crow {
         auto parse = [&] (auto f, auto& x) {
             char* end = nullptr;
             errno = 0;
-            x = f(str.data(), &end, base);
-            if (errno != 0 || end == str.data()
+            x = f(str, &end, base);
+            if (errno != 0 || end == str
                     || x < std::numeric_limits<T>::min() || x > std::numeric_limits<T>::max())
                 throw std::invalid_argument(error_message + quote(str));
             t = T(x);
@@ -205,6 +207,27 @@ namespace Crow {
 
     }
 
+    template <std::floating_point T>
+    T to_floating(const char* str) {
+        if (str == nullptr || *str == '\0' || ascii_isspace(*str))
+            throw std::invalid_argument("Invalid real number: " + quote(str));
+        T t;
+        char* end = nullptr;
+        errno = 0;
+        if constexpr(sizeof(T) > sizeof(double))
+            t = T(std::strtold(str, &end));
+        else
+            t = T(std::strtod(str, &end));
+        if (errno != 0 || end == str)
+            throw std::invalid_argument("Invalid real number: " + quote(str));
+        return t;
+    }
+
+    template <std::integral T> T to_integer(const std::string& str, int base = 10) { return to_integer<T>(str.data(), base); }
+    template <std::integral T> T to_integer(std::string_view str, int base = 10) { return to_integer<T>(std::string(str), base); }
+    template <std::floating_point T> T to_floating(const std::string& str) { return to_floating<T>(str.data()); }
+    template <std::floating_point T> T to_floating(std::string_view str) { return to_floating<T>(std::string(str)); }
+
     inline auto to_short(const std::string& str, int base = 10) { return to_integer<short>(str, base); }
     inline auto to_ushort(const std::string& str, int base = 10) { return to_integer<unsigned short>(str, base); }
     inline auto to_int(const std::string& str, int base = 10) { return to_integer<int>(str, base); }
@@ -223,26 +246,53 @@ namespace Crow {
     inline auto to_uint64(const std::string& str, int base = 10) { return to_integer<uint64_t>(str, base); }
     inline auto to_ptrdiff(const std::string& str, int base = 10) { return to_integer<ptrdiff_t>(str, base); }
     inline auto to_size(const std::string& str, int base = 10) { return to_integer<size_t>(str, base); }
-
-    template <std::floating_point T>
-    T to_floating(const std::string& str) {
-        if (str.empty())
-            throw std::invalid_argument("Invalid real number: " + quote(str));
-        T t;
-        char* end = nullptr;
-        errno = 0;
-        if constexpr(sizeof(T) > sizeof(double))
-            t = T(std::strtold(str.data(), &end));
-        else
-            t = T(std::strtod(str.data(), &end));
-        if (errno != 0 || end == str.data())
-            throw std::invalid_argument("Invalid real number: " + quote(str));
-        return t;
-    }
-
     inline auto to_float(const std::string& str) { return to_floating<float>(str); }
     inline auto to_double(const std::string& str) { return to_floating<double>(str); }
     inline auto to_ldouble(const std::string& str) { return to_floating<long double>(str); }
+
+    inline auto to_short(std::string_view str, int base = 10) { return to_integer<short>(str, base); }
+    inline auto to_ushort(std::string_view str, int base = 10) { return to_integer<unsigned short>(str, base); }
+    inline auto to_int(std::string_view str, int base = 10) { return to_integer<int>(str, base); }
+    inline auto to_uint(std::string_view str, int base = 10) { return to_integer<unsigned>(str, base); }
+    inline auto to_long(std::string_view str, int base = 10) { return to_integer<long>(str, base); }
+    inline auto to_ulong(std::string_view str, int base = 10) { return to_integer<unsigned long>(str, base); }
+    inline auto to_llong(std::string_view str, int base = 10) { return to_integer<long long>(str, base); }
+    inline auto to_ullong(std::string_view str, int base = 10) { return to_integer<unsigned long long>(str, base); }
+    inline auto to_int8(std::string_view str, int base = 10) { return to_integer<int8_t>(str, base); }
+    inline auto to_uint8(std::string_view str, int base = 10) { return to_integer<uint8_t>(str, base); }
+    inline auto to_int16(std::string_view str, int base = 10) { return to_integer<int16_t>(str, base); }
+    inline auto to_uint16(std::string_view str, int base = 10) { return to_integer<uint16_t>(str, base); }
+    inline auto to_int32(std::string_view str, int base = 10) { return to_integer<int32_t>(str, base); }
+    inline auto to_uint32(std::string_view str, int base = 10) { return to_integer<uint32_t>(str, base); }
+    inline auto to_int64(std::string_view str, int base = 10) { return to_integer<int64_t>(str, base); }
+    inline auto to_uint64(std::string_view str, int base = 10) { return to_integer<uint64_t>(str, base); }
+    inline auto to_ptrdiff(std::string_view str, int base = 10) { return to_integer<ptrdiff_t>(str, base); }
+    inline auto to_size(std::string_view str, int base = 10) { return to_integer<size_t>(str, base); }
+    inline auto to_float(std::string_view str) { return to_floating<float>(str); }
+    inline auto to_double(std::string_view str) { return to_floating<double>(str); }
+    inline auto to_ldouble(std::string_view str) { return to_floating<long double>(str); }
+
+    inline auto to_short(const char* str, int base = 10) { return to_integer<short>(str, base); }
+    inline auto to_ushort(const char* str, int base = 10) { return to_integer<unsigned short>(str, base); }
+    inline auto to_int(const char* str, int base = 10) { return to_integer<int>(str, base); }
+    inline auto to_uint(const char* str, int base = 10) { return to_integer<unsigned>(str, base); }
+    inline auto to_long(const char* str, int base = 10) { return to_integer<long>(str, base); }
+    inline auto to_ulong(const char* str, int base = 10) { return to_integer<unsigned long>(str, base); }
+    inline auto to_llong(const char* str, int base = 10) { return to_integer<long long>(str, base); }
+    inline auto to_ullong(const char* str, int base = 10) { return to_integer<unsigned long long>(str, base); }
+    inline auto to_int8(const char* str, int base = 10) { return to_integer<int8_t>(str, base); }
+    inline auto to_uint8(const char* str, int base = 10) { return to_integer<uint8_t>(str, base); }
+    inline auto to_int16(const char* str, int base = 10) { return to_integer<int16_t>(str, base); }
+    inline auto to_uint16(const char* str, int base = 10) { return to_integer<uint16_t>(str, base); }
+    inline auto to_int32(const char* str, int base = 10) { return to_integer<int32_t>(str, base); }
+    inline auto to_uint32(const char* str, int base = 10) { return to_integer<uint32_t>(str, base); }
+    inline auto to_int64(const char* str, int base = 10) { return to_integer<int64_t>(str, base); }
+    inline auto to_uint64(const char* str, int base = 10) { return to_integer<uint64_t>(str, base); }
+    inline auto to_ptrdiff(const char* str, int base = 10) { return to_integer<ptrdiff_t>(str, base); }
+    inline auto to_size(const char* str, int base = 10) { return to_integer<size_t>(str, base); }
+    inline auto to_float(const char* str) { return to_floating<float>(str); }
+    inline auto to_double(const char* str) { return to_floating<double>(str); }
+    inline auto to_ldouble(const char* str) { return to_floating<long double>(str); }
 
     // String query functions
 

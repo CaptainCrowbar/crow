@@ -255,34 +255,79 @@ function will throw `std::length_error` in this situation.
 
 ## String parsing functions
 
+All of these come in three versions, taking a string, a string view, or a
+character pointer, to avoid unnecessary copying. Apart from `to_boolean()`, an
+empty string or a null pointer will throw `std::invalid_argument`.
+
 ```c++
+bool to_boolean(const char* str);
 bool to_boolean(const std::string& str);
+bool to_boolean(std::string_view str);
 ```
 
-Any of `"true"`, `"t"`, `"yes"`, `"y"`, `"on"`, `"1"`, or an empty string
-return true; `"false"`, `"f"`, `"no"`, `"n"`, `"off"`, or `"0"` return false
-(case insensitive). Any other argument throws `std::invalid_argument`.
+Any of `"true"`, `"t"`, `"yes"`, `"y"`, `"on"`, or `"1"` return true;
+`"false"`, `"f"`, `"no"`, `"n"`, `"off"`, `"0"`, an empty string, or a null
+pointer return false (case insensitive). Any other argument throws
+`std::invalid_argument`.
 
 ```c++
 template <std::integral T> T to_integer(const std::string& str, int base = 10);
+template <std::integral T> T to_integer(std::string_view str, int base = 10);
+template <std::integral T> T to_integer(const char*str, int base = 10);
 short to_short(const std::string& str, int base = 10);
+short to_short(std::string_view str, int base = 10);
+short to_short(const char*str, int base = 10);
 unsigned short to_ushort(const std::string& str, int base = 10);
+unsigned short to_ushort(std::string_view str, int base = 10);
+unsigned short to_ushort(const char*str, int base = 10);
 int to_int(const std::string& str, int base = 10);
+int to_int(std::string_view str, int base = 10);
+int to_int(const char*str, int base = 10);
 unsigned to_uint(const std::string& str, int base = 10);
+unsigned to_uint(std::string_view str, int base = 10);
+unsigned to_uint(const char*str, int base = 10);
 long to_long(const std::string& str, int base = 10);
+long to_long(std::string_view str, int base = 10);
+long to_long(const char*str, int base = 10);
 unsigned long to_ulong(const std::string& str, int base = 10);
+unsigned long to_ulong(std::string_view str, int base = 10);
+unsigned long to_ulong(const char*str, int base = 10);
 long long to_llong(const std::string& str, int base = 10);
+long long to_llong(std::string_view str, int base = 10);
+long long to_llong(const char*str, int base = 10);
 unsigned long long to_ullong(const std::string& str, int base = 10);
+unsigned long long to_ullong(std::string_view str, int base = 10);
+unsigned long long to_ullong(const char*str, int base = 10);
 int8_t to_int8(const std::string& str, int base = 10);
+int8_t to_int8(std::string_view str, int base = 10);
+int8_t to_int8(const char*str, int base = 10);
 uint8_t to_uint8(const std::string& str, int base = 10);
+uint8_t to_uint8(std::string_view str, int base = 10);
+uint8_t to_uint8(const char*str, int base = 10);
 int16_t to_int16(const std::string& str, int base = 10);
+int16_t to_int16(std::string_view str, int base = 10);
+int16_t to_int16(const char*str, int base = 10);
 uint16_t to_uint16(const std::string& str, int base = 10);
+uint16_t to_uint16(std::string_view str, int base = 10);
+uint16_t to_uint16(const char*str, int base = 10);
 int32_t to_int32(const std::string& str, int base = 10);
+int32_t to_int32(std::string_view str, int base = 10);
+int32_t to_int32(const char*str, int base = 10);
 uint32_t to_uint32(const std::string& str, int base = 10);
+uint32_t to_uint32(std::string_view str, int base = 10);
+uint32_t to_uint32(const char*str, int base = 10);
 int64_t to_int64(const std::string& str, int base = 10);
+int64_t to_int64(std::string_view str, int base = 10);
+int64_t to_int64(const char*str, int base = 10);
 uint64_t to_uint64(const std::string& str, int base = 10);
+uint64_t to_uint64(std::string_view str, int base = 10);
+uint64_t to_uint64(const char*str, int base = 10);
 ptrdiff_t to_ptrdiff(const std::string& str, int base = 10);
+ptrdiff_t to_ptrdiff(std::string_view str, int base = 10);
+ptrdiff_t to_ptrdiff(const char*str, int base = 10);
 size_t to_size(const std::string& str, int base = 10);
+size_t to_size(std::string_view str, int base = 10);
+size_t to_size(const char*str, int base = 10);
 ```
 
 Convert a string, expressed in a given base, to an integer. Only base 2, 10,
@@ -292,9 +337,17 @@ signedness, and range.
 
 ```c++
 template <std::floating_point T> T to_floating(const std::string& str);
+template <std::floating_point T> T to_floating(std::string_view str);
+template <std::floating_point T> T to_floating(const char* str);
 float to_float(const std::string& str);
+float to_float(std::string_view str);
+float to_float(const char* str);
 double to_double(const std::string& str);
+double to_double(std::string_view str);
+double to_double(const char* str);
 long double to_ldouble(const std::string& str);
+long double to_ldouble(std::string_view str);
+long double to_ldouble(const char* str);
 ```
 
 Convert a string, expressed in decimal, to a floating point number. These will
@@ -352,9 +405,9 @@ constexpr std::string_view view_cat(std::string_view left, std::string_view righ
 
 Concatenate two views, returning a view that stretches from the beginning of
 `left` to the end of `right`. If either argument is null, the other argument
-will be returned unchanged. Behaviour is undefined if the arguments are no
-substrings of the same underlying string, or if the end of `right` is to left
-of the beginning of `left`.
+will be returned unchanged. Behaviour is undefined if the arguments are not
+substrings of the same underlying string, or if the end of `right` is to the
+left of the beginning of `left`.
 
 ```c++
 constexpr std::string_view view_extend(std::string_view view, size_t add) noexcept;
