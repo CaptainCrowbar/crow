@@ -58,6 +58,7 @@ namespace Crow {
 
         double bc() const;
         double b_v() const;
+        double lifetime() const;
         double luminosity() const;
         double mass() const;
         double radius() const;

@@ -466,6 +466,14 @@ namespace Crow {
         return 0.0217391 * (std::sqrt(729 * t2 + 5.29e10) - 58 * t + 2.3e5) / t;
     }
 
+    double Spectrum::lifetime() const {
+        static constexpr double solar_lifetime = 1e10 * julian_year;
+        if (is_main_sequence())
+            return std::pow(10.0, log_m() - log_l()) * solar_lifetime;
+        else
+            return NaN;
+    }
+
     double Spectrum::luminosity() const {
         if (cls_ == Sp::none)
             return NaN;

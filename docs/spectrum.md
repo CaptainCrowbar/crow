@@ -132,6 +132,7 @@ is true for types on the HR diagram, i.e. O-M.
 ```c++
 double Spectrum::bc() const;           // Bolometric correction (mag)
 double Spectrum::b_v() const;          // B-V colour index (mag)
+double Spectrum::lifetime() const;     // Main sequence lifetime (s)
 double Spectrum::luminosity() const;   // Stellar luminosity (W)
 double Spectrum::mass() const;         // Stellar mass (kg)
 double Spectrum::radius() const;       // Stellar radius (m)
@@ -141,7 +142,8 @@ double Spectrum::temperature() const;  // Effective temperature (K)
 Stellar physical parameters. Apart from the colour parameters, these are in SI
 units. For a default constructed object, all of these will return NaN. For
 stellar remnant types, `bc()` and `b_v()` will return NaN; `luminosity()` and
-`temperature()` will return zero.
+`temperature()` will return zero. The `lifetime()` function will return NaN
+if `is_main_sequence()` is false.
 
 ```c++
 double Spectrum::log_l() const;
