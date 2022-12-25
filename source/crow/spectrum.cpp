@@ -99,7 +99,7 @@ namespace Crow {
             return {
                 .lc = lc_map.find(lc_str)->second,
                 .cls = sp_map.find(cls_str[0])->second,
-                .sub = to_int(std::string(sub_str)),
+                .sub = to_int(sub_str),
             };
 
         }
@@ -115,7 +115,7 @@ namespace Crow {
             return {
                 .lc = LC::other,
                 .cls = sp_map.find(cls_str[0])->second,
-                .sub = to_int(std::string(sub_str)),
+                .sub = to_int(sub_str),
             };
 
         }
@@ -135,7 +135,7 @@ namespace Crow {
             ParseResult pr = {
                 .lc = LC::VII,
                 .cls = Sp::DA,
-                .sub = to_int(std::string(sub_str)),
+                .sub = to_int(sub_str),
             };
 
             auto it = sp_map.find(cls_str[0]);
@@ -158,7 +158,7 @@ namespace Crow {
             return {
                 .lc = LC::other,
                 .cls = sp_map.find(cls_str[0])->second,
-                .sub = to_int(std::string(sub_str)),
+                .sub = to_int(sub_str),
             };
 
         }
@@ -175,7 +175,7 @@ namespace Crow {
             ParseResult pr = {
                 .lc = LC::other,
                 .cls = cls_str == "Hd" ? Sp::CHd : sp_map.find(cls_str[0])->second,
-                .sub = to_int(std::string(sub_str)),
+                .sub = to_int(sub_str),
             };
 
             if (pr.cls == Sp::CH && extra.find('d') != npos)
@@ -189,7 +189,7 @@ namespace Crow {
             return {
                 .lc = LC::other,
                 .cls = Sp::S,
-                .sub = to_int(std::string(sub_str)),
+                .sub = to_int(sub_str),
             };
         }
 
