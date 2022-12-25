@@ -154,3 +154,38 @@ void test_crow_spectrum_physical_properties() {
     TEST_STAR_PROPERTIES("BH"_sp,      NaN,     1.0,     NaN)
 
 }
+
+void test_crow_spectrum_inverse_properties() {
+
+    TEST_EQUAL(Spectrum::from_log_l(6.25),   "O3 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_l(6.00),   "O5 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_l(4.75),   "B0 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_l(3.00),   "B5 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_l(1.80),   "A0 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_l(1.20),   "A5 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_l(0.80),   "F0 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_l(0.60),   "F5 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_l(0.08),   "G0 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_l(-0.12),  "G5 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_l(-0.32),  "K0 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_l(-0.72),  "K5 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_l(-1.08),  "M0 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_l(-2.22),  "M5 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_l(-3.63),  "M9 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_m(2.10),   "O3 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_m(1.75),   "O5 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_m(1.25),   "B0 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_m(0.75),   "B5 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_m(0.45),   "A0 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_m(0.30),   "A5 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_m(0.20),   "F0 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_m(0.15),   "F5 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_m(0.02),   "G0 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_m(-0.03),  "G5 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_m(-0.08),  "K0 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_m(-0.18),  "K5 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_m(-0.30),  "M0 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_m(-0.68),  "M5 V"_sp);
+    TEST_EQUAL(Spectrum::from_log_m(-1.15),  "M9 V"_sp);
+
+}

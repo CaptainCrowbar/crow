@@ -177,6 +177,19 @@ Format the spectral type as a string. For a default constructed object, these
 will yield an empty string.
 
 ```c++
+static Spectrum Spectrum::from_l(double lum);
+static Spectrum Spectrum::from_log_l(double log_l);
+static Spectrum Spectrum::from_m(double mass);
+static Spectrum Spectrum::from_log_m(double log_m);
+```
+
+Return the main sequence spectral class corresponding to a given luminosity or
+mass. The result is clamped to the range from O0 to M9, and rounded to the
+nearest integral subclass. As for the other physical property functions,
+logarithmic values are scaled to the Sun's luminosity and mass, while
+non-logarithmic values are in SI units.
+
+```c++
 constexpr bool operator==(Spectrum a, Spectrum b) noexcept;
 constexpr bool operator!=(Spectrum a, Spectrum b) noexcept;
 constexpr bool operator<(Spectrum a, Spectrum b) noexcept;

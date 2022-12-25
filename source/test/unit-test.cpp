@@ -962,6 +962,7 @@ void spectrum_parsing_test_group() {
 void spectrum_property_test_group() {
     UNIT_TEST(crow_spectrum_basic_properties)
     UNIT_TEST(crow_spectrum_physical_properties)
+    UNIT_TEST(crow_spectrum_inverse_properties)
 }
 
 void sqlite_test_group() {

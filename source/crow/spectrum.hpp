@@ -72,6 +72,11 @@ namespace Crow {
         size_t hash() const noexcept;
         std::string str() const;
 
+        static Spectrum from_l(double lum);
+        static Spectrum from_log_l(double log_l);
+        static Spectrum from_m(double mass);
+        static Spectrum from_log_m(double log_m);
+
         friend constexpr bool operator==(Spectrum a, Spectrum b) noexcept = default;
         friend constexpr std::strong_ordering operator<=>(Spectrum a, Spectrum b) noexcept = default;
 

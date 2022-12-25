@@ -30,6 +30,11 @@ namespace Crow {
             return 10 * int(cls) + std::clamp(sub, 0, 9);
         };
 
+        Spectrum hr_sp_from_index(double index) {
+            int i = int(std::lround(std::clamp(index, 10.0, 79.0)));
+            return Spectrum(Sp(i / 10), i % 10);
+        }
+
         LC default_lc(Sp cls) noexcept {
             if (cls == Sp::none)
                 return LC::none;
@@ -340,6 +345,26 @@ namespace Crow {
             return map;
         }
 
+        const Linmap& inverse_mass_type() {
+            static const Linmap map = [] {
+                Linmap map;
+                for (auto& [spx,logm,logl]: hr_mass_luminosity())
+                    map.insert(logm[5], spx);
+                return map;
+            }();
+            return map;
+        }
+
+        const Linmap& inverse_luminosity_type() {
+            static const Linmap map = [] {
+                Linmap map;
+                for (auto& [spx,logm,logl]: hr_mass_luminosity())
+                    map.insert(logl[5], spx);
+                return map;
+            }();
+            return map;
+        }
+
         struct OffSequenceInfo {
             double log_mass;
             double log_luminosity;
@@ -593,6 +618,22 @@ namespace Crow {
         if (cls_ <= Sp::M)
             s += ' ' + to_string(lc_);
         return s;
+    }
+
+    Spectrum Spectrum::from_l(double lum) {
+        return from_log_l(std::log10(lum / solar_luminosity));
+    }
+
+    Spectrum Spectrum::from_log_l(double log_l) {
+        return hr_sp_from_index(inverse_luminosity_type()[log_l]);
+    }
+
+    Spectrum Spectrum::from_m(double mass) {
+        return from_log_m(std::log10(mass / solar_mass));
+    }
+
+    Spectrum Spectrum::from_log_m(double log_m) {
+        return hr_sp_from_index(inverse_mass_type()[log_m]);
     }
 
 }
