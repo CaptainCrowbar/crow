@@ -10,6 +10,7 @@
 #include "crow/types.hpp"
 #include "crow/unicode.hpp"
 #include <chrono>
+#include <compare>
 #include <concepts>
 #include <cstddef>
 #include <exception>
@@ -23,6 +24,9 @@
 namespace Crow {
 
     std::string format_boolean(bool b, const FormatSpec& spec);
+    std::string format_ordering(std::partial_ordering ord);
+    std::string format_ordering(std::strong_ordering ord);
+    std::string format_ordering(std::weak_ordering ord);
     std::string format_type_name(const std::string& name, const FormatSpec& spec);
 
     template <std::integral T>
@@ -84,7 +88,8 @@ namespace Crow {
         || Detail::ExtendedStrMethodType<std::decay_t<T>>
         || Detail::AdlToStringType<std::decay_t<T>>
         || Detail::StdToStringType<std::decay_t<T>>
-        || Detail::OutputOperatorType<std::decay_t<T>>;
+        || Detail::OutputOperatorType<std::decay_t<T>>
+        || Detail::StdOrderingType<std::decay_t<T>>;
 
     template <typename T>
     concept VariableFormatType =
@@ -120,6 +125,8 @@ namespace Crow {
                 return format_type_name(type_name<U>(), spec);
             if constexpr (std::same_as<U, std::nullptr_t>)
                 return spec.option('Z') ? "--" : "<null>";
+            else if constexpr (Detail::StdOrderingType<U>)
+                return format_ordering(t);
             else if constexpr (std::same_as<U, bool>)
                 return format_boolean(t, spec);
             else if constexpr (std::same_as<U, char>)

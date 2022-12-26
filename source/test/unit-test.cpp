@@ -243,8 +243,9 @@ void format_integer_test_group() {
     UNIT_TEST(crow_format_unsigned_integers)
 }
 
-void format_null_test_group() {
+void format_misc_test_group() {
     UNIT_TEST(crow_format_null_values)
+    UNIT_TEST(crow_format_std_ordering)
 }
 
 void format_numeric_test_group() {
@@ -1213,7 +1214,7 @@ int main(int argc, char** argv) {
     font_test_group();
     format_floating_test_group();
     format_integer_test_group();
-    format_null_test_group();
+    format_misc_test_group();
     format_numeric_test_group();
     format_print_test_group();
     format_range_test_group();

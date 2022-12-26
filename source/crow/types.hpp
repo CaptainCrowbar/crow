@@ -89,6 +89,13 @@ namespace Crow {
         using SO = std::strong_ordering;
 
         template <typename T>
+        concept StdOrderingType = (
+            std::same_as<T, std::partial_ordering>
+            || std::same_as<T, std::strong_ordering>
+            || std::same_as<T, std::weak_ordering>
+        );
+
+        template <typename T>
         concept AdlBeginEndType = requires (T t) {
             { begin(t) } -> IteratorType;
             { end(t) } -> IteratorType;

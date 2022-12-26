@@ -44,13 +44,19 @@ be formatted by use of the customization points described below.
     * Applies to: All range types except `string`
     * Options:
         * `N` = Leave out the enclosing brackets
+    * Notes:
+        * Other format spec fields are applied to the range elements
+* **Pointer formatting**
+    * Applies to: `std::nullptr_t` and all pointer types except `[const] char*`
+    * Null pointers are written as `"<null>"` (unless the `Z` option is used)
+    * Non-null pointers are written as `"<0xHHH...>"` (pointer value in hex)
 * **Boolean formatting**
     * Applies to: `bool`
-    * Default format is `"b"`
     * Mode:
         * `B,b` = `"True/False"` or `"true/false"`
         * `Y,y` = `"Yes/No"` or `"yes/no"`
     * Notes:
+        * Default format is `"b"`
         * Integer formatting codes can also be used
 * **Number formatting**
     * These are common to integer and floating point formats
@@ -68,7 +74,6 @@ be formatted by use of the customization points described below.
         * Binary and hexadecimal numbers are always grouped by 4 digits
 * **Integer formatting**
     * Applies to: Any standard integral arithmetic type
-    * Default format is `"n1"`
     * Mode:
         * `B,b` = Binary integer
         * `N,n` = Decimal integer
@@ -77,11 +82,11 @@ be formatted by use of the customization points described below.
     * Precision:
         * Show at least this many digits (ignored for Roman numerals)
     * Notes:
+        * Default format is `"n1"`
         * Floating point specs can also be used for integers
         * For `R/r` and `X/x` formats, the case of the mode is used for output
 * **Floating point formatting**
     * Applies to: Any standard floating point arithmetic type
-    * Default format is `"gz6"`
     * Mode:
         * `D,d` = Decimal format
         * `E,e` = Exponential (scientific) format
@@ -97,6 +102,7 @@ be formatted by use of the customization points described below.
         * Otherwise, this is the number of significant figures to display
         * Precision defaults to 6 if not supplied
     * Notes:
+        * Default format is `"gz6"`
         * For `E/e` and `G/g` formats, the case of the mode is used for output
         * Probability formatting:
             * Treats leading nines as non-significant
@@ -104,7 +110,6 @@ be formatted by use of the customization points described below.
             * Throws `std::domain_error` if the argument is not 0-1
 * **String formatting**
     * Applies to: `std::string` and `const char*`
-    * Default format is `"s"`
     * Mode:
         * `Q,q` = Quote the string, with escapes (e.g. `"\"Hello\\n\""`)
         * `S,s` = Just print the literal string
@@ -112,18 +117,18 @@ be formatted by use of the customization points described below.
     * Options:
         * `z` = No spaces in `X/x` format
     * Precision:
+        * Default format is `"s"`
         * If a precision is supplied, the string is truncated to that many characters (Unicode code points)
 * **Time interval formatting**
     * Applies to: Any instantiation of `std::chrono::duration`
-    * Default format is `"t"`
     * Mode:
         * `s` = Format as seconds (the common numerical options also apply here)
         * `t` = Expanded time format (e.g. `"12h34m56s"`)
     * Precision:
+        * Default format is `"t"`
         * If a precision is supplied, seconds are shown to this many decimal places
 * **Date formatting**
     * Applies to: `std::chrono::system_clock::time_point`
-    * Default format is `"i"`
     * Mode:
         * `d` = Day, month, year, time (e.g. `"3 Feb 2021 04:05:06"`)
         * `D` = Weekday, day, month, year, time (e.g. `"Wed 3 Feb 2021 04:05:06"`)
@@ -134,6 +139,7 @@ be formatted by use of the customization points described below.
         * `l` = Use the local time zone (default is UTC)
         * `t` = Show only the time of day (no date)
     * Precision:
+        * Default format is `"i"`
         * If a precision is supplied, seconds are shown to this many decimal places
 
 ## Customization points
@@ -186,8 +192,10 @@ following algorithm is used to determine how to format an object:
 
 * if the format spec uses `T` mode
     * ✉️ return the type name as described above
-* if the type is `std::nullptr_t`
+* else if the type is `std::nullptr_t`
     * ✉️ return `"<null>"`
+* else if the type is one of the standard ordering types
+    * ✉️ return the unqualified constant name
 * else if the type is `bool`
     * 🎁 use boolean formatting as described above
 * else if the type is `char`

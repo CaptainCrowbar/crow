@@ -15,6 +15,25 @@ namespace Crow {
         }
     }
 
+    std::string format_ordering(std::partial_ordering ord) {
+        if (ord == std::partial_ordering::less)             return "less";
+        else if (ord == std::partial_ordering::equivalent)  return "equivalent";
+        else if (ord == std::partial_ordering::greater)     return "greater";
+        else                                                return "unordered";
+    }
+
+    std::string format_ordering(std::strong_ordering ord) {
+        if (ord == std::strong_ordering::less)        return "less";
+        else if (ord == std::strong_ordering::equal)  return "equal";
+        else                                          return "greater";
+    }
+
+    std::string format_ordering(std::weak_ordering ord) {
+        if (ord == std::weak_ordering::less)             return "less";
+        else if (ord == std::weak_ordering::equivalent)  return "equivalent";
+        else                                             return "greater";
+    }
+
     std::string format_type_name(const std::string& name, const FormatSpec& spec) {
         if (! spec.option('u'))
             return name;

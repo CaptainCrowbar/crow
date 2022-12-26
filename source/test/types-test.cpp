@@ -1,6 +1,7 @@
 #include "crow/types.hpp"
 #include "crow/unit-test.hpp"
 #include <array>
+#include <compare>
 #include <complex>
 #include <forward_list>
 #include <iterator>
@@ -241,6 +242,14 @@ void test_crow_types_concepts() {
     TEST(! AssociativeContainerType<std::vector<int>>);
     TEST((AssociativeContainerType<std::map<int, std::string>>));
     TEST((AssociativeContainerType<std::unordered_map<int, std::string>>));
+
+    TEST(Detail::StdOrderingType<std::partial_ordering>);
+    TEST(Detail::StdOrderingType<std::strong_ordering>);
+    TEST(Detail::StdOrderingType<std::weak_ordering>);
+    TEST(! Detail::StdOrderingType<void>);
+    TEST(! Detail::StdOrderingType<bool>);
+    TEST(! Detail::StdOrderingType<int>);
+    TEST(! Detail::StdOrderingType<std::string>);
 
 }
 

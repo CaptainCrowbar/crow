@@ -1,5 +1,6 @@
 #include "crow/format.hpp"
 #include "crow/unit-test.hpp"
+#include <compare>
 #include <string>
 
 using namespace Crow;
@@ -39,5 +40,20 @@ void test_crow_format_null_values() {
     TEST_EQUAL(format_object(cptr1,     "sZ"),   "Hello");
     TEST_EQUAL(format_object(nullptr,   "s"),    "<null>"s);
     TEST_EQUAL(format_object(nullptr,   "sZ"),   "--");
+
+}
+
+void test_crow_format_std_ordering() {
+
+    TEST_EQUAL(format_object(std::partial_ordering::less),        "less");
+    TEST_EQUAL(format_object(std::partial_ordering::equivalent),  "equivalent");
+    TEST_EQUAL(format_object(std::partial_ordering::greater),     "greater");
+    TEST_EQUAL(format_object(std::partial_ordering::unordered),   "unordered");
+    TEST_EQUAL(format_object(std::strong_ordering::less),         "less");
+    TEST_EQUAL(format_object(std::strong_ordering::equal),        "equal");
+    TEST_EQUAL(format_object(std::strong_ordering::greater),      "greater");
+    TEST_EQUAL(format_object(std::weak_ordering::less),           "less");
+    TEST_EQUAL(format_object(std::weak_ordering::equivalent),     "equivalent");
+    TEST_EQUAL(format_object(std::weak_ordering::greater),        "greater");
 
 }
