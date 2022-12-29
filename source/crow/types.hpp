@@ -245,7 +245,7 @@ namespace Crow {
     // Memory management types
 
     struct FreeMem {
-        void operator()(void* ptr) const {
+        void operator()(void* ptr) const noexcept {
             if (ptr != nullptr)
                 std::free(ptr);
         }

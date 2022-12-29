@@ -152,7 +152,7 @@ zero to `equal`, and positive numbers to `greater`.
 
 ```c++
 struct FreeMem {
-    void operator()(void* ptr) const;
+    void operator()(void* ptr) const noexcept;
 };
 ```
 
