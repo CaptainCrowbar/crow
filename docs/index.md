@@ -118,6 +118,7 @@ Other libraries required:
     * [crow/table](table.html) - Table layout
     * [crow/unicode](unicode.html) - Unicode functions
 * Time and date
+    * [crow/benchmark](benchmark.html) - Benchmarking
     * [crow/time](time.html) - Time and date
 * Unit testing
     * [crow/unit-test](unit-test.html) - Unit test

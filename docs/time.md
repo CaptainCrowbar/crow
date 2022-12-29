@@ -15,6 +15,20 @@ namespace Crow;
 ## Supporting types
 
 ```c++
+using Nanoseconds = std::chrono::duration<double, std::nano>;
+using Microseconds = std::chrono::duration<double, std::micro>;
+using Milliseconds = std::chrono::duration<double, std::milli>;
+using Seconds = std::chrono::duration<double>;
+using Minutes = std::chrono::duration<double, std::ratio<60>>;
+using Hours = std::chrono::duration<double, std::ratio<3'600>>;
+using Days = std::chrono::duration<double, std::ratio<86'400>>;
+using Years = std::chrono::duration<double, std::ratio<31'557'600>>;
+```
+
+Floating point duration types. The `Years` type represents Julian years
+(365.25 days).
+
+```c++
 enum class DT: int {
     none = 0,
     ymd_order,
@@ -33,9 +47,12 @@ functions. These fall into three groups; functions that accept flags will
 throw `std::invalid_argument` if more than one flag from the same group is
 present. In all cases, the first value in each group is the default.
 
-* `ymd_order, dmy_order, mdy_order` -- indicate which order to expect the components to be in when parsing a date
-* `maybe_dst, no_dst, dst` -- indicate whether DST is in effect when converting a broken down local time to a time point
-* `utc, local` -- indicate whether a date and time is expressed in UTC or the local time zone
+* `ymd_order, dmy_order, mdy_order` -- Indicate which order to expect the
+  components to be in when parsing a date.
+* `maybe_dst, no_dst, dst` -- Indicate whether DST is in effect when
+  converting a broken down local time to a time point.
+* `utc, local` -- Indicate whether a date and time is expressed in UTC or the
+  local time zone.
 
 ## Utility functions
 
@@ -137,25 +154,17 @@ Formats a date and time according to the [Formatting](format.html) rules:
 
 ```c++
 template <typename R, typename P>
-    std::string format_time(const std::chrono::duration<R, P>& time,
-        int prec = 0);
-```
-
-Formats a time interval in days, hours, minutes, and seconds; leading elements
-are left out if they are zero (e.g. `"12h34m56s"`). If `prec` is positive, it
-indicates how many decimal places of seconds to display.
-
-```c++
-template <typename D> std::string format_duration(D d, FormatSpec spec);
+    std::string format_time(std::chrono::duration<R, P> time,
+        FormatSpec spec);
 ```
 
 Formats a time interval according to the [Formatting](format.html) rules:
 
 * Mode:
     * `s` = Format as seconds (the common numerical options also apply here)
-    * `t` = Expanded time format (e.g. `"12h34m56s"`) (default)
+    * `t` = Expanded time format in days, hours, minutes, and seconds (default), e.g. `"12h34m56s"`
 * Precision:
-    * If a precision is supplied, seconds are shown to this many decimal places
+    * If a precision is supplied, the value is shown to this many decimal places
 
 ## Date parsing
 

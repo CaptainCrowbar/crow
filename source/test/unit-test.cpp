@@ -35,6 +35,10 @@ void algorithm_test_group() {
     UNIT_TEST(crow_algorithm_subsets)
 }
 
+void benchmark_test_group() {
+    UNIT_TEST(crow_benchmark)
+}
+
 void binary_test_group() {
     UNIT_TEST(crow_binary_bit_manipulation)
     UNIT_TEST(crow_binary_byte_order)
@@ -1094,7 +1098,6 @@ void time_test_group() {
     UNIT_TEST(crow_time_date_formatting)
     UNIT_TEST(crow_time_parsing)
     UNIT_TEST(crow_time_date_parsing)
-    UNIT_TEST(crow_time_duration_formatting)
     UNIT_TEST(crow_time_point_formatting)
     UNIT_TEST(crow_time_point_conversion)
     UNIT_TEST(crow_time_system_specific_conversions)
@@ -1181,6 +1184,7 @@ int main(int argc, char** argv) {
     log_test_group();
     types_test_group();
     algorithm_test_group();
+    benchmark_test_group();
     binary_test_group();
     bounded_array_construction_test_group();
     bounded_array_insertion_test_group();

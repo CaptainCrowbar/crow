@@ -10,6 +10,7 @@
 #include <chrono>
 #include <concepts>
 #include <ctime>
+#include <ratio>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -17,6 +18,15 @@
 namespace Crow {
 
     // Supporting types
+
+    using Nanoseconds   = std::chrono::duration<double, std::nano>;
+    using Microseconds  = std::chrono::duration<double, std::micro>;
+    using Milliseconds  = std::chrono::duration<double, std::milli>;
+    using Seconds       = std::chrono::duration<double>;
+    using Minutes       = std::chrono::duration<double, std::ratio<60>>;
+    using Hours         = std::chrono::duration<double, std::ratio<3'600>>;
+    using Days          = std::chrono::duration<double, std::ratio<86'400>>;
+    using Years         = std::chrono::duration<double, std::ratio<31'557'600>>; // Julian year
 
     enum class DT: int {
         none       = 0,
@@ -62,25 +72,19 @@ namespace Crow {
     }
 
     template <typename R, typename P>
-    std::string format_time(const std::chrono::duration<R, P>& time, int prec = 0) {
-        using namespace std::chrono;
-        auto whole = duration_cast<seconds>(time);
-        int64_t isec = whole.count();
-        auto frac = time - duration_cast<duration<R, P>>(whole);
-        double fsec = duration_cast<duration<double>>(frac).count();
-        return Detail::format_time_helper(isec, fsec, prec);
-    }
-
-    template <typename D>
-    std::string format_duration(D d, FormatSpec spec) {
+    std::string format_time(std::chrono::duration<R, P> time, FormatSpec spec) {
         using namespace std::chrono;
         if (spec.mode() == 's') {
-            auto sec = duration_cast<duration<long double>>(d).count();
+            auto sec = duration_cast<duration<double>>(time).count();
             spec.default_prec(0);
             FormatSpec fp_spec('f', spec.options(), spec.prec());
             return format_floating_point(sec, fp_spec);
         } else {
-            return format_time(d, spec.prec());
+            auto whole = duration_cast<seconds>(time);
+            int64_t isec = whole.count();
+            auto frac = time - duration_cast<duration<R, P>>(whole);
+            double fsec = duration_cast<duration<double>>(frac).count();
+            return Detail::format_time_helper(isec, fsec, spec.prec());
         }
     }
 

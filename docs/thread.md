@@ -12,7 +12,8 @@ namespace Crow;
 ```c++
 class Thread: public std::thread {
     Thread::Thread() noexcept;
-    template <typename F, typename... Args> explicit Thread::Thread(F&& f, Args&&... args);
+    template <typename F, typename... Args>
+        explicit Thread::Thread(F&& f, Args&&... args);
     Thread::Thread(Thread&& t) noexcept;
     Thread::~Thread() noexcept;
     Thread& Thread::operator=(Thread&& t) noexcept;
@@ -28,6 +29,3 @@ class Thread: public std::thread {
 A simple wrapper for `std::thread`. This differs from `std::thread` only in
 that it will automatically join on destruction, or when used on the LHS of an
 assignment.
-
-(This doesn't really belong in a "template library" but it doesn't need a
-library of its own and I didn't have anywhere else to put it.)

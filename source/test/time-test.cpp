@@ -20,8 +20,6 @@ using namespace Crow;
 using namespace std::chrono;
 using namespace std::literals;
 
-using Dseconds = duration<double>;
-
 void test_crow_time_make_date() {
 
     system_clock::time_point tp;
@@ -41,48 +39,71 @@ void test_crow_time_make_date() {
 
 void test_crow_time_formatting() {
 
-    std::string str;
-
-    TRY(str = format_time(Dseconds(0)));              TEST_EQUAL(str, "0s");
-    TRY(str = format_time(Dseconds(0), 3));           TEST_EQUAL(str, "0.000s");
-    TRY(str = format_time(Dseconds(0.25), 3));        TEST_EQUAL(str, "0.250s");
-    TRY(str = format_time(Dseconds(0.5), 3));         TEST_EQUAL(str, "0.500s");
-    TRY(str = format_time(Dseconds(0.75), 3));        TEST_EQUAL(str, "0.750s");
-    TRY(str = format_time(Dseconds(1), 3));           TEST_EQUAL(str, "1.000s");
-    TRY(str = format_time(Dseconds(1.25), 3));        TEST_EQUAL(str, "1.250s");
-    TRY(str = format_time(Dseconds(59.999), 3));      TEST_EQUAL(str, "59.999s");
-    TRY(str = format_time(Dseconds(60), 3));          TEST_EQUAL(str, "1m00.000s");
-    TRY(str = format_time(Dseconds(1234), 3));        TEST_EQUAL(str, "20m34.000s");
-    TRY(str = format_time(Dseconds(12345), 3));       TEST_EQUAL(str, "3h25m45.000s");
-    TRY(str = format_time(Dseconds(123456), 3));      TEST_EQUAL(str, "1d10h17m36.000s");
-    TRY(str = format_time(Dseconds(1234567), 3));     TEST_EQUAL(str, "14d06h56m07.000s");
-    TRY(str = format_time(Dseconds(12345678), 3));    TEST_EQUAL(str, "142d21h21m18.000s");
-    TRY(str = format_time(Dseconds(123456789), 3));   TEST_EQUAL(str, "1428d21h33m09.000s");
-    TRY(str = format_time(Dseconds(-0.25), 3));       TEST_EQUAL(str, "-0.250s");
-    TRY(str = format_time(Dseconds(-0.5), 3));        TEST_EQUAL(str, "-0.500s");
-    TRY(str = format_time(Dseconds(-0.75), 3));       TEST_EQUAL(str, "-0.750s");
-    TRY(str = format_time(Dseconds(-1), 3));          TEST_EQUAL(str, "-1.000s");
-    TRY(str = format_time(Dseconds(-1.25), 3));       TEST_EQUAL(str, "-1.250s");
-    TRY(str = format_time(Dseconds(-59.999), 3));     TEST_EQUAL(str, "-59.999s");
-    TRY(str = format_time(Dseconds(-60), 3));         TEST_EQUAL(str, "-1m00.000s");
-    TRY(str = format_time(Dseconds(-1234), 3));       TEST_EQUAL(str, "-20m34.000s");
-    TRY(str = format_time(Dseconds(-12345), 3));      TEST_EQUAL(str, "-3h25m45.000s");
-    TRY(str = format_time(Dseconds(-123456), 3));     TEST_EQUAL(str, "-1d10h17m36.000s");
-    TRY(str = format_time(Dseconds(-1234567), 3));    TEST_EQUAL(str, "-14d06h56m07.000s");
-    TRY(str = format_time(Dseconds(-12345678), 3));   TEST_EQUAL(str, "-142d21h21m18.000s");
-    TRY(str = format_time(Dseconds(-123456789), 3));  TEST_EQUAL(str, "-1428d21h33m09.000s");
-    TRY(str = format_time(nanoseconds(1), 10));       TEST_EQUAL(str, "0.0000000010s");
-    TRY(str = format_time(microseconds(1), 7));       TEST_EQUAL(str, "0.0000010s");
-    TRY(str = format_time(milliseconds(1), 4));       TEST_EQUAL(str, "0.0010s");
-    TRY(str = format_time(seconds(1)));               TEST_EQUAL(str, "1s");
-    TRY(str = format_time(minutes(1)));               TEST_EQUAL(str, "1m00s");
-    TRY(str = format_time(hours(1)));                 TEST_EQUAL(str, "1h00m00s");
-    TRY(str = format_time(nanoseconds(-1), 10));      TEST_EQUAL(str, "-0.0000000010s");
-    TRY(str = format_time(microseconds(-1), 7));      TEST_EQUAL(str, "-0.0000010s");
-    TRY(str = format_time(milliseconds(-1), 4));      TEST_EQUAL(str, "-0.0010s");
-    TRY(str = format_time(seconds(-1)));              TEST_EQUAL(str, "-1s");
-    TRY(str = format_time(minutes(-1)));              TEST_EQUAL(str, "-1m00s");
-    TRY(str = format_time(hours(-1)));                TEST_EQUAL(str, "-1h00m00s");
+    TEST_EQUAL(format_time(Seconds(0),           {}),     "0s");
+    TEST_EQUAL(format_time(Seconds(0),           "t3"),   "0.000s");
+    TEST_EQUAL(format_time(Seconds(0.25),        "t3"),   "0.250s");
+    TEST_EQUAL(format_time(Seconds(0.5),         "t3"),   "0.500s");
+    TEST_EQUAL(format_time(Seconds(0.75),        "t3"),   "0.750s");
+    TEST_EQUAL(format_time(Seconds(1),           "t3"),   "1.000s");
+    TEST_EQUAL(format_time(Seconds(1.25),        "t3"),   "1.250s");
+    TEST_EQUAL(format_time(Seconds(59.999),      "t3"),   "59.999s");
+    TEST_EQUAL(format_time(Seconds(60),          "t3"),   "1m00.000s");
+    TEST_EQUAL(format_time(Seconds(1234),        "t3"),   "20m34.000s");
+    TEST_EQUAL(format_time(Seconds(12345),       "t3"),   "3h25m45.000s");
+    TEST_EQUAL(format_time(Seconds(123456),      "t3"),   "1d10h17m36.000s");
+    TEST_EQUAL(format_time(Seconds(1234567),     "t3"),   "14d06h56m07.000s");
+    TEST_EQUAL(format_time(Seconds(12345678),    "t3"),   "142d21h21m18.000s");
+    TEST_EQUAL(format_time(Seconds(123456789),   "t3"),   "1428d21h33m09.000s");
+    TEST_EQUAL(format_time(Seconds(-0.25),       "t3"),   "-0.250s");
+    TEST_EQUAL(format_time(Seconds(-0.5),        "t3"),   "-0.500s");
+    TEST_EQUAL(format_time(Seconds(-0.75),       "t3"),   "-0.750s");
+    TEST_EQUAL(format_time(Seconds(-1),          "t3"),   "-1.000s");
+    TEST_EQUAL(format_time(Seconds(-1.25),       "t3"),   "-1.250s");
+    TEST_EQUAL(format_time(Seconds(-59.999),     "t3"),   "-59.999s");
+    TEST_EQUAL(format_time(Seconds(-60),         "t3"),   "-1m00.000s");
+    TEST_EQUAL(format_time(Seconds(-1234),       "t3"),   "-20m34.000s");
+    TEST_EQUAL(format_time(Seconds(-12345),      "t3"),   "-3h25m45.000s");
+    TEST_EQUAL(format_time(Seconds(-123456),     "t3"),   "-1d10h17m36.000s");
+    TEST_EQUAL(format_time(Seconds(-1234567),    "t3"),   "-14d06h56m07.000s");
+    TEST_EQUAL(format_time(Seconds(-12345678),   "t3"),   "-142d21h21m18.000s");
+    TEST_EQUAL(format_time(Seconds(-123456789),  "t3"),   "-1428d21h33m09.000s");
+    TEST_EQUAL(format_time(nanoseconds(1),       "t10"),  "0.0000000010s");
+    TEST_EQUAL(format_time(microseconds(1),      "t7"),   "0.0000010s");
+    TEST_EQUAL(format_time(milliseconds(1),      "t4"),   "0.0010s");
+    TEST_EQUAL(format_time(seconds(1),           {}),     "1s");
+    TEST_EQUAL(format_time(minutes(1),           {}),     "1m00s");
+    TEST_EQUAL(format_time(hours(1),             {}),     "1h00m00s");
+    TEST_EQUAL(format_time(nanoseconds(-1),      "t10"),  "-0.0000000010s");
+    TEST_EQUAL(format_time(microseconds(-1),     "t7"),   "-0.0000010s");
+    TEST_EQUAL(format_time(milliseconds(-1),     "t4"),   "-0.0010s");
+    TEST_EQUAL(format_time(seconds(-1),          {}),     "-1s");
+    TEST_EQUAL(format_time(minutes(-1),          {}),     "-1m00s");
+    TEST_EQUAL(format_time(hours(-1),            {}),     "-1h00m00s");
+    TEST_EQUAL(format_time(0s,                   {}),     "0s");
+    TEST_EQUAL(format_time(250ms,                {}),     "0s");
+    TEST_EQUAL(format_time(1234s,                {}),     "20m34s");
+    TEST_EQUAL(format_time(12345678s,            {}),     "142d21h21m18s");
+    TEST_EQUAL(format_time(-12345678s,           {}),     "-142d21h21m18s");
+    TEST_EQUAL(format_time(0s,                   "t3"),   "0.000s");
+    TEST_EQUAL(format_time(250ms,                "t3"),   "0.250s");
+    TEST_EQUAL(format_time(1234s,                "t3"),   "20m34.000s");
+    TEST_EQUAL(format_time(12345678s,            "t3"),   "142d21h21m18.000s");
+    TEST_EQUAL(format_time(-12345678s,           "t3"),   "-142d21h21m18.000s");
+    TEST_EQUAL(format_time(0s,                   "s"),    "0");
+    TEST_EQUAL(format_time(250ms,                "s"),    "0");
+    TEST_EQUAL(format_time(1234s,                "s"),    "1234");
+    TEST_EQUAL(format_time(12345678s,            "s"),    "12345678");
+    TEST_EQUAL(format_time(-12345678s,           "s"),    "-12345678");
+    TEST_EQUAL(format_time(0s,                   "s3"),   "0.000");
+    TEST_EQUAL(format_time(250ms,                "s3"),   "0.250");
+    TEST_EQUAL(format_time(1234s,                "s3"),   "1234.000");
+    TEST_EQUAL(format_time(12345678s,            "s3"),   "12345678.000");
+    TEST_EQUAL(format_time(-12345678s,           "s3"),   "-12345678.000");
+    TEST_EQUAL(format_time(0s,                   "sa3"),  "0.000");
+    TEST_EQUAL(format_time(250ms,                "sa3"),  "0.250");
+    TEST_EQUAL(format_time(1234s,                "sa3"),  "1'234.000");
+    TEST_EQUAL(format_time(12345678s,            "sa3"),  "12'345'678.000");
+    TEST_EQUAL(format_time(-12345678s,           "sa3"),  "-12'345'678.000");
 
 }
 
@@ -97,13 +118,13 @@ void test_crow_time_date_formatting() {
     TEST_EQUAL(s, "2000-01-02 03:04:05");
     TRY(s = iso_date(tp, 3));
     TEST_EQUAL(s, "2000-01-02 03:04:05.000");
-    d = duration_cast<system_clock::duration>(Dseconds(0.12345));
+    d = duration_cast<system_clock::duration>(Seconds(0.12345));
     TRY(tp += d);
     TRY(s = iso_date(tp));
     TEST_EQUAL(s, "2000-01-02 03:04:05");
     TRY(s = iso_date(tp, 3));
     TEST_EQUAL(s, "2000-01-02 03:04:05.123");
-    d = duration_cast<system_clock::duration>(Dseconds(0.44444));
+    d = duration_cast<system_clock::duration>(Seconds(0.44444));
     TRY(tp += d);
     TRY(s = iso_date(tp));
     TEST_EQUAL(s, "2000-01-02 03:04:05");
@@ -138,17 +159,17 @@ void test_crow_time_date_formatting() {
 
 void test_crow_time_parsing() {
 
-    Dseconds dsec = {};
+    Seconds dsec = {};
     seconds sec = {};
     microseconds usec = {};
 
-    TRY(dsec = parse_time<Dseconds>("0s"));                    TEST_EQUAL(dsec.count(), 0);
-    TRY(dsec = parse_time<Dseconds>("42s"));                   TEST_EQUAL(dsec.count(), 42);
-    TRY(dsec = parse_time<Dseconds>("4200s"));                 TEST_EQUAL(dsec.count(), 4200);
-    TRY(dsec = parse_time<Dseconds>("1y234d5h6m7.89s"));       TEST_NEAR(dsec.count(), 51'793'567.89, 1e-6);
-    TRY(dsec = parse_time<Dseconds>("-42s"));                  TEST_EQUAL(dsec.count(), -42);
-    TRY(dsec = parse_time<Dseconds>("-4200s"));                TEST_EQUAL(dsec.count(), -4200);
-    TRY(dsec = parse_time<Dseconds>("-1y234d5h6m7.89s"));      TEST_NEAR(dsec.count(), -51'793'567.89, 1e-6);
+    TRY(dsec = parse_time<Seconds>("0s"));                     TEST_EQUAL(dsec.count(), 0);
+    TRY(dsec = parse_time<Seconds>("42s"));                    TEST_EQUAL(dsec.count(), 42);
+    TRY(dsec = parse_time<Seconds>("4200s"));                  TEST_EQUAL(dsec.count(), 4200);
+    TRY(dsec = parse_time<Seconds>("1y234d5h6m7.89s"));        TEST_NEAR(dsec.count(), 51'793'567.89, 1e-6);
+    TRY(dsec = parse_time<Seconds>("-42s"));                   TEST_EQUAL(dsec.count(), -42);
+    TRY(dsec = parse_time<Seconds>("-4200s"));                 TEST_EQUAL(dsec.count(), -4200);
+    TRY(dsec = parse_time<Seconds>("-1y234d5h6m7.89s"));       TEST_NEAR(dsec.count(), -51'793'567.89, 1e-6);
     TRY(sec = parse_time<seconds>("0s"));                      TEST_EQUAL(sec.count(), 0);
     TRY(sec = parse_time<seconds>("42s"));                     TEST_EQUAL(sec.count(), 42);
     TRY(sec = parse_time<seconds>("4200s"));                   TEST_EQUAL(sec.count(), 4200);
@@ -197,36 +218,6 @@ void test_crow_time_date_parsing() {
     TEST_THROW(parse_date(""), std::invalid_argument);
     TEST_THROW(parse_date("Nov 4, 2017"), std::invalid_argument);
     TEST_THROW(parse_date("Nov 2017", DT::mdy_order), std::invalid_argument);
-
-}
-
-void test_crow_time_duration_formatting() {
-
-    TEST_EQUAL(format_duration(0s,          {}),     "0s");
-    TEST_EQUAL(format_duration(250ms,       {}),     "0s");
-    TEST_EQUAL(format_duration(1234s,       {}),     "20m34s");
-    TEST_EQUAL(format_duration(12345678s,   {}),     "142d21h21m18s");
-    TEST_EQUAL(format_duration(-12345678s,  {}),     "-142d21h21m18s");
-    TEST_EQUAL(format_duration(0s,          "t3"),   "0.000s");
-    TEST_EQUAL(format_duration(250ms,       "t3"),   "0.250s");
-    TEST_EQUAL(format_duration(1234s,       "t3"),   "20m34.000s");
-    TEST_EQUAL(format_duration(12345678s,   "t3"),   "142d21h21m18.000s");
-    TEST_EQUAL(format_duration(-12345678s,  "t3"),   "-142d21h21m18.000s");
-    TEST_EQUAL(format_duration(0s,          "s"),    "0");
-    TEST_EQUAL(format_duration(250ms,       "s"),    "0");
-    TEST_EQUAL(format_duration(1234s,       "s"),    "1234");
-    TEST_EQUAL(format_duration(12345678s,   "s"),    "12345678");
-    TEST_EQUAL(format_duration(-12345678s,  "s"),    "-12345678");
-    TEST_EQUAL(format_duration(0s,          "s3"),   "0.000");
-    TEST_EQUAL(format_duration(250ms,       "s3"),   "0.250");
-    TEST_EQUAL(format_duration(1234s,       "s3"),   "1234.000");
-    TEST_EQUAL(format_duration(12345678s,   "s3"),   "12345678.000");
-    TEST_EQUAL(format_duration(-12345678s,  "s3"),   "-12345678.000");
-    TEST_EQUAL(format_duration(0s,          "sa3"),  "0.000");
-    TEST_EQUAL(format_duration(250ms,       "sa3"),  "0.250");
-    TEST_EQUAL(format_duration(1234s,       "sa3"),  "1'234.000");
-    TEST_EQUAL(format_duration(12345678s,   "sa3"),  "12'345'678.000");
-    TEST_EQUAL(format_duration(-12345678s,  "sa3"),  "-12'345'678.000");
 
 }
 

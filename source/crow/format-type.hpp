@@ -142,7 +142,7 @@ namespace Crow {
             else if constexpr (std::is_floating_point_v<U>)
                 return format_floating_point(t, spec);
             else if constexpr (Detail::DurationType<U>)
-                return format_duration(t, spec);
+                return format_time(t, spec);
             else if constexpr (std::same_as<U, std::chrono::system_clock::time_point>)
                 return format_time_point(t, spec);
             else if constexpr (std::is_base_of_v<Formatted, U>)
