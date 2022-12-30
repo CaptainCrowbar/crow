@@ -58,6 +58,14 @@ void test_crow_format_signed_integers() {
     TEST_EQUAL(format_integer(1111,        "R"),    "MCXI");
     TEST_EQUAL(format_integer(9999,        "R"),    "MMMMMMMMMCMXCIX");
     TEST_EQUAL(format_integer(42,          "r"),    "xlii");
+    TEST_EQUAL(format_integer(0,           4),      "0000");
+    TEST_EQUAL(format_integer(42,          4),      "0042");
+    TEST_EQUAL(format_integer(-42,         4),      "-0042");
+    TEST_EQUAL(format_integer(123456789,   4),      "123456789");
+    TEST_EQUAL(format_integer(-123456789,  4),      "-123456789");
+    TEST_EQUAL(format_integer(0,           0),      "");
+    TEST_EQUAL(format_integer(42,          0),      "42");
+    TEST_EQUAL(format_integer(-42,         0),      "-42");
 
 }
 
@@ -97,5 +105,10 @@ void test_crow_format_unsigned_integers() {
     TEST_EQUAL(format_integer(1111u,       "R"),    "MCXI");
     TEST_EQUAL(format_integer(9999u,       "R"),    "MMMMMMMMMCMXCIX");
     TEST_EQUAL(format_integer(42u,         "r"),    "xlii");
+    TEST_EQUAL(format_integer(0u,          4),      "0000");
+    TEST_EQUAL(format_integer(42u,         4),      "0042");
+    TEST_EQUAL(format_integer(123456789u,  4),      "123456789");
+    TEST_EQUAL(format_integer(0u,          0),      "");
+    TEST_EQUAL(format_integer(42u,         0),      "42");
 
 }

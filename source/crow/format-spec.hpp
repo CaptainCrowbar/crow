@@ -5,34 +5,49 @@
 #include "crow/unicode.hpp"
 #include <ostream>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 
 namespace Crow {
 
     class FormatSpec {
+
     public:
+
         FormatSpec() = default;
-        FormatSpec(const std::string& str);
-        FormatSpec(const char* str): FormatSpec(std::string(str)) {}
-        FormatSpec(char m, const std::string& o, int p);
+        FormatSpec(std::string_view str);
+        FormatSpec(const std::string& str): FormatSpec(std::string_view(str)) {}
+        FormatSpec(const char* str): FormatSpec(std::string_view(str)) {}
+        FormatSpec(char m, const std::string& o, int p = -1);
+        FormatSpec(int p): prec_(p) {}
+
         bool empty() const noexcept { return mode_ == 0 && opts_.empty() && prec_ == -1; }
+
         char mode() const noexcept { return mode_; }
         char lcmode() const noexcept { return ascii_tolower(mode_); }
+        char find_mode(const std::string& chars) const noexcept;
+        void default_mode(char m);
+        void set_mode(char m);
+
         bool option(char c) const noexcept { return opts_.find(c) != npos; }
         std::string options() const { return opts_; }
-        char find_mode(const std::string& chars) const noexcept;
         char find_option(const std::string& chars) const noexcept;
         void no_option(const std::string& chars) noexcept;
+
         int prec() const noexcept { return prec_; }
-        void default_prec(int p) { if (prec_ < 0) prec_ = p; }
         bool has_prec() const noexcept { return prec_ >= 0; }
-        void set_prec(int p) noexcept { prec_ = p; }
+        void default_prec(int p);
+        void set_prec(int p);
+
         std::string str() const;
+
     private:
-        char mode_ = 0;
+
+        char mode_ = '\0';
         std::string opts_;
         int prec_ = -1;
+
     };
 
     class Formatted {

@@ -221,6 +221,23 @@ void test_crow_format_floating_point_general_format() {
     TEST_EQUAL(format_floating_point(-123.456,           "GS"),   "-123.456");
     TEST_EQUAL(format_floating_point(123'456'000.0,      "GS"),   "1.23456E+8");
     TEST_EQUAL(format_floating_point(0.000'000'123'456,  "GS"),   "1.23456E-7");
+    TEST_EQUAL(format_floating_point(0,                  0),      "0");
+    TEST_EQUAL(format_floating_point(0,                  4),      "0.000");
+    TEST_EQUAL(format_floating_point(100,                0),      "100");
+    TEST_EQUAL(format_floating_point(100,                4),      "100.0");
+    TEST_EQUAL(format_floating_point(100,                8),      "100.00000");
+    TEST_EQUAL(format_floating_point(123.456,            0),      "100");
+    TEST_EQUAL(format_floating_point(123.456,            4),      "123.5");
+    TEST_EQUAL(format_floating_point(123.456,            8),      "123.45600");
+    TEST_EQUAL(format_floating_point(-123.456,           0),      "-100");
+    TEST_EQUAL(format_floating_point(-123.456,           4),      "-123.5");
+    TEST_EQUAL(format_floating_point(-123.456,           8),      "-123.45600");
+    TEST_EQUAL(format_floating_point(123'456'000.0,      0),      "1e8");
+    TEST_EQUAL(format_floating_point(123'456'000.0,      4),      "1.235e8");
+    TEST_EQUAL(format_floating_point(123'456'000.0,      8),      "1.2345600e8");
+    TEST_EQUAL(format_floating_point(0.000'000'123'456,  0),      "1e-7");
+    TEST_EQUAL(format_floating_point(0.000'000'123'456,  4),      "1.235e-7");
+    TEST_EQUAL(format_floating_point(0.000'000'123'456,  8),      "1.2345600e-7");
 
 }
 

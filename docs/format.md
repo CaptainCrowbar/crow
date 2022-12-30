@@ -181,9 +181,9 @@ std::string T::str() const;
 std::string T::str(const FormatSpec& spec) const;
 ```
 
-Either of these signatures may be used: the `str()` function can use a
-`FormatSpec` or just yield a single format if no options are required. If
-both are present, the `FormatSpec` version will always be used.
+Either or both of these signatures may be used: the `str()` function can use a
+`FormatSpec` or just yield a single format if no options are required. If both
+are present, the second version will be used.
 
 ## Formatting algorithm
 
@@ -237,7 +237,7 @@ following algorithm is used to determine how to format an object:
 
 Notes:
 
-* Entries marked 🎁 use the `FormatSpec`; those marked ✉️ do not.
+* Entries marked 🎁 use the `FormatSpec`; those marked ✉️ ignore it.
 * For the purposes of this algorithm, a "string-like type" is defined to be any of the following:
     * `std::string`
     * `std::string_view`
@@ -277,15 +277,24 @@ string is not a valid format spec. A valid spec consists of:
 * Zero or more letters representing options
 * Zero or more digits representing a precision
 
-An empty string is also a valid format spec.
+An empty string is also a valid format spec. When a precision is supplied as
+an `int` (instead of a substring), any negative value is interpreted as the
+default precision.
 
 ```c++
-FormatSpec::FormatSpec(char m, const std::string& o, int p);
+FormatSpec::FormatSpec(char m, const std::string& o, int p = -1);
 ```
 
 Construct a format spec from a mode, a string of options, and a precision.
-This will throw `std::invalid_argument` if `m` is not a letter or star, if
-`o` contains any non-letter characters, or if `p<-1`.
+This will throw `std::invalid_argument` if `m` is not a letter (or a star or
+null character, representing the default mode), or if `o` contains any
+non-letter characters.
+
+```c++
+FormatSpec::FormatSpec(int p) noexcept;
+```
+
+Construct a format spec from a precision alone, defaulting everything else.
 
 ```c++
 FormatSpec::FormatSpec();
@@ -307,74 +316,61 @@ True if this is a default spec containing no user specified elements.
 ```c++
 char FormatSpec::mode() const noexcept;
 char FormatSpec::lcmode() const noexcept;
+char FormatSpec::find_mode(const std::string& chars) const noexcept;
+void FormatSpec::default_mode(char m);
+void FormatSpec::set_mode(char m);
 ```
 
-Return the mode letter, optionally converted to lower case. This will return a
-null character if the original format spec was empty, or the mode was `'*'`.
+Mode functions. The `mode()` function returns the mode letter; `lcmode()`
+converts it to lower case. These will return a null character if the original
+format spec was empty or the mode was `'*'`. If the mode letter is on the list
+passed to `find_mode()`, it returns the mode; otherwise, it returns a null
+character.
+
+The `default_mode()` function sets the mode to the given value if no mode was
+originally supplied (or the mode was `'*'`); it does nothing if the spec
+already has a non-empty mode. The `set_mode()` function sets the mode
+unconditionally. Both of these will throw `std::invalid_argument` if the
+argument is not an ASCII letter.
 
 ```c++
 bool FormatSpec::option(char c) const noexcept;
-```
-
-True if this option code is present.
-
-```c++
 std::string FormatSpec::options() const;
-```
-
-Returns the full option string.
-
-```c++
-char FormatSpec::find_mode(const std::string& chars) const noexcept;
-```
-
-If the mode letter is on the list, this returns the mode letter; otherwise, it
-returns a null character.
-
-```c++
 char FormatSpec::find_option(const std::string& chars) const noexcept;
-```
-
-If any option letter is on the list, this returns the first matching letter in
-the option string; otherwise, it returns a null character.
-
-```c++
 void FormatSpec::no_option(const std::string& chars) noexcept;
 ```
 
-Removes any matching option letters from the spec.
+Option functions. The `option()` function returns true if the option code is
+present. The `options()` function returns the full option string. If any
+option letter on the list supplied to `find_option()` is present, it returns
+the first matching option; otherwise, it returns a null character.
+
+The `no_option()` function removes all matching option letters from the
+spec.
 
 ```c++
 int FormatSpec::prec() const noexcept;
-```
-
-Returns the precision, or -1 if no precision was supplied.
-
-```c++
-void FormatSpec::default_prec(int p);
-```
-
-If no precision was supplied (i.e. if the precision is -1), the precision is
-changed to this value. If a non-negative precision has already been set, this
-will not change it.
-
-```c++
 bool FormatSpec::has_prec() const noexcept;
-```
-
-True if an explicit precision was specified.
-
-```c++
+void FormatSpec::default_prec(int p) noexcept;
 void FormatSpec::set_prec(int p) noexcept;
 ```
 
-Sets the precision.
+Precision functions. The `prec()` function returns the precision, or -1 if no
+precision was supplied. The `has_prec()` function returns true if an explicit
+precision was specified.
+
+If no precision was supplied (i.e. if the precision is -1), `default_prec()`
+sets the precision to the given value. If a non-negative precision has already
+been set, this will not change it. The `set_prec()` function unconditionally
+sets the precision.
 
 ```c++
 std::string FormatSpec::str() const;
 ```
 
-Returns the format spec as a string.
+Returns the format spec as a string. Even if no modifying functions have been
+called, this is not guaranteed to return the exact same string that was
+supplied to the constructor, but it will be semantically equivalent.
 
 ## Type specific formatting functions
 
