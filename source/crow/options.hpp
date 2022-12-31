@@ -3,6 +3,7 @@
 #include "crow/binary.hpp"
 #include "crow/enum.hpp"
 #include "crow/format.hpp"
+#include "crow/path.hpp"
 #include "crow/regex.hpp"
 #include "crow/string.hpp"
 #include "crow/types.hpp"
@@ -13,6 +14,7 @@
 #include <ostream>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <vector>
 
@@ -22,34 +24,29 @@ namespace Crow {
 
         template <typename T>
         concept ScalarOptionType =
-            ArithmeticType<T>
+            (ArithmeticType<T>
             || std::is_enum_v<T>
             || std::same_as<T, std::string>
             || (! SimpleContainerType<T>
                 && (std::constructible_from<T, int>
-                    || std::constructible_from<T, std::string>));
+                    || std::constructible_from<T, std::string>)));
 
         template <typename T>
         concept ContainerOptionType =
-            SimpleContainerType<T>
+            (SimpleContainerType<T>
             && ScalarOptionType<typename T::value_type>
-            && ! std::same_as<T, std::string>;
+            && ! std::same_as<T, std::string>);
 
         template <typename T>
-        concept OptionArgumentType = ScalarOptionType<T> || ContainerOptionType<T>;
-
-        template <typename T, bool C = ContainerOptionType<T>>
-        struct IsStringValued: std::is_same<T, std::string> {};
-        template <typename T>
-        struct IsStringValued<T, true>: std::is_same<typename T::value_type, std::string> {};
+        concept OptionArgumentType = (ScalarOptionType<T> || ContainerOptionType<T>);
 
         template <typename T>
-        T parse_enum_unchecked(const std::string& arg) {
-            // The string has already been validated
-            T t = {};
-            parse_enum(arg, t);
-            return t;
-        }
+        concept FileOptionType =
+            (std::same_as<T, std::string>
+            || std::same_as<T, Path>
+            || (ContainerOptionType<T>
+                && (std::same_as<typename T::value_type, std::string>
+                    || std::same_as<typename T::value_type, Path>)));
 
     }
 
@@ -142,6 +139,8 @@ namespace Crow {
         template <Detail::ScalarOptionType T>
             static T parse_argument(const std::string& arg);
         template <Detail::ScalarOptionType T>
+            static T parse_enum_unchecked(const std::string& arg);
+        template <Detail::ScalarOptionType T>
             static validator_callback type_validator(const std::string& name, std::string pattern);
         template <Detail::ScalarOptionType T>
             static std::string type_placeholder(flag_type flags);
@@ -163,9 +162,9 @@ namespace Crow {
             std::string default_value;
             mode kind;
 
-            if constexpr (! IsStringValued<T>::value)
+            if constexpr (! FileOptionType<T>)
                 if (has_bit(flags, dir_exists | file_exists | parent_exists | not_exists))
-                    throw setup_error("File or directory flags can only be used with string-valued options: --" + name);
+                    throw setup_error("Invalid variable type for a file or directory option: --" + name);
 
             if constexpr (std::same_as<T, bool>) {
 
@@ -251,17 +250,24 @@ namespace Crow {
         }
 
         template <Detail::ScalarOptionType T>
+        T Options::parse_enum_unchecked(const std::string& arg) {
+            // The string and type have already been validated
+            T t = {};
+            parse_enum(arg, t);
+            return t;
+        }
+
+        template <Detail::ScalarOptionType T>
         Options::validator_callback Options::type_validator(const std::string& name, std::string pattern) {
 
-            if constexpr (! std::same_as<T, std::string>)
+            if constexpr (std::is_enum_v<T>) {
                 if (! pattern.empty())
-                    throw setup_error(fmt("Pattern is only allowed for string-valued options: {0:q}", "--" + name));
-
-            if constexpr (std::is_enum_v<T>)
+                    throw setup_error(fmt("Patterns are not allowed for enumeration options: {0:q}", "--" + name));
                 return [] (const std::string& str) {
                     auto& names = list_enum_names(T());
                     return std::find(names.begin(), names.end(), str) != names.end();
                 };
+            }
 
             if (pattern.empty()) {
                 return {};

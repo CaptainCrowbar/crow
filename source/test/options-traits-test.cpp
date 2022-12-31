@@ -1,5 +1,7 @@
 #include "crow/options.hpp"
+#include "crow/path.hpp"
 #include "crow/unit-test.hpp"
+#include "crow/uri.hpp"
 #include <string>
 #include <vector>
 
@@ -28,6 +30,8 @@ void test_crow_options_concepts() {
     TEST(ScalarOptionType<long double>);
     TEST(ScalarOptionType<std::string>);
     TEST(ScalarOptionType<MyEnum>);
+    TEST(ScalarOptionType<Path>);
+    TEST(ScalarOptionType<Uri>);
     TEST(! ScalarOptionType<std::vector<int>>);
     TEST(! ScalarOptionType<std::vector<std::string>>);
 
@@ -35,6 +39,8 @@ void test_crow_options_concepts() {
     TEST(! ContainerOptionType<int>);
     TEST(! ContainerOptionType<std::string>);
     TEST(! ContainerOptionType<MyEnum>);
+    TEST(! ContainerOptionType<Path>);
+    TEST(! ContainerOptionType<Uri>);
     TEST(ContainerOptionType<std::vector<int>>);
     TEST(ContainerOptionType<std::vector<std::string>>);
 
@@ -42,6 +48,8 @@ void test_crow_options_concepts() {
     TEST(OptionArgumentType<int>);
     TEST(OptionArgumentType<std::string>);
     TEST(OptionArgumentType<MyEnum>);
+    TEST(OptionArgumentType<Path>);
+    TEST(OptionArgumentType<Uri>);
     TEST(OptionArgumentType<std::vector<int>>);
     TEST(OptionArgumentType<std::vector<std::string>>);
 

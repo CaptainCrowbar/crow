@@ -185,6 +185,8 @@ following types:
   to true if the option is present.
 * `std::string` -- This does no argument checking (unless a pattern is
   supplied), but simply copies an argument string from the command line.
+* Any type implicitly or explicitly constructible from a string or string
+  view.
 * Any standard arithmetic type -- The argument supplied on the command line
   will be parsed as an integer or floating point value, including range
   checking, throwing `user_error` if an invalid value is passed.
@@ -221,11 +223,11 @@ conditions:
 * The `anon` or `required` flag is used with a boolean option.
 * The `not_exists` flag is combined with `dir_exists` or `file_exists`.
 * Any of the file-related flags are used with an argument type other than
-  `std::string` or a container of `std::string`.
+  `std::string`, `Path`, or a container of one of those.
 * Any anonymous options appear after an anonymous, container-valued option
   (which will have already swallowed up any remaining unattached arguments).
 * A required option is in a mutual exclusion group.
-* A pattern is supplied for a variable of any type other than `std::string`.
+* A pattern is supplied for a variable of enumeration type.
 * The pattern is not a valid PCRE2 regular expression.
 * Both a default value and a pattern are supplied, but the value does not
   match the pattern (except that an empty default is accepted even if an

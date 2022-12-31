@@ -764,6 +764,10 @@ void options_traits_test_group() {
     UNIT_TEST(crow_options_concepts)
 }
 
+void options_types_test_group() {
+    UNIT_TEST(crow_options_types)
+}
+
 void path_directory_test_group() {
     UNIT_TEST(crow_path_directory_iterators)
     UNIT_TEST(crow_path_current_directory)
@@ -1299,6 +1303,7 @@ int main(int argc, char** argv) {
     options_pattern_match_test_group();
     options_required_test_group();
     options_traits_test_group();
+    options_types_test_group();
     path_directory_test_group();
     path_file_system_test_group();
     path_name_test_group();
