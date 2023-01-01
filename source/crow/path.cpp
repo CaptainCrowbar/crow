@@ -549,99 +549,6 @@ namespace Crow {
 
     // File system query functions
 
-    Path::time_point Path::access_time([[maybe_unused]] flag_type flags) const noexcept {
-
-        #ifdef __APPLE__
-
-            auto st = get_stat(filename_, flags).st;
-            time_point tp;
-            timespec_to_timepoint(st.st_atimespec, tp);
-            return tp;
-
-        #elif defined(_XOPEN_SOURCE)
-
-            auto st = get_stat(filename_, flags).st;
-            time_point tp;
-            timespec_to_timepoint(st.st_atim, tp);
-            return tp;
-
-        #else
-
-            return get_file_time(1);
-
-        #endif
-
-    }
-
-    Path::time_point Path::create_time([[maybe_unused]] flag_type flags) const noexcept {
-
-        #ifdef __APPLE__
-
-            auto st = get_stat(filename_, flags).st;
-            time_point tp;
-            timespec_to_timepoint(st.st_birthtimespec, tp);
-            return tp;
-
-        #elif defined(_XOPEN_SOURCE)
-
-            return {};
-
-        #else
-
-            return get_file_time(0);
-
-        #endif
-
-    }
-
-    Path::time_point Path::modify_time([[maybe_unused]] flag_type flags) const noexcept {
-
-        #ifdef __APPLE__
-
-            auto st = get_stat(filename_, flags).st;
-            time_point tp;
-            timespec_to_timepoint(st.st_mtimespec, tp);
-            return tp;
-
-        #elif defined(_XOPEN_SOURCE)
-
-            auto st = get_stat(filename_, flags).st;
-            time_point tp;
-            timespec_to_timepoint(st.st_mtim, tp);
-            return tp;
-
-        #else
-
-            return get_file_time(2);
-
-        #endif
-
-    }
-
-    Path::time_point Path::status_time([[maybe_unused]] flag_type flags) const noexcept {
-
-        #ifdef __APPLE__
-
-            auto st = get_stat(filename_, flags).st;
-            time_point tp;
-            timespec_to_timepoint(st.st_ctimespec, tp);
-            return tp;
-
-        #elif defined(_XOPEN_SOURCE)
-
-            auto st = get_stat(filename_, flags).st;
-            time_point tp;
-            timespec_to_timepoint(st.st_ctim, tp);
-            return tp;
-
-        #else
-
-            return {};
-
-        #endif
-
-    }
-
     Path::directory_range Path::directory(flag_type flags) const {
         directory_iterator it(*this, flags);
         return {it, {}};
@@ -1141,6 +1048,101 @@ namespace Crow {
 
     }
 
+    // File system query/update functions
+
+    Path::time_point Path::access_time([[maybe_unused]] flag_type flags) const noexcept {
+
+        #ifdef __APPLE__
+
+            auto st = get_stat(filename_, flags).st;
+            time_point tp;
+            timespec_to_timepoint(st.st_atimespec, tp);
+            return tp;
+
+        #elif defined(_XOPEN_SOURCE)
+
+            auto st = get_stat(filename_, flags).st;
+            time_point tp;
+            timespec_to_timepoint(st.st_atim, tp);
+            return tp;
+
+        #else
+
+            return get_file_time(1);
+
+        #endif
+
+    }
+
+    Path::time_point Path::create_time([[maybe_unused]] flag_type flags) const noexcept {
+
+        #ifdef __APPLE__
+
+            auto st = get_stat(filename_, flags).st;
+            time_point tp;
+            timespec_to_timepoint(st.st_birthtimespec, tp);
+            return tp;
+
+        #elif defined(_XOPEN_SOURCE)
+
+            return {};
+
+        #else
+
+            return get_file_time(0);
+
+        #endif
+
+    }
+
+    Path::time_point Path::modify_time([[maybe_unused]] flag_type flags) const noexcept {
+
+        #ifdef __APPLE__
+
+            auto st = get_stat(filename_, flags).st;
+            time_point tp;
+            timespec_to_timepoint(st.st_mtimespec, tp);
+            return tp;
+
+        #elif defined(_XOPEN_SOURCE)
+
+            auto st = get_stat(filename_, flags).st;
+            time_point tp;
+            timespec_to_timepoint(st.st_mtim, tp);
+            return tp;
+
+        #else
+
+            return get_file_time(2);
+
+        #endif
+
+    }
+
+    Path::time_point Path::status_time([[maybe_unused]] flag_type flags) const noexcept {
+
+        #ifdef __APPLE__
+
+            auto st = get_stat(filename_, flags).st;
+            time_point tp;
+            timespec_to_timepoint(st.st_ctimespec, tp);
+            return tp;
+
+        #elif defined(_XOPEN_SOURCE)
+
+            auto st = get_stat(filename_, flags).st;
+            time_point tp;
+            timespec_to_timepoint(st.st_ctim, tp);
+            return tp;
+
+        #else
+
+            return {};
+
+        #endif
+
+    }
+
     void Path::set_access_time(time_point t, [[maybe_unused]] flag_type flags) const {
         #ifdef _XOPEN_SOURCE
             set_file_times(t, modify_time(), flags);
@@ -1166,6 +1168,11 @@ namespace Crow {
         #endif
     }
 
+    void Path::set_status_time(time_point /*t*/, flag_type /*flags*/) const {
+        throw std::system_error(std::make_error_code(std::errc::operation_not_supported),
+            "The operating system does not support modifying file status time");
+    }
+
     // I/O functions
 
     void Path::load(std::string& content, size_t maxlen, flag_type flags) const {
@@ -1186,10 +1193,14 @@ namespace Crow {
             }
         }
 
-        content.clear();
+        if (! has_bit(flags, append))
+            content.clear();
+        else if (maxlen != npos)
+            maxlen += content.size();
 
         while (content.size() < maxlen) {
-            size_t ofs = content.size(), n = std::min(maxlen - ofs, block_size);
+            size_t ofs = content.size();
+            size_t n = std::min(maxlen - ofs, block_size);
             content.append(n, '\0');
             size_t rc = ::fread(&content[0] + ofs, 1, n, in);
             content.resize(ofs + rc);

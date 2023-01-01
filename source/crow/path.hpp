@@ -220,11 +220,6 @@ namespace Crow {
 
         // File system query functions
 
-        time_point access_time(flag_type flags = no_flags) const noexcept;
-        time_point create_time(flag_type flags = no_flags) const noexcept;
-        time_point modify_time(flag_type flags = no_flags) const noexcept;
-        time_point status_time(flag_type flags = no_flags) const noexcept;
-
         directory_range directory(flag_type flags = no_flags) const;
         search_range deep_search(flag_type flags = no_flags) const;
         bool exists(flag_type flags = no_flags) const noexcept;
@@ -250,12 +245,20 @@ namespace Crow {
         void move_to(const Path& dst, flag_type flags = no_flags) const;
         void remove(flag_type flags = no_flags) const;
 
-        void set_access_time(flag_type flags = no_flags) const { set_access_time(std::chrono::system_clock::now(), flags); }
+        // File system query/update functions
+
+        time_point access_time(flag_type flags = no_flags) const noexcept;
+        time_point create_time(flag_type flags = no_flags) const noexcept;
+        time_point modify_time(flag_type flags = no_flags) const noexcept;
+        time_point status_time(flag_type flags = no_flags) const noexcept;
         void set_access_time(time_point t, flag_type flags = no_flags) const;
-        void set_create_time(flag_type flags = no_flags) const { set_create_time(std::chrono::system_clock::now(), flags); }
+        void set_access_time(flag_type flags = no_flags) const { set_access_time(std::chrono::system_clock::now(), flags); }
         void set_create_time(time_point t, flag_type flags = no_flags) const;
-        void set_modify_time(flag_type flags = no_flags) const { set_modify_time(std::chrono::system_clock::now(), flags); }
+        void set_create_time(flag_type flags = no_flags) const { set_create_time(std::chrono::system_clock::now(), flags); }
         void set_modify_time(time_point t, flag_type flags = no_flags) const;
+        void set_modify_time(flag_type flags = no_flags) const { set_modify_time(std::chrono::system_clock::now(), flags); }
+        void set_status_time(time_point t, flag_type flags = no_flags) const;
+        void set_status_time(flag_type flags = no_flags) const { set_modify_time(std::chrono::system_clock::now(), flags); }
 
         // I/O functions
 

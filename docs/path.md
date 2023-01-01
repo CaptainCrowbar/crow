@@ -459,26 +459,8 @@ These require read-only access to the file system. Any function not marked
 `noexcept` can throw `std::system_error` if the underlying system API fails,
 in addition to any other documented exceptions.
 
-```c++
-Path::time_point Path::access_time(flag_type flags = no_flags) const noexcept;
-Path::time_point Path::create_time(flag_type flags = no_flags) const noexcept;
-Path::time_point Path::modify_time(flag_type flags = no_flags) const noexcept;
-Path::time_point Path::status_time(flag_type flags = no_flags) const noexcept;
-```
-
-Query the file's time metadata; see also the corresponding update functions
-below. The four possible time properties are detailed below, along with which
-operations are possible on each operating system. The query functions will
-return the epoch if the file does not exist or is not accessible. If the
-`no_follow` flag is set, and the path refers to a symlink, these will
-operate (if possible) on the symlink rather than the target file.
-
-| Property     | Interpretation              | Posix    | Linux          | Mac         | Windows        |
-| --------     | --------------              | -----    | ----------     | ---         | -------        |
-| Access time  | File was last read          | `atime`  | Read/write     | Read/write  | Read/write     |
-| Create time  | File was created            |          | Not supported  | Read only   | Read/write     |
-| Modify time  | File was last modified      | `mtime`  | Read/write     | Read/write  | Read/write     |
-| Status time  | Metadata was last modified  | `ctime`  | Read only      | Read only   | Not supported  |
+Query functions that are paired with a corresponding update function are
+listed separately under the query/update functions category.
 
 ```c++
 Path::directory_range Path::directory(flag_type flags = no_flags) const;
@@ -596,6 +578,9 @@ These require write access to the file system. Any of these functions can
 throw `std::system_error` if the underlying system API fails, in addition to
 any other documented exceptions.
 
+Update functions that are paired with a corresponding query function are
+listed separately under the query/update functions category.
+
 ```c++
 void Path::copy_to(const Path& dst, flag_type flags = no_flags) const;
 ```
@@ -673,7 +658,13 @@ directory and the `recurse` flag is not used, if the caller does not have
 permission to remove the file, or in some circumstances, if the file is in
 use by another process.
 
+# File system query/update functions
+
 ```c++
+Path::time_point Path::access_time(flag_type flags = no_flags) const noexcept;
+Path::time_point Path::create_time(flag_type flags = no_flags) const noexcept;
+Path::time_point Path::modify_time(flag_type flags = no_flags) const noexcept;
+Path::time_point Path::status_time(flag_type flags = no_flags) const noexcept;
 void Path::set_access_time(flag_type flags = no_flags) const;
 void Path::set_access_time(Path::time_point t,
     flag_type flags = no_flags) const;
@@ -685,19 +676,33 @@ void Path::set_modify_time(Path::time_point t,
     flag_type flags = no_flags) const;
 ```
 
-Modify the file's time metadata. Refer to the corresponding query functions
-(above) for details of the interpretation of the various time properties.
-There is no `set_status_time()` function because no known operating system
-supports explicitly setting the file metadata modification time.
+Query or modify the file's time metadata. The four possible time properties
+are detailed below, along with which operations are possible on each
+operating system. The query functions will return the epoch if the file does
+not exist or is not accessible. If the `no_follow` flag is set, and the path
+refers to a symlink, these will operate (if possible) on the symlink rather
+than the target file.
 
-The functions that do not take a time argument will set it to the current
-time. If the `no_follow` flag is set, and the path refers to a symlink, these
-will operate (if possible) on the symlink rather than the target file.
+| Property     | Interpretation              | Posix    | Linux          | Mac         | Windows        |
+| --------     | --------------              | -----    | ----------     | ---         | -------        |
+| Access time  | File was last read          | `atime`  | Read/write     | Read/write  | Read/write     |
+| Create time  | File was created            | N/A      | Not supported  | Read only   | Read/write     |
+| Modify time  | File was last modified      | `mtime`  | Read/write     | Read/write  | Read/write     |
+| Status time  | Metadata was last modified  | `ctime`  | Read only      | Read only   | Not supported  |
 
-These will throw `std::system_error` if the file does not exist, if the
-calling process does not have permission to modify the requested time field,
-or if that field is not defined, or not modifiable, on this operating
-system.
+The update functions that do not take a time argument will set it to the
+current time. If the `no_follow` flag is set, and the path refers to a
+symlink, these will operate (if possible) on the symlink rather than the
+target file.
+
+The update functions will throw `std::system_error` if the file does not
+exist, if the calling process does not have permission to modify the
+requested time field, or if that field is not defined, or not modifiable, on
+this operating system.
+
+No known operating system supports explicitly setting the file metadata
+modification time. The `set_status_time()` functions exist but will always
+throw `std::system_error`.
 
 ## I/O functions
 
@@ -706,11 +711,12 @@ void Path::load(std::string& content, size_t maxlen = npos,
     flag_type flags = no_flags) const;
 ```
 
-Read the contents of a file into a string (erasing its former contents).
-Optionally, a maximum number of bytes can be specified. If the `may_fail` flag
-is set, this will return an empty string if the file does not exist or a read
-error occurs. If the `stdio` flag is set, this will read from standard input
-if the path is an empty string or `"-"`.
+Read the contents of a file into a string. Optionally, a maximum number of
+bytes can be specified. By default this will overwrite the string's former
+contents; set the `append` flag to append instead. If the `may_fail` flag is
+set, this will return an empty string (or append nothing) if the file does
+not exist or a read error occurs. If the `stdio` flag is set, this will read
+from standard input if the path is an empty string or `"-"`.
 
 If the `may_fail` flag is not set, this will throw `std::system_error` if the
 file does not exist or an I/O error occurs.

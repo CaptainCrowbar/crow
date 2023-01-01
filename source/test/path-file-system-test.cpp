@@ -292,6 +292,13 @@ void test_crow_path_io() {
     TRY(testfile.load(s));
     TEST_EQUAL(s, "Hello world\nGoodbye\n");
 
+    TRY(testfile.save("Hello world\n", Path::overwrite));
+    TRY(testfile.load(s));
+    TEST_EQUAL(s, "Hello world\n");
+    TRY(testfile.save("Goodbye\n", Path::overwrite));
+    TRY(testfile.load(s, npos, Path::append));
+    TEST_EQUAL(s, "Hello world\nGoodbye\n");
+
     TEST_THROW(nofile.load(s), std::system_error);
     TRY(nofile.load(s, npos, Path::may_fail));
     TEST(s.empty());
