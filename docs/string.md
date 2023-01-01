@@ -383,8 +383,10 @@ True if the view is null (equivalent to a default constructed view). This is
 false for views that are empty but have a non-null data pointer.
 
 ```c++
-constexpr size_t view_pos(std::string_view str, std::string_view view) noexcept;
-constexpr size_t view_endpos(std::string_view str, std::string_view view) noexcept;
+constexpr size_t view_pos(std::string_view str,
+    std::string_view view) noexcept;
+constexpr size_t view_endpos(std::string_view str,
+    std::string_view view) noexcept;
 ```
 
 Return the position of the start or end of a view relative to its enclosing
@@ -400,7 +402,8 @@ These return empty views at the start or end of the given view. They will
 return a null view if the argument is null.
 
 ```c++
-constexpr std::string_view view_cat(std::string_view left, std::string_view right) noexcept;
+constexpr std::string_view view_cat(std::string_view left,
+    std::string_view right) noexcept;
 ```
 
 Concatenate two views, returning a view that stretches from the beginning of
@@ -410,8 +413,10 @@ substrings of the same underlying string, or if the end of `right` is to the
 left of the beginning of `left`.
 
 ```c++
-constexpr std::string_view view_extend(std::string_view view, size_t add) noexcept;
-constexpr std::string_view view_extend(std::string_view str, std::string_view view, size_t add) noexcept;
+constexpr std::string_view view_extend(std::string_view view,
+    size_t add) noexcept;
+constexpr std::string_view view_extend(std::string_view str,
+    std::string_view view, size_t add) noexcept;
 ```
 
 Add the given number of bytes to the end of the given view. The first version
@@ -422,8 +427,10 @@ undefined if `view` is not a substring of `str`. For both versions, behaviour
 is undefined if any of the string view arguments are null.
 
 ```c++
-constexpr std::string_view view_left_of(std::string_view str, std::string_view view) noexcept;
-constexpr std::string_view view_right_of(std::string_view str, std::string_view view) noexcept;
+constexpr std::string_view view_left_of(std::string_view str,
+    std::string_view view) noexcept;
+constexpr std::string_view view_right_of(std::string_view str,
+    std::string_view view) noexcept;
 ```
 
 Return the substrings of `str` to the left or right of `view`. These will
