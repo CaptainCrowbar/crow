@@ -58,6 +58,35 @@ namespace Crow {
                 return result;
             }
 
+            Path get_current_directory(bool checked) {
+
+                std::string buf(256, '\0');
+
+                for (;;) {
+
+                    auto rc = getcwd(buf.data(), buf.size());
+                    int err = errno;
+
+                    if (rc)
+                        return rc;
+                    else if (err == ERANGE)
+                        buf.resize(2 * buf.size());
+                    else if (checked)
+                        throw std::system_error(err, std::generic_category());
+                    else
+                        return {};
+
+                }
+
+            }
+
+            std::string get_root(std::string_view filename, bool /*allow_drive_special*/) noexcept {
+                size_t pos = 0;
+                if (! filename.empty())
+                    pos = filename.find_first_not_of('/');
+                return std::string(filename, 0, pos);
+            }
+
             Path get_user_home(std::string user) {
 
                 const char* envptr = nullptr;
@@ -106,6 +135,11 @@ namespace Crow {
 
             }
 
+            bool legal_file_name(std::string_view filename) noexcept {
+                return filename.find(Path::os_char(0)) == npos;
+            }
+
+
         #else
 
             uint32_t get_attributes(const std::wstring& file) noexcept {
@@ -120,42 +154,7 @@ namespace Crow {
                 return info;
             }
 
-            std::string make_utf8(const std::wstring& wstr) {
-                return to_utf8(decode_string(wstr));
-            }
-
-            std::string simple_ascii_conversion(const std::wstring& wstr) {
-                std::string ascii(wstr.size(), '\0');
-                std::transform(wstr.begin(), wstr.end(), ascii.begin(),
-                    [] (wchar_t w) { return w <= 127 ? char(w) : '_'; });
-                return ascii;
-            }
-
-        #endif
-
-        Path get_current_directory(bool checked) {
-
-            #ifdef _XOPEN_SOURCE
-
-                std::string buf(256, '\0');
-
-                for (;;) {
-
-                    auto rc = getcwd(buf.data(), buf.size());
-                    int err = errno;
-
-                    if (rc)
-                        return rc;
-                    else if (err == ERANGE)
-                        buf.resize(2 * buf.size());
-                    else if (checked)
-                        throw std::system_error(err, std::generic_category());
-                    else
-                        return {};
-
-                }
-
-            #else
+            Path get_current_directory(bool checked) {
 
                 auto size = GetCurrentDirectoryW(0, nullptr);
                 std::wstring buf(size, L'\0');
@@ -169,17 +168,70 @@ namespace Crow {
                 else
                     return {};
 
-            #endif
+            }
 
+            std::wstring get_root(std::wstring_view filename, bool allow_drive_special) noexcept {
+
+                // [\\?\]drive:\path or [\\?\]\\server\path
+                // if allow_drive_special: [\\?\]\path or [\\?\]drive:path
+
+                if (filename.empty())
+                    return {};
+
+                static constexpr auto regex_flags = Regex::extended | Regex::icase | Regex::no_capture;
+
+                static const Regex pattern1(R"(
+                    ^ ( \\{2}\?\\ ) ?
+                    ( [A-Z] :\\ | \\{2,} [^?\\]+ \\? )
+                )", regex_flags);
+
+                static const Regex pattern2(R"(
+                    ^ ( \\{2}\?\\ ) ?
+                    ( [A-Z] :\\? | \\{2,} [^?\\]+ \\? | \\+ )
+                )", regex_flags);
+
+                auto& pattern = allow_drive_special ? pattern2 : pattern1;
+                auto ascii_name = simple_ascii_conversion(filename);
+                auto match = pattern(ascii_name);
+                size_t pos = 0;
+
+                if (match)
+                    pos = match.count();
+
+                return std::wstring(filename, 0, pos);
+
+            }
+
+            std::string make_utf8(std::wstring_view wstr) {
+                return to_utf8(decode_string(wstr));
+            }
+
+            std::string simple_ascii_conversion(std::wstring_view wstr) {
+                std::string ascii(wstr.size(), '\0');
+                std::transform(wstr.begin(), wstr.end(), ascii.begin(),
+                    [] (wchar_t w) { return w <= 127 ? char(w) : '_'; });
+                return ascii;
+            }
+
+            bool legal_file_name(std::wstring_view filename) noexcept {
+                if (filename.find(os_char(0)) != npos)
+                    return false;
+                auto root = get_root(filename, true);
+                if (root.empty() && filename[0] == L'\\')
+                    return false;
+                else
+                    return filename.find_first_of(L"\"*:<>?|", root.size()) == npos;
+            }
+
+        #endif
+
+        std::string make_utf8(std::string_view str) {
+            return std::string(str);
         }
 
-        std::string make_utf8(const std::string& str) {
-            return str;
-        }
-
-        Path::string_type make_native_string(const std::string& utf8) {
+        Path::os_string make_native_string(std::string_view utf8) {
             #ifdef _XOPEN_SOURCE
-                return utf8;
+                return std::string(utf8);
             #else
                 return to_wstring(decode_string(utf8));
             #endif
@@ -191,19 +243,19 @@ namespace Crow {
 
     #ifdef _XOPEN_SOURCE
 
-        Path::Path(const std::string& file, flag_type flags):
+        Path::Path(std::string_view file, flag_type flags):
         filename_(file) {
             make_canonical(flags);
         }
 
     #else
 
-        Path::Path(const std::string& file, flag_type flags):
+        Path::Path(std::string_view file, flag_type flags):
         filename_(to_wstring(decode_string(file))) {
             make_canonical(flags);
         }
 
-        Path::Path(const std::wstring& file, flag_type flags):
+        Path::Path(std::wstring_view file, flag_type flags):
         filename_(file) {
             make_canonical(flags);
         }
@@ -224,7 +276,7 @@ namespace Crow {
         std::string prefix = "file://";
         std::string suffix = name();
 
-        #ifndef _XOPEN_SOURCE
+        #ifdef _WIN32
             std::replace(suffix.begin(), suffix.end(), '\\', '/');
         #endif
 
@@ -254,14 +306,14 @@ namespace Crow {
 
     }
 
-    std::vector<Path::string_type> Path::os_breakdown() const {
+    std::vector<Path::os_string> Path::os_breakdown() const {
 
-        std::vector<string_type> parts;
+        std::vector<os_string> parts;
 
         if (is_empty())
             return parts;
 
-        auto root = get_root(true);
+        auto root = get_root(filename_, true);
 
         if (! root.empty())
             parts.push_back(root);
@@ -269,7 +321,7 @@ namespace Crow {
         size_t p = root.size(), q = 0, size = filename_.size();
 
         while (p < size) {
-            q = filename_.find(native_delimiter, p);
+            q = filename_.find(os_delimiter, p);
             if (q == npos)
                 q = size;
             parts.push_back(filename_.substr(p, q - p));
@@ -280,12 +332,12 @@ namespace Crow {
 
     }
 
-    Path Path::change_ext(const std::string& new_ext) const {
+    Path Path::change_ext(std::string_view new_ext) const {
 
-        if (is_empty() || get_root(true).size() == filename_.size())
+        if (is_empty() || get_root(filename_, true).size() == filename_.size())
             throw std::invalid_argument("Can't change file extension: " + quote(name()));
 
-        string_type prefix = filename_;
+        os_string prefix = filename_;
         prefix.resize(prefix.size() - get_base_ext().second.size());
         auto suffix = make_native_string(new_ext);
 
@@ -348,26 +400,11 @@ namespace Crow {
     }
 
     bool Path::is_legal() const noexcept {
-
-        if (filename_.find(character_type(0)) != npos)
-            return false;
-
-        #ifndef _XOPEN_SOURCE
-
-            auto root = get_root(true);
-            if (root.empty() && filename_[0] == L'\\')
-                return false;
-            if (filename_.find_first_of(L"\"*:<>?|", root.size()) != npos)
-                return false;
-
-        #endif
-
-        return true;
-
+        return legal_file_name(filename_);
     }
 
     bool Path::is_root() const noexcept {
-        return ! filename_.empty() && get_root(false).size() == filename_.size();
+        return ! filename_.empty() && get_root(filename_, false).size() == filename_.size();
     }
 
     Path::form Path::path_form() const noexcept {
@@ -400,7 +437,7 @@ namespace Crow {
                 size_t len = 3 * (base_vec.end() - cuts.first) - 1;
                 prefix.filename_.assign(len, OS_CHAR('.'));
                 for (size_t i = 2; i < len; i += 3)
-                    prefix.filename_[i] = native_delimiter;
+                    prefix.filename_[i] = os_delimiter;
             } else if (base_form == form::relative) {
                 throw std::invalid_argument("Invalid combination of arguments to Path::relative_to()");
             } else {
@@ -426,7 +463,7 @@ namespace Crow {
         return parts;
     }
 
-    std::pair<Path::string_type, Path::string_type> Path::split_os_leaf() const {
+    std::pair<Path::os_string, Path::os_string> Path::split_os_leaf() const {
         return get_base_ext();
     }
 
@@ -437,15 +474,15 @@ namespace Crow {
     }
 
     std::pair<Path, Path> Path::split_root() const {
-        auto root = get_root(true);
+        auto root = get_root(filename_, true);
         auto tail = filename_.substr(root.size());
         return {root, tail};
     }
 
     Path Path::common(const Path& lhs, const Path& rhs) {
 
-        auto root1 = lhs.get_root(true);
-        auto root2 = rhs.get_root(true);
+        auto root1 = get_root(lhs.filename_, true);
+        auto root2 = get_root(rhs.filename_, true);
 
         if (root1 != root2)
             return {};
@@ -455,12 +492,12 @@ namespace Crow {
 
         if (cut == root1.size())
             return lhs.filename_.substr(0, cut);
-        else if ((cut == lhs.filename_.size() || lhs.filename_[cut] == native_delimiter)
-                && (cut == rhs.filename_.size() || rhs.filename_[cut] == native_delimiter))
+        else if ((cut == lhs.filename_.size() || lhs.filename_[cut] == os_delimiter)
+                && (cut == rhs.filename_.size() || rhs.filename_[cut] == os_delimiter))
             return lhs.filename_.substr(0, cut);
 
         do --cut;
-            while (cut > root1.size() && lhs.filename_[cut] != native_delimiter);
+            while (cut > root1.size() && lhs.filename_[cut] != os_delimiter);
 
         return lhs.filename_.substr(0, cut);
 
@@ -470,9 +507,9 @@ namespace Crow {
         if (lhs.is_empty() || rhs.is_absolute())
             return rhs;
         auto result = lhs.os_name();
-        auto root = lhs.get_root(true);
-        if (root.size() < result.size() && result.back() != native_delimiter && ! rhs.is_empty())
-            result += native_delimiter;
+        auto root = get_root(lhs.filename_, true);
+        if (root.size() < result.size() && result.back() != os_delimiter && ! rhs.is_empty())
+            result += os_delimiter;
         result += rhs.os_name();
         return result;
     }
@@ -1131,7 +1168,7 @@ namespace Crow {
 
     // I/O functions
 
-    void Path::load(std::string& str, size_t maxlen, flag_type flags) const {
+    void Path::load(std::string& content, size_t maxlen, flag_type flags) const {
 
         static constexpr size_t block_size = 16384;
         FILE* in = nullptr;
@@ -1144,25 +1181,25 @@ namespace Crow {
             if (! in) {
                 if (! has_bit(flags, may_fail))
                     throw std::system_error(std::make_error_code(std::errc::io_error), name());
-                str.clear();
+                content.clear();
                 return;
             }
         }
 
-        str.clear();
+        content.clear();
 
-        while (str.size() < maxlen) {
-            size_t ofs = str.size(), n = std::min(maxlen - ofs, block_size);
-            str.append(n, '\0');
-            size_t rc = ::fread(&str[0] + ofs, 1, n, in);
-            str.resize(ofs + rc);
+        while (content.size() < maxlen) {
+            size_t ofs = content.size(), n = std::min(maxlen - ofs, block_size);
+            content.append(n, '\0');
+            size_t rc = ::fread(&content[0] + ofs, 1, n, in);
+            content.resize(ofs + rc);
             if (rc < n)
                 break;
         }
 
     }
 
-    void Path::save(const std::string& str, flag_type flags) const {
+    void Path::save(std::string_view content, flag_type flags) const {
 
         static constexpr flag_type options = append | overwrite;
 
@@ -1184,9 +1221,9 @@ namespace Crow {
 
         size_t pos = 0;
 
-        while (pos < str.size()) {
+        while (pos < content.size()) {
             errno = 0;
-            pos += ::fwrite(str.data() + pos, 1, str.size() - pos, out);
+            pos += ::fwrite(content.data() + pos, 1, content.size() - pos, out);
             if (errno)
                 throw std::system_error(std::make_error_code(std::errc::io_error), name());
         }
@@ -1208,17 +1245,17 @@ namespace Crow {
 
     // Implementation details
 
-    std::pair<Path::string_type, Path::string_type> Path::get_base_ext() const noexcept {
+    std::pair<Path::os_string, Path::os_string> Path::get_base_ext() const noexcept {
 
         if (filename_.empty())
             return {filename_, filename_};
 
-        size_t start = filename_.find_last_of(native_delimiter);
+        size_t start = filename_.find_last_of(os_delimiter);
 
         if (start != npos)
             ++start;
 
-        #ifndef _XOPEN_SOURCE
+        #ifdef _WIN32
             else if (filename_.size() >= 2 && filename_[1] == L':')
                 start = 2;
         #endif
@@ -1235,7 +1272,7 @@ namespace Crow {
             }
 
         auto base = filename_.substr(start, dot - start);
-        string_type ext;
+        os_string ext;
 
         if (dot < filename_.size())
             ext = filename_.substr(dot);
@@ -1244,17 +1281,17 @@ namespace Crow {
 
     }
 
-    Path::string_type Path::get_leaf() const noexcept {
+    Path::os_string Path::get_leaf() const noexcept {
 
         if (filename_.empty())
             return filename_;
 
-        size_t start = filename_.find_last_of(native_delimiter);
+        size_t start = filename_.find_last_of(os_delimiter);
 
         if (start != npos)
             ++start;
 
-        #ifndef _XOPEN_SOURCE
+        #ifdef _WIN32
             else if (filename_.size() >= 2 && filename_[1] == L':')
                 start = 2;
         #endif
@@ -1266,63 +1303,28 @@ namespace Crow {
 
     }
 
-    Path::string_type Path::get_root([[maybe_unused]] bool allow_drive_special) const noexcept {
-
-        size_t pos = 0;
-
-        if (! filename_.empty()) {
-
-            #ifdef _XOPEN_SOURCE
-
-                // Posix: /path
-                pos = filename_.find_first_not_of('/');
-
-            #else
-
-                // Windows: [\\?\]drive:\path or [\\?\]\\server\path
-                // if allow_drive_special: [\\?\]\path or [\\?\]drive:path
-
-                static constexpr auto regex_flags = Regex::extended | Regex::icase | Regex::no_capture;
-
-                static const Regex pattern1(R"(
-                    ^ ( \\{2}\?\\ ) ?
-                    ( [A-Z] :\\ | \\{2,} [^?\\]+ \\? )
-                )", regex_flags);
-
-                static const Regex pattern2(R"(
-                    ^ ( \\{2}\?\\ ) ?
-                    ( [A-Z] :\\? | \\{2,} [^?\\]+ \\? | \\+ )
-                )", regex_flags);
-
-                auto& pattern = allow_drive_special ? pattern2 : pattern1;
-                auto ascii_name = simple_ascii_conversion(filename_);
-                auto match = pattern(ascii_name);
-
-                if (match)
-                    pos = match.count();
-
-            #endif
-
-        }
-
-        return filename_.substr(0, pos);
-
-    }
-
     void Path::make_canonical(flag_type flags) {
 
-        static const string_type ss = {native_delimiter, native_delimiter};
-        static const string_type sds = {native_delimiter, OS_CHAR('.'), native_delimiter};
+        static const os_string ss = {os_delimiter, os_delimiter};
+        static const os_string sds = {os_delimiter, OS_CHAR('.'), os_delimiter};
+
+        // Check legality
+
+        if (has_bit(flags, legal_name) && ! is_legal())
+            throw std::invalid_argument("Invalid file name: " + quote(name()));
+
+        if (has_bit(flags, unicode) && ! is_unicode())
+            throw std::invalid_argument("Invalid Unicode file name: " + quote(name()));
 
         // Replace slash delimiters
 
-        #ifndef _XOPEN_SOURCE
+        #ifdef _WIN32
             std::replace(filename_.begin(), filename_.end(), L'/', L'\\');
         #endif
 
         // Trim redundant leading slashes
 
-        size_t p = filename_.find_first_not_of(native_delimiter);
+        size_t p = filename_.find_first_not_of(os_delimiter);
 
         if (p == npos)
             p = filename_.size();
@@ -1358,7 +1360,7 @@ namespace Crow {
             p = filename_.find(ss, p);
             if (p == npos)
                 break;
-            size_t q = filename_.find_first_not_of(native_delimiter, p + 2);
+            size_t q = filename_.find_first_not_of(os_delimiter, p + 2);
             if (q == npos)
                 q = filename_.size();
             filename_.erase(p + 1, q - p - 1);
@@ -1367,14 +1369,14 @@ namespace Crow {
 
         // Trim trailing / and /.
 
-        size_t root_size = get_root(true).size();
+        size_t root_size = get_root(filename_, true).size();
         size_t min_root = std::max(root_size, size_t(1));
 
-        while (filename_.size() > min_root && (filename_.back() == native_delimiter || (filename_.back() == OS_CHAR('.')
-                && filename_.end()[-2] == native_delimiter)))
+        while (filename_.size() > min_root && (filename_.back() == os_delimiter || (filename_.back() == OS_CHAR('.')
+                && filename_.end()[-2] == os_delimiter)))
             filename_.pop_back();
 
-        #ifndef _XOPEN_SOURCE
+        #ifdef _WIN32
 
             // Ensure a trailing slash on network paths
 
@@ -1392,11 +1394,6 @@ namespace Crow {
                 filename_[drive] -= 0x20;
 
         #endif
-
-        // Validate if requested
-
-        if (has_bit(flags, legal_name) && ! is_legal())
-            throw std::invalid_argument("Invalid file name: " + quote(name()));
 
     }
 
@@ -1497,7 +1494,7 @@ namespace Crow {
 
         Path current;
         Path prefix;
-        string_type leaf;
+        os_string leaf;
         flag_type flags = no_flags;
 
         #ifdef _XOPEN_SOURCE
@@ -1576,8 +1573,8 @@ namespace Crow {
 
     Path::directory_iterator& Path::directory_iterator::operator++() {
 
-        static const string_type dot1(1, OS_CHAR('.'));
-        static const string_type dot2(2, OS_CHAR('.'));
+        static const os_string dot1(1, OS_CHAR('.'));
+        static const os_string dot2(2, OS_CHAR('.'));
 
         const bool skip_hidden = has_bit(impl_->flags, no_hidden);
 

@@ -33,12 +33,14 @@ characters, this is not enforced in any way. On Microsoft Windows, using the
 NTFS file system, file names are nominally UTF-16 (with a short list of
 disallowed characters), but not all of the wide character API functions that
 deal with files check for valid encoding; it's not hard to create a file whose
-name is an arbitrary sequence of 16-bit integers. The HFS+ file system
-formerly used by Apple on macOS and iOS appears to be the only widely used
-file system that actually does enforce valid Unicode names at the file system
-level, although it then proceeds to complicate matters by using a proprietary
-normalization scheme that does not match any of the four standard ones, and in
-any case the new APFS file system does not appear to enforce any kind of
+name is an arbitrary sequence of 16-bit integers.
+
+The HFS+ file system formerly used by Apple on macOS and iOS appears to be the
+only widely used file system that actually does enforce valid Unicode names
+at the file system level (although it then proceeds to complicate matters by
+using a proprietary normalization scheme that does not match any of the four
+standard ones). In any case the current APFS file system has returned to the
+usual Unix convention of allowing any sequence of bytes without checking
 encoding.
 
 To deal with this situation, the default behaviour of `Path` when constructed
@@ -55,30 +57,22 @@ The term "leaf name" is used here to mean the name of an individual file
 within a directory, with no directory path prefix (for example, the leaf name
 of `"/foo/bar/hello.txt"`, or `"C:\foo\bar\hello.txt"`, is `"hello.txt"`).
 
-Exceptions will be thrown under the following circumstances:
+Exceptions are documented for individual functions only where it differs from
+the following rules:
 
 * On Windows, any function that accepts a file name as a `std::string` will
   throw `std::invalid_argument` if the string is not valid UTF-8. This does
   not apply to `std::wstring` arguments, which can accept invalid UTF-16.
 * Any function not marked `noexcept` may throw `std::bad_alloc` if memory
   allocation fails.
-* Exception behaviour is only documented for individual functions where it
-  varies from the above rules.
 
 ## Member types
 
 ```c++
-using Path::character_type = [char on Unix, wchar_t on Windows];
-using Path::string_type = std::basic_string<character_type>;
-```
-
-Native OS string types.
-
-```c++
 class Path::directory_iterator;
 class Path::search_iterator;
-typename Path::directory_range;
-typename Path::search_range;
+using directory_range = Irange<directory_iterator>;
+using search_range = Irange<search_iterator>;
 ```
 
 Directory search iterators, and range types containing a pair of iterators,
@@ -86,10 +80,22 @@ returned by the directory search functions.
 
 ```c++
 using Path::id_type = std::pair<uint64_t, uint64_t>;
+```
+
+Type used for a file's unique ID.
+
+```c++
+using Path::os_char = [char on Unix, wchar_t on Windows];
+using Path::os_string = std::basic_string<os_char>;
+```
+
+Native OS string types.
+
+```c++
 using Path::time_point = std::chrono::system_clock::time_point;
 ```
 
-Other member types.
+Type used to represent file times.
 
 ```c++
 enum class Path::cmp: int {
@@ -181,16 +187,17 @@ indicates that the file does not exist), which can be queried using
 
 ```c++
 static constexpr char Path::delimiter = ['/' on Unix, '\\' on Windows];
-static constexpr Path::character_type Path::native_delimiter;
+static constexpr Path::os_char Path::os_delimiter = [same];
 ```
 
 The native path delimiter character.
 
 ```c++
-static constexpr bool Path::native_case;
+static constexpr bool Path::os_case_sensitive;
 ```
 
 Indicates whether path names are case sensitive by default on the host OS.
+False on MacOS and Windows, true on all other systems (including iOS).
 
 ## Life cycle functions
 
@@ -202,34 +209,39 @@ Default constructor, equivalent to constructing from an empty string.
 
 ```c++
 Path::Path(const std::string& file, flag_type flags = no_flags);
+Path::Path(std::string_view file, flag_type flags = no_flags);
 Path::Path(const char* file, flag_type flags = no_flags);
 Path::Path(const std::wstring& file, flag_type flags = no_flags);
+Path::Path(std::wstring_view file, flag_type flags = no_flags);
 Path::Path(const wchar_t* file, flag_type flags = no_flags);
 ```
 
-Constructors (and implicit conversions) from a string.
-The constructors that take a wide string are only defined on Windows.
+Constructors (and implicit conversions) from a string. The constructors that
+take a wide string are only defined on Windows.
 
-If the argument is a native string (`std::string` on Unix, `std::wstring` on
-Windows), the name will simply be copied verbatim with no UTF encoding
-checks. On Windows, the constructor from an 8-bit string will throw
-`std::invalid_argument` if the name is not valid UTF-8.
+If the argument is a native string, the name will simply be copied verbatim
+with no UTF encoding checks. On Windows, the constructor from an 8-bit string
+will throw `std::invalid_argument` if the name is not valid UTF-8.
 
 If the `legal_name` flag is used, the constructor will throw
 `std::invalid_argument` if a file name whose format is illegal for the
-operating system is supplied. Note that this will not reject a name solely
-because it contains invalid UTF, since this is legal on most systems.
+operating system is supplied.
+
+If the `unicode` flag is used, the constructor will throw
+`std::invalid_argument` if a file name containing invalid UTF is supplied.
+This is implicitly always set when the 8-bit string constructor is used on
+Windows.
 
 On construction, paths are brought into a canonical form according to the
 following rules:
 
-* On Windows, replace any slash delimiters with backslashes
+* (Windows only) Replace any slash delimiters with backslashes
 * Trim redundant leading slashes
 * Replace `/./` with `/` throughout
 * Replace redundant multiple slashes with one
 * Trim trailing `/` and `/.`
-* On Windows, ensure a trailing slash on network paths
-* On Windows, convert the drive letter to upper case
+* (Windows only) Ensure a trailing slash on network paths
+* (Windows only) Convert the drive letter to upper case
 
 ```c++
 Path::~Path() noexcept;
@@ -256,8 +268,8 @@ These return the full path as UTF-8. On Windows, they will throw
 `std::invalid_argument` if the actual file name contains invalid UTF-16.
 
 ```c++
-Path::string_type Path::os_name() const;
-const Path::character_type* Path::c_name() const noexcept;
+Path::os_string Path::os_name() const;
+const Path::os_char* Path::c_name() const noexcept;
 ```
 
 These return the full path in its native form, with no conversion.
@@ -272,14 +284,14 @@ contains invalid UTF.
 
 ```c++
 std::vector<std::string> Path::breakdown() const;
-std::vector<string_type> Path::os_breakdown() const;
+std::vector<os_string> Path::os_breakdown() const;
 ```
 
 Break the path down into its directory and file elements. If the path is
 absolute, the first element will be the root path.
 
 ```c++
-Path Path::change_ext(const std::string& new_ext) const;
+Path Path::change_ext(std::string_view new_ext) const;
 ```
 
 Replace the file extension with a new one. The new extension can be supplied
@@ -358,11 +370,11 @@ not below the base directory, and the `no_backtrack` flag is set.
 
 ```c++
 std::pair<std::string, std::string> Path::split_leaf() const;
-std::pair<Path::string_type, Path::string_type> Path::split_os_leaf() const;
+std::pair<Path::os_string, Path::os_string> Path::split_os_leaf() const;
 std::string Path::base() const;
 std::string Path::ext() const;
-Path::string_type Path::os_base() const;
-Path::string_type Path::os_ext() const;
+Path::os_string Path::os_base() const;
+Path::os_string Path::os_ext() const;
 ```
 
 Split the path's leaf name into a base and extension; the extension begins
@@ -686,7 +698,7 @@ system.
 ## I/O functions
 
 ```c++
-void Path::load(std::string& str, size_t maxlen = npos,
+void Path::load(std::string& content, size_t maxlen = npos,
     flag_type flags = no_flags) const;
 ```
 
@@ -700,7 +712,7 @@ If the `may_fail` flag is not set, this will throw `std::system_error` if the
 file does not exist or an I/O error occurs.
 
 ```c++
-void Path::save(const std::string& str, flag_type flags = no_flags) const;
+void Path::save(std::string_view content, flag_type flags = no_flags) const;
 ```
 
 Writes the contents of a string to a file. If the `append` flag is set and the
