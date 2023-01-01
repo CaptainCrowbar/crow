@@ -209,10 +209,10 @@ Default constructor, equivalent to constructing from an empty string.
 
 ```c++
 Path::Path(const std::string& file, flag_type flags = no_flags);
-Path::Path(std::string_view file, flag_type flags = no_flags);
-Path::Path(const char* file, flag_type flags = no_flags);
 Path::Path(const std::wstring& file, flag_type flags = no_flags);
+Path::Path(std::string_view file, flag_type flags = no_flags);
 Path::Path(std::wstring_view file, flag_type flags = no_flags);
+Path::Path(const char* file, flag_type flags = no_flags);
 Path::Path(const wchar_t* file, flag_type flags = no_flags);
 ```
 
@@ -240,7 +240,7 @@ following rules:
 * Replace `/./` with `/` throughout
 * Replace redundant multiple slashes with one
 * Trim trailing `/` and `/.`
-* (Windows only) Ensure a trailing slash on network paths
+* (Windows only) Ensure a trailing slash on network root paths
 * (Windows only) Convert the drive letter to upper case
 
 ```c++
@@ -253,6 +253,29 @@ Path& Path::operator=(Path&& p) noexcept;
 
 Other life cycle functions.
 
+## Comparison operators
+
+```c++
+std::strong_ordering operator<=>(const Path& lhs, const Path& rhs) noexcept;
+bool operator==(const Path& lhs, const Path& rhs) noexcept;
+bool operator!=(const Path& lhs, const Path& rhs) noexcept;
+bool operator<(const Path& lhs, const Path& rhs) noexcept;
+bool operator>(const Path& lhs, const Path& rhs) noexcept;
+bool operator<=(const Path& lhs, const Path& rhs) noexcept;
+bool operator>=(const Path& lhs, const Path& rhs) noexcept;
+```
+
+Comparison operators. These perform lexicographical comparison by code unit,
+not by code point, because the path string may not be a valid encoding. On
+Windows this means that paths that contain characters outside the BMP will
+not necessarily sort in Unicode order.
+
+These operators always perform case sensitive comparison regardless of the
+operating system. You can use the `Path::equal` and `Path::less` function
+objects if you need case insensitive comparison, but please note that even
+with these, no attempt is made to exactly emulate the native file name
+sorting conventions.
+
 ## Path name functions
 
 These operate on the path purely as a string, making no contact with the
@@ -261,18 +284,22 @@ actual file system.
 ```c++
 std::string Path::name() const;
 std::string Path::str() const;
+explicit Path::operator std::string() const;
 std::ostream& operator<<(std::ostream& out, const Path& p);
 ```
 
-These return the full path as UTF-8. On Windows, they will throw
+These return the full path as an 8-bit string. On Windows, they will throw
 `std::invalid_argument` if the actual file name contains invalid UTF-16.
 
 ```c++
 Path::os_string Path::os_name() const;
+explicit Path::operator os_string() const;
 const Path::os_char* Path::c_name() const noexcept;
 ```
 
-These return the full path in its native form, with no conversion.
+These return the full path in its native form, with no conversion. The
+`os_string` operator is defined (as a separate operator from `std::string`)
+only on WIndows.
 
 ```c++
 std::string Path::as_url() const;
@@ -425,29 +452,6 @@ Path& Path::operator/=(Path& lhs, const Path& rhs);
 Join two paths. This will discard the LHS and return the RHS unchanged if the
 LHS is empty or the RHS is absolute; otherwise, the resulting path is obtained
 by assuming the RHS is relative to the LHS.
-
-## Comparison operators
-
-```c++
-std::strong_ordering operator<=>(const Path& lhs, const Path& rhs) noexcept;
-bool operator==(const Path& lhs, const Path& rhs) noexcept;
-bool operator!=(const Path& lhs, const Path& rhs) noexcept;
-bool operator<(const Path& lhs, const Path& rhs) noexcept;
-bool operator>(const Path& lhs, const Path& rhs) noexcept;
-bool operator<=(const Path& lhs, const Path& rhs) noexcept;
-bool operator>=(const Path& lhs, const Path& rhs) noexcept;
-```
-
-Comparison operators. These perform lexicographical comparison by code unit,
-not by code point, because the path string may not be a valid encoding. On
-Windows this means that paths that contain characters outside the BMP will
-not necessarily sort in Unicode order.
-
-These operators always perform case sensitive comparison regardless of the
-operating system. You can use the `Path::equal` and `Path::less` function
-objects if you need case insensitive comparison, but please note that even
-with these, no attempt is made to exactly emulate the native file name
-sorting conventions.
 
 ## File system query functions
 

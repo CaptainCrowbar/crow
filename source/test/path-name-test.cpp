@@ -52,14 +52,20 @@ void test_crow_path_unicode_names() {
 
     TRY(file = "αβγδε.txt");
     TEST_EQUAL(file.name(), "αβγδε.txt");
+    TEST_EQUAL(std::string(file), "αβγδε.txt");
 
     #ifdef _WIN32
 
-        std::wstring crap = {0xdc00, 0xd800};
+        static const std::wstring crap = {0xdc00, 0xd800};
+
+        TEST_EQUAL(file.os_name(), L"αβγδε.txt");
+        TEST_EQUAL(std::wstring(file), L"αβγδε.txt");
 
         TRY(file = L"C:/foo/bar" + crap);
         TEST(file.os_name() == L"C:\\foo\\bar" + crap);
+        TEST(std::wstring(file) == L"C:\\foo\\bar" + crap);
         TEST_THROW(file.name(), std::invalid_argument);
+        TEST_THROW(std::string(file), std::invalid_argument);
         TEST_THROW(file.as_url(), std::invalid_argument);
 
     #endif

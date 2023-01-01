@@ -168,6 +168,11 @@ namespace Crow {
         std::string str() const { return name(); }
         os_string os_name() const { return filename_; }
         const os_char* c_name() const noexcept { return filename_.data(); }
+        explicit operator os_string() const { return filename_; }
+
+        #ifdef _WIN32
+            explicit operator std::string() const { return name(); }
+        #endif
 
         std::string as_url() const;
         std::vector<std::string> breakdown() const;
