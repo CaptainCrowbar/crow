@@ -15,6 +15,30 @@
 using namespace Crow;
 using namespace std::literals;
 
+void test_crow_types_assertions() {
+
+    int n = 42;
+
+    TRY(CROW_XASSERT(n == 42));
+    TEST_THROW(CROW_XASSERT(n == 86), AssertionFailure);
+
+    try {
+        CROW_XASSERT(n == 99);
+    }
+    catch (const AssertionFailure& ex) {
+        TEST_MATCH(std::string(ex.what()),
+            R"(^Assertion failed: \(n == 99\), )"
+            R"(function test_crow_types_assertions, )"
+            R"(file (.+[/\\])?types-test\.cpp, )"
+            R"(line \d+\.$)");
+        TEST_MATCH(ex.expression(), "n == 99");
+        TEST_MATCH(ex.file(), R"(^(.+[/\\])?types-test\.cpp$)");
+        TEST_EQUAL(ex.function(), "test_crow_types_assertions");
+        TEST_EQUAL(ex.line(), 26);
+    }
+
+}
+
 void test_crow_types_concepts() {
 
     TEST(ArithmeticType<int>);

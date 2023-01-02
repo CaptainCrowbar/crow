@@ -12,6 +12,18 @@ namespace Crow;
 * TOC
 {:toc}
 
+## Preprocessor macros
+
+```c++
+#define CROW_ASSERT(expr)
+#define CROW_XASSERT(expr)
+```
+
+Assertion macros. `CROW_ASSERT()` does the same thing as the standard
+`assert()` macro, except that it is not suppressed by defining `NDEBUG`.
+`CROW_XASSERT()` performs the same test, but throws an `AssertionFailure`
+exception instead of printing a message and aborting on failure.
+
 ## Constants
 
 ```c++
@@ -147,6 +159,21 @@ constexpr std::strong_ordering to_order(ArithmeticType auto t) noexcept;
 
 Converts a number to a strong ordering value: negative numbers map to `less`,
 zero to `equal`, and positive numbers to `greater`.
+
+## Exceptions
+
+```c++
+class AssertionFailure: public std::runtime_error {
+    AssertionFailure(std::string_view expression, std::string_view function,
+        std::string_view file, int line);
+    std::string expression() const;
+    std::string function() const;
+    std::string file() const;
+    int line() const noexcept;
+};
+```
+
+The exception thrown when a `CROW_XASSERT()` fails.
 
 ## Memory management types
 

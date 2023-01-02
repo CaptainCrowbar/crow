@@ -4,13 +4,31 @@
 #include <compare>
 #include <concepts>
 #include <cstdint>
+#include <cstdio>
 #include <cstdlib>
 #include <functional>
 #include <iterator>
 #include <limits>
+#include <stdexcept>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <utility>
+
+#define CROW_ASSERT(expr) \
+    do { \
+        if (! static_cast<bool>(expr)) { \
+            std::fprintf(stderr, "Assertion failed: (%s), function %s, file %s, line %d.\n", \
+                # expr, __func__, __FILE__, __LINE__); \
+            std::abort(); \
+        } \
+    } while (false)
+
+#define CROW_XASSERT(expr) \
+    do { \
+        if (! static_cast<bool>(expr)) \
+            throw AssertionFailure(# expr, __func__, __FILE__, __LINE__); \
+    } while (false)
 
 #define CROW_STD_HASH_0(T) \
     namespace std { \
@@ -83,6 +101,48 @@ namespace Crow {
     concept IteratorType = requires {
         typename std::iterator_traits<T>::iterator_category;
     };
+
+    // Exceptions
+
+    class AssertionFailure:
+    public std::runtime_error {
+    public:
+        AssertionFailure(std::string_view expression, std::string_view function,
+            std::string_view file, int line);
+        std::string expression() const { return expression_; }
+        std::string function() const { return function_; }
+        std::string file() const { return file_; }
+        int line() const noexcept { return line_; }
+    private:
+        std::string expression_;
+        std::string function_;
+        std::string file_;
+        int line_ = 0;
+        static std::string message(std::string_view expression, std::string_view function,
+            std::string_view file, int line);
+    };
+
+        inline AssertionFailure::AssertionFailure(std::string_view expression, std::string_view function,
+            std::string_view file, int line):
+        std::runtime_error(message(expression, function, file, line)),
+        expression_(expression),
+        function_(function),
+        file_(file),
+        line_(line) {}
+
+        inline std::string AssertionFailure::message(std::string_view expression, std::string_view function,
+                std::string_view file, int line) {
+            std::string msg = "Assertion failed: (";
+            msg += expression;
+            msg += "), function ";
+            msg += function;
+            msg += ", file ";
+            msg += file;
+            msg += ", line ";
+            msg += std::to_string(line);
+            msg += ".";
+            return msg;
+        }
 
     namespace Detail {
 
