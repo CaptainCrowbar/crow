@@ -380,6 +380,16 @@ namespace Crow {
         return it == options_.end() ? npos : size_t(it - options_.begin());
     }
 
+    void Options::validate_option_details(const std::string& name, flag_type flags,
+            const std::string& pattern, bool is_text) {
+        if (! is_text) {
+            if (has_bit(flags, dir_exists | file_exists | parent_exists | not_exists))
+                throw setup_error("Invalid variable type for a file or directory option: --" + name);
+            if (! pattern.empty())
+                throw setup_error("Invalid variable type for matching against a pattern: --" + name);
+        }
+    }
+
     void Options::validate_path(const std::string& name, flag_type flags) {
 
         if (! has_bit(flags, dir_exists | file_exists | not_exists | parent_exists))

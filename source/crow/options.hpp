@@ -41,7 +41,7 @@ namespace Crow {
         concept OptionArgumentType = (ScalarOptionType<T> || ContainerOptionType<T>);
 
         template <typename T>
-        concept FileOptionType =
+        concept TextOptionType =
             (std::same_as<T, std::string>
             || std::same_as<T, Path>
             || (ContainerOptionType<T>
@@ -134,6 +134,8 @@ namespace Crow {
         size_t option_index(const std::string& name) const;
         size_t option_index(char abbrev) const;
 
+        static void validate_option_details(const std::string& name, flag_type flags,
+            const std::string& pattern, bool is_text);
         static void validate_path(const std::string& name, flag_type flags);
 
         template <Detail::ScalarOptionType T>
@@ -141,7 +143,7 @@ namespace Crow {
         template <Detail::ScalarOptionType T>
             static T parse_enum_unchecked(const std::string& arg);
         template <Detail::ScalarOptionType T>
-            static validator_callback type_validator(const std::string& name, std::string pattern);
+            static validator_callback type_validator(std::string pattern);
         template <Detail::ScalarOptionType T>
             static std::string type_placeholder(flag_type flags);
 
@@ -162,9 +164,7 @@ namespace Crow {
             std::string default_value;
             mode kind;
 
-            if constexpr (! FileOptionType<T>)
-                if (has_bit(flags, dir_exists | file_exists | parent_exists | not_exists))
-                    throw setup_error("Invalid variable type for a file or directory option: --" + name);
+            validate_option_details(name, flags, pattern, TextOptionType<T>);
 
             if constexpr (std::same_as<T, bool>) {
 
@@ -174,13 +174,9 @@ namespace Crow {
             } else if constexpr (ScalarOptionType<T>) {
 
                 setter = [&var] (const std::string& str) { var = parse_argument<T>(str); };
-                validator = type_validator<T>(name, pattern);
+                validator = type_validator<T>(pattern);
                 placeholder = type_placeholder<T>(flags);
                 kind = mode::single;
-
-                if constexpr (std::same_as<T, std::string>)
-                    if (validator && ! validator(var))
-                        throw setup_error("Default value does not match pattern: --" + name);
 
                 if (! has_bit(flags, required) && (std::is_enum_v<T> || var != T())) {
                     default_value = format_object(var);
@@ -195,15 +191,9 @@ namespace Crow {
 
                 reset = [&var] { var.clear(); };
                 setter = [&var] (const std::string& str) { var.insert(var.end(), parse_argument<V>(str)); };
-                validator = type_validator<V>(name, pattern);
+                validator = type_validator<V>(pattern);
                 placeholder = type_placeholder<V>(flags);
                 kind = mode::multiple;
-
-                if constexpr (std::same_as<V, std::string>)
-                    if (validator)
-                        for (auto& v: var)
-                            if (! validator(v))
-                                throw setup_error("Default value does not match pattern: --" + name);
 
                 if (! has_bit(flags, required)) {
                     if (var.size() == 1) {
@@ -258,27 +248,24 @@ namespace Crow {
         }
 
         template <Detail::ScalarOptionType T>
-        Options::validator_callback Options::type_validator(const std::string& name, std::string pattern) {
+        Options::validator_callback Options::type_validator(std::string pattern) {
 
             if constexpr (std::is_enum_v<T>) {
-                if (! pattern.empty())
-                    throw setup_error(fmt("Patterns are not allowed for enumeration options: {0:q}", "--" + name));
                 return [] (const std::string& str) {
                     auto& names = list_enum_names(T());
                     return std::find(names.begin(), names.end(), str) != names.end();
                 };
             }
 
-            if (pattern.empty()) {
+            if (pattern.empty())
                 return {};
-            } else {
-                try {
-                    auto re = Regex(pattern, Regex::full | Regex::no_capture);
-                    return [re] (const std::string& str) { return re(str).matched(); };
-                }
-                catch (const Regex::error& ex) {
-                    throw setup_error(ex.what());
-                }
+
+            try {
+                auto re = Regex(pattern, Regex::full | Regex::no_capture);
+                return [re] (const std::string& str) { return re(str).matched(); };
+            }
+            catch (const Regex::error& ex) {
+                throw setup_error(ex.what());
             }
 
         }
@@ -288,21 +275,19 @@ namespace Crow {
 
             if constexpr (std::signed_integral<T>)
                 return "<int>";
-            if constexpr (std::unsigned_integral<T>)
+            else if constexpr (std::unsigned_integral<T>)
                 return "<uint>";
-            if constexpr (std::floating_point<T>)
+            else if constexpr (std::floating_point<T>)
                 return "<real>";
 
-            if constexpr (std::same_as<T, std::string>) {
-                if (has_bits(flags, dir_exists | file_exists))
-                    return "<file>";
-                if (has_bit(flags, dir_exists))
-                    return "<dir>";
-                if (has_bit(flags, dir_exists | file_exists | not_exists | parent_exists))
-                    return "<file>";
-            }
-
-            return "<arg>";
+            if (has_bits(flags, dir_exists | file_exists))
+                return "<file>";
+            else if (has_bit(flags, dir_exists))
+                return "<dir>";
+            else if (has_bit(flags, dir_exists | file_exists | not_exists | parent_exists))
+                return "<file>";
+            else
+                return "<arg>";
 
         }
 

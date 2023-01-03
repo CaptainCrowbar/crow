@@ -227,15 +227,16 @@ conditions:
 * Any anonymous options appear after an anonymous, container-valued option
   (which will have already swallowed up any remaining unattached arguments).
 * A required option is in a mutual exclusion group.
-* A pattern is supplied for a variable of enumeration type.
+* A pattern or a file-related flag is supplied for a variable of boolean,
+  arithmetic, or enumeration type.
 * The pattern is not a valid PCRE2 regular expression.
-* Both a default value and a pattern are supplied, but the value does not
-  match the pattern (except that an empty default is accepted even if an
-  empty string does not match the pattern).
 * You try to create the `--help` or `--version` options explicitly.
 
-(If more than one of these error conditions exists for the same option, it is
-unspecified which one will be reported.)
+If more than one of these error conditions exists for the same option, it is
+unspecified which one will be reported.
+
+Default values are not checked against regex patterns or fie system
+requirements.
 
 Behaviour is undefined if `add()` is called after `parse()`.
 
