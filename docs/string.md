@@ -376,11 +376,27 @@ boundary.
 These are some convenience functions for manipulating string views.
 
 ```c++
+constexpr const char* view_endptr(std::string_view view) noexcept;
+```
+
+Returns a pointer to the end of the string, equal to `data()+size()`.
+
+```c++
 constexpr bool view_is_null(std::string_view view) noexcept;
 ```
 
 True if the view is null (equivalent to a default constructed view). This is
 false for views that are empty but have a non-null data pointer.
+
+```c++
+constexpr bool view_is_substring(std::string_view view,
+    std::string_view str) noexcept;
+```
+
+True if `view` is a part of (or identical to) `str`. This compares pointers,
+not data; it will return false if `view.data()` is not inside `str`, even if
+`str.find(view)` would return a valid position. It will return true if both
+views are null, otherwise false if either one is null.
 
 ```c++
 constexpr size_t view_pos(std::string_view str,
@@ -431,11 +447,16 @@ constexpr std::string_view view_left_of(std::string_view str,
     std::string_view view) noexcept;
 constexpr std::string_view view_right_of(std::string_view str,
     std::string_view view) noexcept;
+constexpr std::string_view view_from_left(std::string_view str,
+    std::string_view view) noexcept;
+constexpr std::string_view view_from_right(std::string_view str,
+    std::string_view view) noexcept;
 ```
 
-Return the substrings of `str` to the left or right of `view`. These will
-return a null view if both arguments are null. Otherwise, behaviour is
-undefined if `view` is not a substring of `str`.
+Return the substrings of `str` to the left or right of `view`, excluding
+(`view_left/right_of()`) or including (`view_from_left/right()`) `view`
+itself. These will return a null view if both arguments are null; otherwise,
+behaviour is undefined if `view` is not a substring of `str`.
 
 ## Type functions
 

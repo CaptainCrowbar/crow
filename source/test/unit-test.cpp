@@ -1051,6 +1051,7 @@ void string_type_test_group() {
 
 void string_view_test_group() {
     UNIT_TEST(crow_string_view_null)
+    UNIT_TEST(crow_string_view_is_substring)
     UNIT_TEST(crow_string_view_position)
     UNIT_TEST(crow_string_view_begin_end)
     UNIT_TEST(crow_string_view_cat)
