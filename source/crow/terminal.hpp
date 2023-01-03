@@ -62,7 +62,7 @@ namespace Crow {
         std::string rgb(colour c) const { return rgb(c[0], c[1], c[2]); }
         std::string rgb_bg(colour c) const { return rgb_bg(c[0], c[1], c[2]); }
 
-        static bool is_tty(int fd) noexcept;
+        static bool is_tty(int fd = 1) noexcept;
         static bool is_tty(FILE* fp) noexcept;
 
     private:

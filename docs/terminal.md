@@ -116,9 +116,9 @@ RGB foreground and background colour code generator functions. Each channel is
 clamped to the range 0-5.
 
 ```c++
-static bool Xterm::is_tty(int fd) noexcept;
+static bool Xterm::is_tty(int fd = 1) noexcept;
 static bool Xterm::is_tty(FILE* fp) noexcept;
 ```
 
-Check whether an output stream is going to a terminal or is redirected. These
-call `isatty()` or the local equivalent.
+Check whether an output stream (standard output by default) is going to a
+terminal or is redirected. These call `isatty()` or the local equivalent.
