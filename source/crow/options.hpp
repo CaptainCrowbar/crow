@@ -4,6 +4,7 @@
 #include "crow/enum.hpp"
 #include "crow/format.hpp"
 #include "crow/path.hpp"
+#include "crow/random.hpp"
 #include "crow/regex.hpp"
 #include "crow/string.hpp"
 #include "crow/types.hpp"
@@ -11,6 +12,7 @@
 #include <concepts>
 #include <functional>
 #include <iostream>
+#include <limits>
 #include <ostream>
 #include <stdexcept>
 #include <string>
@@ -58,11 +60,12 @@ namespace Crow {
             none           = 0,
             anon           = 1u << 0,  // Arguments not claimed by other options are assigned to this
             no_default     = 1u << 1,  // Don't show default value in help
-            required       = 1u << 2,  // Required option
-            dir_exists     = 1u << 3,  // Must be an existing directory
-            file_exists    = 1u << 4,  // Must be an existing file
-            not_exists     = 1u << 5,  // Must not be an existing file or directory
-            parent_exists  = 1u << 6,  // Parent directory must exist
+            random         = 1u << 2,  // Random number if not supplied
+            required       = 1u << 3,  // Required option
+            dir_exists     = 1u << 4,  // Must be an existing directory
+            file_exists    = 1u << 5,  // Must be an existing file
+            not_exists     = 1u << 6,  // Must not be an existing file or directory
+            parent_exists  = 1u << 7,  // Parent directory must exist
         };
 
         using enum flag_type;
@@ -102,6 +105,7 @@ namespace Crow {
         enum class mode { boolean, single, multiple };
 
         struct option_info {
+            void_callback generator;
             void_callback reset;
             setter_callback setter;
             validator_callback validator;
@@ -125,7 +129,8 @@ namespace Crow {
         bool allow_help_ = false;
         bool auto_help_ = false;
 
-        void do_add(void_callback reset, setter_callback setter, validator_callback validator,
+        void do_add(void_callback generator, void_callback reset,
+            setter_callback setter, validator_callback validator,
             const std::string& name, char abbrev, const std::string& description,
             const std::string& placeholder, const std::string& default_value,
             mode kind, flag_type flags, const std::string& group);
@@ -134,10 +139,10 @@ namespace Crow {
         size_t option_index(const std::string& name) const;
         size_t option_index(char abbrev) const;
 
-        static void validate_option_details(const std::string& name, flag_type flags,
-            const std::string& pattern, bool is_text);
         static void validate_path(const std::string& name, flag_type flags);
 
+        template <Detail::ScalarOptionType T>
+            static T generate_random();
         template <Detail::ScalarOptionType T>
             static T parse_argument(const std::string& arg);
         template <Detail::ScalarOptionType T>
@@ -157,6 +162,7 @@ namespace Crow {
 
             using namespace Detail;
 
+            void_callback generator;
             void_callback reset;
             setter_callback setter;
             validator_callback validator;
@@ -164,7 +170,12 @@ namespace Crow {
             std::string default_value;
             mode kind;
 
-            validate_option_details(name, flags, pattern, TextOptionType<T>);
+            if constexpr (! TextOptionType<T>) {
+                if (has_bit(flags, dir_exists | file_exists | parent_exists | not_exists))
+                    throw setup_error("Invalid variable type for a file or directory option: --" + name);
+                if (! pattern.empty())
+                    throw setup_error("Invalid variable type for matching against a pattern: --" + name);
+            }
 
             if constexpr (std::same_as<T, bool>) {
 
@@ -172,6 +183,16 @@ namespace Crow {
                 kind = mode::boolean;
 
             } else if constexpr (ScalarOptionType<T>) {
+
+                if (has_bit(flags, random)) {
+                    if constexpr (ArithmeticType<T>) {
+                        if (var != 0)
+                            throw setup_error("Default value cannot be used with random generation: --" + name);
+                        generator = [&var] { var = generate_random<T>(); };
+                    } else {
+                        throw setup_error("Invalid variable type for random generation: --" + name);
+                    }
+                }
 
                 setter = [&var] (const std::string& str) { var = parse_argument<T>(str); };
                 validator = type_validator<T>(pattern);
@@ -188,6 +209,16 @@ namespace Crow {
             } else {
 
                 using V = typename T::value_type;
+
+                if (has_bit(flags, random)) {
+                    if constexpr (ArithmeticType<V>) {
+                        if (! var.empty())
+                            throw setup_error("Default value cannot be used with random generation: --" + name);
+                        generator = [&var] { var.insert(var.end(), generate_random<V>()); };
+                    } else {
+                        throw setup_error("Invalid variable type for random generation: --" + name);
+                    }
+                }
 
                 reset = [&var] { var.clear(); };
                 setter = [&var] (const std::string& str) { var.insert(var.end(), parse_argument<V>(str)); };
@@ -208,11 +239,20 @@ namespace Crow {
 
             }
 
-            do_add(reset, setter, validator, name, abbrev, description, placeholder, default_value,
-                kind, flags, group);
+            do_add(generator, reset, setter, validator, name, abbrev, description,
+                placeholder, default_value, kind, flags, group);
 
             return *this;
 
+        }
+
+        template <Detail::ScalarOptionType T>
+        T Options::generate_random() {
+            auto rng = std::random_device();
+            if constexpr (std::floating_point<T>)
+                return UniformReal<T>()(rng);
+            else
+                return UniformInteger<T>(0, std::numeric_limits<T>::max())(rng);
         }
 
         template <Detail::ScalarOptionType T>

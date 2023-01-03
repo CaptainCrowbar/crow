@@ -80,6 +80,7 @@ enum class Options::flag_type;
     Options::none = 0;
     Options::anon;
     Options::no_default;
+    Options::random;
     Options::required;
     Options::dir_exists;
     Options::file_exists;
@@ -96,6 +97,8 @@ These are bitmasks that can be used in the flags argument of `Options::add()`.
   remaining unclaimed arguments will be assigned to it.
 * The `no_default` flag suppresses the display of the default value in the
   help text.
+* The `random` flag will generate a random value (0-max for integers, 0-1 for
+  floating point) using `std::random_device` if a value is not supplied.
 * The `required` flag indicates that this option must be supplied (this does
   not apply if the user selects the `--help` or `--version` options).
 * The `dir_exists` and `file_exists` flags indicate that the argument must be
@@ -221,6 +224,8 @@ conditions:
 * The name or abbreviation has already been used by another option.
 * The description string is empty (or contains only whitespace).
 * The `anon` or `required` flag is used with a boolean option.
+* The `random` flag is used with a non-arithmetic type, or a non-zero default
+  value.
 * The `not_exists` flag is combined with `dir_exists` or `file_exists`.
 * Any of the file-related flags are used with an argument type other than
   `std::string`, `Path`, or a container of one of those.

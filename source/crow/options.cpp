@@ -1,6 +1,6 @@
 #include "crow/options.hpp"
-#include "crow/path.hpp"
 #include "crow/terminal.hpp"
+#include <random>
 #include <set>
 
 using namespace std::literals;
@@ -104,8 +104,10 @@ namespace Crow {
                 catch (const std::invalid_argument& ex) {
                     throw user_error(ex.what());
                 }
+
                 if (current->kind != mode::multiple)
                     current = nullptr;
+
                 paired = false;
                 ++arg_index;
 
@@ -126,18 +128,22 @@ namespace Crow {
 
                     size_t opt_index = npos;
                     bool invert = false;
+
                     if (arg.starts_with("--no-")) {
                         opt_index = option_index(arg.substr(5));
                         if (opt_index != npos && options_[opt_index].kind == mode::boolean)
                             invert = paired = true;
                     }
+
                     if (! invert) {
                         opt_index = option_index(arg.substr(2));
                         if (opt_index == npos)
                             throw user_error(fmt("Unknown option: {0:q}", arg));
                     }
+
                     on_match(options_[opt_index]);
                     ++arg_index;
+
                     if (invert)
                         args.insert(args.begin() + arg_index, "f");
 
@@ -163,8 +169,10 @@ namespace Crow {
                 // Multiple short options
 
                 std::vector<std::string> new_args;
+
                 for (char c: arg.substr(1))
                     new_args.push_back({'-', c});
+
                 auto it = args.begin() + arg_index;
                 args.erase(it);
                 args.insert(it, new_args.begin(), new_args.end());
@@ -175,8 +183,10 @@ namespace Crow {
 
                 paired = false;
                 size_t opt_index = option_index(arg[1]);
+
                 if (opt_index == npos)
                     throw user_error(fmt("Unknown option: {0:q}", arg));
+
                 on_match(options_[opt_index]);
                 ++arg_index;
 
@@ -204,6 +214,10 @@ namespace Crow {
         if (it != options_.end())
             throw user_error("Required option not found: --" + it->name);
 
+        for (auto& opt: options_)
+            if (! opt.found && opt.generator)
+                opt.generator();
+
         return true;
 
     }
@@ -218,12 +232,14 @@ namespace Crow {
         return i != npos && options_[i].found;
     }
 
-    void Options::do_add(void_callback reset, setter_callback setter, validator_callback validator,
+    void Options::do_add(void_callback generator,void_callback reset,
+            setter_callback setter, validator_callback validator,
             const std::string& name, char abbrev, const std::string& description,
             const std::string& placeholder, const std::string& default_value,
             mode kind, flag_type flags, const std::string& group) {
 
         option_info info = {
+            .generator      = generator,
             .reset          = reset,
             .setter         = setter,
             .validator      = validator,
@@ -308,9 +324,12 @@ namespace Crow {
 
             if (has_bit(info.flags, anon))
                 block += '[';
+
             block += "--" + info.name;
+
             if (info.abbrev != '\0')
                 block += ", -" + std::string{info.abbrev};
+
             if (has_bit(info.flags, anon))
                 block += ']';
 
@@ -350,6 +369,7 @@ namespace Crow {
         }
 
         text += '\n';
+
         if (! extra_.empty())
             text += fmt("{1}{0}{2}\n\n", extra_, body_colour, xterm.reset());
 
@@ -378,16 +398,6 @@ namespace Crow {
         auto it = std::find_if(options_.begin(), options_.end(),
             [abbrev] (const option_info& opt) { return opt.abbrev == abbrev; });;
         return it == options_.end() ? npos : size_t(it - options_.begin());
-    }
-
-    void Options::validate_option_details(const std::string& name, flag_type flags,
-            const std::string& pattern, bool is_text) {
-        if (! is_text) {
-            if (has_bit(flags, dir_exists | file_exists | parent_exists | not_exists))
-                throw setup_error("Invalid variable type for a file or directory option: --" + name);
-            if (! pattern.empty())
-                throw setup_error("Invalid variable type for matching against a pattern: --" + name);
-        }
     }
 
     void Options::validate_path(const std::string& name, flag_type flags) {

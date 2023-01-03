@@ -10,7 +10,7 @@ using namespace Crow::Detail;
 
 CROW_ENUM_CLASS(MyEnum, int, 0, alpha, bravo, charlie)
 
-void test_crow_options_concepts() {
+void test_crow_options_traits_concepts() {
 
     TEST(! ScalarOptionType<void>);
     TEST(ScalarOptionType<bool>);

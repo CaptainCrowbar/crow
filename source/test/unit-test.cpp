@@ -724,6 +724,10 @@ void options_anonymous_test_group() {
     UNIT_TEST(crow_options_anonymous)
 }
 
+void options_arithmetic_test_group() {
+    UNIT_TEST(crow_options_arithmetic_random)
+}
+
 void options_boolean_test_group() {
     UNIT_TEST(crow_options_boolean)
 }
@@ -762,7 +766,7 @@ void options_required_test_group() {
 }
 
 void options_traits_test_group() {
-    UNIT_TEST(crow_options_concepts)
+    UNIT_TEST(crow_options_traits_concepts)
 }
 
 void options_types_test_group() {
@@ -1295,6 +1299,7 @@ int main(int argc, char** argv) {
     net_tcp_test_group();
     noise_test_group();
     options_anonymous_test_group();
+    options_arithmetic_test_group();
     options_boolean_test_group();
     options_container_test_group();
     options_enumeration_test_group();
