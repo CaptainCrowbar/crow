@@ -5,8 +5,10 @@
 #include "crow/types.hpp"
 #include "crow/unicode.hpp"
 #include <algorithm>
+#include <compare>
 #include <concepts>
 #include <cstdlib>
+#include <cstring>
 #include <limits>
 #include <stdexcept>
 #include <string>
@@ -15,6 +17,46 @@
 #include <typeinfo>
 #include <utility>
 #include <vector>
+
+#if __apple_build_version__ / 10000 == 1400
+
+    // Missing comparison operators in Xcode 14
+
+    namespace std {
+
+        template <typename C, typename T>
+        constexpr std::strong_ordering operator<=>
+        (std::basic_string_view<C, T> s, std::basic_string_view<C, T> t) noexcept {
+            size_t n = std::min(s.size(), t.size());
+            int c = std::memcmp(s.data(), t.data(), n);
+            return c == 0 ? s.size() <=> t.size() : Crow::to_order(c);
+        }
+
+        template <typename C, typename T, typename A>
+        constexpr std::strong_ordering operator<=>
+        (const std::basic_string<C, T, A>& s, const std::basic_string<C, T, A>& t) noexcept {
+            std::basic_string_view<C, T> v(s);
+            std::basic_string_view<C, T> w(t);
+            return v <=> w;
+        }
+
+        template <typename C, typename T, typename A>
+        constexpr std::strong_ordering operator<=>
+        (const std::basic_string<C, T, A>& s, const std::basic_string_view<C, T>& t) noexcept {
+            std::basic_string_view<C, T> v(s);
+            return v <=> t;
+        }
+
+        template <typename C, typename T, typename A>
+        constexpr std::strong_ordering operator<=>
+        (const std::basic_string_view<C, T>& s, const std::basic_string<C, T, A>& t) noexcept {
+            std::basic_string_view<C, T> w(t);
+            return s <=> w;
+        }
+
+    }
+
+#endif
 
 namespace Crow {
 
@@ -30,11 +72,11 @@ namespace Crow {
     constexpr bool ascii_isdigit(char c) noexcept { return c >= '0' && c <= '9'; }
     constexpr bool ascii_isxdigit(char c) noexcept { return ascii_isdigit(c) || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'); }
     constexpr bool ascii_isalnum(char c) noexcept { return ascii_isdigit(c) || ascii_isalpha(c); }
-    constexpr bool ascii_isgraph(char c) noexcept { return c >= 33 && c <= 126; }
-    constexpr bool ascii_isprint(char c) noexcept { return c >= 32 && c <= 126; }
+    constexpr bool ascii_isgraph(char c) noexcept { return c >= 0x21 && c <= 0x7e; }
+    constexpr bool ascii_isprint(char c) noexcept { return c >= 0x20 && c <= 0x7e; }
     constexpr bool ascii_ispunct(char c) noexcept { return ascii_isgraph(c) && ! ascii_isalnum(c); }
     constexpr bool ascii_isspace(char c) noexcept { return c == '\t' || c == '\n' || c == '\f' || c == '\r' || c == ' '; }
-    constexpr bool ascii_iscntrl(char c) noexcept { auto u = static_cast<unsigned char>(c); return u <= 31 || u == 127; }
+    constexpr bool ascii_iscntrl(char c) noexcept { auto u = static_cast<unsigned char>(c); return u <= 0x1f || u == 0x7f; }
     constexpr bool ascii_isalnum_w(char c) noexcept { return ascii_isalnum(c) || c == '_'; }
     constexpr bool ascii_isalpha_w(char c) noexcept { return ascii_isalpha(c) || c == '_'; }
     constexpr bool ascii_ispunct_w(char c) noexcept { return ascii_ispunct(c) && c != '_'; }

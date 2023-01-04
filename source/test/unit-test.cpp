@@ -1024,6 +1024,7 @@ void string_literals_test_group() {
 }
 
 void string_manipulation_test_group() {
+    UNIT_TEST(crow_string_comparison)
     UNIT_TEST(crow_string_common_prefix)
     UNIT_TEST(crow_string_indentation)
     UNIT_TEST(crow_string_join)

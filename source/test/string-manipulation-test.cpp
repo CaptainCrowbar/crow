@@ -2,10 +2,52 @@
 #include "crow/format.hpp"
 #include "crow/unit-test.hpp"
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
 using namespace Crow;
+using namespace std::literals;
+
+void test_crow_string_comparison() {
+
+    TEST_EQUAL(format_object(""s <=> ""s),              "equal");
+    TEST_EQUAL(format_object(""s <=> "hello"s),         "less");
+    TEST_EQUAL(format_object("hello"s <=> ""s),         "greater");
+    TEST_EQUAL(format_object("hello"s <=> "hello"s),    "equal");
+    TEST_EQUAL(format_object("hell"s <=> "hello"s),     "less");
+    TEST_EQUAL(format_object("hello"s <=> "hell"s),     "greater");
+    TEST_EQUAL(format_object("hello"s <=> "world"s),    "less");
+    TEST_EQUAL(format_object("world"s <=> "hello"s),    "greater");
+
+    TEST_EQUAL(format_object(""sv <=> ""sv),            "equal");
+    TEST_EQUAL(format_object(""sv <=> "hello"sv),       "less");
+    TEST_EQUAL(format_object("hello"sv <=> ""sv),       "greater");
+    TEST_EQUAL(format_object("hello"sv <=> "hello"sv),  "equal");
+    TEST_EQUAL(format_object("hell"sv <=> "hello"sv),   "less");
+    TEST_EQUAL(format_object("hello"sv <=> "hell"sv),   "greater");
+    TEST_EQUAL(format_object("hello"sv <=> "world"sv),  "less");
+    TEST_EQUAL(format_object("world"sv <=> "hello"sv),  "greater");
+
+    TEST_EQUAL(format_object(""s <=> ""sv),             "equal");
+    TEST_EQUAL(format_object(""s <=> "hello"sv),        "less");
+    TEST_EQUAL(format_object("hello"s <=> ""sv),        "greater");
+    TEST_EQUAL(format_object("hello"s <=> "hello"sv),   "equal");
+    TEST_EQUAL(format_object("hell"s <=> "hello"sv),    "less");
+    TEST_EQUAL(format_object("hello"s <=> "hell"sv),    "greater");
+    TEST_EQUAL(format_object("hello"s <=> "world"sv),   "less");
+    TEST_EQUAL(format_object("world"s <=> "hello"sv),   "greater");
+
+    TEST_EQUAL(format_object(""sv <=> ""s),             "equal");
+    TEST_EQUAL(format_object(""sv <=> "hello"s),        "less");
+    TEST_EQUAL(format_object("hello"sv <=> ""s),        "greater");
+    TEST_EQUAL(format_object("hello"sv <=> "hello"s),   "equal");
+    TEST_EQUAL(format_object("hell"sv <=> "hello"s),    "less");
+    TEST_EQUAL(format_object("hello"sv <=> "hell"s),    "greater");
+    TEST_EQUAL(format_object("hello"sv <=> "world"s),   "less");
+    TEST_EQUAL(format_object("world"sv <=> "hello"s),   "greater");
+
+}
 
 void test_crow_string_common_prefix() {
 
