@@ -658,7 +658,7 @@ directory and the `recurse` flag is not used, if the caller does not have
 permission to remove the file, or in some circumstances, if the file is in
 use by another process.
 
-# File system query/update functions
+## File system query/update functions
 
 ```c++
 Path::time_point Path::access_time(flag_type flags = no_flags) const noexcept;
