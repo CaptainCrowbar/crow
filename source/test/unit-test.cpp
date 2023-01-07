@@ -726,6 +726,7 @@ void options_anonymous_test_group() {
 
 void options_arithmetic_test_group() {
     UNIT_TEST(crow_options_arithmetic_random)
+    UNIT_TEST(crow_options_arithmetic_random_nondefault)
 }
 
 void options_boolean_test_group() {

@@ -141,8 +141,8 @@ namespace Crow {
 
         static void validate_path(const std::string& name, flag_type flags);
 
-        template <Detail::ScalarOptionType T>
-            static T generate_random();
+        template <ArithmeticType T>
+            static T generate_random(T max);
         template <Detail::ScalarOptionType T>
             static T parse_argument(const std::string& arg);
         template <Detail::ScalarOptionType T>
@@ -185,13 +185,11 @@ namespace Crow {
             } else if constexpr (ScalarOptionType<T>) {
 
                 if (has_bit(flags, random)) {
-                    if constexpr (ArithmeticType<T>) {
-                        if (var != 0)
-                            throw setup_error("Default value cannot be used with random generation: --" + name);
-                        generator = [&var] { var = generate_random<T>(); };
-                    } else {
+                    if constexpr (ArithmeticType<T>)
+                        generator = [&var,max=var] { var = generate_random<T>(max); };
+                    else
                         throw setup_error("Invalid variable type for random generation: --" + name);
-                    }
+
                 }
 
                 setter = [&var] (const std::string& str) { var = parse_argument<T>(str); };
@@ -212,9 +210,10 @@ namespace Crow {
 
                 if (has_bit(flags, random)) {
                     if constexpr (ArithmeticType<V>) {
-                        if (! var.empty())
-                            throw setup_error("Default value cannot be used with random generation: --" + name);
-                        generator = [&var] { var.insert(var.end(), generate_random<V>()); };
+                        if (var.size() > 1)
+                            throw setup_error("Invalid initial value: --" + name);
+                        V max = var.empty() ? V(0) : *var.begin();
+                        generator = [&var,max] { var.insert(var.end(), generate_random<V>(max)); };
                     } else {
                         throw setup_error("Invalid variable type for random generation: --" + name);
                     }
@@ -246,13 +245,22 @@ namespace Crow {
 
         }
 
-        template <Detail::ScalarOptionType T>
-        T Options::generate_random() {
-            auto rng = std::random_device();
-            if constexpr (std::floating_point<T>)
-                return UniformReal<T>()(rng);
-            else
-                return UniformInteger<T>(0, std::numeric_limits<T>::max())(rng);
+        template <ArithmeticType T>
+        T Options::generate_random(T max) {
+            std::random_device rng;
+            T result;
+            if constexpr (std::floating_point<T>) {
+                if (max <= 0)
+                    max = 1;
+                UniformReal<T> gen(0, max);
+                result = gen(rng);
+            } else {
+                if (max <= 0)
+                    max = std::numeric_limits<T>::max();
+                UniformInteger<T> gen(0, max);
+                result = gen(rng);
+            }
+            return result;
         }
 
         template <Detail::ScalarOptionType T>

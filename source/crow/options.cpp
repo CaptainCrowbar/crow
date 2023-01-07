@@ -277,21 +277,20 @@ namespace Crow {
             throw setup_error("Boolean options can't be anonymous: --" + info.name);
         if (info.kind == mode::boolean && has_bit(info.flags, required))
             throw setup_error("Boolean options can't be required: --" + info.name);
+        if (has_bits(info.flags, random | required))
+            throw setup_error("Required options can't have a random default: --" + info.name);
+        if (has_bit(info.flags, required) && ! group.empty())
+            throw setup_error("Required options can't be in a mutual exclusion group: --" + info.name);
+        if (has_bit(info.flags, not_exists) && has_bit(info.flags, dir_exists | file_exists))
+            throw setup_error("File cannot both exist and not exist: --" + info.name);
+        if (info.description.empty())
+            throw setup_error("Option description is empty: --" + info.name);
 
         if (has_bit(info.flags, anon)) {
             if (anon_complete)
                 throw setup_error("All anonymous arguments are already accounted for: --" + info.name);
             anon_complete = info.kind == mode::multiple;
         }
-
-        if (has_bit(info.flags, required) && ! group.empty())
-            throw setup_error("Required options can't be in a mutual exclusion group: --" + info.name);
-
-        if (has_bit(info.flags, not_exists) && has_bit(info.flags, dir_exists | file_exists))
-            throw setup_error("File cannot both exist and not exist: --" + info.name);
-
-        if (info.description.empty())
-            throw setup_error("Option description is empty: --" + info.name);
 
         options_.push_back(info);
 
@@ -342,7 +341,7 @@ namespace Crow {
             left.push_back(block);
             left_width = std::max(left_width, block.size());
             block = info.description;
-            bool show_default = ! has_bit(info.flags, no_default) && ! info.default_value.empty();
+            bool show_default = ! has_bit(info.flags, no_default | random) && ! info.default_value.empty();
 
             if (has_bit(info.flags, required) || show_default) {
                 if (block.back() == ')') {
