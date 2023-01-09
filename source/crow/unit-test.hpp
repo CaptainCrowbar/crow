@@ -105,7 +105,8 @@ namespace Crow::UnitTest {
             for (;;) {
                 if (mangled.empty())
                     break;
-                demangled.reset(abi::__cxa_demangle(mangled.data(), nullptr, nullptr, &status), std::free);
+                demangled.reset(abi::__cxa_demangle(mangled.data(), nullptr, nullptr, &status),
+                    std::free);
                 if (status == -1)
                     throw std::bad_alloc();
                 if (status == 0 && demangled)
@@ -122,7 +123,9 @@ namespace Crow::UnitTest {
 
     template <typename T>
     class Counted {
+
     public:
+
         Counted(): value_() { ++number(); }
         Counted(const T& t): value_(t) { ++number(); }
         Counted(const Counted& c): value_(c.value_) { ++number(); }
@@ -131,14 +134,17 @@ namespace Crow::UnitTest {
         Counted& operator=(const Counted& c) = default;
         Counted& operator=(Counted&& c) noexcept { if (&c != this) value_ = std::exchange(c.value_, T()); return *this; }
         Counted& operator=(const T& t) { value_ = t; return *this; }
+
         T& operator*() noexcept { return value_; }
         const T& operator*() const noexcept { return value_; }
         T* operator->() noexcept { return &value_; }
         const T* operator->() const noexcept { return &value_; }
         const T& get() const noexcept { return value_; }
         void set(const T& t) { value_ = t; }
+
         static int count() noexcept { return number(); }
         static void reset() noexcept { number() = 0; }
+
         friend bool operator==(const Counted& a, const Counted& b) { return a.value_ == b.value_; }
         friend bool operator!=(const Counted& a, const Counted& b) { return ! (a == b); }
         friend bool operator<(const Counted& a, const Counted& b) { return a.value_ < b.value_; }
@@ -146,39 +152,81 @@ namespace Crow::UnitTest {
         friend bool operator<=(const Counted& a, const Counted& b) { return ! (b < a); }
         friend bool operator>=(const Counted& a, const Counted& b) { return ! (a < b); }
         friend std::ostream& operator<<(std::ostream& out, const Counted& c) { return out << c.value_; }
+
     private:
+
         T value_;
+
         static std::atomic<int>& number() noexcept { static std::atomic<int> n(0); return n; }
+
     };
 
     // Call these at the beginning and end of main()
 
     inline void begin_tests(int argc, char** argv) {
-        using namespace std::chrono;
+
+        namespace C = std::chrono;
+        namespace D = ::Crow::UnitTest::Detail;
+
+        static constexpr auto is_text = [] (char c) constexpr {
+            return (c >= '0' && c <= '9')
+                || (c >= 'A' && c <= 'Z')
+                || (c >= 'a' && c <= 'z');
+        };
+
         if (argc > 1) {
+
             std::string pattern_str;
-            for (int i = 1; i < argc; ++i)
-                pattern_str += "(" + std::string(argv[i]) + ")|";
+
+            for (int i = 1; i < argc; ++i) {
+
+                pattern_str += "(";
+                std::string arg = argv[i];
+                auto j = arg.begin();
+                auto ae = arg.end();
+
+                while (j != ae) {
+                    auto k = std::find_if_not(j, ae, is_text);
+                    pattern_str.append(j, k);
+                    j = std::find_if(k, ae, is_text);
+                    if (j != k)
+                        pattern_str += "[[:punct:]]+";
+                }
+
+                pattern_str += ")|";
+
+            }
+
             pattern_str.pop_back();
-            Detail::test_pattern = std::regex(pattern_str, std::regex::icase | std::regex::nosubs);
+            D::test_pattern = std::regex(pattern_str, std::regex::icase | std::regex::nosubs);
+
         }
+
         std::cout << "\n"
-            << Detail::info_style << "Running unit tests" << Detail::reset_style << "\n"
-            << Detail::delimiter_line << std::endl;
-        Detail::start_time = system_clock::now();
+            << D::info_style << "Running unit tests" << D::reset_style << "\n"
+            << D::delimiter_line << std::endl;
+        D::start_time = C::system_clock::now();
+
     }
 
     inline int end_tests() {
-        using namespace std::chrono;
-        auto time = system_clock::now() - Detail::start_time;
-        std::cout << Detail::delimiter_line << "\n";
-        double seconds = 1e-9 * duration_cast<nanoseconds>(time).count();
-        if (Detail::failure_count == 0)
-            std::cout << Detail::pass_style << "OK: all tests passed" << Detail::reset_style << "\n";
+
+        namespace C = std::chrono;
+        namespace D = ::Crow::UnitTest::Detail;
+
+        auto time = C::system_clock::now() - D::start_time;
+        std::cout << D::delimiter_line << "\n";
+        double seconds = 1e-9 * C::duration_cast<C::nanoseconds>(time).count();
+
+        if (D::failure_count == 0)
+            std::cout << D::pass_style << "OK: all tests passed" << D::reset_style << "\n";
         else
-            std::cout << Detail::fail_style << "*** Tests failed: " << Detail::failure_count << Detail::reset_style << "\n";
-        std::cout << Detail::info_style << "Time: " << seconds << " s" << Detail::reset_style << "\n\n";
-        return int(Detail::failure_count > 0);
+            std::cout << D::fail_style << "*** Tests failed: " << D::failure_count << D::reset_style << "\n";
+
+        std::cout << D::info_style << "Time: " << seconds << " s" << D::reset_style << "\n\n";
+
+        return int(D::failure_count > 0);
+
     }
 
 }
@@ -198,15 +246,16 @@ namespace std {
 
 #define UNIT_TEST(name) \
     if (std::regex_search(# name, ::Crow::UnitTest::Detail::test_pattern)) { \
-        extern void test_##name(); \
+        extern void test_ ## name(); \
         try { \
-            std::string title(#name); \
-            std::replace(title.begin(), title.end(), '_', ' '); \
-            std::cout << ::Crow::UnitTest::Detail::info_style << "Test " << title << ::Crow::UnitTest::Detail::reset_style << std::endl; \
-            test_##name(); \
+            std::string _crow_title(# name); \
+            std::replace(_crow_title.begin(), _crow_title.end(), '_', ' '); \
+            std::cout << ::Crow::UnitTest::Detail::info_style << "Test " << _crow_title \
+                << ::Crow::UnitTest::Detail::reset_style << std::endl; \
+            test_ ## name(); \
         } \
-        catch (const std::exception& ex) { \
-            std::cout << ::Crow::UnitTest::Detail::fail_style << "*** " << ex.what() << std::endl; \
+        catch (const std::exception& _crow_ex) { \
+            std::cout << ::Crow::UnitTest::Detail::fail_style << "*** " << _crow_ex.what() << std::endl; \
         } \
     }
 
@@ -226,8 +275,8 @@ namespace std {
     try { \
         expr; \
     } \
-    catch (const std::exception& ex) { \
-        FAIL_TEST("Unexpected exception from " << # expr << ": " << ex.what()); \
+    catch (const std::exception& _crow_ex) { \
+        FAIL_TEST("Unexpected exception from " << # expr << ": " << _crow_ex.what()); \
     } \
     catch (...) { \
         FAIL_TEST("Unexpected exception from " << # expr); \
@@ -240,8 +289,8 @@ namespace std {
         if (! (expr)) \
             FAIL_TEST("Expression is false: " << # expr); \
     } \
-    catch (const std::exception& ex) { \
-        FAIL_TEST("Unexpected exception from " << # expr << ": " << ex.what()); \
+    catch (const std::exception& _crow_ex) { \
+        FAIL_TEST("Unexpected exception from " << # expr << ": " << _crow_ex.what()); \
     } \
     catch (...) { \
         FAIL_TEST("Unexpected exception from " << # expr); \
@@ -256,8 +305,8 @@ namespace std {
             return; \
         } \
     } \
-    catch (const std::exception& ex) { \
-        FAIL_TEST("Unexpected exception from " << # expr << ": " << ex.what()); \
+    catch (const std::exception& _crow_ex) { \
+        FAIL_TEST("Unexpected exception from " << # expr << ": " << _crow_ex.what()); \
         return; \
     } \
     catch (...) { \
@@ -269,15 +318,15 @@ namespace std {
 
 #define TEST_EQUAL(lhs, rhs) \
     try { \
-        auto lhs_value = (lhs); \
-        auto rhs_value = (rhs); \
-        if (lhs_value != rhs_value) \
+        auto _crow_lhs = (lhs); \
+        auto _crow_rhs = (rhs); \
+        if (_crow_lhs != _crow_rhs) \
             FAIL_TEST("Expressions are not equal: " \
-                << # lhs << " = " << lhs_value << ", " \
-                << # rhs << " = " << rhs_value); \
+                << # lhs << " = " << _crow_lhs << ", " \
+                << # rhs << " = " << _crow_rhs); \
     } \
-    catch (const std::exception& ex) { \
-        FAIL_TEST("Unexpected exception: " << ex.what()); \
+    catch (const std::exception& _crow_ex) { \
+        FAIL_TEST("Unexpected exception: " << _crow_ex.what()); \
     } \
     catch (...) { \
         FAIL_TEST("Unexpected exception"); \
@@ -287,25 +336,25 @@ namespace std {
     try { \
         using std::begin; \
         using std::end; \
-        auto lhs_it = begin(lhs); \
-        auto lhs_end = end(lhs); \
-        auto rhs_it = begin(rhs); \
-        auto rhs_end = end(rhs); \
-        auto lhs_size = std::distance(lhs_it, lhs_end); \
-        auto rhs_size = std::distance(rhs_it, rhs_end); \
-        if (lhs_size != rhs_size) \
+        auto _crow_lhs_it = begin(lhs); \
+        auto _crow_lhs_end = end(lhs); \
+        auto _crow_lhs_size = std::distance(_crow_lhs_it, _crow_lhs_end); \
+        auto _crow_rhs_it = begin(rhs); \
+        auto _crow_rhs_end = end(rhs); \
+        auto _crow_rhs_size = std::distance(_crow_rhs_it, _crow_rhs_end); \
+        if (_crow_lhs_size != _crow_rhs_size) \
             FAIL_TEST("Ranges have different lengths: " \
-                << # lhs << " [" << lhs_size << "], " \
-                << # rhs << " [" << rhs_size << "]"); \
-        int index_value = 0; \
-        for (; lhs_it != lhs_end; ++lhs_it, ++rhs_it, ++index_value) \
-            if (*lhs_it != *rhs_it) \
+                << # lhs << " [" << _crow_lhs_size << "], " \
+                << # rhs << " [" << _crow_rhs_size << "]"); \
+        int _crow_index = 0; \
+        for (; _crow_lhs_it != _crow_lhs_end; ++_crow_lhs_it, ++_crow_rhs_it, ++_crow_index) \
+            if (*_crow_lhs_it != *_crow_rhs_it) \
                 FAIL_TEST("Ranges are not equal: " \
-                    << # lhs << " [" << index_value << "] = " << *lhs_it << ", " \
-                    << # rhs << " [" << index_value << "] = " << *rhs_it); \
+                    << # lhs << " [" << _crow_index << "] = " << *_crow_lhs_it << ", " \
+                    << # rhs << " [" << _crow_index << "] = " << *_crow_rhs_it); \
     } \
-    catch (const std::exception& ex) { \
-        FAIL_TEST("Unexpected exception: " << ex.what()); \
+    catch (const std::exception& _crow_ex) { \
+        FAIL_TEST("Unexpected exception: " << _crow_ex.what()); \
     } \
     catch (...) { \
         FAIL_TEST("Unexpected exception"); \
@@ -315,17 +364,17 @@ namespace std {
 
 #define TEST_IN_RANGE(expr, min, max) \
     try { \
-        auto expr_value = (expr); \
-        auto min_value = (min); \
-        auto max_value = (max); \
-        if (expr_value < min_value || expr_value > max_value) \
+        auto _crow_expr = (expr); \
+        auto _crow_min = (min); \
+        auto _crow_max = (max); \
+        if (_crow_expr < _crow_min || _crow_expr > _crow_max) \
             FAIL_TEST("Expression is out of range: " \
-                << # expr << " = " << expr_value << " vs " \
-                << # min << " = " << min_value << "," \
-                << # max << " = " << max_value); \
+                << # expr << " = " << _crow_expr << " vs " \
+                << # min << " = " << _crow_min << "," \
+                << # max << " = " << _crow_max); \
     } \
-    catch (const std::exception& ex) { \
-        FAIL_TEST("Unexpected exception: " << ex.what()); \
+    catch (const std::exception& _crow_ex) { \
+        FAIL_TEST("Unexpected exception: " << _crow_ex.what()); \
     } \
     catch (...) { \
         FAIL_TEST("Unexpected exception"); \
@@ -335,17 +384,17 @@ namespace std {
 
 #define TEST_NEAR(lhs, rhs, epsilon) \
     try { \
-        auto lhs_value = static_cast<long double>(lhs); \
-        auto rhs_value = static_cast<long double>(rhs); \
-        auto epsilon_value = static_cast<long double>(epsilon); \
-        if (std::abs(rhs_value - lhs_value) > epsilon_value) \
+        auto _crow_lhs = static_cast<long double>(lhs); \
+        auto _crow_rhs = static_cast<long double>(rhs); \
+        auto _crow_epsilon = static_cast<long double>(epsilon); \
+        if (std::abs(_crow_rhs - _crow_lhs) > _crow_epsilon) \
             FAIL_TEST("Expressions are not close enough: " \
-                << # lhs << " = " << lhs_value << ", " \
-                << # rhs << " = " << rhs_value << ", " \
-                << "epsilon = " << epsilon_value); \
+                << # lhs << " = " << _crow_lhs << ", " \
+                << # rhs << " = " << _crow_rhs << ", " \
+                << "epsilon = " << _crow_epsilon); \
     } \
-    catch (const std::exception& ex) { \
-        FAIL_TEST("Unexpected exception: " << ex.what()); \
+    catch (const std::exception& _crow_ex) { \
+        FAIL_TEST("Unexpected exception: " << _crow_ex.what()); \
     } \
     catch (...) { \
         FAIL_TEST("Unexpected exception"); \
@@ -355,15 +404,15 @@ namespace std {
 
 #define TEST_MATCH(expr, pattern) \
     try { \
-        auto expr_value = (expr); \
-        std::regex pattern_regex(pattern); \
-        if (! std::regex_search(expr_value, pattern_regex)) \
+        auto _crow_expr = (expr); \
+        std::regex _crow_pattern(pattern); \
+        if (! std::regex_search(_crow_expr, _crow_pattern)) \
             FAIL_TEST("Expression does not match regex: " \
-                << # expr << " = " << expr_value \
+                << # expr << " = " << _crow_expr \
                 << ", pattern = " << # pattern); \
     } \
-    catch (const std::exception& ex) { \
-        FAIL_TEST("Unexpected exception from " << # expr << ": " << ex.what()); \
+    catch (const std::exception& _crow_ex) { \
+        FAIL_TEST("Unexpected exception from " << # expr << ": " << _crow_ex.what()); \
     } \
     catch (...) { \
         FAIL_TEST("Unexpected exception from " << # expr); \
@@ -371,15 +420,15 @@ namespace std {
 
 #define TEST_MATCH_ICASE(expr, pattern) \
     try { \
-        auto expr_value = (expr); \
-        std::regex pattern_regex(pattern, std::regex::icase); \
-        if (! std::regex_search(expr_value, pattern_regex)) \
+        auto _crow_expr = (expr); \
+        std::regex _crow_pattern(pattern, std::regex::icase); \
+        if (! std::regex_search(_crow_expr, _crow_pattern)) \
             FAIL_TEST("Expression does not match regex: " \
-                << # expr << " = " << expr_value \
+                << # expr << " = " << _crow_expr \
                 << ", pattern = " << # pattern); \
     } \
-    catch (const std::exception& ex) { \
-        FAIL_TEST("Unexpected exception from " << # expr << ": " << ex.what()); \
+    catch (const std::exception& _crow_ex) { \
+        FAIL_TEST("Unexpected exception from " << # expr << ": " << _crow_ex.what()); \
     } \
     catch (...) { \
         FAIL_TEST("Unexpected exception from " << # expr); \
@@ -393,8 +442,8 @@ namespace std {
         FAIL_TEST("Expression failed to throw: " << # expr); \
     } \
     catch (const extype&) {} \
-    catch (const std::exception& ex) { \
-        FAIL_TEST("Unexpected exception from " << # expr << ": " << ex.what()); \
+    catch (const std::exception& _crow_ex) { \
+        FAIL_TEST("Unexpected exception from " << # expr << ": " << _crow_ex.what()); \
     } \
     catch (...) { \
         FAIL_TEST("Unexpected exception from " << # expr); \
@@ -407,16 +456,16 @@ namespace std {
         expr; \
         FAIL_TEST("Expression failed to throw: " << # expr); \
     } \
-    catch (const extype& ex) { \
-        std::string ex_what(ex.what()); \
-        std::string message_str(message); \
-        if (ex_what != message_str) \
+    catch (const extype& _crow_ex) { \
+        std::string _crow_what(_crow_ex.what()); \
+        std::string _crow_message(message); \
+        if (_crow_what != _crow_message) \
             FAIL_TEST("Exception message does not match: " \
-                << "what = " << ex_what \
-                << ", expected = " << message_str); \
+                << "what = " << _crow_what \
+                << ", expected = " << _crow_message); \
     } \
-    catch (const std::exception& ex) { \
-        FAIL_TEST("Unexpected exception from " << # expr << ": " << ex.what()); \
+    catch (const std::exception& _crow_ex) { \
+        FAIL_TEST("Unexpected exception from " << # expr << ": " << _crow_ex.what()); \
     } \
     catch (...) { \
         FAIL_TEST("Unexpected exception from " << # expr); \
@@ -427,16 +476,16 @@ namespace std {
         expr; \
         FAIL_TEST("Expression failed to throw: " << # expr); \
     } \
-    catch (const extype& ex) { \
-        std::string ex_what(ex.what()); \
-        std::regex pattern_regex(pattern, std::regex::icase); \
-        if (! std::regex_search(ex_what, pattern_regex)) \
+    catch (const extype& _crow_ex) { \
+        std::string _crow_what(_crow_ex.what()); \
+        std::regex _crow_pattern(pattern, std::regex::icase); \
+        if (! std::regex_search(_crow_what, _crow_pattern)) \
             FAIL_TEST("Exception message does not match regex: " \
-                << "what = " << ex_what \
+                << "what = " << _crow_what \
                 << ", pattern = " << std::string(pattern)); \
     } \
-    catch (const std::exception& ex) { \
-        FAIL_TEST("Unexpected exception from " << # expr << ": " << ex.what()); \
+    catch (const std::exception& _crow_ex) { \
+        FAIL_TEST("Unexpected exception from " << # expr << ": " << _crow_ex.what()); \
     } \
     catch (...) { \
         FAIL_TEST("Unexpected exception from " << # expr); \
