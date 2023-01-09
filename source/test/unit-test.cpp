@@ -686,6 +686,8 @@ void mp_integer_unsigned_conversion_test_group() {
 void multi_array_test_group() {
     UNIT_TEST(crow_multi_array_2d)
     UNIT_TEST(crow_multi_array_3d)
+    UNIT_TEST(crow_multi_array_bounded)
+    UNIT_TEST(crow_multi_array_compact)
 }
 
 void name_test_group() {

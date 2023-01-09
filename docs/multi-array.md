@@ -10,11 +10,14 @@ namespace Crow;
 ## Multi-dimensional array class
 
 ```c++
-template <std::copyable T, int N> class MultiArray;
+template <std::copyable T, int N, ContiguousContainerType C = std::vector<T>>
+requires (std::same_as<T, typename C::value_type> && N >= 1)
+class MultiArray;
 ```
 
 This class represents an `N`-dimensional array, indexed by a fixed-size vector
-of integers.
+of integers. The internal storage defaults to `std::vector<T>` but can be
+replaced with any contiguous variable-size container.
 
 Several of the constructors and member functions can accept a set of
 coordinates expressed either as a position vector, or as an explicit list of

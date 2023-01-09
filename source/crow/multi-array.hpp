@@ -14,12 +14,11 @@
 
 namespace Crow {
 
-    template <std::copyable T, int N>
+    template <std::copyable T, int N, ContiguousContainerType C = std::vector<T>>
+    requires (std::same_as<T, typename C::value_type> && N >= 1)
     class MultiArray {
 
     private:
-
-        static_assert(N >= 1);
 
         template <typename CMA, typename CT>
         class basic_iterator:
@@ -52,7 +51,7 @@ namespace Crow {
             int index_;
 
             basic_iterator(CMA& owner, int index) noexcept:
-                owner_(&owner), data_(owner.vec_.data()), index_(index) {}
+                owner_(&owner), data_(owner.store_.data()), index_(index) {}
 
         };
 
@@ -90,8 +89,8 @@ namespace Crow {
         const_iterator begin() const noexcept { return const_iterator(*this, 0); }
         iterator end() noexcept { return iterator(*this, int(size())); }
         const_iterator end() const noexcept { return const_iterator(*this, int(size())); }
-        T* data() noexcept { return vec_.data(); }
-        const T* data() const noexcept { return vec_.data(); }
+        T* data() noexcept { return store_.data(); }
+        const T* data() const noexcept { return store_.data(); }
 
         iterator locate(const position& p) noexcept { return iterator(*this, position_to_index(p)); }
         const_iterator locate(const position& p) const noexcept { return const_iterator(*this, position_to_index(p)); }
@@ -99,12 +98,12 @@ namespace Crow {
             { return iterator(*this, position_to_index({x, args...})); }
         template <typename... Args> const_iterator locate(int_arg<Args...> x, Args... args) const noexcept
             { return const_iterator(*this, position_to_index({x, args...})); }
-        T& ref(const position& p) noexcept { return vec_[position_to_index(p)]; }
+        T& ref(const position& p) noexcept { return store_[position_to_index(p)]; }
         template <typename... Args> T& ref(int_arg<Args...> x, Args... args) noexcept
-            { return vec_[position_to_index({x, args...})]; }
-        const T& get(const position& p) const noexcept { return vec_[position_to_index(p)]; }
+            { return store_[position_to_index({x, args...})]; }
+        const T& get(const position& p) const noexcept { return store_[position_to_index(p)]; }
         template <typename... Args> const T& get(int_arg<Args...> x, Args... args) const noexcept
-            { return vec_[position_to_index({x, args...})]; }
+            { return store_[position_to_index({x, args...})]; }
 
         bool contains(const position& p) const noexcept;
         template <typename... Args> bool contains(int_arg<Args...> x, Args... args) const noexcept
@@ -113,7 +112,7 @@ namespace Crow {
         position shape() const noexcept { return shape_; }
         size_t size() const noexcept { return size_t(factors_[N]); }
 
-        void clear() noexcept { shape_ = position(0); vec_.clear(); }
+        void clear() noexcept { shape_ = position(0); store_.clear(); }
         void fill(const T& t) { std::fill(begin(), end(), t); }
 
         void reset(const position& shape) { do_reset(shape); }
@@ -129,45 +128,50 @@ namespace Crow {
 
     private:
 
-        std::vector<T> vec_;
+        C store_;
         position shape_{0};
         Vector<int, N + 1> factors_;
 
         void do_reset(const position& shape, const T& t = {});
         position index_to_position(int i) const noexcept;
-        int position_to_index(const position& p) const noexcept;
+        int position_to_index(const position& p) const noexcept
+            { return std::inner_product(p.begin(), p.end(), factors_.begin(), 0); }
 
     };
 
-        template <std::copyable T, int N>
-        bool MultiArray<T, N>::contains(const position& p) const noexcept {
+        template <std::copyable T, int N, ContiguousContainerType C>
+        requires (std::same_as<T, typename C::value_type> && N >= 1)
+        bool MultiArray<T, N, C>::contains(const position& p) const noexcept {
             for (int i = 0; i < N; ++i)
                 if (p[i] < 0 || p[i] >= shape_[i])
                     return false;
             return true;
         }
 
-        template <std::copyable T, int N>
-        void MultiArray<T, N>::swap(MultiArray& a) noexcept {
-            std::swap(vec_, a.vec_);
+        template <std::copyable T, int N, ContiguousContainerType C>
+        requires (std::same_as<T, typename C::value_type> && N >= 1)
+        void MultiArray<T, N, C>::swap(MultiArray& a) noexcept {
+            std::swap(store_, a.store_);
             std::swap(shape_, a.shape_);
             std::swap(factors_, a.factors_);
         }
 
-        template <std::copyable T, int N>
-        void MultiArray<T, N>::do_reset(const position& shape, const T& t) {
+        template <std::copyable T, int N, ContiguousContainerType C>
+        requires (std::same_as<T, typename C::value_type> && N >= 1)
+        void MultiArray<T, N, C>::do_reset(const position& shape, const T& t) {
             size_t old_size = factors_[N];
             shape_ = shape;
             factors_[0] = 1;
             for (int i = 0; i < N; ++i)
                 factors_[i + 1] = factors_[i] * shape_[i];
             size_t new_size = factors_[N];
-            vec_.resize(size_t(new_size), t);
-            std::fill(vec_.begin(), vec_.begin() + std::min(old_size, new_size), t);
+            store_.resize(size_t(new_size), t);
+            std::fill(store_.begin(), store_.begin() + std::min(old_size, new_size), t);
         }
 
-        template <std::copyable T, int N>
-        typename MultiArray<T, N>::position MultiArray<T, N>::index_to_position(int i) const noexcept {
+        template <std::copyable T, int N, ContiguousContainerType C>
+        requires (std::same_as<T, typename C::value_type> && N >= 1)
+        typename MultiArray<T, N, C>::position MultiArray<T, N, C>::index_to_position(int i) const noexcept {
             position p(0);
             if (! empty()) {
                 for (int j = N - 1; j >= 0; --j) {
@@ -176,11 +180,6 @@ namespace Crow {
                 }
             }
             return p;
-        }
-
-        template <std::copyable T, int N>
-        int MultiArray<T, N>::position_to_index(const position& p) const noexcept {
-            return std::inner_product(p.begin(), p.end(), factors_.begin(), 0);
         }
 
 }
