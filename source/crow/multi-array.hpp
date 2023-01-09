@@ -1,17 +1,20 @@
 #pragma once
 
+#include "crow/iterator.hpp"
 #include "crow/maths.hpp"
 #include "crow/types.hpp"
 #include "crow/vector.hpp"
 #include <algorithm>
+#include <compare>
+#include <concepts>
 #include <iterator>
-#include <memory>
 #include <numeric>
 #include <type_traits>
+#include <vector>
 
 namespace Crow {
 
-    template <typename T, int N>
+    template <std::copyable T, int N>
     class MultiArray {
 
     private:
@@ -19,27 +22,19 @@ namespace Crow {
         static_assert(N >= 1);
 
         template <typename CMA, typename CT>
-        class basic_iterator {
-        public:
+        class basic_iterator:
+        public BidirectionalIterator<basic_iterator<CMA, CT>, CT> {
 
-            using difference_type = int;
-            using iterator_category = std::forward_iterator_tag;
-            using pointer = CT*;
-            using reference = CT&;
-            using value_type = T;
+        public:
 
             basic_iterator() = default;
             basic_iterator(const basic_iterator<std::remove_const_t<CMA>, std::remove_const_t<CT>>& i):
                 owner_(i.owner_), data_(i.data_), index_(i.index_) {}
 
             CT& operator*() const noexcept { return data_[index_]; }
-            CT* operator->() const noexcept { return &**this; }
-
             basic_iterator& operator++() noexcept { ++index_; return *this; }
-            basic_iterator operator++(int) noexcept { auto i = *this; ++*this; return i; }
-
+            basic_iterator& operator--() noexcept { --index_; return *this; }
             bool operator==(const basic_iterator& i) const noexcept { return index_ == i.index_; }
-            bool operator!=(const basic_iterator& i) const noexcept { return ! (*this == i); }
 
             basic_iterator& move(int axis, int distance = 1) noexcept {
                 index_ += owner_->factors_[axis] * distance;
@@ -57,12 +52,12 @@ namespace Crow {
             int index_;
 
             basic_iterator(CMA& owner, int index) noexcept:
-                owner_(&owner), data_(owner.data_.get()), index_(index) {}
+                owner_(&owner), data_(owner.vec_.data()), index_(index) {}
 
         };
 
         template <typename... Args>
-            using int_args = std::enable_if_t<sizeof...(Args) + 1 == N, int>;
+            using int_arg = std::enable_if_t<sizeof...(Args) + 1 == N, int>;
 
     public:
 
@@ -74,107 +69,77 @@ namespace Crow {
         static constexpr int dim = N;
 
         MultiArray() = default;
-        explicit MultiArray(const position& shape);
-        explicit MultiArray(const position& shape, const T& t);
-        template <typename... Args>
-            explicit MultiArray(int_args<Args...> x, Args... args):
+        explicit MultiArray(const position& shape) { do_reset(shape); }
+        explicit MultiArray(const position& shape, const T& t) { do_reset(shape, t); }
+        template <typename... Args> explicit MultiArray(int_arg<Args...> x, Args... args):
             MultiArray(position(x, args...)) {}
-        MultiArray(const MultiArray& a);
+        MultiArray(const MultiArray& a) = default;
         MultiArray(MultiArray&& a) = default;
         ~MultiArray() = default;
-        MultiArray& operator=(const MultiArray& a) { auto b(a); swap(b); return *this; }
+        MultiArray& operator=(const MultiArray& a) = default;
         MultiArray& operator=(MultiArray&& a) = default;
 
         T& operator[](const position& p) noexcept { return ref(p); }
         const T& operator[](const position& p) const noexcept { return get(p); }
-        template <typename... Args>
-            T& operator()(int_args<Args...> x, Args... args) noexcept
+        template <typename... Args> T& operator()(int_arg<Args...> x, Args... args) noexcept
             { return ref(x, args...); }
-        template <typename... Args>
-            const T& operator()(int_args<Args...> x, Args... args) const noexcept
+        template <typename... Args> const T& operator()(int_arg<Args...> x, Args... args) const noexcept
             { return get(x, args...); }
 
         iterator begin() noexcept { return iterator(*this, 0); }
         const_iterator begin() const noexcept { return const_iterator(*this, 0); }
         iterator end() noexcept { return iterator(*this, int(size())); }
         const_iterator end() const noexcept { return const_iterator(*this, int(size())); }
-        T* data() noexcept { return data_.ref(); }
-        const T* data() const noexcept { return data_.get(); }
+        T* data() noexcept { return vec_.data(); }
+        const T* data() const noexcept { return vec_.data(); }
 
         iterator locate(const position& p) noexcept { return iterator(*this, position_to_index(p)); }
         const_iterator locate(const position& p) const noexcept { return const_iterator(*this, position_to_index(p)); }
-        template <typename... Args>
-            iterator locate(int_args<Args...> x, Args... args) noexcept
+        template <typename... Args> iterator locate(int_arg<Args...> x, Args... args) noexcept
             { return iterator(*this, position_to_index({x, args...})); }
-        template <typename... Args>
-            const_iterator locate(int_args<Args...> x, Args... args) const noexcept
+        template <typename... Args> const_iterator locate(int_arg<Args...> x, Args... args) const noexcept
             { return const_iterator(*this, position_to_index({x, args...})); }
-        T& ref(const position& p) noexcept { return data_[position_to_index(p)]; }
-        template <typename... Args>
-            T& ref(int_args<Args...> x, Args... args) noexcept
-            { return data_[position_to_index({x, args...})]; }
-        const T& get(const position& p) const noexcept { return data_[position_to_index(p)]; }
-        template <typename... Args>
-            const T& get(int_args<Args...> x, Args... args) const noexcept
-            { return data_[position_to_index({x, args...})]; }
+        T& ref(const position& p) noexcept { return vec_[position_to_index(p)]; }
+        template <typename... Args> T& ref(int_arg<Args...> x, Args... args) noexcept
+            { return vec_[position_to_index({x, args...})]; }
+        const T& get(const position& p) const noexcept { return vec_[position_to_index(p)]; }
+        template <typename... Args> const T& get(int_arg<Args...> x, Args... args) const noexcept
+            { return vec_[position_to_index({x, args...})]; }
 
         bool contains(const position& p) const noexcept;
-        template <typename... Args>
-            bool contains(int_args<Args...> x, Args... args) const noexcept
+        template <typename... Args> bool contains(int_arg<Args...> x, Args... args) const noexcept
             { return contains({x, args...}); }
         bool empty() const noexcept { return size() == 0; }
         position shape() const noexcept { return shape_; }
         size_t size() const noexcept { return size_t(factors_[N]); }
 
-        void clear() noexcept { shape_ = position(0); data_.reset(); }
+        void clear() noexcept { shape_ = position(0); vec_.clear(); }
         void fill(const T& t) { std::fill(begin(), end(), t); }
-        void reset(const position& shape) { MultiArray a(shape); swap(a); }
-        void reset(const position& shape, const T& t) { MultiArray a(shape, t); swap(a); }
-        template <typename... Args>
-            void reset(int_args<Args...> x, Args... args)
-            { MultiArray a(x, args...); swap(a); }
+
+        void reset(const position& shape) { do_reset(shape); }
+        void reset(const position& shape, const T& t) { do_reset(shape, t); }
+        template <typename... Args> void reset(int_arg<Args...> x, Args... args)
+            { do_reset(position(x, args...)); }
 
         void swap(MultiArray& a) noexcept;
         friend void swap(MultiArray& a, MultiArray& b) noexcept { a.swap(b); }
 
         friend bool operator==(const MultiArray& a, const MultiArray& b) noexcept
             { return a.shape_ == b.shape_ && std::equal(a.begin(), a.end(), b.begin(), b.end()); }
-        friend bool operator!=(const MultiArray& a, const MultiArray& b) noexcept { return ! (a == b); }
 
     private:
 
+        std::vector<T> vec_;
         position shape_{0};
         Vector<int, N + 1> factors_;
-        std::unique_ptr<T[]> data_;
 
+        void do_reset(const position& shape, const T& t = {});
         position index_to_position(int i) const noexcept;
         int position_to_index(const position& p) const noexcept;
-        void set_factors() noexcept;
 
     };
 
-        template <typename T, int N>
-        MultiArray<T, N>::MultiArray(const position& shape):
-        shape_(shape), factors_(), data_() {
-            set_factors();
-            data_.reset(new T[size()]);
-        }
-
-        template <typename T, int N>
-        MultiArray<T, N>::MultiArray(const position& shape, const T& t):
-        shape_(shape), factors_(), data_() {
-            set_factors();
-            data_.reset(new T[size()]);
-            fill(t);
-        }
-
-        template <typename T, int N>
-        MultiArray<T, N>::MultiArray(const MultiArray& a):
-        shape_(a.shape_), factors_(a.factors_), data_(new T[size()]) {
-            std::copy(a.begin(), a.end(), begin());
-        }
-
-        template <typename T, int N>
+        template <std::copyable T, int N>
         bool MultiArray<T, N>::contains(const position& p) const noexcept {
             for (int i = 0; i < N; ++i)
                 if (p[i] < 0 || p[i] >= shape_[i])
@@ -182,14 +147,26 @@ namespace Crow {
             return true;
         }
 
-        template <typename T, int N>
+        template <std::copyable T, int N>
         void MultiArray<T, N>::swap(MultiArray& a) noexcept {
+            std::swap(vec_, a.vec_);
             std::swap(shape_, a.shape_);
             std::swap(factors_, a.factors_);
-            std::swap(data_, a.data_);
         }
 
-        template <typename T, int N>
+        template <std::copyable T, int N>
+        void MultiArray<T, N>::do_reset(const position& shape, const T& t) {
+            size_t old_size = factors_[N];
+            shape_ = shape;
+            factors_[0] = 1;
+            for (int i = 0; i < N; ++i)
+                factors_[i + 1] = factors_[i] * shape_[i];
+            size_t new_size = factors_[N];
+            vec_.resize(size_t(new_size), t);
+            std::fill(vec_.begin(), vec_.begin() + std::min(old_size, new_size), t);
+        }
+
+        template <std::copyable T, int N>
         typename MultiArray<T, N>::position MultiArray<T, N>::index_to_position(int i) const noexcept {
             position p(0);
             if (! empty()) {
@@ -201,16 +178,9 @@ namespace Crow {
             return p;
         }
 
-        template <typename T, int N>
+        template <std::copyable T, int N>
         int MultiArray<T, N>::position_to_index(const position& p) const noexcept {
             return std::inner_product(p.begin(), p.end(), factors_.begin(), 0);
-        }
-
-        template <typename T, int N>
-        void MultiArray<T, N>::set_factors() noexcept {
-            factors_[0] = 1;
-            for (int i = 0; i < N; ++i)
-                factors_[i + 1] = factors_[i] * shape_[i];
         }
 
 }

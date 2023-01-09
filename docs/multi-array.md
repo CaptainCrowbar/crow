@@ -10,12 +10,11 @@ namespace Crow;
 ## Multi-dimensional array class
 
 ```c++
-template <typename T, int N> class MultiArray;
+template <std::copyable T, int N> class MultiArray;
 ```
 
 This class represents an `N`-dimensional array, indexed by a fixed-size vector
-of integers. The element type `T` must be copyable and movable; `N` must be a
-positive integer.
+of integers.
 
 Several of the constructors and member functions can accept a set of
 coordinates expressed either as a position vector, or as an explicit list of
@@ -25,24 +24,26 @@ number of arguments is correct and the arguments are all `int` or convertible
 to `int`.
 
 ```c++
-using MultiArray::iterator = [forward iterator];
-using MultiArray::const_iterator = [forward iterator];
+using MultiArray::iterator = [bidirectional iterator];
+using MultiArray::const_iterator = [bidirectional iterator];
 ```
 
 Iterators. The default iteration order visits every element once, with the
 first index (axis 0) varying fastest, and the last index (axis `N-1`) varying
 slowest.
 
-Iterators have two additional member functions: `move(axis,distance)` moves
-the iterator along the given axis by the given number of cells; `pos()`
-returns the position vector corresponding to the iterator's current position.
-For `move()`, behaviour is undefined if `axis<0` or `axis>=N`.
+Iterators have two additional member functions:
+
+* `move(axis,distance)` moves the iterator along the given axis by the given
+  number of cells.
+* `pos()` returns the position vector corresponding to the iterator's current
+  position. For `move()`, behaviour is undefined if `axis<0` or `axis>=N`.
 
 Iterators can be considered to exist in an infinite space (bounded in practise
 by the range of an `int`); moving an iterator outside the bounds of the array
-using `move()` is safe. Behaviour is undefined if any of `operator*()`,
-`operator++()`, `pos()`, or the comparison operators are called on an
-off-the-map iterator.
+using `move()` is safe. Behaviour is undefined if any of the dereferencing,
+increment, decrement, or comparison operators, or the `pos()` function, are
+called on an off-the-map iterator.
 
 ```c++
 using MultiArray::position = Vector<int, N>;
