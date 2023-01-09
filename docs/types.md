@@ -119,6 +119,7 @@ named category.
 ```c++
 template <typename T> concept SimpleContainerType;
 template <typename T> concept AssociativeContainerType;
+template <typename T> concept ContiguousContainerType;
 ```
 
 Simplified container concepts. These do not attempt to match all the formal
@@ -142,6 +143,9 @@ checks for:
 * `value.first, value.second`
 * `t[key]`
 * `t.contains(key), t.count(key), t.erase(key), t.find(key)`
+
+`ContiguousContainerType` matches `SimpleContainerType` and
+`std::ranges::contiguous_range`.
 
 ## Comparison functions
 

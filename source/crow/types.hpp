@@ -9,6 +9,7 @@
 #include <functional>
 #include <iterator>
 #include <limits>
+#include <ranges>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -274,6 +275,18 @@ namespace Crow {
             { t.erase(t.begin(), t.end()) };
             { t.find(k) } -> std::convertible_to<typename T::iterator>;
         };
+
+    template <typename T>
+    concept ContiguousContainerType = SimpleContainerType<T>
+        // Missing range concepts in Xcode 14
+        #if __apple_build_version__ / 10000 == 1400
+            && (requires (T t) {
+                { t.data() } -> std::same_as<typename T::value_type*>;
+            }
+        #else
+            && std::ranges::contiguous_range<T>
+        #endif
+        );
 
     // Comparison functions
 

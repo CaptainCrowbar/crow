@@ -267,6 +267,17 @@ void test_crow_types_concepts() {
     TEST((AssociativeContainerType<std::map<int, std::string>>));
     TEST((AssociativeContainerType<std::unordered_map<int, std::string>>));
 
+    TEST(! ContiguousContainerType<void>);
+    TEST(! ContiguousContainerType<int>);
+    TEST(! ContiguousContainerType<int[10]>);
+    TEST(ContiguousContainerType<std::string>);
+    TEST(! (ContiguousContainerType<std::array<int, 10>>));
+    TEST(! ContiguousContainerType<std::forward_list<int>>);
+    TEST(! ContiguousContainerType<std::list<int>>);
+    TEST(ContiguousContainerType<std::vector<int>>);
+    TEST((! ContiguousContainerType<std::map<int, std::string>>));
+    TEST((! ContiguousContainerType<std::unordered_map<int, std::string>>));
+
     TEST(Detail::StdOrderingType<std::partial_ordering>);
     TEST(Detail::StdOrderingType<std::strong_ordering>);
     TEST(Detail::StdOrderingType<std::weak_ordering>);
