@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.16)
 # and propagate the new version to version.hpp.
 
 project(Crow
-    VERSION 2.0.154
+    VERSION 2.0.155
     LANGUAGES CXX
 )
 
@@ -251,6 +251,7 @@ add_executable(${unittest}
     test/random-lcg-test.cpp
     test/random-non-arithmetic-test.cpp
     test/random-pcg-test.cpp
+    test/random-seed-test.cpp
     test/random-spatial-test.cpp
     test/random-xoshiro-test.cpp
     test/rational-test.cpp

@@ -906,6 +906,10 @@ void random_pcg_test_group() {
     UNIT_TEST(crow_random_pcg64)
 }
 
+void random_seed_test_group() {
+    UNIT_TEST(crow_random_seed_from_device)
+}
+
 void random_spatial_test_group() {
     UNIT_TEST(crow_random_vectors)
     UNIT_TEST(crow_random_point_in_sphere)
@@ -1334,6 +1338,7 @@ int main(int argc, char** argv) {
     random_lcg_test_group();
     random_non_arithmetic_test_group();
     random_pcg_test_group();
+    random_seed_test_group();
     random_spatial_test_group();
     random_xoshiro_test_group();
     rational_test_group();

@@ -10,6 +10,8 @@
 #include <array>
 #include <bit>
 #include <concepts>
+#include <functional>
+#include <random>
 #include <type_traits>
 
 namespace Crow {
@@ -96,10 +98,12 @@ namespace Crow {
         using result_type = Uint128;
         constexpr Lcg128() noexcept {}
         explicit constexpr Lcg128(Uint128 s) noexcept: state_(s) {}
+        explicit constexpr Lcg128(uint64_t s, uint64_t t) noexcept: state_{s, t} {}
         Uint128 constexpr operator()() noexcept { state_ = lcg128(state_); return state_; }
         bool constexpr operator==(const Lcg128& rhs) const noexcept { return state_ == rhs.state_; }
         bool constexpr operator!=(const Lcg128& rhs) const noexcept { return state_ != rhs.state_; }
         void constexpr seed(Uint128 s) noexcept { state_ = s; }
+        void constexpr seed(uint64_t s, uint64_t t) noexcept { state_ = {s, t}; }
         static constexpr Uint128 min() noexcept { return 0; }
         static constexpr Uint128 max() noexcept { return ~ Uint128(0); }
     private:
@@ -262,5 +266,57 @@ namespace Crow {
     // Default choice of RNG
 
     using StdRng = Pcg64;
+
+    // Seeding functions
+
+    template <typename RNG>
+    void seed_from_device(RNG& rng) {
+
+        using T = typename RNG::result_type;
+
+        std::random_device dev;
+        std::function<T()> gen;
+
+        if constexpr (sizeof(T) <= sizeof(uint32_t))
+
+            gen = [&dev] {
+                uint32_t x = dev();
+                return T(x);
+            };
+
+        else
+
+            gen = [&dev] {
+                uint64_t x = dev();
+                uint64_t y = dev();
+                return T((x << 32) | y);
+            };
+
+        if constexpr (requires (T t) { { rng.seed(t, t, t, t) }; }) {
+
+            auto s = gen();
+            auto t = gen();
+            auto u = gen();
+            auto v = gen();
+            rng.seed(s, t, u, v);
+
+        } else if constexpr (requires (T t) { { rng.seed(t, t) }; }) {
+
+            auto s = gen();
+            auto t = gen();
+            rng.seed(s, t);
+
+        } else if constexpr (requires (T t) { { rng.seed(t) }; }) {
+
+            auto s = gen();
+            rng.seed(s);
+
+        } else {
+
+            static_assert(dependent_false<RNG>, "Type not usable with seed_from_device()");
+
+        }
+
+    }
 
 }

@@ -84,10 +84,12 @@ class Lcg128 {
     using result_type = Uint128;
     constexpr Lcg128() noexcept; // seed(0)
     explicit constexpr Lcg128(Uint128 s) noexcept;
+    explicit constexpr Lcg128(uint64_t s, uint64_t t) noexcept;
     Uint128 constexpr operator()() noexcept;
     bool constexpr operator==(const Lcg128& rhs) const noexcept;
     bool constexpr operator!=(const Lcg128& rhs) const noexcept;
     void constexpr seed(Uint128 s) noexcept;
+    void constexpr seed(uint64_t s, uint64_t t) noexcept;
     static constexpr Uint128 min() noexcept;
     static constexpr Uint128 max() noexcept;
 };
@@ -143,6 +145,17 @@ using StdRng = Pcg64;
 
 A good generator to use as a default when we have a function that calls an RNG
 but we don't want to make it a template.
+
+### Seeding functions
+
+// Seeding functions
+
+```c++
+template <typename RNG> void seed_from_device(RNG& rng);
+```
+
+Seeds the RNG by calling `std::random_device()` enough times to provide the
+maximum number of seed arguments.
 
 ## Standard distributions
 
