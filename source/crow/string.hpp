@@ -196,9 +196,9 @@ namespace Crow {
 
     // String parsing functions
 
-    bool to_boolean(const std::string& str);
-    inline bool to_boolean(std::string_view str) { return to_boolean(std::string(str)); }
-    inline bool to_boolean(const char* str) { return str != nullptr && to_boolean(std::string(str)); }
+    bool to_boolean(std::string_view str);
+    inline bool to_boolean(const std::string& str) { return to_boolean(std::string_view(str)); }
+    inline bool to_boolean(const char* str) { return str != nullptr && to_boolean(std::string_view(str)); }
 
     template <std::integral T>
     T to_integer(const char* str, int base = 10) {

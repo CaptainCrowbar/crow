@@ -451,16 +451,26 @@ namespace Crow {
 
     // String parsing functions
 
-    bool to_boolean(const std::string& str) {
-        if (str.empty())
+    bool to_boolean(std::string_view str) {
+        auto n = str.size();
+        if (n == 0)
             return false;
-        auto lcstr = ascii_lowercase(str.substr(0, 6));
-        if (lcstr == "1" || lcstr == "t" || lcstr == "y" || lcstr == "true" || lcstr == "yes" || lcstr == "on")
-            return true;
-        else if (lcstr == "0" || lcstr == "f" || lcstr == "n" || lcstr == "false" || lcstr == "no" || lcstr == "off")
-            return false;
-        else
-            throw std::invalid_argument("Invalid boolean value: " + quote(str));
+        switch (str[0]) {
+            case '0':  if (n == 1) return false; break;
+            case '1':  if (n == 1) return true; break;
+            case 'F':  if (n == 1 || str == "FALSE" || str == "False") return false; break;
+            case 'N':  if (n == 1 || str == "NO" || str == "No") return false; break;
+            case 'O':  if (str == "OFF" || str == "Off") return false; if (str == "ON" || str == "On") return true; break;
+            case 'T':  if (n == 1 || str == "TRUE" || str == "True") return true; break;
+            case 'Y':  if (n == 1 || str == "YES" || str == "Yes") return true; break;
+            case 'f':  if (n == 1 || str == "false") return false; break;
+            case 'n':  if (n == 1 || str == "no") return false; break;
+            case 'o':  if (str == "off") return false; if (str == "on") return true; break;
+            case 't':  if (n == 1 || str == "true") return true; break;
+            case 'y':  if (n == 1 || str == "yes") return true; break;
+            default:   break;
+        }
+        throw std::invalid_argument("Invalid boolean value: " + quote(str));
     }
 
     // String query functions

@@ -260,15 +260,15 @@ character pointer, to avoid unnecessary copying. Apart from `to_boolean()`, an
 empty string or a null pointer will throw `std::invalid_argument`.
 
 ```c++
-bool to_boolean(const char* str);
 bool to_boolean(const std::string& str);
 bool to_boolean(std::string_view str);
+bool to_boolean(const char* str);
 ```
 
-Any of `"true"`, `"t"`, `"yes"`, `"y"`, `"on"`, or `"1"` return true;
+Any of `"true"`, `"t"`, `"yes"`, `"y"`, `"on"`, or `"1"` returns true;
 `"false"`, `"f"`, `"no"`, `"n"`, `"off"`, `"0"`, an empty string, or a null
-pointer return false (case insensitive). Any other argument throws
-`std::invalid_argument`.
+pointer returns false. The string can be in upper, lower, or title case. Any
+other argument throws `std::invalid_argument`.
 
 ```c++
 template <std::integral T> T to_integer(const std::string& str, int base = 10);
