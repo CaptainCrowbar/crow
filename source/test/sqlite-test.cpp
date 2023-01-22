@@ -4,6 +4,7 @@
 #include <chrono>
 #include <iostream>
 #include <string>
+#include <vector>
 
 using namespace Crow;
 using namespace Crow::Sqlite;
@@ -66,7 +67,8 @@ void test_crow_sqlite_connection() {
     TEST(! result.empty());
     TEST_EQUAL(result.columns(), 2);
 
-    std::string text;
+    std::vector<std::string> list;
+    std::string item;
     name.clear();
     int number = 0;
     count = 0;
@@ -77,16 +79,17 @@ void test_crow_sqlite_connection() {
         TEST(number >= 6);
         TEST(number <= 86);
         TEST_MATCH(name, "^[A-Z][a-z]+ (Mc)?[A-Z][a-z]+$");
-        text += std::to_string(number) + ": " + name + "\n";
+        item = fmt("{0}: {1}", number, name);
+        list.push_back(item);
     }
-    TEST_EQUAL(count, 4);
-    TEST_EQUAL(text,
-        "6: Patrick McGoohan\n"
-        "7: James Bond\n"
-        "42: Douglas Adams\n"
-        "86: Maxwell Smart\n"
-    );
+
     TEST(result.empty());
+    TEST_EQUAL(list.size(), 4u);
+    list.resize(4);
+    TEST_EQUAL(list[0], "6: Patrick McGoohan");
+    TEST_EQUAL(list[1], "7: James Bond");
+    TEST_EQUAL(list[2], "42: Douglas Adams");
+    TEST_EQUAL(list[3], "86: Maxwell Smart");
 
     TRY(count = int(dbc("select count(*) from tango")));
     TEST_EQUAL(count, 4);
@@ -94,5 +97,18 @@ void test_crow_sqlite_connection() {
     TEST_EQUAL(count, 3);
     TEST_THROW_MESSAGE(dbc("select count(*) from Nonesuch"), SqliteError,
         "Sqlite error 1 in sqlite3_prepare_v3(): SQL logic error: no such table: Nonesuch");
+
+    TRY(result = dbc("select sql from sqlite_master"));
+    list.clear();
+
+    for (auto& row: result) {
+        TRY(row.read(item));
+        list.push_back(item);
+    }
+
+    TEST_EQUAL(list.size(), 1u);
+    list.resize(1);
+    TEST_EQUAL(list[0],
+        "CREATE TABLE tango(number integer not null primary key,name text not null)");
 
 }
