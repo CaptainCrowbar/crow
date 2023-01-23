@@ -5,12 +5,13 @@
 #include <cmath>
 
 using namespace Crow;
+using namespace Crow::Literals;
 
 void test_crow_random_lcg_32() {
 
     static constexpr int bits = 32;
     static constexpr int iterations = 1'000'000;
-    static constexpr double max = double(~ uint32_t(0));
+    static constexpr double max = double(~ 0_u32);
     static constexpr double mean = max / 2;
     static const double sd = std::sqrt((std::ldexp(1.0, 2 * bits) - 1) / 12);
     static const double epsilon = 2 * mean / std::sqrt(double(iterations));
@@ -35,7 +36,7 @@ void test_crow_random_lcg_64() {
 
     static constexpr int bits = 64;
     static constexpr int iterations = 1'000'000;
-    static constexpr double max = double(~ uint64_t(0));
+    static constexpr double max = double(~ 0_u64);
     static constexpr double mean = max / 2;
     static const double sd = std::sqrt((std::ldexp(1.0, 2 * bits) - 1) / 12);
     static const double epsilon = 2 * mean / std::sqrt(double(iterations));

@@ -36,6 +36,7 @@
 
 #endif
 
+using namespace Crow::Literals;
 using namespace std::chrono;
 using namespace std::literals;
 
@@ -1381,7 +1382,7 @@ namespace Crow {
         // Trim trailing / and /.
 
         size_t root_size = get_root(filename_, true).size();
-        size_t min_root = std::max(root_size, size_t(1));
+        size_t min_root = std::max(root_size, 1_uz);
 
         while (filename_.size() > min_root && (filename_.back() == os_delimiter || (filename_.back() == OS_CHAR('.')
                 && filename_.end()[-2] == os_delimiter)))

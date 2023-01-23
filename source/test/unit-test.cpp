@@ -1020,11 +1020,11 @@ void string_character_test_group() {
 }
 
 void string_formatting_test_group() {
-    UNIT_TEST(crow_string_bin)
-    UNIT_TEST(crow_string_dec)
-    UNIT_TEST(crow_string_hex)
-    UNIT_TEST(crow_string_quote)
-    UNIT_TEST(crow_string_roman_numerals)
+    UNIT_TEST(crow_string_formatting_bin)
+    UNIT_TEST(crow_string_formatting_dec)
+    UNIT_TEST(crow_string_formatting_hex)
+    UNIT_TEST(crow_string_formatting_quote)
+    UNIT_TEST(crow_string_formatting_roman)
 }
 
 void string_literals_test_group() {

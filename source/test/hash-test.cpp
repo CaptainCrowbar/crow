@@ -9,6 +9,7 @@
 #include <vector>
 
 using namespace Crow;
+using namespace Crow::Literals;
 
 void test_crow_hash_mix() {
 
@@ -78,7 +79,7 @@ void test_crow_hash_siphash() {
 
     SipHash sip(key0, key1);
     std::array<uint8_t, 64> in;
-    std::iota(in.begin(), in.end(), uint8_t(0));
+    std::iota(in.begin(), in.end(), 0_u8);
     uint64_t out;
 
     for (int i = 0; i < 64; ++i) {

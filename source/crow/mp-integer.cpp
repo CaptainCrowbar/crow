@@ -3,6 +3,8 @@
 #include <cstring>
 #include <stdexcept>
 
+using namespace Crow::Literals;
+
 namespace Crow {
 
     namespace {
@@ -171,8 +173,8 @@ namespace Crow {
         if (rep_.empty())
             return 0;
         else
-            return 4 * (rep_.size() - 1) + size_t(rep_.back() > 0) + size_t(rep_.back() > size_t(0xff))
-                + size_t(rep_.back() > size_t(0xffff)) + size_t(rep_.back() > size_t(0xffffff));
+            return 4 * (rep_.size() - 1) + size_t(rep_.back() > 0) + size_t(rep_.back() > 0xff_uz)
+                + size_t(rep_.back() > 0xffff_uz) + size_t(rep_.back() > 0xff'ffff_uz);
     }
 
     bool MPN::get_bit(size_t i) const noexcept {
@@ -194,9 +196,9 @@ namespace Crow {
         if (b) {
             if (! in_rep)
                 rep_.resize(i / 32 + 1, 0);
-            rep_[i / 32] |= uint32_t(1) << (i % 32);
+            rep_[i / 32] |= 1_u32 << (i % 32);
         } else if (in_rep) {
-            rep_[i / 32] &= ~ (uint32_t(1) << (i % 32));
+            rep_[i / 32] &= ~ (1_u32 << (i % 32));
             trim();
         }
     }
@@ -211,7 +213,7 @@ namespace Crow {
     void MPN::flip_bit(size_t i) {
         if (i >= 32 * rep_.size())
             rep_.resize(i / 32 + 1, 0);
-        rep_[i / 32] ^= uint32_t(1) << (i % 32);
+        rep_[i / 32] ^= 1_u32 << (i % 32);
         trim();
     }
 

@@ -3,6 +3,7 @@
 #include <optional>
 
 using namespace Crow;
+using namespace Crow::Literals;
 
 void test_crow_binary_bit_manipulation() {
 
@@ -58,32 +59,32 @@ void test_crow_binary_byte_order() {
 
     // The tests here assume a little endian system
 
-    TEST_EQUAL(swap_ends(uint8_t(0x00)),                       0x00);
-    TEST_EQUAL(swap_ends(uint8_t(0xff)),                       0xff);
-    TEST_EQUAL(swap_ends(uint16_t(0x0000)),                    0x0000);
-    TEST_EQUAL(swap_ends(uint16_t(0x1234)),                    0x3412);
-    TEST_EQUAL(swap_ends(uint32_t(0x0000'0000ul)),             0x0000'0000ul);
-    TEST_EQUAL(swap_ends(uint32_t(0x1234'5678ul)),             0x7856'3412ul);
-    TEST_EQUAL(swap_ends(uint64_t(0x0000'0000'0000'0000ull)),  0x0000'0000'0000'0000ull);
-    TEST_EQUAL(swap_ends(uint64_t(0x1234'5678'9abc'def0ull)),  0xf0de'bc9a'7856'3412ull);
+    TEST_EQUAL(swap_ends(0x00_u8),                    0x00);
+    TEST_EQUAL(swap_ends(0xff_u8),                    0xff);
+    TEST_EQUAL(swap_ends(0x0000_u16),                 0x0000);
+    TEST_EQUAL(swap_ends(0x1234_u16),                 0x3412);
+    TEST_EQUAL(swap_ends(0x0000'0000_u32),            0x0000'0000ul);
+    TEST_EQUAL(swap_ends(0x1234'5678_u32),            0x7856'3412ul);
+    TEST_EQUAL(swap_ends(0x0000'0000'0000'0000_u64),  0x0000'0000'0000'0000ull);
+    TEST_EQUAL(swap_ends(0x1234'5678'9abc'def0_u64),  0xf0de'bc9a'7856'3412ull);
 
-    TEST_EQUAL(little_endian(uint8_t(0x00)),                       0x00);
-    TEST_EQUAL(little_endian(uint8_t(0xff)),                       0xff);
-    TEST_EQUAL(little_endian(uint16_t(0x0000)),                    0x0000);
-    TEST_EQUAL(little_endian(uint16_t(0x1234)),                    0x1234);
-    TEST_EQUAL(little_endian(uint32_t(0x0000'0000ul)),             0x0000'0000ul);
-    TEST_EQUAL(little_endian(uint32_t(0x1234'5678ul)),             0x1234'5678ul);
-    TEST_EQUAL(little_endian(uint64_t(0x0000'0000'0000'0000ull)),  0x0000'0000'0000'0000ull);
-    TEST_EQUAL(little_endian(uint64_t(0x1234'5678'9abc'def0ull)),  0x1234'5678'9abc'def0ull);
+    TEST_EQUAL(little_endian(0x00_u8),                    0x00);
+    TEST_EQUAL(little_endian(0xff_u8),                    0xff);
+    TEST_EQUAL(little_endian(0x0000_u16),                 0x0000);
+    TEST_EQUAL(little_endian(0x1234_u16),                 0x1234);
+    TEST_EQUAL(little_endian(0x0000'0000_u32),            0x0000'0000ul);
+    TEST_EQUAL(little_endian(0x1234'5678_u32),            0x1234'5678ul);
+    TEST_EQUAL(little_endian(0x0000'0000'0000'0000_u64),  0x0000'0000'0000'0000ull);
+    TEST_EQUAL(little_endian(0x1234'5678'9abc'def0_u64),  0x1234'5678'9abc'def0ull);
 
-    TEST_EQUAL(big_endian(uint8_t(0x00)),                       0x00);
-    TEST_EQUAL(big_endian(uint8_t(0xff)),                       0xff);
-    TEST_EQUAL(big_endian(uint16_t(0x0000)),                    0x0000);
-    TEST_EQUAL(big_endian(uint16_t(0x1234)),                    0x3412);
-    TEST_EQUAL(big_endian(uint32_t(0x0000'0000ul)),             0x0000'0000ul);
-    TEST_EQUAL(big_endian(uint32_t(0x1234'5678ul)),             0x7856'3412ul);
-    TEST_EQUAL(big_endian(uint64_t(0x0000'0000'0000'0000ull)),  0x0000'0000'0000'0000ull);
-    TEST_EQUAL(big_endian(uint64_t(0x1234'5678'9abc'def0ull)),  0xf0de'bc9a'7856'3412ull);
+    TEST_EQUAL(big_endian(0x00_u8),                    0x00);
+    TEST_EQUAL(big_endian(0xff_u8),                    0xff);
+    TEST_EQUAL(big_endian(0x0000_u16),                 0x0000);
+    TEST_EQUAL(big_endian(0x1234_u16),                 0x3412);
+    TEST_EQUAL(big_endian(0x0000'0000_u32),            0x0000'0000ul);
+    TEST_EQUAL(big_endian(0x1234'5678_u32),            0x7856'3412ul);
+    TEST_EQUAL(big_endian(0x0000'0000'0000'0000_u64),  0x0000'0000'0000'0000ull);
+    TEST_EQUAL(big_endian(0x1234'5678'9abc'def0_u64),  0xf0de'bc9a'7856'3412ull);
 
     static constexpr uint8_t a = 0x12;
     static constexpr uint16_t b = 0x1234;

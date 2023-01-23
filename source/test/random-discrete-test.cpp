@@ -6,6 +6,7 @@
 #include <map>
 
 using namespace Crow;
+using namespace Crow::Literals;
 
 void test_crow_random_bernoulli_distribution() {
 
@@ -98,7 +99,7 @@ void test_crow_random_uniform_integer_distribution() {
     TEST_NEAR(census[3] / double(iterations), 0.25, 0.002);
     TEST_NEAR(census[4] / double(iterations), 0.25, 0.002);
 
-    UniformInteger dist3(uint64_t(0), ~ uint64_t(0));
+    UniformInteger dist3(0_u64, ~ 0_u64);
     uint64_t u = 0;
     double w = 0;
     double sum = 0;
