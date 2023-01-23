@@ -311,15 +311,21 @@ void test_crow_types_comparison_functions() {
 
 void test_crow_types_literals() {
 
-    { auto x = 123_s8;         TEST_TYPE(decltype(x), std::int8_t);     TEST_EQUAL(x, 123); }
-    { auto x = 12345_s16;      TEST_TYPE(decltype(x), std::int16_t);    TEST_EQUAL(x, 12345); }
-    { auto x = 123456789_s32;  TEST_TYPE(decltype(x), std::int32_t);    TEST_EQUAL(x, 123456789l); }
-    { auto x = 123456789_s64;  TEST_TYPE(decltype(x), std::int64_t);    TEST_EQUAL(x, 123456789ll); }
-    { auto x = 123_u8;         TEST_TYPE(decltype(x), std::uint8_t);    TEST_EQUAL(x, 123u); }
-    { auto x = 12345_u16;      TEST_TYPE(decltype(x), std::uint16_t);   TEST_EQUAL(x, 12345u); }
-    { auto x = 123456789_u32;  TEST_TYPE(decltype(x), std::uint32_t);   TEST_EQUAL(x, 123456789ul); }
-    { auto x = 123456789_u64;  TEST_TYPE(decltype(x), std::uint64_t);   TEST_EQUAL(x, 123456789ull); }
-    { auto x = 12345_z;        TEST_TYPE(decltype(x), std::ptrdiff_t);  TEST_EQUAL(x, 12345); }
-    { auto x = 12345_uz;       TEST_TYPE(decltype(x), std::size_t);     TEST_EQUAL(x, 12345u); }
+    { auto x = 123_s8;                TEST_TYPE(decltype(x), std::int8_t);     TEST_EQUAL(x, 123); }
+    { auto x = 12345_s16;             TEST_TYPE(decltype(x), std::int16_t);    TEST_EQUAL(x, 12'345); }
+    { auto x = 123456789_s32;         TEST_TYPE(decltype(x), std::int32_t);    TEST_EQUAL(x, 123'456'789l); }
+    { auto x = 123456789_s64;         TEST_TYPE(decltype(x), std::int64_t);    TEST_EQUAL(x, 123'456'789ll); }
+    { auto x = 123_u8;                TEST_TYPE(decltype(x), std::uint8_t);    TEST_EQUAL(x, 123u); }
+    { auto x = 12345_u16;             TEST_TYPE(decltype(x), std::uint16_t);   TEST_EQUAL(x, 12'345u); }
+    { auto x = 123456789_u32;         TEST_TYPE(decltype(x), std::uint32_t);   TEST_EQUAL(x, 123'456'789ul); }
+    { auto x = 123456789_u64;         TEST_TYPE(decltype(x), std::uint64_t);   TEST_EQUAL(x, 123'456'789ull); }
+    { auto x = 12345_z;               TEST_TYPE(decltype(x), std::ptrdiff_t);  TEST_EQUAL(x, 12'345); }
+    { auto x = 12345_uz;              TEST_TYPE(decltype(x), std::size_t);     TEST_EQUAL(x, 12'345u); }
+    { auto x = 0xfedcba98_u32;        TEST_TYPE(decltype(x), std::uint32_t);   TEST_EQUAL(x, 0xfedc'ba98ul); }
+    { auto x = 0b101100111000_u32;    TEST_TYPE(decltype(x), std::uint32_t);   TEST_EQUAL(x, 0b1011'0011'1000ul); }
+    { auto x = 123'456'789_s32;       TEST_TYPE(decltype(x), std::int32_t);    TEST_EQUAL(x, 123'456'789l); }
+    { auto x = 123'456'789_u32;       TEST_TYPE(decltype(x), std::uint32_t);   TEST_EQUAL(x, 123'456'789ul); }
+    { auto x = 0xfedc'ba98_u32;       TEST_TYPE(decltype(x), std::uint32_t);   TEST_EQUAL(x, 0xfedc'ba98ul); }
+    { auto x = 0b1011'0011'1000_u32;  TEST_TYPE(decltype(x), std::uint32_t);   TEST_EQUAL(x, 0b1011'0011'1000ul); }
 
 }

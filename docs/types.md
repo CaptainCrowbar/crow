@@ -229,4 +229,5 @@ namespace Literals {
 }
 ```
 
-Integer literals.
+Integer literals. The standard `0b` and `0x` prefixes are understood, and
+apostrophe delimiters are allowed.
