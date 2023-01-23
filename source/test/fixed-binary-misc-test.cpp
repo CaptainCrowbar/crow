@@ -3,6 +3,7 @@
 #include <unordered_set>
 
 using namespace Crow;
+using namespace Crow::Literals;
 
 void test_crow_fixed_binary_implementation_selection() {
 
@@ -103,6 +104,15 @@ void test_crow_fixed_binary_string_parsing() {
     TEST(LargeBinary<35>::try_parse_dec("1234567890", y));          TEST_EQUAL(uint64_t(y), 1234567890ull);
     TEST(LargeBinary<35>::try_parse_hex("123456789", y));           TEST_EQUAL(uint64_t(y), 0x123456789ull);
     TEST(LargeBinary<35>::try_parse_bin("101010110011001100", y));  TEST_EQUAL(uint64_t(y), 0x00002acccull);
+
+    Uint128 u;
+
+    TRY(u = 123456789123456789123456789123456789_u128);
+    TEST_EQUAL(u.dec(), "123456789123456789123456789123456789");
+    TRY(u = 0x123456789abcdef123456789abcdef_u128);
+    TEST_EQUAL(u.hex(), "00123456789abcdef123456789abcdef");
+    TRY(u = 0b10101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010_u128);
+    TEST_EQUAL(u.bin(), "10101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010");
 
 }
 

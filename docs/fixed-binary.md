@@ -73,10 +73,10 @@ Constructor from a list of 64-bit integers, in big-endian order. Any excess
 bits are discarded.
 
 ```c++
-explicit Binary::Binary(const std::string& str);
+explicit Binary::Binary(std::string_view str);
 ```
 
-The string constructor calls `parse_dec()` and follows the same rules.
+The string constructor calls `parse()` and follows the same rules.
 
 ```c++
 constexpr Binary::Binary(const Binary& x) noexcept;
@@ -220,18 +220,21 @@ static Binary Binary::max() noexcept;
 Returns the maximum value of the type (the complement of zero).
 
 ```c++
-static Binary Binary::parse_bin(const std::string& str);
-static Binary Binary::parse_dec(const std::string& str);
-static Binary Binary::parse_hex(const std::string& str);
-static bool Binary::try_parse_bin(const std::string& str, Binary& x) noexcept;
-static bool Binary::try_parse_dec(const std::string& str, Binary& x) noexcept;
-static bool Binary::try_parse_hex(const std::string& str, Binary& x) noexcept;
+static Binary Binary::parse(std::string_view str);
+static Binary Binary::parse_bin(std::string_view str);
+static Binary Binary::parse_dec(std::string_view str);
+static Binary Binary::parse_hex(std::string_view str);
+static bool Binary::try_parse(std::string_view str, Binary& x) noexcept;
+static bool Binary::try_parse_bin(std::string_view str, Binary& x) noexcept;
+static bool Binary::try_parse_dec(std::string_view str, Binary& x) noexcept;
+static bool Binary::try_parse_hex(std::string_view str, Binary& x) noexcept;
 ```
 
 These attempt to parse a string as an unsigned integer, in base 2, 10, or 16.
-The `parse_*()` functions return the parsed value, and throw
-`std::invalid_argument` on failure; teh `try_parse_*()` functions modify the
-supplied reference and return true on success, and return false on failure.
+The plain `parse()` version recognises the `"0b"` and `"0x"` prefixes. The
+parsing functions return the parsed value, and throw `std::invalid_argument`
+on failure; teh `try_parse` functions modify the supplied reference and return
+true on success, false on failure.
 
 ```c++
 std::strong_ordering operator<=>(const Binary& a, const Binary& b) noexcept;
@@ -244,6 +247,17 @@ bool operator>=(Binary x, Binary y) noexcept;
 ```
 
 Comparison operators.
+
+```c++
+namespace Literals {
+    Uint128 operator""_u128(const char* p);
+    Uint256 operator""_u256(const char* p);
+    Uint512 operator""_u512(const char* p);
+    Uint1024 operator""_u1024(const char* p);
+}
+```
+
+Custom literals. These perform the same parsing as the `parse()` methods.
 
 ```c++
 template <size_t N> class std::numeric_limits<Crow::SmallBinary<N>>;

@@ -13,6 +13,7 @@
 #include <ostream>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 
@@ -52,12 +53,21 @@ namespace Crow {
         }
 
         template <typename T>
-        bool parse_fixed_binary(T& t, const std::string& str, int base, bool check) {
+        bool parse_fixed_binary(T& t, std::string_view str, int base, bool check) {
 
             if (str.empty()) {
                 if (check)
                     throw std::invalid_argument("Invalid base " + std::to_string(base) + " number: \"\"");
                 return false;
+            }
+
+            if (base == 0) {
+                if (str.size() >= 2 && str[0] == '0' && (str[1] == 'B' || str[1] == 'b'))
+                    return parse_fixed_binary(t, str.substr(2), 2, check);
+                else if (str.size() >= 2 && str[0] == '0' && (str[1] == 'X' || str[1] == 'x'))
+                    return parse_fixed_binary(t, str.substr(2), 16, check);
+                else
+                    return parse_fixed_binary(t, str, 10, check);
             }
 
             auto max_d = char(base < 10 ? '0' + base : '9');
@@ -75,7 +85,7 @@ namespace Crow {
                 else if (c >= 'a' && c <= max_lc)
                     digit = c - 'a' + 10;
                 else if (check)
-                    throw std::invalid_argument("Invalid base " + std::to_string(base) + " number: \"" + str + "\"");
+                    throw std::invalid_argument("Invalid base " + std::to_string(base) + " number: \"" + std::string(str) + "\"");
                 else
                     return false;
                 result = tbase * result + T(uint64_t(digit));
@@ -110,7 +120,7 @@ namespace Crow {
         constexpr SmallBinary(uint64_t x) noexcept: value_(x & mask) {}
         template <size_t M> constexpr explicit SmallBinary(SmallBinary<M> x) noexcept: SmallBinary(uint64_t(x)) {}
         constexpr SmallBinary(std::initializer_list<uint64_t> init) noexcept: value_(init.size() ? *init.begin() & mask : 0) {}
-        explicit SmallBinary(const std::string& str) { *this = parse_dec(str); }
+        explicit SmallBinary(std::string_view str) { *this = parse(str); }
 
         std::string bin() const { return Detail::to_binary(value_, N); }
         std::string dec() const { return std::to_string(value_); }
@@ -148,12 +158,14 @@ namespace Crow {
         constexpr static void divide(SmallBinary x, SmallBinary y, SmallBinary& q, SmallBinary& r) noexcept { q = x / y; r = x % y; }
         static SmallBinary from_double(double x) noexcept { return SmallBinary(uint64_t(x)); }
         constexpr static SmallBinary max() noexcept { return SmallBinary(mask); }
-        static SmallBinary parse_bin(const std::string& str) { SmallBinary x; Detail::parse_fixed_binary(x, str, 2, true); }
-        static SmallBinary parse_dec(const std::string& str) { SmallBinary x; Detail::parse_fixed_binary(x, str, 10, true); }
-        static SmallBinary parse_hex(const std::string& str) { SmallBinary x; Detail::parse_fixed_binary(x, str, 16, true); }
-        static bool try_parse_bin(const std::string& str, SmallBinary& x) noexcept { return Detail::parse_fixed_binary(x, str, 2, false); }
-        static bool try_parse_dec(const std::string& str, SmallBinary& x) noexcept { return Detail::parse_fixed_binary(x, str, 10, false); }
-        static bool try_parse_hex(const std::string& str, SmallBinary& x) noexcept { return Detail::parse_fixed_binary(x, str, 16, false); }
+        static SmallBinary parse(std::string_view str) { SmallBinary x; Detail::parse_fixed_binary(x, str, 0, true); return x; }
+        static SmallBinary parse_bin(std::string_view str) { SmallBinary x; Detail::parse_fixed_binary(x, str, 2, true); return x; }
+        static SmallBinary parse_dec(std::string_view str) { SmallBinary x; Detail::parse_fixed_binary(x, str, 10, true); return x; }
+        static SmallBinary parse_hex(std::string_view str) { SmallBinary x; Detail::parse_fixed_binary(x, str, 16, true); return x; }
+        static bool try_parse(std::string_view str, SmallBinary& x) noexcept { return Detail::parse_fixed_binary(x, str, 0, false); }
+        static bool try_parse_bin(std::string_view str, SmallBinary& x) noexcept { return Detail::parse_fixed_binary(x, str, 2, false); }
+        static bool try_parse_dec(std::string_view str, SmallBinary& x) noexcept { return Detail::parse_fixed_binary(x, str, 10, false); }
+        static bool try_parse_hex(std::string_view str, SmallBinary& x) noexcept { return Detail::parse_fixed_binary(x, str, 16, false); }
 
         friend constexpr SmallBinary rotl(SmallBinary x, int y) noexcept { y %= int(N); return (x << y) | (x >> (int(N) - y)); }
         friend constexpr SmallBinary rotr(SmallBinary x, int y) noexcept { y %= int(N); return (x >> y) | (x << (int(N) - y)); }
@@ -203,7 +215,7 @@ namespace Crow {
         constexpr LargeBinary() noexcept {}
         constexpr LargeBinary(uint64_t x) noexcept;
         constexpr LargeBinary(std::initializer_list<uint64_t> init) noexcept;
-        explicit LargeBinary(const std::string& str) { *this = parse_dec(str); }
+        explicit LargeBinary(std::string_view str) { *this = parse(str); }
         template <size_t M> constexpr explicit LargeBinary(SmallBinary<M> x) noexcept: LargeBinary(uint64_t(x)) {}
         template <size_t M> constexpr explicit LargeBinary(const LargeBinary<M>& x) noexcept;
 
@@ -242,12 +254,14 @@ namespace Crow {
         constexpr static void divide(const LargeBinary& x, const LargeBinary& y, LargeBinary& q, LargeBinary& r) noexcept;
         static LargeBinary from_double(double x) noexcept;
         constexpr static LargeBinary max() noexcept;
-        static LargeBinary parse_bin(const std::string& str) { LargeBinary x; Detail::parse_fixed_binary(x, str, 2, true); }
-        static LargeBinary parse_dec(const std::string& str) { LargeBinary x; Detail::parse_fixed_binary(x, str, 10, true); }
-        static LargeBinary parse_hex(const std::string& str) { LargeBinary x; Detail::parse_fixed_binary(x, str, 16, true); }
-        static bool try_parse_bin(const std::string& str, LargeBinary& x) noexcept { return Detail::parse_fixed_binary(x, str, 2, false); }
-        static bool try_parse_dec(const std::string& str, LargeBinary& x) noexcept { return Detail::parse_fixed_binary(x, str, 10, false); }
-        static bool try_parse_hex(const std::string& str, LargeBinary& x) noexcept { return Detail::parse_fixed_binary(x, str, 16, false); }
+        static LargeBinary parse(std::string_view str) { LargeBinary x; Detail::parse_fixed_binary(x, str, 0, true); return x; }
+        static LargeBinary parse_bin(std::string_view str) { LargeBinary x; Detail::parse_fixed_binary(x, str, 2, true); return x; }
+        static LargeBinary parse_dec(std::string_view str) { LargeBinary x; Detail::parse_fixed_binary(x, str, 10, true); return x; }
+        static LargeBinary parse_hex(std::string_view str) { LargeBinary x; Detail::parse_fixed_binary(x, str, 16, true); return x; }
+        static bool try_parse(std::string_view str, LargeBinary& x) noexcept { return Detail::parse_fixed_binary(x, str, 0, false); }
+        static bool try_parse_bin(std::string_view str, LargeBinary& x) noexcept { return Detail::parse_fixed_binary(x, str, 2, false); }
+        static bool try_parse_dec(std::string_view str, LargeBinary& x) noexcept { return Detail::parse_fixed_binary(x, str, 10, false); }
+        static bool try_parse_hex(std::string_view str, LargeBinary& x) noexcept { return Detail::parse_fixed_binary(x, str, 16, false); }
 
         friend constexpr LargeBinary rotl(const LargeBinary& x, int y) noexcept { y %= int(N); return (x << y) | (x >> (int(N) - y)); }
         friend constexpr LargeBinary rotr(const LargeBinary& x, int y) noexcept { y %= int(N); return (x >> y) | (x << (int(N) - y)); }
@@ -590,6 +604,15 @@ namespace Crow {
             x += y + c;
             c = unit_type(x < y || (x == y && c));
         }
+
+    namespace Literals {
+
+        inline Uint128 operator""_u128(const char* p) { return Uint128(std::string_view(p)); }
+        inline Uint256 operator""_u256(const char* p) { return Uint256(std::string_view(p)); }
+        inline Uint512 operator""_u512(const char* p) { return Uint512(std::string_view(p)); }
+        inline Uint1024 operator""_u1024(const char* p) { return Uint1024(std::string_view(p)); }
+
+    }
 
 }
 
