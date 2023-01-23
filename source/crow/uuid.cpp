@@ -1,4 +1,5 @@
 #include "crow/uuid.hpp"
+#include "crow/string.hpp"
 #include <algorithm>
 #include <cstring>
 #include <stdexcept>
@@ -13,14 +14,14 @@ namespace Crow {
         auto t = begin();
         auto t_end = end();
         while (s != s_end && t != t_end) {
-            s = std::find_if(s, s_end, is_alnum);
+            s = std::find_if(s, s_end, ascii_isalnum);
             if (s == s_end)
                 break;
             if (s[0] == '0' && (s[1] == 'X' || s[1] == 'x')) {
                 s += 2;
                 continue;
             }
-            if (s == s_end || ! is_xdigit(s[0]) || ! is_xdigit(s[1]))
+            if (s == s_end || ! ascii_isxdigit(s[0]) || ! ascii_isxdigit(s[1]))
                 break;
             int x = 0;
             for (int i = 0; i < 2; ++i) {
@@ -36,7 +37,7 @@ namespace Crow {
             s += 2;
         }
         if (t == t_end)
-            s = std::find_if(s, s_end, is_alnum);
+            s = std::find_if(s, s_end, ascii_isalnum);
         if (s != s_end || t != t_end)
             throw std::invalid_argument("Invalid UUID: " + str);
     }

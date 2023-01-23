@@ -47,6 +47,13 @@ characters that are not ASCII alphanumerics as delimiters. It will throw
 `std::invalid_argument` if the string is not a valid UUID.
 
 ```c++
+constexpr explicit Uuid::Uuid(Uint128 u) noexcept;
+```
+
+Constructor from a 128-bit integer. This copies the integer's representation
+in little-endian order.
+
+```c++
 constexpr Uuid::Uuid(const Uuid& u) noexcept;
 constexpr Uuid::Uuid(Uuid&& u) noexcept;
 constexpr Uuid::~Uuid() noexcept;
@@ -70,6 +77,14 @@ byte representation. Behaviour is undefined if the index to `operator[]` is
 greater than 15.
 
 ```c++
+constexpr Uint128 Uuid::as_uint() const noexcept;
+constexpr explicit Uuid::operator Uint128() const noexcept;
+```
+
+Conversion to a 128-bit integer. This copies the UUID into the integer's
+representation in little-endian order.
+
+```c++
 constexpr size_t Uuid::hash() const noexcept;
 struct std::hash<Uuid>;
 ```
@@ -78,6 +93,7 @@ Hash functions.
 
 ```c++
 std::string Uuid::str() const;
+explicit Uuid::operator std::string() const;
 std::ostream& operator<<(std::ostream& out, const Uuid& u);
 ```
 

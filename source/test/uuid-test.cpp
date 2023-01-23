@@ -1,4 +1,5 @@
 #include "crow/uuid.hpp"
+#include "crow/fixed-binary.hpp"
 #include "crow/unit-test.hpp"
 #include <stdexcept>
 #include <string>
@@ -8,6 +9,7 @@ using namespace Crow;
 void test_crow_uuid() {
 
     Uuid u;
+    Uint128 i, j;
     std::string s;
 
     TEST_EQUAL(u.str(), "00000000-0000-0000-0000-000000000000");
@@ -18,6 +20,18 @@ void test_crow_uuid() {
         TEST_EQUAL(u[i], i + 1);
     TRY(u = Uuid(0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0, 0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0));
     TEST_EQUAL(u.str(), "12345678-9abc-def0-1234-56789abcdef0");
+    TEST_EQUAL(std::string(u), "12345678-9abc-def0-1234-56789abcdef0");
+
+    i = 0;
+    TRY(u = Uuid(i));
+    TEST_EQUAL(u.str(), "00000000-0000-0000-0000-000000000000");
+    TRY(j = Uint128(u));
+    TEST_EQUAL(j, 0);
+    i = {0xfedc'ba98'7654'3210ull, 0x1234'5678'9abc'def0ull};
+    TRY(u = Uuid(i));
+    TEST_EQUAL(u.str(), "f0debc9a-7856-3412-1032-547698badcfe");
+    TRY(j = Uint128(u));
+    TEST_EQUAL(j, (Uint128{0xfedc'ba98'7654'3210ull, 0x1234'5678'9abc'def0ull}));
 
     s = "abcdefghijklmnop";
 
