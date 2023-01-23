@@ -331,4 +331,53 @@ namespace Crow {
 
     template <typename T> constexpr bool dependent_false = false;
 
+    // Literals
+
+    namespace Detail {
+
+        template <char... CS>
+        struct ParseLiteral;
+
+        template <char C>
+        struct ParseLiteral<C> {
+            static constexpr auto scale = 10ull;
+            static constexpr auto value = static_cast<unsigned long long>(C - '0');
+        };
+
+        template <char C, char... CS>
+        struct ParseLiteral<C, CS...> {
+            using L = ParseLiteral<C>;
+            using R = ParseLiteral<CS...>;
+            static constexpr auto left = L::value;
+            static constexpr auto right = R::value;
+            static constexpr auto scale = 10ull * R::scale;
+            static constexpr auto value = R::scale * L::value + R::value;
+        };
+
+        template <typename T, char... CS>
+        struct CheckLiteral {
+            using TL = std::numeric_limits<T>;
+            using PL = ParseLiteral<CS...>;
+            static constexpr auto max = static_cast<unsigned long long>(TL::max());
+            static_assert(PL::value <= max, "Integer literal value is out of range");
+            static constexpr T value = static_cast<T>(PL::value);
+        };
+
+    }
+
+    namespace Literals {
+
+        template <char... CS> constexpr std::int8_t operator""_s8() noexcept { return Detail::CheckLiteral<std::int8_t, CS...>::value; }
+        template <char... CS> constexpr std::int16_t operator""_s16() noexcept { return Detail::CheckLiteral<std::int16_t, CS...>::value; }
+        template <char... CS> constexpr std::int32_t operator""_s32() noexcept { return Detail::CheckLiteral<std::int32_t, CS...>::value; }
+        template <char... CS> constexpr std::int64_t operator""_s64() noexcept { return Detail::CheckLiteral<std::int64_t, CS...>::value; }
+        template <char... CS> constexpr std::uint8_t operator""_u8() noexcept { return Detail::CheckLiteral<std::uint8_t, CS...>::value; }
+        template <char... CS> constexpr std::uint16_t operator""_u16() noexcept { return Detail::CheckLiteral<std::uint16_t, CS...>::value; }
+        template <char... CS> constexpr std::uint32_t operator""_u32() noexcept { return Detail::CheckLiteral<std::uint32_t, CS...>::value; }
+        template <char... CS> constexpr std::uint64_t operator""_u64() noexcept { return Detail::CheckLiteral<std::uint64_t, CS...>::value; }
+        template <char... CS> constexpr std::ptrdiff_t operator""_z() noexcept { return Detail::CheckLiteral<std::ptrdiff_t, CS...>::value; }
+        template <char... CS> constexpr std::size_t operator""_uz() noexcept { return Detail::CheckLiteral<std::size_t, CS...>::value; }
+
+    }
+
 }

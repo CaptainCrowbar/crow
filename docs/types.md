@@ -211,3 +211,22 @@ template <typename T> constexpr bool dependent_false = false;
 ```
 
 Allows compile time failure in an `if constexpr` branch.
+
+## Literals
+
+```c++
+namespace Literals {
+    template <char... CS> constexpr int8_t operator""_s8() noexcept;
+    template <char... CS> constexpr int16_t operator""_s16() noexcept;
+    template <char... CS> constexpr int32_t operator""_s32() noexcept;
+    template <char... CS> constexpr int64_t operator""_s64() noexcept;
+    template <char... CS> constexpr uint8_t operator""_u8() noexcept;
+    template <char... CS> constexpr uint16_t operator""_u16() noexcept;
+    template <char... CS> constexpr uint32_t operator""_u32() noexcept;
+    template <char... CS> constexpr uint64_t operator""_u64() noexcept;
+    template <char... CS> constexpr ptrdiff_t operator""_z() noexcept;
+    template <char... CS> constexpr size_t operator""_uz() noexcept;
+}
+```
+
+Integer literals.

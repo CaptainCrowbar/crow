@@ -15,6 +15,7 @@ void types_test_group() {
     UNIT_TEST(crow_types_assertions)
     UNIT_TEST(crow_types_concepts)
     UNIT_TEST(crow_types_comparison_functions)
+    UNIT_TEST(crow_types_literals)
 }
 
 void algorithm_test_group() {

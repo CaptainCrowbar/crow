@@ -13,6 +13,7 @@
 #include <vector>
 
 using namespace Crow;
+using namespace Crow::Literals;
 using namespace std::literals;
 
 void test_crow_types_assertions() {
@@ -34,7 +35,7 @@ void test_crow_types_assertions() {
         TEST_MATCH(ex.expression(), "n == 99");
         TEST_MATCH(ex.file(), R"(^(.+[/\\])?types-test\.cpp$)");
         TEST_EQUAL(ex.function(), "test_crow_types_assertions");
-        TEST_EQUAL(ex.line(), 26);
+        TEST_EQUAL(ex.line(), 27);
     }
 
 }
@@ -305,5 +306,20 @@ void test_crow_types_comparison_functions() {
     TRY(c = to_order(-42));  TEST(c == SO::less);
     TRY(c = to_order(0));    TEST(c == SO::equal);
     TRY(c = to_order(42));   TEST(c == SO::greater);
+
+}
+
+void test_crow_types_literals() {
+
+    { auto x = 123_s8;         TEST_TYPE(decltype(x), std::int8_t);     TEST_EQUAL(x, 123); }
+    { auto x = 12345_s16;      TEST_TYPE(decltype(x), std::int16_t);    TEST_EQUAL(x, 12345); }
+    { auto x = 123456789_s32;  TEST_TYPE(decltype(x), std::int32_t);    TEST_EQUAL(x, 123456789l); }
+    { auto x = 123456789_s64;  TEST_TYPE(decltype(x), std::int64_t);    TEST_EQUAL(x, 123456789ll); }
+    { auto x = 123_u8;         TEST_TYPE(decltype(x), std::uint8_t);    TEST_EQUAL(x, 123u); }
+    { auto x = 12345_u16;      TEST_TYPE(decltype(x), std::uint16_t);   TEST_EQUAL(x, 12345u); }
+    { auto x = 123456789_u32;  TEST_TYPE(decltype(x), std::uint32_t);   TEST_EQUAL(x, 123456789ul); }
+    { auto x = 123456789_u64;  TEST_TYPE(decltype(x), std::uint64_t);   TEST_EQUAL(x, 123456789ull); }
+    { auto x = 12345_z;        TEST_TYPE(decltype(x), std::ptrdiff_t);  TEST_EQUAL(x, 12345); }
+    { auto x = 12345_uz;       TEST_TYPE(decltype(x), std::size_t);     TEST_EQUAL(x, 12345u); }
 
 }
