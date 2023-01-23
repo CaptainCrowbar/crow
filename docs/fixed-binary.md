@@ -231,10 +231,11 @@ static bool Binary::try_parse_hex(std::string_view str, Binary& x) noexcept;
 ```
 
 These attempt to parse a string as an unsigned integer, in base 2, 10, or 16.
-The plain `parse()` version recognises the `"0b"` and `"0x"` prefixes. The
-parsing functions return the parsed value, and throw `std::invalid_argument`
-on failure; teh `try_parse` functions modify the supplied reference and return
-true on success, false on failure.
+The plain `parse()` version recognises the `"0b"` and `"0x"` prefixes.
+Apostrophe delimiters are allowed. The `parse*()` functions return the parsed
+value, and throw `std::invalid_argument` on failure; the `try_parse*()`
+functions modify the supplied reference and return true on success, false on
+failure.
 
 ```c++
 std::strong_ordering operator<=>(const Binary& a, const Binary& b) noexcept;

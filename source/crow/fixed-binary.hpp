@@ -78,7 +78,9 @@ namespace Crow {
             T tbase = T(uint64_t(base));
 
             for (char c: str) {
-                if (c >= '0' && c <= max_d)
+                if (c == '\'')
+                    continue;
+                else if (c >= '0' && c <= max_d)
                     digit = c - '0';
                 else if (c >= 'A' && c <= max_uc)
                     digit = c - 'A' + 10;
