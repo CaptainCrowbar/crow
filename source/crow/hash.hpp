@@ -21,6 +21,9 @@ namespace Crow {
         { std::hash<std::remove_cvref_t<T>>()(t) } -> std::convertible_to<size_t>;
     };
 
+    template <typename T>
+    concept RegularHashable = Hashable<T> && std::regular<T>;
+
     // Hash mixing functions
 
     namespace Detail {

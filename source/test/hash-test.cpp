@@ -3,6 +3,7 @@
 #include "crow/string.hpp"
 #include "crow/unit-test.hpp"
 #include <array>
+#include <concepts>
 #include <numeric>
 #include <string>
 #include <tuple>
@@ -10,6 +11,22 @@
 
 using namespace Crow;
 using namespace Crow::Literals;
+
+void test_crow_hash_concepts() {
+
+    TEST(! Hashable<void>);
+    TEST(Hashable<int>);
+    TEST(Hashable<void*>);
+    TEST(Hashable<std::string>);
+    TEST(! Hashable<std::vector<int>>);
+
+    TEST(! RegularHashable<void>);
+    TEST(RegularHashable<int>);
+    TEST(RegularHashable<void*>);
+    TEST(RegularHashable<std::string>);
+    TEST(! RegularHashable<std::vector<int>>);
+
+}
 
 void test_crow_hash_mix() {
 

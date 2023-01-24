@@ -16,9 +16,11 @@ namespace Crow;
 
 ```c++
 template <typename T> concept Hashable;
+template <typename T> concept RegularHashable
+    = Hashable<T> && std::regular<T>;
 ```
 
-Matches types with a valid specialization of `std::hash` (after stripping CV
+These match types with a valid specialization of `std::hash` (after stripping CV
 and reference qualifications from `T`).
 
 ## Hash mixing functions

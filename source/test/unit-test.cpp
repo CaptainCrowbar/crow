@@ -304,6 +304,7 @@ void guard_test_group() {
 }
 
 void hash_test_group() {
+    UNIT_TEST(crow_hash_concepts)
     UNIT_TEST(crow_hash_mix)
     UNIT_TEST(crow_hash_multiplicative)
     UNIT_TEST(crow_hash_siphash)
