@@ -61,7 +61,7 @@ namespace Crow {
         auto seed = uint32_t(address);
         std::minstd_rand rng(seed);
         std::uniform_int_distribution<int> random_index(0, pool->threads() - 1);
-        callback call;
+        Callback call;
         for (;;) {
             call = {};
             {

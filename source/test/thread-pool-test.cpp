@@ -4,7 +4,6 @@
 #include "crow/unit-test.hpp"
 #include <algorithm>
 #include <chrono>
-#include <functional>
 #include <iostream>
 #include <mutex>
 #include <ostream>
@@ -62,7 +61,7 @@ void test_crow_thread_pool_class() {
 
     for (char c = 'a'; c <= 'z'; ++c) {
         auto t = dist(rng);
-        std::function<void()> cb = [=] { f(c, t); };
+        Callback cb = [=] { f(c, t); };
         TRY(pool.insert(cb));
     }
 

@@ -13,8 +13,8 @@ void log_test_group() {
 
 void types_test_group() {
     UNIT_TEST(crow_types_assertions)
-    UNIT_TEST(crow_types_concepts)
     UNIT_TEST(crow_types_comparison_functions)
+    UNIT_TEST(crow_types_concepts)
     UNIT_TEST(crow_types_literals)
 }
 
@@ -300,7 +300,8 @@ void geometry_test_group() {
 }
 
 void guard_test_group() {
-    UNIT_TEST(crow_scope_guards)
+    UNIT_TEST(crow_scope_guard)
+    UNIT_TEST(crow_scope_guard_multiple_action)
 }
 
 void hash_test_group() {

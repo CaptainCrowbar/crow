@@ -100,13 +100,12 @@ namespace Crow {
 
         using setter_callback = std::function<void(const std::string&)>;
         using validator_callback = std::function<bool(const std::string&)>;
-        using void_callback = std::function<void()>;
 
         enum class mode { boolean, single, multiple };
 
         struct option_info {
-            void_callback generator;
-            void_callback reset;
+            Callback generator;
+            Callback reset;
             setter_callback setter;
             validator_callback validator;
             std::string name;
@@ -129,7 +128,7 @@ namespace Crow {
         bool allow_help_ = false;
         bool auto_help_ = false;
 
-        void do_add(void_callback generator, void_callback reset,
+        void do_add(Callback generator, Callback reset,
             setter_callback setter, validator_callback validator,
             const std::string& name, char abbrev, const std::string& description,
             const std::string& placeholder, const std::string& default_value,
@@ -162,8 +161,8 @@ namespace Crow {
 
             using namespace Detail;
 
-            void_callback generator;
-            void_callback reset;
+            Callback generator;
+            Callback reset;
             setter_callback setter;
             validator_callback validator;
             std::string placeholder;

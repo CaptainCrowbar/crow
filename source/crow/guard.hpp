@@ -15,11 +15,13 @@ namespace Crow {
 
     template <std::invocable F, ScopeState S>
     class BasicScopeGuard {
+
     public:
-        BasicScopeGuard() = default;
-        BasicScopeGuard(F&& f) try:
-            callback_(std::forward<F>(f)),
-            inflight_(std::uncaught_exceptions()) {}
+
+        BasicScopeGuard(F&& f)
+            try:
+                callback_(std::forward<F>(f)),
+                inflight_(std::uncaught_exceptions()) {}
             catch (...) {
                 if constexpr (S != ScopeState::success) {
                     try { f(); }
@@ -27,46 +29,102 @@ namespace Crow {
                 }
                 throw;
             }
+
+        ~BasicScopeGuard() noexcept {
+            if (inflight_ < 0)
+                return;
+            if constexpr (S == ScopeState::fail)
+                if (std::uncaught_exceptions() <= inflight_)
+                    return;
+            if constexpr (S == ScopeState::success)
+                if (std::uncaught_exceptions() > inflight_)
+                    return;
+            try { callback_(); }
+            catch (...) {}
+        }
+
+        BasicScopeGuard() = delete;
         BasicScopeGuard(const BasicScopeGuard&) = delete;
-        BasicScopeGuard(BasicScopeGuard&& g) noexcept:
-            callback_(std::move(g.callback_)),
-            inflight_(std::exchange(g.inflight_, -1)) {}
-        ~BasicScopeGuard() noexcept { close(); }
+        BasicScopeGuard(BasicScopeGuard&&) = delete;
         BasicScopeGuard& operator=(const BasicScopeGuard&) = delete;
-        BasicScopeGuard& operator=(F&& f) {
-            close();
-            callback_ = std::forward<F>(f);
-            inflight_ = std::uncaught_exceptions();
-            return *this;
+        BasicScopeGuard& operator=(BasicScopeGuard&&) = delete;
+
+        void release() noexcept {
+            inflight_ = -1;
         }
-        BasicScopeGuard& operator=(BasicScopeGuard&& g) noexcept {
-            if (&g != this) {
-                close();
-                callback_ = std::move(g.callback_);
-                inflight_ = std::exchange(g.inflight_, -1);
-            }
-            return *this;
-        }
-        void release() noexcept { inflight_ = -1; }
+
     private:
+
         F callback_;
         int inflight_ = -1;
-        void close() noexcept {
-            if (inflight_ >= 0) {
-                bool call = true;
-                if constexpr (S == ScopeState::fail)
-                    call = std::uncaught_exceptions() > inflight_;
-                else if constexpr (S == ScopeState::success)
-                    call = std::uncaught_exceptions() <= inflight_;
-                if (call)
-                    try { callback_(); } catch (...) {}
-                inflight_ = -1;
-            }
-        }
+
     };
 
     template <std::invocable F> inline auto on_scope_exit(F&& f) { return BasicScopeGuard<F, ScopeState::exit>(std::forward<F>(f)); }
     template <std::invocable F> inline auto on_scope_fail(F&& f) { return BasicScopeGuard<F, ScopeState::fail>(std::forward<F>(f)); }
     template <std::invocable F> inline auto on_scope_success(F&& f) { return BasicScopeGuard<F, ScopeState::success>(std::forward<F>(f)); }
+
+    template <ScopeState S>
+    class BasicScopeGuard<Callback, S> {
+
+    public:
+
+        BasicScopeGuard() noexcept:
+        inflight_(std::uncaught_exceptions()) {}
+
+        BasicScopeGuard(Callback f):
+        inflight_(std::uncaught_exceptions()) {
+            *this += f;
+        }
+
+        ~BasicScopeGuard() noexcept {
+            if (inflight_ < 0)
+                return;
+            if constexpr (S == ScopeState::fail)
+                if (std::uncaught_exceptions() <= inflight_)
+                    return;
+            if constexpr (S == ScopeState::success)
+                if (std::uncaught_exceptions() > inflight_)
+                    return;
+            for (int i = int(callbacks_.size()) - 1; i >= 0; --i) {
+                try { callbacks_[i](); }
+                catch (...) {}
+            }
+        }
+
+        BasicScopeGuard(const BasicScopeGuard&) = delete;
+        BasicScopeGuard(BasicScopeGuard&&) = delete;
+        BasicScopeGuard& operator=(const BasicScopeGuard&) = delete;
+        BasicScopeGuard& operator=(BasicScopeGuard&&) = delete;
+
+        void operator+=(Callback f) {
+            if (! f)
+                return;
+            try {
+                callbacks_.push_back(f);
+            }
+            catch (...) {
+                if constexpr (S != ScopeState::success) {
+                    try { f(); }
+                    catch (...) {}
+                }
+                throw;
+            }
+        }
+
+        void release() noexcept {
+            inflight_ = -1;
+        }
+
+    private:
+
+        std::vector<Callback> callbacks_;
+        int inflight_ = -1;
+
+    };
+
+    using ScopeExit = BasicScopeGuard<Callback, ScopeState::exit>;
+    using ScopeFail = BasicScopeGuard<Callback, ScopeState::fail>;
+    using ScopeSuccess = BasicScopeGuard<Callback, ScopeState::success>;
 
 }

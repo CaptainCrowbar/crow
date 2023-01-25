@@ -232,7 +232,7 @@ namespace Crow {
         return i != npos && options_[i].found;
     }
 
-    void Options::do_add(void_callback generator,void_callback reset,
+    void Options::do_add(Callback generator, Callback reset,
             setter_callback setter, validator_callback validator,
             const std::string& name, char abbrev, const std::string& description,
             const std::string& placeholder, const std::string& default_value,

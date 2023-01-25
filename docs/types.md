@@ -24,13 +24,30 @@ Assertion macros. `CROW_ASSERT()` does the same thing as the standard
 `CROW_XASSERT()` performs the same test, but throws an `AssertionFailure`
 exception instead of printing a message and aborting on failure.
 
-## Constants
+## Basic types
 
 ```c++
-constexpr size_t npos = std::string::npos;
+using Callback = std::function<void()>;
 ```
 
-Imported for convenience.
+Defined for convenience.
+
+## Comparison functions
+
+```c++
+template <std::totally_ordered T>
+    std::strong_ordering compare3way(const T& a, const T& b) noexcept;
+```
+
+Performs a 3-way comparison by calling `operator<=>` if available, otherwise
+`operator==` and `operator<`.
+
+```c++
+constexpr std::strong_ordering to_order(ArithmeticType auto t) noexcept;
+```
+
+Converts a number to a strong ordering value: negative numbers map to `less`,
+zero to `equal`, and positive numbers to `greater`.
 
 ## Concepts
 
@@ -147,22 +164,13 @@ checks for:
 `ContiguousContainerType` matches `SimpleContainerType` and
 `std::ranges::contiguous_range`.
 
-## Comparison functions
+## Constants
 
 ```c++
-template <std::totally_ordered T>
-    std::strong_ordering compare3way(const T& a, const T& b) noexcept;
+constexpr size_t npos = std::string::npos;
 ```
 
-Performs a 3-way comparison by calling `operator<=>` if available, otherwise
-`operator==` and `operator<`.
-
-```c++
-constexpr std::strong_ordering to_order(ArithmeticType auto t) noexcept;
-```
-
-Converts a number to a strong ordering value: negative numbers map to `less`,
-zero to `equal`, and positive numbers to `greater`.
+Imported for convenience.
 
 ## Exceptions
 
@@ -178,6 +186,26 @@ class AssertionFailure: public std::runtime_error {
 ```
 
 The exception thrown when a `CROW_XASSERT()` fails.
+
+## Literals
+
+```c++
+namespace Literals {
+    template <char... CS> constexpr int8_t operator""_s8() noexcept;
+    template <char... CS> constexpr int16_t operator""_s16() noexcept;
+    template <char... CS> constexpr int32_t operator""_s32() noexcept;
+    template <char... CS> constexpr int64_t operator""_s64() noexcept;
+    template <char... CS> constexpr uint8_t operator""_u8() noexcept;
+    template <char... CS> constexpr uint16_t operator""_u16() noexcept;
+    template <char... CS> constexpr uint32_t operator""_u32() noexcept;
+    template <char... CS> constexpr uint64_t operator""_u64() noexcept;
+    template <char... CS> constexpr ptrdiff_t operator""_z() noexcept;
+    template <char... CS> constexpr size_t operator""_uz() noexcept;
+}
+```
+
+Integer literals. The standard `0b` and `0x` prefixes are understood, and
+apostrophe delimiters are allowed.
 
 ## Memory management types
 
@@ -211,23 +239,3 @@ template <typename T> constexpr bool dependent_false = false;
 ```
 
 Allows compile time failure in an `if constexpr` branch.
-
-## Literals
-
-```c++
-namespace Literals {
-    template <char... CS> constexpr int8_t operator""_s8() noexcept;
-    template <char... CS> constexpr int16_t operator""_s16() noexcept;
-    template <char... CS> constexpr int32_t operator""_s32() noexcept;
-    template <char... CS> constexpr int64_t operator""_s64() noexcept;
-    template <char... CS> constexpr uint8_t operator""_u8() noexcept;
-    template <char... CS> constexpr uint16_t operator""_u16() noexcept;
-    template <char... CS> constexpr uint32_t operator""_u32() noexcept;
-    template <char... CS> constexpr uint64_t operator""_u64() noexcept;
-    template <char... CS> constexpr ptrdiff_t operator""_z() noexcept;
-    template <char... CS> constexpr size_t operator""_uz() noexcept;
-}
-```
-
-Integer literals. The standard `0b` and `0x` prefixes are understood, and
-apostrophe delimiters are allowed.

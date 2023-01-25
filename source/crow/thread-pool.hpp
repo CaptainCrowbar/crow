@@ -41,11 +41,9 @@ namespace Crow {
 
     private:
 
-        using callback = std::function<void()>;
-
         struct worker {
             std::mutex mutex;
-            std::deque<callback> queue;
+            std::deque<Callback> queue;
             std::thread thread;
         };
 

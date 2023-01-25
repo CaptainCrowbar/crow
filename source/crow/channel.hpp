@@ -393,14 +393,14 @@ namespace Crow {
 
         struct task_info {
             Thread thread;
-            std::function<void()> handler;
+            Callback handler;
         };
 
         std::map<Channel*, std::unique_ptr<task_info>> tasks_;
         std::deque<result> faults_;
         std::mutex faults_mutex_;
 
-        void add_channel(Channel& c, std::function<void()> f);
+        void add_channel(Channel& c, Callback f);
         void drop_channel(Channel& c) noexcept;
         void set_fault(Channel& c, std::exception_ptr e = {});
 

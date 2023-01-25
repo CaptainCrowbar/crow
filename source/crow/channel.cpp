@@ -213,7 +213,7 @@ namespace Crow {
             run();
     }
 
-    void Dispatch::add_channel(Channel& c, std::function<void()> f) {
+    void Dispatch::add_channel(Channel& c, Callback f) {
         if (tasks_.count(&c))
             throw std::invalid_argument("Duplicate channel in dispatch set");
         auto task_ptr = std::make_unique<task_info>();

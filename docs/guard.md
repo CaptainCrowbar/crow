@@ -25,28 +25,43 @@ This is used to control the behaviour of a scope guard:
 
 ```c++
 template <typename F, ScopeState S> class BasicScopeGuard {
-    BasicScopeGuard() noexcept;
-    BasicScopeGuard(F&& f);
-    BasicScopeGuard(BasicScopeGuard&& g) noexcept;
+    explicit BasicScopeGuard(F&& f);
     ~BasicScopeGuard() noexcept;
-    BasicScopeGuard& operator=(F&& f);
-    BasicScopeGuard& operator=(BasicScopeGuard&& g) noexcept;
     void release() noexcept;
 };
 ```
 
-The scope guard object. This is normally created using one of the functions
-below rather than being explicitly constructed. The callback type `F` must be
-a function object that can be called with no arguments. Behaviour is
-undefined if the callback is a null function object.
+The basic scope guard object. This is normally created using one of the
+functions below rather than being explicitly constructed. The callback type
+`F` must be a function object that can be called with no arguments. Behaviour
+is undefined if the callback is a null function object.
 
 If the move constructor of `F` throws during the scope guard's construction,
 the original function object will be called if the guard condition is `exit`
-or `fail`, but not if it was `success`. Behaviour is undefined if moving `F`
-throws when the scope guard is moved.
+or `fail`, but not if it was `success`.
 
 Calling `release()` cancels all destructor behaviour; the callback will never
 be invoked after release.
+
+```c++
+template <ScopeState S> class BasicScopeGuard<Callback, S> {
+    BasicScopeGuard() noexcept;
+    explicit BasicScopeGuard(Callback f);
+    ~BasicScopeGuard() noexcept;
+    void operator+=(Callback f);
+    void release() noexcept;
+};
+using ScopeExit = BasicScopeGuard<Callback, ScopeState::exit>;
+using ScopeFail = BasicScopeGuard<Callback, ScopeState::fail>;
+using ScopeSuccess = BasicScopeGuard<Callback, ScopeState::success>;
+```
+
+A partial specialisation of `BasicScopeGuard` for generic function objects.
+Because of the function wrapper overhead, this is slightly less efficient
+than the original scope guard, but it has the ability to add more actions to
+the same scope guard object. The guard's list of actions will be executed in
+reverse order when execution is triggered. An empty function object will be
+ignored.
 
 ```c++
 template <typename F>

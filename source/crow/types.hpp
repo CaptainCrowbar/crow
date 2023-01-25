@@ -61,9 +61,9 @@
 
 namespace Crow {
 
-    // Constants
+    // Basic types
 
-    constexpr size_t npos = std::string::npos;
+    using Callback = std::function<void()>;
 
     // Concepts
 
@@ -102,48 +102,6 @@ namespace Crow {
     concept IteratorType = requires {
         typename std::iterator_traits<T>::iterator_category;
     };
-
-    // Exceptions
-
-    class AssertionFailure:
-    public std::runtime_error {
-    public:
-        AssertionFailure(std::string_view expression, std::string_view function,
-            std::string_view file, int line);
-        std::string expression() const { return expression_; }
-        std::string function() const { return function_; }
-        std::string file() const { return file_; }
-        int line() const noexcept { return line_; }
-    private:
-        std::string expression_;
-        std::string function_;
-        std::string file_;
-        int line_ = 0;
-        static std::string message(std::string_view expression, std::string_view function,
-            std::string_view file, int line);
-    };
-
-        inline AssertionFailure::AssertionFailure(std::string_view expression, std::string_view function,
-            std::string_view file, int line):
-        std::runtime_error(message(expression, function, file, line)),
-        expression_(expression),
-        function_(function),
-        file_(file),
-        line_(line) {}
-
-        inline std::string AssertionFailure::message(std::string_view expression, std::string_view function,
-                std::string_view file, int line) {
-            std::string msg = "Assertion failed: (";
-            msg += expression;
-            msg += "), function ";
-            msg += function;
-            msg += ", file ";
-            msg += file;
-            msg += ", line ";
-            msg += std::to_string(line);
-            msg += ".";
-            return msg;
-        }
 
     namespace Detail {
 
@@ -315,21 +273,51 @@ namespace Crow {
             return SO::greater;
     }
 
-    // Memory management types
+    // Constants
 
-    struct FreeMem {
-        void operator()(void* ptr) const noexcept {
-            if (ptr != nullptr)
-                std::free(ptr);
-        }
+    constexpr size_t npos = std::string::npos;
+
+    // Exceptions
+
+    class AssertionFailure:
+    public std::runtime_error {
+    public:
+        AssertionFailure(std::string_view expression, std::string_view function,
+            std::string_view file, int line);
+        std::string expression() const { return expression_; }
+        std::string function() const { return function_; }
+        std::string file() const { return file_; }
+        int line() const noexcept { return line_; }
+    private:
+        std::string expression_;
+        std::string function_;
+        std::string file_;
+        int line_ = 0;
+        static std::string message(std::string_view expression, std::string_view function,
+            std::string_view file, int line);
     };
 
-    // Metaprogramming support
+        inline AssertionFailure::AssertionFailure(std::string_view expression, std::string_view function,
+            std::string_view file, int line):
+        std::runtime_error(message(expression, function, file, line)),
+        expression_(expression),
+        function_(function),
+        file_(file),
+        line_(line) {}
 
-    template <typename T, bool B> struct SfinaeTrue {};
-    template <typename T> struct SfinaeTrue<T, true>: std::true_type {};
-
-    template <typename T> constexpr bool dependent_false = false;
+        inline std::string AssertionFailure::message(std::string_view expression, std::string_view function,
+                std::string_view file, int line) {
+            std::string msg = "Assertion failed: (";
+            msg += expression;
+            msg += "), function ";
+            msg += function;
+            msg += ", file ";
+            msg += file;
+            msg += ", line ";
+            msg += std::to_string(line);
+            msg += ".";
+            return msg;
+        }
 
     // Literals
 
@@ -419,5 +407,21 @@ namespace Crow {
         template <char... CS> constexpr std::size_t operator""_uz() noexcept { return Detail::CheckedLiteral<std::size_t, CS...>::value; }
 
     }
+
+    // Memory management types
+
+    struct FreeMem {
+        void operator()(void* ptr) const noexcept {
+            if (ptr != nullptr)
+                std::free(ptr);
+        }
+    };
+
+    // Metaprogramming support
+
+    template <typename T, bool B> struct SfinaeTrue {};
+    template <typename T> struct SfinaeTrue<T, true>: std::true_type {};
+
+    template <typename T> constexpr bool dependent_false = false;
 
 }

@@ -4,7 +4,7 @@
 
 using namespace Crow;
 
-void test_crow_scope_guards() {
+void test_crow_scope_guard() {
 
     int n = 0;
     {
@@ -59,5 +59,73 @@ void test_crow_scope_guards() {
     }
     catch (...) {}
     TEST_EQUAL(n, 2);
+
+}
+
+void test_crow_scope_guard_multiple_action() {
+
+    std::string s;
+    {
+        s = "a";
+        ScopeExit guard([&] { s += "b"; });
+        guard += [&] { s += "c"; };
+        TEST_EQUAL(s, "a");
+    }
+    TEST_EQUAL(s, "acb");
+
+    s.clear();
+    try {
+        s = "a";
+        ScopeExit guard([&] { s += "b"; });
+        guard += [&] { s += "c"; };
+        TEST_EQUAL(s, "a");
+        throw std::runtime_error("fail");
+    }
+    catch (...) {}
+    TEST_EQUAL(s, "acb");
+
+    s.clear();
+    {
+        s = "a";
+        ScopeSuccess guard;
+        guard += [&] { s += "b"; };
+        guard += [&] { s += "c"; };
+        TEST_EQUAL(s, "a");
+    }
+    TEST_EQUAL(s, "acb");
+
+    s.clear();
+    try {
+        s = "a";
+        ScopeSuccess guard;
+        guard += [&] { s += "b"; };
+        guard += [&] { s += "c"; };
+        TEST_EQUAL(s, "a");
+        throw std::runtime_error("fail");
+    }
+    catch (...) {}
+    TEST_EQUAL(s, "a");
+
+    s.clear();
+    {
+        s = "a";
+        ScopeFail guard;
+        guard += [&] { s += "b"; };
+        guard += [&] { s += "c"; };
+        TEST_EQUAL(s, "a");
+    }
+    TEST_EQUAL(s, "a");
+
+    s.clear();
+    try {
+        s = "a";
+        ScopeFail guard;
+        guard += [&] { s += "b"; };
+        guard += [&] { s += "c"; };
+        TEST_EQUAL(s, "a");
+        throw std::runtime_error("fail");
+    }
+    catch (...) {}
+    TEST_EQUAL(s, "acb");
 
 }
