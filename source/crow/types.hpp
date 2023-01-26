@@ -63,6 +63,17 @@ namespace Crow {
 
     // Basic types
 
+    using std::int8_t;
+    using std::int16_t;
+    using std::int32_t;
+    using std::int64_t;
+    using std::uint8_t;
+    using std::uint16_t;
+    using std::uint32_t;
+    using std::uint64_t;
+    using std::ptrdiff_t;
+    using std::size_t;
+
     using Callback = std::function<void()>;
 
     // Concepts
@@ -395,16 +406,16 @@ namespace Crow {
 
     namespace Literals {
 
-        template <char... CS> constexpr std::int8_t operator""_s8() noexcept { return Detail::CheckedLiteral<std::int8_t, CS...>::value; }
-        template <char... CS> constexpr std::int16_t operator""_s16() noexcept { return Detail::CheckedLiteral<std::int16_t, CS...>::value; }
-        template <char... CS> constexpr std::int32_t operator""_s32() noexcept { return Detail::CheckedLiteral<std::int32_t, CS...>::value; }
-        template <char... CS> constexpr std::int64_t operator""_s64() noexcept { return Detail::CheckedLiteral<std::int64_t, CS...>::value; }
-        template <char... CS> constexpr std::uint8_t operator""_u8() noexcept { return Detail::CheckedLiteral<std::uint8_t, CS...>::value; }
-        template <char... CS> constexpr std::uint16_t operator""_u16() noexcept { return Detail::CheckedLiteral<std::uint16_t, CS...>::value; }
-        template <char... CS> constexpr std::uint32_t operator""_u32() noexcept { return Detail::CheckedLiteral<std::uint32_t, CS...>::value; }
-        template <char... CS> constexpr std::uint64_t operator""_u64() noexcept { return Detail::CheckedLiteral<std::uint64_t, CS...>::value; }
-        template <char... CS> constexpr std::ptrdiff_t operator""_z() noexcept { return Detail::CheckedLiteral<std::ptrdiff_t, CS...>::value; }
-        template <char... CS> constexpr std::size_t operator""_uz() noexcept { return Detail::CheckedLiteral<std::size_t, CS...>::value; }
+        template <char... CS> constexpr int8_t operator""_s8() noexcept { return Detail::CheckedLiteral<int8_t, CS...>::value; }
+        template <char... CS> constexpr int16_t operator""_s16() noexcept { return Detail::CheckedLiteral<int16_t, CS...>::value; }
+        template <char... CS> constexpr int32_t operator""_s32() noexcept { return Detail::CheckedLiteral<int32_t, CS...>::value; }
+        template <char... CS> constexpr int64_t operator""_s64() noexcept { return Detail::CheckedLiteral<int64_t, CS...>::value; }
+        template <char... CS> constexpr uint8_t operator""_u8() noexcept { return Detail::CheckedLiteral<uint8_t, CS...>::value; }
+        template <char... CS> constexpr uint16_t operator""_u16() noexcept { return Detail::CheckedLiteral<uint16_t, CS...>::value; }
+        template <char... CS> constexpr uint32_t operator""_u32() noexcept { return Detail::CheckedLiteral<uint32_t, CS...>::value; }
+        template <char... CS> constexpr uint64_t operator""_u64() noexcept { return Detail::CheckedLiteral<uint64_t, CS...>::value; }
+        template <char... CS> constexpr ptrdiff_t operator""_z() noexcept { return Detail::CheckedLiteral<ptrdiff_t, CS...>::value; }
+        template <char... CS> constexpr size_t operator""_uz() noexcept { return Detail::CheckedLiteral<size_t, CS...>::value; }
 
     }
 
