@@ -9,6 +9,8 @@ namespace Crow {
 
         char approx_options(FormatSpec& spec, size_t tsize) {
 
+            spec.exclude_mode("Pp");
+
             if (tsize <= sizeof(float))
                 spec.default_prec(6);
             else

@@ -518,3 +518,23 @@ template <std::floating_point T, int N> class RandomDirection {
 
 Generates a random unit vector, uniformly distributed in `N` dimensions. The
 vector's length may not be exactly 1 due to floating point rounding.
+
+## Random algorithms
+
+### Random shuffle
+
+```c++
+template <RangeType R, RandomEngineType RNG>
+    std::vector<...> sample(const R& range, RNG& rng, size_t k);
+```
+
+Extracts a random sample of size `k` from the input range, without
+replacement. The order of output elements is unspecified. If `k>=n` this will
+simply copy the entire range. Complexity: _O(n)._
+
+```c++
+template <MutableRandomAccessRangeType R, RandomEngineType RNG>
+    void shuffle(R& range, RNG& rng);
+```
+
+Shuffles the range into a random order. Complexity: _O(n)._

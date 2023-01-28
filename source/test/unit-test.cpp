@@ -14,7 +14,11 @@ void log_test_group() {
 void types_test_group() {
     UNIT_TEST(crow_types_assertions)
     UNIT_TEST(crow_types_comparison_functions)
-    UNIT_TEST(crow_types_concepts)
+    UNIT_TEST(crow_types_general_concepts)
+    UNIT_TEST(crow_types_primitive_type_concepts)
+    UNIT_TEST(crow_types_iterator_concepts)
+    UNIT_TEST(crow_types_range_concepts)
+    UNIT_TEST(crow_types_container_concepts)
     UNIT_TEST(crow_types_literals)
 }
 
@@ -879,6 +883,11 @@ void random_adapter_test_group() {
     UNIT_TEST(crow_random_constrained_distribution)
 }
 
+void random_algorithm_test_group() {
+    UNIT_TEST(crow_random_sample)
+    UNIT_TEST(crow_random_shuffle)
+}
+
 void random_concept_test_group() {
     UNIT_TEST(crow_random_concepts)
 }
@@ -1341,6 +1350,7 @@ int main(int argc, char** argv) {
     projection_test_group();
     quaternion_test_group();
     random_adapter_test_group();
+    random_algorithm_test_group();
     random_concept_test_group();
     random_continuous_test_group();
     random_discrete_test_group();

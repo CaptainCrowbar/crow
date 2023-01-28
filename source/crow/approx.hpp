@@ -87,6 +87,7 @@ namespace Crow {
         // l = Show error as ulps (default)
         // r = Round based on error (error not shown)
         // x = Show error as explicit value
+        // X = Same but with +/-
 
         char opt = Detail::approx_options(spec, sizeof(T));
 

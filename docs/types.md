@@ -117,7 +117,14 @@ template <typename T> concept IteratorType;
 Satisfied if `T` is an iterator.
 
 ```c++
+template <typename T> concept MutableIteratorType;
+```
+
+Satisfied if `T` is a mutable iterator.
+
+```c++
 template <typename T> concept RangeType;
+template <typename T> concept MutableRangeType;
 ```
 
 Satisfied if `T` is a range, defined as having `begin(T)` and `end(T)`
@@ -125,22 +132,34 @@ functions that can be found either by ADL or in `namespace std`.
 
 ```c++
 template <typename T> concept MaplikeRangeType;
+template <typename T> concept MutableMaplikeRangeType;
 ```
 
 Satisfied if `T` is a range, and its value type has `first` and `second` data
-members.
+members. The `MutableMaplikeRangeType` concept only requires the second
+member to be mutable.
 
 ```c++
 template <typename T> concept InputIteratorType;
+template <typename T> concept MutableInputIteratorType;
 template <typename T> concept InputRangeType;
+template <typename T> concept MutableInputRangeType;
 template <typename T> concept OutputIteratorType;
+template <typename T> concept MutableOutputIteratorType;
 template <typename T> concept OutputRangeType;
+template <typename T> concept MutableOutputRangeType;
 template <typename T> concept ForwardIteratorType;
+template <typename T> concept MutableForwardIteratorType;
 template <typename T> concept ForwardRangeType;
+template <typename T> concept MutableForwardRangeType;
 template <typename T> concept BidirectionalIteratorType;
+template <typename T> concept MutableBidirectionalIteratorType;
 template <typename T> concept BidirectionalRangeType;
+template <typename T> concept MutableBidirectionalRangeType;
 template <typename T> concept RandomAccessIteratorType;
+template <typename T> concept MutableRandomAccessIteratorType;
 template <typename T> concept RandomAccessRangeType;
+template <typename T> concept MutableRandomAccessRangeType;
 ```
 
 These indicate whether an iterator type, or the iterator type of a range,

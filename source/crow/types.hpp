@@ -114,6 +114,11 @@ namespace Crow {
         typename std::iterator_traits<T>::iterator_category;
     };
 
+    template <typename T>
+    concept MutableIteratorType = IteratorType<T> && requires (T t, T u) {
+        { *t = *u };
+    };
+
     namespace Detail {
 
         using SO = std::strong_ordering;
@@ -159,9 +164,8 @@ namespace Crow {
 
     template <typename T> using RangeIterator = typename Detail::RangeTraits<T>::iterator_type;
     template <typename T> using RangeValue = typename Detail::RangeTraits<T>::value_type;
-
-    template <typename T>
-    concept RangeType = Detail::AdlBeginEndType<T> || Detail::StdBeginEndType<T>;
+    template <typename T> concept RangeType = Detail::AdlBeginEndType<T> || Detail::StdBeginEndType<T>;
+    template <typename T> concept MutableRangeType = RangeType<T> && MutableIteratorType<RangeIterator<T>>;
 
     template <typename T>
     concept InputIteratorType = IteratorType<T> && (
@@ -197,26 +201,33 @@ namespace Crow {
         std::same_as<typename std::iterator_traits<T>::iterator_category, std::random_access_iterator_tag>
     );
 
-    template <typename T>
-    concept InputRangeType = InputIteratorType<RangeIterator<T>>;
-
-    template <typename T>
-    concept OutputRangeType = OutputIteratorType<RangeIterator<T>>;
-
-    template <typename T>
-    concept ForwardRangeType = ForwardIteratorType<RangeIterator<T>>;
-
-    template <typename T>
-    concept BidirectionalRangeType = BidirectionalIteratorType<RangeIterator<T>>;
-
-    template <typename T>
-    concept RandomAccessRangeType = RandomAccessIteratorType<RangeIterator<T>>;
+    template <typename T> concept MutableInputIteratorType = InputIteratorType<T> && MutableIteratorType<T>;
+    template <typename T> concept MutableOutputIteratorType = OutputIteratorType<T> && MutableIteratorType<T>;
+    template <typename T> concept MutableForwardIteratorType = ForwardIteratorType<T> && MutableIteratorType<T>;
+    template <typename T> concept MutableBidirectionalIteratorType = BidirectionalIteratorType<T> && MutableIteratorType<T>;
+    template <typename T> concept MutableRandomAccessIteratorType = RandomAccessIteratorType<T> && MutableIteratorType<T>;
+    template <typename T> concept InputRangeType = InputIteratorType<RangeIterator<T>>;
+    template <typename T> concept OutputRangeType = OutputIteratorType<RangeIterator<T>>;
+    template <typename T> concept ForwardRangeType = ForwardIteratorType<RangeIterator<T>>;
+    template <typename T> concept BidirectionalRangeType = BidirectionalIteratorType<RangeIterator<T>>;
+    template <typename T> concept RandomAccessRangeType = RandomAccessIteratorType<RangeIterator<T>>;
+    template <typename T> concept MutableInputRangeType = MutableInputIteratorType<RangeIterator<T>>;
+    template <typename T> concept MutableOutputRangeType = MutableOutputIteratorType<RangeIterator<T>>;
+    template <typename T> concept MutableForwardRangeType = MutableForwardIteratorType<RangeIterator<T>>;
+    template <typename T> concept MutableBidirectionalRangeType = MutableBidirectionalIteratorType<RangeIterator<T>>;
+    template <typename T> concept MutableRandomAccessRangeType = MutableRandomAccessIteratorType<RangeIterator<T>>;
 
     template <typename T>
     concept MaplikeRangeType = RangeType<T>
         && (requires (RangeValue<T> v) {
             { v.first };
             { v.second };
+        });
+
+    template <typename T>
+    concept MutableMaplikeRangeType = MaplikeRangeType<T>
+        && (requires (RangeIterator<T> i, RangeIterator<T> j) {
+            { i->second = j->second };
         });
 
     template <typename T>
