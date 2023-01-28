@@ -84,6 +84,7 @@ Other libraries required:
     * [crow/uri](uri.html) - URI
     * [crow/web-client](web-client.html) - Web client
 * Numerics
+    * [crow/approx](approx.html) - Approximate values
     * [crow/binary](binary.html) - Bitwise operations
     * [crow/constants](constants.html) - Constants
     * [crow/fixed-binary](fixed-binary.html) - Fixed-size binary numbers

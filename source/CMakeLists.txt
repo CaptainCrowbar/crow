@@ -48,6 +48,7 @@ set(executable PERMISSIONS
 
 add_library(${library} STATIC
 
+    ${library}/approx.cpp
     ${library}/channel.cpp
     ${library}/colour.cpp
     ${library}/curl-api.cpp
@@ -115,6 +116,7 @@ add_executable(${unittest}
     test/types-test.cpp
 
     test/algorithm-test.cpp
+    test/approx-basic-test.cpp
     test/benchmark-test.cpp
     test/binary-test.cpp
     test/bounded-array-construction-test.cpp

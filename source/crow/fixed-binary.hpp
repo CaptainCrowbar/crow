@@ -6,6 +6,7 @@
 #include <array>
 #include <bit>
 #include <cmath>
+#include <compare>
 #include <concepts>
 #include <functional>
 #include <initializer_list>
