@@ -12,7 +12,7 @@ namespace Crow {
 
         std::string short_str;
         auto sptr = &str;
-        bool truncate = spec.find_mode("QSXqsx") != 0 && spec.has_prec() && size_t(spec.prec()) < str.size();
+        bool truncate = spec.find_mode("QqsXx") != 0 && spec.has_prec() && size_t(spec.prec()) < str.size();
 
         if (spec.lcmode() == 'x') {
 
@@ -44,7 +44,7 @@ namespace Crow {
                 }
             }
 
-            if (spec.lcmode() == 'q')
+            if (spec.mode() == 'q')
                 return quote(*sptr);
             else
                 return *sptr;

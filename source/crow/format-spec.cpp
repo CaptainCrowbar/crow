@@ -31,7 +31,7 @@ namespace Crow {
             throw std::invalid_argument("Invalid format spec: " + quote(m + o + std::to_string(p)));
     }
 
-    char FormatSpec::find_mode(const std::string& chars) const noexcept {
+    char FormatSpec::find_mode(std::string_view chars) const noexcept {
         auto pos = chars.find(mode_);
         return pos == npos ? '\0' : chars[pos];
     }
@@ -49,12 +49,17 @@ namespace Crow {
         mode_ = m;
     }
 
-    char FormatSpec::find_option(const std::string& chars) const noexcept {
+    void FormatSpec::exclude_mode(std::string_view chars) const {
+        if (ascii_isalpha(mode_) && chars.find(mode_) != npos)
+            throw std::invalid_argument("Invalid format mode: " + quote(std::string{mode_}));
+    }
+
+    char FormatSpec::find_option(std::string_view chars) const noexcept {
         auto pos = opts_.find_first_of(chars);
         return pos == npos ? '\0' : opts_[pos];
     }
 
-    void FormatSpec::no_option(const std::string& chars) noexcept {
+    void FormatSpec::no_option(std::string_view chars) noexcept {
         size_t i = 0;
         while (i < opts_.size()) {
             if (chars.find(opts_[i]) == npos)
@@ -62,6 +67,12 @@ namespace Crow {
             else
                 opts_.erase(i, 1);
         }
+    }
+
+    void FormatSpec::exclude_option(std::string_view chars) const {
+        for (char o: opts_)
+            if (chars.find(o) != npos)
+                throw std::invalid_argument("Invalid format option: " + quote(std::string{o}));
     }
 
     void FormatSpec::default_prec(int p) {

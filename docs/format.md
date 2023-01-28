@@ -111,8 +111,8 @@ be formatted by use of the customization points described below.
 * **String formatting**
     * Applies to: `std::string` and `const char*`
     * Mode:
-        * `Q,q` = Quote the string, with escapes (e.g. `"\"Hello\\n\""`)
-        * `S,s` = Just print the literal string
+        * `q` = Quote the string, with escapes (e.g. `"\"Hello\\n\""`)
+        * `s` = Just print the literal string
         * `X,x` = Expand the string as hex byte values (e.g. `"48 65 6c 6c 6f 0a"`)
     * Options:
         * `z` = No spaces in `X/x` format
@@ -316,9 +316,10 @@ True if this is a default spec containing no user specified elements.
 ```c++
 char FormatSpec::mode() const noexcept;
 char FormatSpec::lcmode() const noexcept;
-char FormatSpec::find_mode(const std::string& chars) const noexcept;
+char FormatSpec::find_mode(std::string_view chars) const noexcept;
 void FormatSpec::default_mode(char m);
 void FormatSpec::set_mode(char m);
+void FormatSpec::exclude_mode(std::string_view chars) const;
 ```
 
 Mode functions. The `mode()` function returns the mode letter; `lcmode()`
@@ -333,11 +334,15 @@ already has a non-empty mode. The `set_mode()` function sets the mode
 unconditionally. Both of these will throw `std::invalid_argument` if the
 argument is not an ASCII letter.
 
+The `exclude_mode()` function will throw `std::invalid_argument` if the mode
+matches any of the listed characters.
+
 ```c++
 bool FormatSpec::option(char c) const noexcept;
 std::string FormatSpec::options() const;
-char FormatSpec::find_option(const std::string& chars) const noexcept;
-void FormatSpec::no_option(const std::string& chars) noexcept;
+char FormatSpec::find_option(std::string_view chars) const noexcept;
+void FormatSpec::no_option(std::string_view chars) noexcept;
+void FormatSpec::exclude_option(std::string_view chars) const;
 ```
 
 Option functions. The `option()` function returns true if the option code is
@@ -345,8 +350,9 @@ present. The `options()` function returns the full option string. If any
 option letter on the list supplied to `find_option()` is present, it returns
 the first matching option; otherwise, it returns a null character.
 
-The `no_option()` function removes all matching option letters from the
-spec.
+The `no_option()` function removes all matching option letters from the spec.
+The `exclude_mode()` function will throw `std::invalid_argument` if any of
+the listed option characters are present.
 
 ```c++
 int FormatSpec::prec() const noexcept;

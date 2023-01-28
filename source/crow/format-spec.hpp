@@ -26,14 +26,16 @@ namespace Crow {
 
         char mode() const noexcept { return mode_; }
         char lcmode() const noexcept { return ascii_tolower(mode_); }
-        char find_mode(const std::string& chars) const noexcept;
+        char find_mode(std::string_view chars) const noexcept;
         void default_mode(char m);
         void set_mode(char m);
+        void exclude_mode(std::string_view chars) const;
 
         bool option(char c) const noexcept { return opts_.find(c) != npos; }
         std::string options() const { return opts_; }
-        char find_option(const std::string& chars) const noexcept;
-        void no_option(const std::string& chars) noexcept;
+        char find_option(std::string_view chars) const noexcept;
+        void no_option(std::string_view chars) noexcept;
+        void exclude_option(std::string_view chars) const;
 
         int prec() const noexcept { return prec_; }
         bool has_prec() const noexcept { return prec_ >= 0; }
