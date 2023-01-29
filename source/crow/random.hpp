@@ -1,6 +1,6 @@
 #pragma once
 
-//#include "crow/random-algorithms.hpp"
+#include "crow/random-algorithms.hpp"
 #include "crow/random-continuous-distributions.hpp"
 #include "crow/random-discrete-distributions.hpp"
 #include "crow/random-engines.hpp"
