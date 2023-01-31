@@ -1,6 +1,7 @@
 #pragma once
 
 #include "crow/enum.hpp"
+#include "crow/format.hpp"
 #include "crow/types.hpp"
 #include <string>
 #include <string_view>
@@ -58,6 +59,8 @@ namespace Crow {
         std::string str(style s, format_flags ff = no_ff) const;
         std::string str(std::string_view format, format_flags ff = no_ff) const;
 
+        template <typename T> static Name from(const T& t, const FormatSpec& spec = {}, parse_flags pf = no_pf);
+
     private:
 
         std::vector<std::string> words_;
@@ -65,6 +68,11 @@ namespace Crow {
         std::string get_str(std::string_view format, format_flags ff) const;
 
     };
+
+        template <typename T>
+        Name Name::from(const T& t, const FormatSpec& spec, parse_flags pf) {
+            return Name(format_object(t, spec), pf);
+        }
 
     CROW_BITMASK_OPERATORS(Name::parse_flags)
     CROW_BITMASK_OPERATORS(Name::format_flags)

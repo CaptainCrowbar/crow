@@ -131,3 +131,10 @@ elements.
 
 The second version of the `str()` function will throw `std::invalid_argument`
 if the format string is invalid.
+
+```c++
+template <typename T> static Name Name::from(const T& t,
+    const FormatSpec& spec = {}, parse_flags pf = no_pf);
+```
+
+Shorthand for `Name(format_object(t, spec), pf)`.

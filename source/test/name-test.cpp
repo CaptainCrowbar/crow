@@ -1,8 +1,15 @@
 #include "crow/name.hpp"
+#include "crow/enum.hpp"
 #include "crow/format.hpp"
 #include "crow/unit-test.hpp"
 
 using namespace Crow;
+
+namespace {
+
+    CROW_ENUM_CLASS(Foo, int, 1, SomeSuchThing, AnotherThing)
+
+}
 
 void test_crow_name_parsing() {
 
@@ -87,5 +94,14 @@ void test_crow_name_formatting() {
     TEST_EQUAL(name.str(Name::upper,        Name::stop),  "THE LADY OR THE TIGER");
     TEST_EQUAL(name.str(Name::upper_kebab,  Name::stop),  "THE-LADY-OR-THE-TIGER");
     TEST_EQUAL(name.str(Name::upper_snake,  Name::stop),  "THE_LADY_OR_THE_TIGER");
+
+}
+
+void test_crow_name_from_object() {
+
+    Name name;
+
+    TRY(name = Name::from(42));                  TEST_EQUAL(name.str(Name::kebab), "42");
+    TRY(name = Name::from(Foo::SomeSuchThing));  TEST_EQUAL(name.str(Name::kebab), "some-such-thing");
 
 }

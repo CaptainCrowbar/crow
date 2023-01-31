@@ -714,6 +714,7 @@ void multi_array_test_group() {
 void name_test_group() {
     UNIT_TEST(crow_name_parsing)
     UNIT_TEST(crow_name_formatting)
+    UNIT_TEST(crow_name_from_object)
 }
 
 void named_mutex_test_group() {

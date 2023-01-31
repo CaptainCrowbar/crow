@@ -1,7 +1,6 @@
 #include "crow/name.hpp"
 #include "crow/binary.hpp"
 #include "crow/english.hpp"
-#include "crow/format.hpp"
 #include "crow/regex.hpp"
 #include "crow/string.hpp"
 #include "crow/unicode.hpp"
