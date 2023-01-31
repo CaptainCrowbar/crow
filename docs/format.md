@@ -79,6 +79,8 @@ be formatted by use of the customization points described below.
         * `N,n` = Decimal integer
         * `R,r` = Roman numerals (throws `invalid_argument` if less than 1, or 0 if `Z` is set)
         * `X,x` = Hexadecimal integer
+    * Options:
+        * `z` = With `R/r`, use `0` for zero.
     * Precision:
         * Show at least this many digits (ignored for Roman numerals)
     * Notes:

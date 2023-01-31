@@ -19,8 +19,13 @@ namespace Crow {
             return format_floating_point(t, spec);
         else if (t == 0 && spec.option('Z'))
             return "--";
-        else if (spec.lcmode() == 'r')
-            return roman(t, spec.mode() == 'r');
+
+        if (spec.lcmode() == 'r') {
+            if (t == 0 && spec.option('z'))
+                return "0";
+            else
+                return roman(t, spec.mode() == 'r');
+        }
 
         T base;
 
