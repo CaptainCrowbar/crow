@@ -39,6 +39,7 @@ void test_crow_name_formatting() {
 
     Name name;
 
+    TEST_EQUAL(name.initials(),              "");
     TEST_EQUAL(name.str(Name::lower),        "");
     TEST_EQUAL(name.str(Name::kebab),        "");
     TEST_EQUAL(name.str(Name::snake),        "");
@@ -55,6 +56,7 @@ void test_crow_name_formatting() {
 
     TRY(name = "Aperture Science Innovators 1952");
 
+    TEST_EQUAL(name.initials(),              "ASI1952");
     TEST_EQUAL(name.str(Name::lower),        "aperture science innovators 1952");
     TEST_EQUAL(name.str(Name::kebab),        "aperture-science-innovators-1952");
     TEST_EQUAL(name.str(Name::snake),        "aperture_science_innovators_1952");
@@ -71,6 +73,7 @@ void test_crow_name_formatting() {
 
     TRY(name = "THE LADY OR THE TIGER");
 
+    TEST_EQUAL(name.initials(),             "TLOTT");
     TEST_EQUAL(name.str(Name::lower,        Name::stop),  "the lady or the tiger");
     TEST_EQUAL(name.str(Name::kebab,        Name::stop),  "the-lady-or-the-tiger");
     TEST_EQUAL(name.str(Name::snake,        Name::stop),  "the_lady_or_the_tiger");

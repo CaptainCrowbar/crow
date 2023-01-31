@@ -5,6 +5,7 @@
 #include "crow/regex.hpp"
 #include "crow/string.hpp"
 #include "crow/unicode.hpp"
+#include <algorithm>
 #include <stdexcept>
 
 using namespace Crow::Literals;
@@ -46,6 +47,17 @@ namespace Crow {
         for (auto& match: pattern.grep(s))
             words_.push_back(std::string(match));
 
+    }
+
+    std::string Name::initials() const {
+        std::string init;
+        for (auto& w: words_) {
+            if (ascii_isdigit(w[0]))
+                init += w;
+            else
+                init += ascii_toupper(w[0]);
+        }
+        return init;
     }
 
     std::string Name::str(style s, format_flags ff) const {

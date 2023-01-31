@@ -35,7 +35,7 @@ namespace Crow {
 
         enum class format_flags {
             no_ff  = 0,
-            stop   = 1,
+            stop   = 2,
         };
 
         using enum style;
@@ -54,6 +54,7 @@ namespace Crow {
         bool empty() const noexcept { return words_.empty(); }
         size_t size() const noexcept { return words_.size(); }
 
+        std::string initials() const;
         std::string str(style s, format_flags ff = no_ff) const;
         std::string str(std::string_view format, format_flags ff = no_ff) const;
 

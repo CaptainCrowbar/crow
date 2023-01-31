@@ -101,6 +101,12 @@ size_t Name::size() const noexcept { return words_.size(); }
 Iterators and other queries on the broken-down name.
 
 ```c++
+std::string Name::initials() const;
+```
+
+Returns the name's initials, in upper case. Numbers will not be abbreviated.
+
+```c++
 std::string Name::str(style s, format_flags ff = no_ff) const;
 std::string Name::str(std::string_view format, format_flags ff = no_ff) const;
 ```
