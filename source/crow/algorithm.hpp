@@ -28,6 +28,24 @@ namespace Crow {
 
     // Container algorithms
 
+    template <AssociativeContainerType C,
+        std::convertible_to<typename C::key_type> K,
+        std::convertible_to<typename C::mapped_type> T>
+    typename C::mapped_type lookup(const C& map, const K& key, const T& def) {
+        auto it = map.find(key);
+        if (it == map.end())
+            return def;
+        else
+            return it->second;
+    }
+
+    template <AssociativeContainerType C,
+        std::convertible_to<typename C::key_type> K>
+    typename C::mapped_type lookup(const C& map, const K& key) {
+        using T = typename C::mapped_type;
+        return lookup(map, key, T());
+    }
+
     template <typename Container>
     void unique_in(Container& con) {
         con.erase(std::unique(con.begin(), con.end()), con.end());

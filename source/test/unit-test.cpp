@@ -23,7 +23,8 @@ void types_test_group() {
 }
 
 void algorithm_test_group() {
-    UNIT_TEST(crow_algorithm_container_algorithms)
+    UNIT_TEST(crow_algorithm_lookup)
+    UNIT_TEST(crow_algorithm_unique)
     UNIT_TEST(crow_algorithm_diff)
     UNIT_TEST(crow_algorithm_edit_distance_levenshtein)
     UNIT_TEST(crow_algorithm_edit_distance_damerau_levenshtein)

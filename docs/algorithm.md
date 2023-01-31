@@ -15,6 +15,20 @@ namespace Crow;
 ## Container algorithms
 
 ```c++
+template <AssociativeContainerType C,
+    std::convertible_to<typename C::key_type> K>
+    typename C::mapped_type lookup(const C& map, const K& key);
+template <AssociativeContainerType C,
+    std::convertible_to<typename C::key_type> K,
+    std::convertible_to<typename C::mapped_type> T>
+    typename C::mapped_type lookup(const C& map, const K& key,
+        const T& def);
+```
+
+Look up the key in the map, returning the mapped value if found, otherwise
+either the supplied default value, or a default constructed value.
+
+```c++
 template <typename Container>
     void unique_in(Container& con);
 template <typename Container, typename BinaryPredicate>

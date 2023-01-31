@@ -6,6 +6,7 @@
 #include <functional>
 #include <iostream>
 #include <iterator>
+#include <map>
 #include <random>
 #include <string>
 #include <unordered_set>
@@ -15,7 +16,30 @@
 using namespace Crow;
 using namespace std::literals;
 
-void test_crow_algorithm_container_algorithms() {
+void test_crow_algorithm_lookup() {
+
+    std::map<int, std::string> map = {
+        { 1, "alpha" },
+        { 2, "bravo" },
+        { 3, "charlie" },
+    };
+
+    std::string s;
+
+    TRY(s = lookup(map, 0));          TEST_EQUAL(s, "");
+    TRY(s = lookup(map, 1));          TEST_EQUAL(s, "alpha");
+    TRY(s = lookup(map, 2));          TEST_EQUAL(s, "bravo");
+    TRY(s = lookup(map, 3));          TEST_EQUAL(s, "charlie");
+    TRY(s = lookup(map, 4));          TEST_EQUAL(s, "");
+    TRY(s = lookup(map, 0, "none"));  TEST_EQUAL(s, "none");
+    TRY(s = lookup(map, 1, "none"));  TEST_EQUAL(s, "alpha");
+    TRY(s = lookup(map, 2, "none"));  TEST_EQUAL(s, "bravo");
+    TRY(s = lookup(map, 3, "none"));  TEST_EQUAL(s, "charlie");
+    TRY(s = lookup(map, 4, "none"));  TEST_EQUAL(s, "none");
+
+}
+
+void test_crow_algorithm_unique() {
 
     const auto is_upper = [] (char c) { return c >= 'A' && c <= 'Z'; };
     const auto is_lower = [] (char c) { return c >= 'a' && c <= 'z'; };
