@@ -281,6 +281,10 @@ An empty string is also a valid format spec. When a precision is supplied as
 an `int` (instead of a substring), any negative value is interpreted as the
 default precision.
 
+In general, if multiple inconsistent options are present, it is unspecified
+which one will be respected. Formatting rules for specific types will
+document exceptions to this.
+
 ```c++
 FormatSpec::FormatSpec(char m, const std::string& o, int p = -1);
 ```

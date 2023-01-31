@@ -5,6 +5,7 @@
 #include "crow/maths.hpp"
 #include "crow/string.hpp"
 #include "crow/types.hpp"
+#include <algorithm>
 #include <cmath>
 #include <compare>
 #include <concepts>
@@ -17,8 +18,11 @@ namespace Crow {
 
     namespace Detail {
 
-        char approx_options(FormatSpec& spec, size_t tsize);
         void approx_extract(std::string_view str, std::string& vstr, std::string& estr);
+
+        constexpr size_t digits_in(std::string_view str) noexcept {
+            return std::count_if(str.begin(), str.end(), ascii_isdigit);
+        }
 
     }
 
@@ -59,6 +63,9 @@ namespace Crow {
 
     private:
 
+        static constexpr size_t default_prec = sizeof(T) <= sizeof(float) ? 6 : 10;
+        static constexpr size_t error_digits = 2;
+
         class raw {};
 
         T value_ = 0;
@@ -84,21 +91,38 @@ namespace Crow {
     template <std::floating_point T>
     std::string Approx<T>::str(FormatSpec spec) const {
 
-        // l = Show error as ulps (default)
-        // r = Round based on error (error not shown)
-        // x = Show error as explicit value
-        // X = Same but with +/-
-
-        char opt = Detail::approx_options(spec, sizeof(T));
+        spec.exclude_mode("Pp");
+        spec.default_prec(default_prec);
 
         if (is_exact())
             return format_object(value_, spec);
 
         spec.no_option("z");
+        char opt = spec.find_option("lrxX");
 
-        // TODO
-        (void)opt;
-        return {};
+        if (opt == 'r') {
+
+            // r = Round based on error
+
+            // TODO
+            return {};
+
+        } else if (opt == 'x' || opt == 'X') {
+
+            // x = Show error as explicit value
+            // X = Same but with +/-
+
+            // TODO
+            return {};
+
+        } else {
+
+            // l = Show error as ulps (default)
+
+            // TODO
+            return {};
+
+        }
 
     }
 

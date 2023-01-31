@@ -41,9 +41,17 @@ void algorithm_test_group() {
     UNIT_TEST(crow_algorithm_subsets)
 }
 
-void approx_basic_test_group() {
+void approx_arithmetic_test_group() {
+    UNIT_TEST(crow_approx_arithmetic)
+}
+
+void approx_construction_test_group() {
     UNIT_TEST(crow_approx_construction)
     UNIT_TEST(crow_approx_parsing)
+}
+
+void approx_formatting_test_group() {
+    UNIT_TEST(crow_approx_formatting)
 }
 
 void benchmark_test_group() {
@@ -1219,7 +1227,9 @@ int main(int argc, char** argv) {
     log_test_group();
     types_test_group();
     algorithm_test_group();
-    approx_basic_test_group();
+    approx_arithmetic_test_group();
+    approx_construction_test_group();
+    approx_formatting_test_group();
     benchmark_test_group();
     binary_test_group();
     bounded_array_construction_test_group();

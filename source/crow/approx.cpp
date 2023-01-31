@@ -1,31 +1,10 @@
 #include "crow/approx.hpp"
 #include "crow/regex.hpp"
-#include <algorithm>
 #include <stdexcept>
 
 namespace Crow {
 
     namespace Detail {
-
-        char approx_options(FormatSpec& spec, size_t tsize) {
-
-            spec.exclude_mode("Pp");
-
-            if (tsize <= sizeof(float))
-                spec.default_prec(6);
-            else
-                spec.default_prec(10);
-
-            bool l = spec.option('l');
-            bool r = spec.option('r');
-            bool x = spec.option('x');
-
-            if (int(l) + int(r) + int(x) > 1)
-                throw std::invalid_argument("Invalid format spec: " + spec.str());
-
-            return r ? 'r' : x ? 'x' : 'l';
-
-        }
 
         void approx_extract(std::string_view str, std::string& vstr, std::string& estr) {
 
@@ -63,7 +42,7 @@ namespace Crow {
             else if (match.matched(3))
                 decimal_part = match[3];
 
-            size_t decimals = std::count_if(decimal_part.begin(), decimal_part.end(), ascii_isdigit);
+            size_t decimals = digits_in(decimal_part);
 
             if (match.matched(4)) {
 
