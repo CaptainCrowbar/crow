@@ -12,7 +12,7 @@ void test_crow_table_layout() {
     TRY(tab.add("Alpha", "Bravo", "Charlie"));
     TRY(tab.add(123, 456, 789));
     TRY(tab.add("Something"));
-    TRY(s = to_string(tab));
+    TRY(s = tab.str());
 
     TEST_EQUAL(s,
         "Alpha      Bravo  Charlie\n"
@@ -20,7 +20,7 @@ void test_crow_table_layout() {
         "Something  --     --\n"
     );
 
-    TRY(s = to_string(tab, "M"));
+    TRY(s = tab.str("M"));
 
     TEST_EQUAL(s,
         "| Alpha      | Bravo  | Charlie  |\n"
@@ -29,7 +29,7 @@ void test_crow_table_layout() {
     );
 
     TRY(tab.header("X-ray\n°C", "Yankee", "Zulu"));
-    TRY(s = to_string(tab));
+    TRY(s = tab.str());
 
     TEST_EQUAL(s,
         "X-ray      Yankee  Zulu\n"
@@ -40,7 +40,7 @@ void test_crow_table_layout() {
         "Something  --      --\n"
     );
 
-    TRY(s = to_string(tab, "B"));
+    TRY(s = tab.str("B"));
 
     TEST_EQUAL(s,
         "╭───────────┬────────┬─────────╮\n"
@@ -53,7 +53,7 @@ void test_crow_table_layout() {
         "╰───────────┴────────┴─────────╯\n"
     );
 
-    TRY(s = to_string(tab, "M"));
+    TRY(s = tab.str("M"));
 
     TEST_EQUAL(s,
         "| X-ray<br>°C  | Yankee  | Zulu     |\n"
@@ -75,7 +75,7 @@ void test_crow_table_formatting() {
     TRY(tab.add("Alpha", "Bravo", "Charlie"));
     TRY(tab.add(123, 456, 789));
     TRY(tab.add("Something"));
-    TRY(s = to_string(tab));
+    TRY(s = tab.str());
 
     TEST_EQUAL(s,
         "X-ray      Yankee    Zulu\n"
@@ -86,7 +86,7 @@ void test_crow_table_formatting() {
         "Something  --        --\n"
     );
 
-    TRY(s = to_string(tab, "B"));
+    TRY(s = tab.str("B"));
 
     TEST_EQUAL(s,
         "╭───────────┬──────────┬─────────╮\n"
@@ -99,7 +99,7 @@ void test_crow_table_formatting() {
         "╰───────────┴──────────┴─────────╯\n"
     );
 
-    TRY(s = to_string(tab, "M"));
+    TRY(s = tab.str("M"));
 
     TEST_EQUAL(s,
         "| X-ray<br>°C  | Yankee    | Zulu     |\n"
@@ -124,7 +124,7 @@ void test_crow_table_piecewise() {
     TRY(tab << '\n');
     TRY(tab << 123 << 456 << 789 << '\n');
     TRY(tab << "Something" << '\n');
-    TRY(s = to_string(tab));
+    TRY(s = tab.str());
 
     TEST_EQUAL(s,
         "X-ray      Yankee    Zulu\n"

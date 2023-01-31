@@ -91,7 +91,7 @@ The number of columns (in the longest row, including the header row if
 present) or rows (not counting the headers) in the table.
 
 ```c++
-std::string Table::str(const FormatSpec& spec) const override;
+std::string Table::str(const FormatSpec& spec = {}) const override;
 ```
 
 Formats the table as a multiline string. Formatting modes:

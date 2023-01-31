@@ -25,7 +25,7 @@ namespace Crow {
         bool has_header() const noexcept { return ! headers_.empty(); }
         size_t columns() const noexcept { return columns_; }
         size_t rows() const noexcept { return cells_.size(); }
-        std::string str(const FormatSpec& spec) const override;
+        std::string str(const FormatSpec& spec = {}) const override;
 
     private:
 
