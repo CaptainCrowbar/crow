@@ -270,6 +270,7 @@ void test_crow_english_pluralization() {
     TEST_EQUAL(plural("asyndeton"),      "asyndeta");
     TEST_EQUAL(plural("atlas"),          "atlases");
     TEST_EQUAL(plural("aurora"),         "aurorae");
+    TEST_EQUAL(plural("axe"),            "axes");
     TEST_EQUAL(plural("axis"),           "axes");
     TEST_EQUAL(plural("bacterium"),      "bacteria");
     TEST_EQUAL(plural("basis"),          "bases");
@@ -321,8 +322,10 @@ void test_crow_english_pluralization() {
     TEST_EQUAL(plural("extremum"),       "extrema");
     TEST_EQUAL(plural("ferry"),          "ferries");
     TEST_EQUAL(plural("fiasco"),         "fiascos");
+    TEST_EQUAL(plural("fly"),            "flies");
     TEST_EQUAL(plural("focus"),          "foci");
     TEST_EQUAL(plural("formula"),        "formulae");
+    TEST_EQUAL(plural("fox"),            "foxes");
     TEST_EQUAL(plural("fungus"),         "fungi");
     TEST_EQUAL(plural("gas"),            "gases");
     TEST_EQUAL(plural("generalissimo"),  "generalissimos");
@@ -335,6 +338,7 @@ void test_crow_english_pluralization() {
     TEST_EQUAL(plural("hiatus"),         "hiatuses");
     TEST_EQUAL(plural("honorarium"),     "honoraria");
     TEST_EQUAL(plural("hydra"),          "hydrae");
+    TEST_EQUAL(plural("hyena"),          "hyenas");
     TEST_EQUAL(plural("hyperbaton"),     "hyperbata");
     TEST_EQUAL(plural("hyperbola"),      "hyperbolae");
     TEST_EQUAL(plural("ibis"),           "ibises");
@@ -346,6 +350,7 @@ void test_crow_english_pluralization() {
     TEST_EQUAL(plural("interregnum"),    "interregna");
     TEST_EQUAL(plural("iris"),           "irises");
     TEST_EQUAL(plural("jumbo"),          "jumbos");
+    TEST_EQUAL(plural("key"),            "keys");
     TEST_EQUAL(plural("lacuna"),         "lacunae");
     TEST_EQUAL(plural("latex"),          "latices");
     TEST_EQUAL(plural("lens"),           "lenses");
@@ -353,6 +358,7 @@ void test_crow_english_pluralization() {
     TEST_EQUAL(plural("lingo"),          "lingos");
     TEST_EQUAL(plural("lumbago"),        "lumbagos");
     TEST_EQUAL(plural("lustrum"),        "lustra");
+    TEST_EQUAL(plural("lynx"),           "lynxes");
     TEST_EQUAL(plural("magneto"),        "magnetos");
     TEST_EQUAL(plural("manifesto"),      "manifestos");
     TEST_EQUAL(plural("mantis"),         "mantids");
@@ -375,6 +381,7 @@ void test_crow_english_pluralization() {
     TEST_EQUAL(plural("noumenon"),       "noumena");
     TEST_EQUAL(plural("nova"),           "novae");
     TEST_EQUAL(plural("nucleolus"),      "nucleoli");
+    TEST_EQUAL(plural("nymph"),          "nymphs");
     TEST_EQUAL(plural("octavo"),         "octavos");
     TEST_EQUAL(plural("optimum"),        "optima");
     TEST_EQUAL(plural("organon"),        "organa");

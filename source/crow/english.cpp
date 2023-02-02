@@ -411,6 +411,7 @@ namespace Crow {
             { "goy",            "goyim" },
             { "guano",          "guanos" },
             { "hiatus",         "hiatuses" },
+            { "hyena",          "hyenas" },
             { "hyperbaton",     "hyperbata" },
             { "impetus",        "impetuses" },
             { "inferno",        "infernos" },
