@@ -55,6 +55,29 @@ void test_crow_random_choice_distribution() {
     TEST_NEAR(census['y'] / double(iterations), 0.2, 0.001);
     TEST_NEAR(census['z'] / double(iterations), 0.2, 0.001);
 
+    std::string s = "qrstu";
+    TRY(choice.add(s));
+    TEST_EQUAL(choice.size(), 10u);
+    census.clear();
+
+    for (int i = 0; i < iterations; ++i) {
+        TRY(c = choice(rng));
+        ++census[c];
+    }
+
+    TEST_EQUAL(census.size(), 10u);
+
+    TEST_NEAR(census['q'] / double(iterations), 0.1, 0.001);
+    TEST_NEAR(census['r'] / double(iterations), 0.1, 0.001);
+    TEST_NEAR(census['s'] / double(iterations), 0.1, 0.001);
+    TEST_NEAR(census['t'] / double(iterations), 0.1, 0.001);
+    TEST_NEAR(census['u'] / double(iterations), 0.1, 0.001);
+    TEST_NEAR(census['v'] / double(iterations), 0.1, 0.001);
+    TEST_NEAR(census['w'] / double(iterations), 0.1, 0.001);
+    TEST_NEAR(census['x'] / double(iterations), 0.1, 0.001);
+    TEST_NEAR(census['y'] / double(iterations), 0.1, 0.001);
+    TEST_NEAR(census['z'] / double(iterations), 0.1, 0.001);
+
 }
 
 void test_crow_random_weighted_distribution() {

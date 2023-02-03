@@ -136,6 +136,14 @@ namespace Crow {
             return *this;
         }
 
+        template <typename Range>
+        RandomChoice& add(const Range& range) {
+            using std::begin;
+            using std::end;
+            vec_.insert(vec_.end(), begin(range), end(range));
+            return *this;
+        }
+
         bool empty() const noexcept { return vec_.empty(); }
         size_t size() const noexcept { return vec_.size(); }
 

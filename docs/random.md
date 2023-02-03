@@ -391,6 +391,8 @@ template <typename T> class RandomChoice {
         const T& operator()(RNG& rng) const;
     template <typename... Args>
         RandomChoice& add(const Args&... args);
+    template <typename Range>
+        RandomChoice& add(const Range& range);
     bool empty() const noexcept;
     size_t size() const noexcept;
 };
