@@ -25,18 +25,23 @@ namespace Crow {
     }
 
     template <typename Range>
-    std::string format_map(const Range& r, const FormatSpec& spec = {}) {
-        bool bracket = ! spec.option('N');
+    std::string format_map(const Range& r, const FormatSpec& spec1, const FormatSpec& spec2) {
+        bool bracket = ! spec1.option('N');
         std::string s;
         if (bracket)
             s += '{';
         for (auto& [k,v]: r)
-            s += format_object(k, spec) + ':' + format_object(v, spec) + ',';
+            s += format_object(k, spec1) + ':' + format_object(v, spec2) + ',';
         if (s.size() > 1)
             s.pop_back();
         if (bracket)
             s += '}';
         return s;
+    }
+
+    template <typename Range>
+    std::string format_map(const Range& r, const FormatSpec& spec = {}) {
+        return format_map(r, spec, spec);
     }
 
     // String formatting

@@ -446,6 +446,8 @@ template <typename Range> std::string format_range(const Range& r,
     const FormatSpec& spec = {});
 template <typename Range> std::string format_map(const Range& r,
     const FormatSpec& spec = {});
+template <typename Range> std::string format_map(const Range& r,
+    const FormatSpec& spec1, const FormatSpec& spec2);
 ```
 
 These format a sequential range, or a map-like range. A range is anything that
@@ -464,6 +466,10 @@ Map-like ranges use a format based on JSON objects:
 ```
 map { { 1, "abc" }, { 2, "def" }, { 3, "ghi" } } => "{1:abc,2:def,3:ghi}"
 ```
+
+The first version of `format_map()` uses the same format spec for both fields;
+the second accepts separate specs for each value. Only the first version is
+used by `format_object()`.
 
 ```c++
 template <typename T> std::string format_via_stream(const T& t);

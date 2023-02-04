@@ -77,4 +77,10 @@ void test_crow_format_ranges() {
     m = {{1,"abc"},{2,"def"},{3,"ghi"}};            TEST_EQUAL(format_object(m, "*N"), "1:abc,2:def,3:ghi");        TEST_EQUAL(format_object(m, "nN2"), "01:abc,02:def,03:ghi");
     m = {{1,"abc"},{2,"def"},{3,"ghi"},{4,"jkl"}};  TEST_EQUAL(format_object(m, "*N"), "1:abc,2:def,3:ghi,4:jkl");  TEST_EQUAL(format_object(m, "nN2"), "01:abc,02:def,03:ghi,04:jkl");
 
+    m = {};                                         TEST_EQUAL(format_map(m, "n2", "xz"), "{}");
+    m = {{1,"abc"}};                                TEST_EQUAL(format_map(m, "n2", "xz"), "{01:616263}");
+    m = {{1,"abc"},{2,"def"}};                      TEST_EQUAL(format_map(m, "n2", "xz"), "{01:616263,02:646566}");
+    m = {{1,"abc"},{2,"def"},{3,"ghi"}};            TEST_EQUAL(format_map(m, "n2", "xz"), "{01:616263,02:646566,03:676869}");
+    m = {{1,"abc"},{2,"def"},{3,"ghi"},{4,"jkl"}};  TEST_EQUAL(format_map(m, "n2", "xz"), "{01:616263,02:646566,03:676869,04:6a6b6c}");
+
 }
