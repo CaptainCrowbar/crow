@@ -42,6 +42,7 @@ Other libraries required:
     * [crow/bounded-array](bounded-array.html) - Bounded array on the stack
     * [crow/cache](cache.html) - LRU cache
     * [crow/compact-array](compact-array.html) - Compact array optimized for small size
+    * [crow/flexible-map](flexible-map.html) - Maps and sets with flexible implementation
     * [crow/index-table](index-table.html) - Indexed table with multiple keys
     * [crow/linear-map](linear-map.html) - Linear interpolated map
     * [crow/mirror-map](mirror-map.html) - Map with two-way lookup

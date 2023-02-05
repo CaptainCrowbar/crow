@@ -243,6 +243,18 @@ void fixed_binary_small_binary_5_test_group() {
     UNIT_TEST(crow_fixed_binary_small_binary_5)
 }
 
+void flexible_map_test_group() {
+    UNIT_TEST(crow_flexible_map_order)
+    UNIT_TEST(crow_flexible_map_hash)
+    UNIT_TEST(crow_flexible_map_linear)
+}
+
+void flexible_set_test_group() {
+    UNIT_TEST(crow_flexible_set_order)
+    UNIT_TEST(crow_flexible_set_hash)
+    UNIT_TEST(crow_flexible_set_linear)
+}
+
 void font_test_group() {
     UNIT_TEST(crow_font_loading)
     UNIT_TEST(crow_font_properties)
@@ -1263,6 +1275,8 @@ int main(int argc, char** argv) {
     fixed_binary_misc_test_group();
     fixed_binary_small_binary_35_test_group();
     fixed_binary_small_binary_5_test_group();
+    flexible_map_test_group();
+    flexible_set_test_group();
     font_test_group();
     format_floating_test_group();
     format_integer_test_group();
