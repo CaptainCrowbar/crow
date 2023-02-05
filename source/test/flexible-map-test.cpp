@@ -178,6 +178,15 @@ void test_crow_flexible_map_order() {
     TEST(map.empty());
     TEST_EQUAL(map.size(), 0u);
 
+    TRY((map = {{1, "xx"}, {2, "yy"}, {3, "zz"}}));
+    TEST_EQUAL(map.size(), 3u);
+    TEST(map.contains(1));
+    TEST(map.contains(2));
+    TEST(map.contains(3));
+    TEST_EQUAL(map[1], "xx");
+    TEST_EQUAL(map[2], "yy");
+    TEST_EQUAL(map[3], "zz");
+
 }
 
 void test_crow_flexible_map_hash() {
@@ -325,6 +334,15 @@ void test_crow_flexible_map_hash() {
     TEST(map.empty());
     TEST_EQUAL(map.size(), 0u);
 
+    TRY((map = {{{1}, "xx"}, {{2}, "yy"}, {{3}, "zz"}}));
+    TEST_EQUAL(map.size(), 3u);
+    TEST(map.contains({1}));
+    TEST(map.contains({2}));
+    TEST(map.contains({3}));
+    TEST_EQUAL(map[{1}], "xx");
+    TEST_EQUAL(map[{2}], "yy");
+    TEST_EQUAL(map[{3}], "zz");
+
 }
 
 void test_crow_flexible_map_linear() {
@@ -471,5 +489,14 @@ void test_crow_flexible_map_linear() {
     TRY(map.clear());
     TEST(map.empty());
     TEST_EQUAL(map.size(), 0u);
+
+    TRY((map = {{{1}, "xx"}, {{2}, "yy"}, {{3}, "zz"}}));
+    TEST_EQUAL(map.size(), 3u);
+    TEST(map.contains({1}));
+    TEST(map.contains({2}));
+    TEST(map.contains({3}));
+    TEST_EQUAL(map[{1}], "xx");
+    TEST_EQUAL(map[{2}], "yy");
+    TEST_EQUAL(map[{3}], "zz");
 
 }

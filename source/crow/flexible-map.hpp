@@ -179,12 +179,14 @@ namespace Crow {
     template <std::equality_comparable K, std::regular T, FlexImpl Prefer = FlexImpl::order>
     class FlexibleMap:
     public Detail::FlexibleMapImpl<K, T, Detail::SelectFlexImpl<K, Prefer>> {
+    private:
+        using base = Detail::FlexibleMapImpl<K, T, Detail::SelectFlexImpl<K, Prefer>>;
     public:
         static_assert(Prefer != FlexImpl::linear);
         static constexpr FlexImpl impl = Detail::SelectFlexImpl<K, Prefer>;
         FlexibleMap() = default;
         template <InputIteratorType II> FlexibleMap(II i, II j) { this->insert(i, j); }
-        FlexibleMap(std::initializer_list<std::pair<K, T>> list) { this->insert(list); }
+        FlexibleMap(std::initializer_list<typename base::value_type> list) { this->insert(list); }
     };
 
     template <std::equality_comparable K, FlexImpl Prefer = FlexImpl::order>

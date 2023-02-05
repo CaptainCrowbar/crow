@@ -150,6 +150,12 @@ void test_crow_flexible_set_order() {
     TEST(set.empty());
     TEST_EQUAL(set.size(), 0u);
 
+    TRY((set = {1, 2, 3}));
+    TEST_EQUAL(set.size(), 3u);
+    TEST(set.contains(1));
+    TEST(set.contains(2));
+    TEST(set.contains(3));
+
 }
 
 void test_crow_flexible_set_hash() {
@@ -269,6 +275,12 @@ void test_crow_flexible_set_hash() {
     TEST(set.empty());
     TEST_EQUAL(set.size(), 0u);
 
+    TRY((set = {{1}, {2}, {3}}));
+    TEST_EQUAL(set.size(), 3u);
+    TEST(set.contains({1}));
+    TEST(set.contains({2}));
+    TEST(set.contains({3}));
+
 }
 
 void test_crow_flexible_set_linear() {
@@ -387,5 +399,11 @@ void test_crow_flexible_set_linear() {
     TRY(set.clear());
     TEST(set.empty());
     TEST_EQUAL(set.size(), 0u);
+
+    TRY((set = {{1}, {2}, {3}}));
+    TEST_EQUAL(set.size(), 3u);
+    TEST(set.contains({1}));
+    TEST(set.contains({2}));
+    TEST(set.contains({3}));
 
 }
