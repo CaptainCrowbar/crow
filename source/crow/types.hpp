@@ -341,6 +341,26 @@ namespace Crow {
             return msg;
         }
 
+    // Function objects
+
+    template <typename T = void, typename U = T> struct Plus        { auto operator()(const T& t, const U& u) const { return t + u; } };
+    template <typename T = void, typename U = T> struct Minus       { auto operator()(const T& t, const U& u) const { return t - u; } };
+    template <typename T = void, typename U = T> struct Multiplies  { auto operator()(const T& t, const U& u) const { return t * u; } };
+    template <typename T = void, typename U = T> struct Divides     { auto operator()(const T& t, const U& u) const { return t / u; } };
+    template <typename T = void, typename U = T> struct Modulus     { auto operator()(const T& t, const U& u) const { return t % u; } };
+    template <typename T = void, typename U = T> struct BitAnd      { auto operator()(const T& t, const U& u) const { return t & u; } };
+    template <typename T = void, typename U = T> struct BitOr       { auto operator()(const T& t, const U& u) const { return t | u; } };
+    template <typename T = void, typename U = T> struct BitXor      { auto operator()(const T& t, const U& u) const { return t ^ u; } };
+
+    template <> struct Plus<void, void>        { template <typename T, typename U> auto operator()(const T& t, const U& u) const { return t + u; } };
+    template <> struct Minus<void, void>       { template <typename T, typename U> auto operator()(const T& t, const U& u) const { return t - u; } };
+    template <> struct Multiplies<void, void>  { template <typename T, typename U> auto operator()(const T& t, const U& u) const { return t * u; } };
+    template <> struct Divides<void, void>     { template <typename T, typename U> auto operator()(const T& t, const U& u) const { return t / u; } };
+    template <> struct Modulus<void, void>     { template <typename T, typename U> auto operator()(const T& t, const U& u) const { return t % u; } };
+    template <> struct BitAnd<void, void>      { template <typename T, typename U> auto operator()(const T& t, const U& u) const { return t & u; } };
+    template <> struct BitOr<void, void>       { template <typename T, typename U> auto operator()(const T& t, const U& u) const { return t | u; } };
+    template <> struct BitXor<void, void>      { template <typename T, typename U> auto operator()(const T& t, const U& u) const { return t ^ u; } };
+
     // Literals
 
     namespace Detail {

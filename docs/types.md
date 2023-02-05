@@ -221,6 +221,23 @@ class AssertionFailure: public std::runtime_error {
 
 The exception thrown when a `CROW_XASSERT()` fails.
 
+## Function objects
+
+```c++
+template <typename T = void, typename U = T> struct Plus;        // +
+template <typename T = void, typename U = T> struct Minus;       // -
+template <typename T = void, typename U = T> struct Multiplies;  // *
+template <typename T = void, typename U = T> struct Divides;     // /
+template <typename T = void, typename U = T> struct Modulus;     // %
+template <typename T = void, typename U = T> struct BitAnd;      // &
+template <typename T = void, typename U = T> struct BitOr;       // |
+template <typename T = void, typename U = T> struct BitXor;      // ^
+```
+
+Heterogeneous versions of the standard function objects for binary arithmetic
+operations. Like those, these have `void` specializations with a templated
+function call operator.
+
 ## Literals
 
 ```c++

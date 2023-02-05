@@ -20,6 +20,7 @@ void types_test_group() {
     UNIT_TEST(crow_types_range_concepts)
     UNIT_TEST(crow_types_container_concepts)
     UNIT_TEST(crow_types_literals)
+    UNIT_TEST(crow_types_function_objects)
 }
 
 void algorithm_test_group() {

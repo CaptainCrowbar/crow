@@ -391,3 +391,24 @@ void test_crow_types_literals() {
     { auto x = 0b1011'0011'1000_u32;  TEST_TYPE(decltype(x), std::uint32_t);   TEST_EQUAL(x, 0b1011'0011'1000ul); }
 
 }
+
+void test_crow_types_function_objects() {
+
+    TEST_EQUAL((Plus<double, int>()           (2.5, 2)),                  4.5);
+    TEST_EQUAL((Minus<double, int>()          (2.5, 2)),                  0.5);
+    TEST_EQUAL((Multiplies<double, int>()     (2.5, 2)),                  5);
+    TEST_EQUAL((Divides<double, int>()        (2.5, 2)),                  1.25);
+    TEST_EQUAL((Modulus<long, int>()          (20L, 7)),                  6);
+    TEST_EQUAL((BitAnd<uint64_t, uint32_t>()  (0b1010_u64, 0b0011_u32)),  0b0010_u64);
+    TEST_EQUAL((BitOr<uint64_t, uint32_t>()   (0b1010_u64, 0b0011_u32)),  0b1011_u64);
+    TEST_EQUAL((BitXor<uint64_t, uint32_t>()  (0b1010_u64, 0b0011_u32)),  0b1001_u64);
+    TEST_EQUAL((Plus<void>()                  (2.5, 2)),                  4.5);
+    TEST_EQUAL((Minus<void>()                 (2.5, 2)),                  0.5);
+    TEST_EQUAL((Multiplies<void>()            (2.5, 2)),                  5);
+    TEST_EQUAL((Divides<void>()               (2.5, 2)),                  1.25);
+    TEST_EQUAL((Modulus<void>()               (20L, 7)),                  6);
+    TEST_EQUAL((BitAnd<void>()                (0b1010_u64, 0b0011_u32)),  0b0010_u64);
+    TEST_EQUAL((BitOr<void>()                 (0b1010_u64, 0b0011_u32)),  0b1011_u64);
+    TEST_EQUAL((BitXor<void>()                (0b1010_u64, 0b0011_u32)),  0b1001_u64);
+
+}
