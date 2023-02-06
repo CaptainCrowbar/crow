@@ -28,7 +28,7 @@ namespace Crow {
 
     }
 
-    template <RealNumericType T>
+    template <NonIntegralNumericType T>
     class LogScale:
     private Detail::LogScaleBase {
 
@@ -106,7 +106,7 @@ namespace Crow {
 
     };
 
-        template <RealNumericType T>
+        template <NonIntegralNumericType T>
         LogScale<T>::LogScale(T x) noexcept {
             using std::abs;
             using std::log;
@@ -116,14 +116,14 @@ namespace Crow {
             }
         }
 
-        template <RealNumericType T>
+        template <NonIntegralNumericType T>
         LogScale<T>::LogScale(T ln, int sign) noexcept:
         log_(ln),
         sign_(sign) {
             normalize();
         }
 
-        template <RealNumericType T>
+        template <NonIntegralNumericType T>
         std::strong_ordering LogScale<T>::compare(LogScale y) const noexcept {
             if (sign_ == 0 && y.sign_ == 0)
                 return std::strong_ordering::equal;
@@ -135,19 +135,19 @@ namespace Crow {
             return s <=> 0;
         }
 
-        template <RealNumericType T>
+        template <NonIntegralNumericType T>
         T LogScale<T>::get() const noexcept {
             using std::exp;
             return sign_ == 0 ? T(0) : T(sign_) * exp(log_);
         }
 
-        template <RealNumericType T>
+        template <NonIntegralNumericType T>
         void LogScale<T>::parse(std::string_view str) {
             if (! try_parse(str))
                 do_parse_error(str);
         }
 
-        template <RealNumericType T>
+        template <NonIntegralNumericType T>
         bool LogScale<T>::try_parse(std::string_view str) {
 
             using std::log;
@@ -176,7 +176,7 @@ namespace Crow {
 
         }
 
-        template <RealNumericType T>
+        template <NonIntegralNumericType T>
         std::string LogScale<T>::str(FormatSpec spec) const {
 
             using std::modf;
@@ -203,13 +203,13 @@ namespace Crow {
 
         }
 
-        template <RealNumericType T>
+        template <NonIntegralNumericType T>
         LogScale<T> LogScale<T>::do_abs() const noexcept {
             using std::abs;
             return make_unchecked(log_, abs(sign_));
         }
 
-        template <RealNumericType T>
+        template <NonIntegralNumericType T>
         LogScale<T> LogScale<T>::do_modf(LogScale* iptr) const noexcept {
 
             using std::modf;
@@ -234,7 +234,7 @@ namespace Crow {
 
         }
 
-        template <RealNumericType T>
+        template <NonIntegralNumericType T>
         LogScale<T> LogScale<T>::do_next_after(LogScale y) const noexcept {
 
             using std::nextafter;
@@ -253,7 +253,7 @@ namespace Crow {
 
         }
 
-        template <RealNumericType T>
+        template <NonIntegralNumericType T>
         template <typename U>
         LogScale<T> LogScale<T>::do_power(U y) const noexcept {
             if (sign_ == 1)
@@ -262,14 +262,14 @@ namespace Crow {
                 return {};
         }
 
-        template <RealNumericType T>
+        template <NonIntegralNumericType T>
         void LogScale<T>::normalize() noexcept {
             sign_ = std::clamp(sign_, int8_t(-1), int8_t(1));
             if (sign_ == 0)
                 log_ = {};
         }
 
-        template <RealNumericType T>
+        template <NonIntegralNumericType T>
         LogScale<T> LogScale<T>::do_add(LogScale x, LogScale y) noexcept {
 
             using std::abs;
@@ -297,29 +297,29 @@ namespace Crow {
 
         }
 
-        template <RealNumericType T>
+        template <NonIntegralNumericType T>
         LogScale<T> LogScale<T>::do_multiply(LogScale x, LogScale y) noexcept {
             return LogScale(x.log_ + y.log_, x.sign_ * y.sign_);
         }
 
-        template <RealNumericType T>
+        template <NonIntegralNumericType T>
         LogScale<T> LogScale<T>::do_divide(LogScale x, LogScale y) noexcept {
             return LogScale(x.log_ - y.log_, x.sign_ * y.sign_);
         }
 
-        template <RealNumericType T>
+        template <NonIntegralNumericType T>
         T LogScale<T>::ln2() noexcept {
             static const T value = T(0.69314'71805'59945'30941'72321'21458L);
             return value;
         }
 
-        template <RealNumericType T>
+        template <NonIntegralNumericType T>
         T LogScale<T>::ln10() noexcept {
             static const T value = T(2.30258'50929'94045'68401'79914'54684L);
             return value;
         }
 
-        template <RealNumericType T>
+        template <NonIntegralNumericType T>
         LogScale<T> LogScale<T>::make_unchecked(T ln, int sign) noexcept {
             LogScale x;
             x.log_ = ln;
@@ -327,7 +327,7 @@ namespace Crow {
             return x;
         }
 
-        template <RealNumericType T>
+        template <NonIntegralNumericType T>
         T LogScale<T>::min_log() noexcept {
 
             static const T value = [] {
@@ -357,7 +357,7 @@ namespace Crow {
 
         }
 
-        template <RealNumericType T>
+        template <NonIntegralNumericType T>
         T LogScale<T>::max_log() noexcept {
 
             static const T value = [] {
@@ -387,7 +387,7 @@ namespace Crow {
 
         }
 
-        template <RealNumericType T>
+        template <NonIntegralNumericType T>
         T LogScale<T>::unchecked_str_to_t(const std::string& str) noexcept {
             return T(std::strtold(str.data(), nullptr));
         }
@@ -396,7 +396,7 @@ namespace Crow {
 
 namespace std {
 
-    template <Crow::RealNumericType T>
+    template <Crow::NonIntegralNumericType T>
     class numeric_limits<Crow::LogScale<T>>:
     public numeric_limits<T> {
 
@@ -422,4 +422,4 @@ namespace std {
 
 }
 
-CROW_STD_HASH_1(LogScale, Crow::RealNumericType)
+CROW_STD_HASH_1(LogScale, Crow::NonIntegralNumericType)

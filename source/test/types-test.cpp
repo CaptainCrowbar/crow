@@ -118,14 +118,14 @@ void test_crow_types_primitive_type_concepts() {
     TEST(! IntegralNumericType<int*>);
     TEST(! IntegralNumericType<std::string>);
 
-    TEST(! RealNumericType<int>);
-    TEST(! RealNumericType<const int>);
-    TEST(RealNumericType<float>);
-    TEST(RealNumericType<const float>);
-    TEST(! RealNumericType<void>);
-    TEST(! RealNumericType<bool>);
-    TEST(! RealNumericType<int*>);
-    TEST(! RealNumericType<std::string>);
+    TEST(! NonIntegralNumericType<int>);
+    TEST(! NonIntegralNumericType<const int>);
+    TEST(NonIntegralNumericType<float>);
+    TEST(NonIntegralNumericType<const float>);
+    TEST(! NonIntegralNumericType<void>);
+    TEST(! NonIntegralNumericType<bool>);
+    TEST(! NonIntegralNumericType<int*>);
+    TEST(! NonIntegralNumericType<std::string>);
 
     TEST(PrimitiveScalarType<int>);
     TEST(PrimitiveScalarType<const int>);

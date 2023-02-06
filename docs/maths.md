@@ -40,8 +40,8 @@ guaranteed to be `constexpr`). Behaviour is undefined if the result is not
 representable in `T2`.
 
 ```c++
-template <NumericType T> std::pair<T, T> emodf(T x) noexcept;
-template <NumericType T> T fraction(T x) noexcept;
+template <ArithmeticType T> std::pair<T, T> emodf(T x) noexcept;
+template <ArithmeticType T> T fraction(T x) noexcept;
 ```
 
 A Euclidean version of `modf()`, returning the integer and fractional parts of

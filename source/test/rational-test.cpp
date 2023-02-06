@@ -11,6 +11,8 @@ void test_crow_rational_basics() {
 
     Rational r;
 
+    TEST(NonIntegralNumericType<Rational>);
+
     TEST_EQUAL(r.num(), 0);
     TEST_EQUAL(r.den(), 1);
     TEST(! bool(r));

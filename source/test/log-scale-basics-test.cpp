@@ -11,7 +11,7 @@ using LS = LogScale<double>;
 
 void test_crow_log_scale_properties() {
 
-    TEST(RealNumericType<LS>);
+    TEST(NonIntegralNumericType<LS>);
 
 }
 

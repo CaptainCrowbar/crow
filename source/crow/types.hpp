@@ -96,7 +96,7 @@ namespace Crow {
     concept IntegralNumericType = std::numeric_limits<T>::is_specialized && std::numeric_limits<T>::is_integer;
 
     template <typename T>
-    concept RealNumericType = std::numeric_limits<T>::is_specialized && ! std::numeric_limits<T>::is_integer;
+    concept NonIntegralNumericType = std::numeric_limits<T>::is_specialized && ! std::numeric_limits<T>::is_integer;
 
     template <typename T>
     concept PrimitiveScalarType = std::is_scalar_v<T>;

@@ -54,12 +54,11 @@ namespace Crow {
         return y;
     }
 
-    template <NumericType T>
+    template <ArithmeticType T>
     std::pair<T, T> emodf(T x) noexcept {
-        if constexpr (RealNumericType<T>) {
-            using std::modf;
+        if constexpr (std::floating_point<T>) {
             T i, f;
-            f = modf(x, &i);
+            f = std::modf(x, &i);
             if (f < T(0)) {
                 f += T(1);
                 i -= T(1);
@@ -70,7 +69,7 @@ namespace Crow {
         }
     }
 
-    template <NumericType T>
+    template <ArithmeticType T>
     T fraction(T x) noexcept {
         return emodf(x).second;
     }

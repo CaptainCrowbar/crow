@@ -10,7 +10,7 @@ namespace Crow;
 ## LogScale class
 
 ```c++
-template <RealNumericType T> class LogScale;
+template <NonIntegralNumericType T> class LogScale;
 ```
 
 This is an arithmetic class that stores the natural logarithm of its actual
@@ -63,7 +63,7 @@ explicit LogScale::operator T() const noexcept;
 
 ```c++
 size_t LogScale::hash() const noexcept;
-template <RealNumericType T> class std::hash<LogScale<T>>;
+template <NonIntegralNumericType T> class std::hash<LogScale<T>>;
 ```
 
 Hash function. Note that `hash<T>()(t)` and `hash<LogScale<T>>()(t)` should
@@ -171,7 +171,7 @@ here because the log scale representation makes it impossible to reliably
 detect integer values).
 
 ```c++
-template <RealNumericType T> class std::numeric_limits<LogScale<T>>:
+template <NonIntegralNumericType T> class std::numeric_limits<LogScale<T>>:
 ```
 
 Partial specialisation of `std::numeric_limits`.

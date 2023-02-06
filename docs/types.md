@@ -84,7 +84,7 @@ Satisfied by a type that implements the bitwise operators `~ & | ^`.
 ```c++
 template <typename T> concept NumericType;
 template <typename T> concept IntegralNumericType;
-template <typename T> concept RealNumericType;
+template <typename T> concept NonIntegralNumericType;
 ```
 
 `NumericType` is satisfied by any type for which a specialisation of
