@@ -51,6 +51,7 @@ namespace Crow {
             iterator find(const K& k) { return con_.find(k); }
             const_iterator find(const K& k) const { return con_.find(k); }
             std::pair<iterator, bool> insert(const value_type& value) { return con_.insert(value); }
+            iterator insert(const_iterator i, const value_type& value) { return con_.insert(i, value); }
             template <InputIteratorType II> void insert(II i, II j) { return con_.insert(i, j); }
             void insert(std::initializer_list<value_type> list) { return con_.insert(list); }
             void erase(const_iterator i) { con_.erase(i); }
@@ -74,6 +75,7 @@ namespace Crow {
             bool contains(const K& k) const { return con_.contains(k); }
             const_iterator find(const K& k) const { return con_.find(k); }
             std::pair<iterator, bool> insert(const K& k) { return con_.insert(k); }
+            iterator insert(const_iterator i, const K& k) { return con_.insert(i, k); }
             template <InputIteratorType II> void insert(II i, II j) { return con_.insert(i, j); }
             void insert(std::initializer_list<K> list) { return con_.insert(list); }
             void erase(const_iterator i) { con_.erase(i); }
@@ -122,6 +124,10 @@ namespace Crow {
                 this->con_.push_back(value);
                 return {this->end() - 1, true};
             }
+            typename base::iterator insert(typename base::const_iterator /*i*/,
+                    const typename base::value_type& value) {
+                return insert(value).first;
+            }
             template <InputIteratorType II> void insert(II i, II j) { while (i != j) insert(*i++); }
             void insert(std::initializer_list<typename base::value_type> list) { for (auto& x: list) insert(x); }
             void erase(typename base::const_iterator i) { this->con_.erase(i); }
@@ -161,6 +167,10 @@ namespace Crow {
                     return {i, false};
                 this->con_.push_back(k);
                 return {this->end() - 1, true};
+            }
+            typename base::iterator insert(typename base::const_iterator /*i*/,
+                    const K& k) {
+                return insert(k).first;
             }
             template <InputIteratorType II> void insert(II i, II j) { while (i != j) insert(*i++); }
             void insert(std::initializer_list<K> list) { for (auto& x: list) insert(x); }

@@ -1,6 +1,8 @@
 #include "crow/flexible-map.hpp"
 #include "crow/format.hpp"
+#include "crow/iterator.hpp"
 #include "crow/unit-test.hpp"
+#include <algorithm>
 #include <functional>
 #include <string>
 #include <vector>
@@ -187,6 +189,13 @@ void test_crow_flexible_map_order() {
     TEST_EQUAL(map[2], "yy");
     TEST_EQUAL(map[3], "zz");
 
+    TRY(std::copy(v.begin(), v.end(), overwrite(map)));
+    TEST_EQUAL(map.size(), 2u);
+    TEST(! map.contains(4));
+    TEST(map.contains(5));
+    TEST(map.contains(6));
+    TEST(! map.contains(7));
+
 }
 
 void test_crow_flexible_map_hash() {
@@ -343,6 +352,13 @@ void test_crow_flexible_map_hash() {
     TEST_EQUAL(map[{2}], "yy");
     TEST_EQUAL(map[{3}], "zz");
 
+    TRY(std::copy(v.begin(), v.end(), overwrite(map)));
+    TEST_EQUAL(map.size(), 2u);
+    TEST(! map.contains({4}));
+    TEST(map.contains({5}));
+    TEST(map.contains({6}));
+    TEST(! map.contains({7}));
+
 }
 
 void test_crow_flexible_map_linear() {
@@ -498,5 +514,12 @@ void test_crow_flexible_map_linear() {
     TEST_EQUAL(map[{1}], "xx");
     TEST_EQUAL(map[{2}], "yy");
     TEST_EQUAL(map[{3}], "zz");
+
+    TRY(std::copy(v.begin(), v.end(), overwrite(map)));
+    TEST_EQUAL(map.size(), 2u);
+    TEST(! map.contains({4}));
+    TEST(map.contains({5}));
+    TEST(map.contains({6}));
+    TEST(! map.contains({7}));
 
 }

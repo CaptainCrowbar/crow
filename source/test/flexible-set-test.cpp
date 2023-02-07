@@ -1,6 +1,8 @@
 #include "crow/flexible-map.hpp"
 #include "crow/format.hpp"
+#include "crow/iterator.hpp"
 #include "crow/unit-test.hpp"
+#include <algorithm>
 #include <functional>
 #include <string>
 #include <vector>
@@ -156,6 +158,13 @@ void test_crow_flexible_set_order() {
     TEST(set.contains(2));
     TEST(set.contains(3));
 
+    TRY(std::copy(v.begin(), v.end(), overwrite(set)));
+    TEST_EQUAL(set.size(), 2u);
+    TEST(! set.contains(4));
+    TEST(set.contains(5));
+    TEST(set.contains(6));
+    TEST(! set.contains(7));
+
 }
 
 void test_crow_flexible_set_hash() {
@@ -281,6 +290,13 @@ void test_crow_flexible_set_hash() {
     TEST(set.contains({2}));
     TEST(set.contains({3}));
 
+    TRY(std::copy(v.begin(), v.end(), overwrite(set)));
+    TEST_EQUAL(set.size(), 2u);
+    TEST(! set.contains({4}));
+    TEST(set.contains({5}));
+    TEST(set.contains({6}));
+    TEST(! set.contains({7}));
+
 }
 
 void test_crow_flexible_set_linear() {
@@ -405,5 +421,12 @@ void test_crow_flexible_set_linear() {
     TEST(set.contains({1}));
     TEST(set.contains({2}));
     TEST(set.contains({3}));
+
+    TRY(std::copy(v.begin(), v.end(), overwrite(set)));
+    TEST_EQUAL(set.size(), 2u);
+    TEST(! set.contains({4}));
+    TEST(set.contains({5}));
+    TEST(set.contains({6}));
+    TEST(! set.contains({7}));
 
 }

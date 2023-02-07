@@ -39,6 +39,7 @@ number of elements involved in the operation.
 | `contains(key)`     | `O(log(n))`    | `O(1)`  | `O(n)`    |
 | `find(key)`         | `O(log(n))`    | `O(1)`  | `O(n)`    |
 | `insert(value)`     | `O(log(n))`    | `O(1)`  | `O(n)`    |
+| `insert(i,value)`   | `O(log(n))`    | `O(1)`  | `O(n)`    |
 | `insert(i,j)`       | `O(k.log(n))`  | `O(k)`  | `O(k.n)`  |
 | `insert(list)`      | `O(k.log(n))`  | `O(k)`  | `O(k.n)`  |
 | `erase(i)`          | `O(1)`         | `O(1)`  | `O(n)`    |
@@ -91,6 +92,7 @@ class FlexibleMap {
     iterator find(const K& k);
     const_iterator find(const K& k) const;
     std::pair<iterator, bool> insert(const value_type& value);
+    iterator insert(const_iterator i, const value_type& value);
     template <InputIteratorType II> void insert(II i, II j);
     void insert(std::initializer_list<value_type> list);
     void erase(const_iterator i);
@@ -124,6 +126,7 @@ class FlexibleSet {
     bool contains(const K& k) const;
     const_iterator find(const K& k) const;
     std::pair<iterator, bool> insert(const K& k);
+    iterator insert(const_iterator i, const K& k);
     template <InputIteratorType II> void insert(II i, II j);
     void insert(std::initializer_list<K> list);
     void erase(const_iterator i);
