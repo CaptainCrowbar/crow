@@ -48,6 +48,7 @@ Other libraries required:
     * [crow/mirror-map](mirror-map.html) - Map with two-way lookup
     * [crow/multi-array](multi-array.html) - Multi-dimensional array
     * [crow/stack](stack.html) - Stack
+    * [crow/superposition](superposition.html) - Superposition of states
 * Database
     * [crow/sqlite](sqlite.html) - Sqlite
 * Graphics

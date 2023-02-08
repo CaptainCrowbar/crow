@@ -1116,6 +1116,15 @@ void string_wrapping_test_group() {
     UNIT_TEST(crow_string_word_wrap)
 }
 
+void superposition_test_group() {
+    UNIT_TEST(superposition_flat_construction)
+    UNIT_TEST(superposition_flat_arithmetic)
+    UNIT_TEST(superposition_flat_combination)
+    UNIT_TEST(superposition_weighted_construction)
+    UNIT_TEST(superposition_weighted_arithmetic)
+    UNIT_TEST(superposition_weighted_combination)
+}
+
 void table_test_group() {
     UNIT_TEST(crow_table_layout)
     UNIT_TEST(crow_table_formatting)
@@ -1413,6 +1422,7 @@ int main(int argc, char** argv) {
     string_type_test_group();
     string_view_test_group();
     string_wrapping_test_group();
+    superposition_test_group();
     table_test_group();
     terminal_test_group();
     text_gen_test_group();
