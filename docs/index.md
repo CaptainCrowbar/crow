@@ -94,6 +94,7 @@ Other libraries required:
     * [crow/maths](maths.html) - Mathematical utilities
     * [crow/mp-integer](mp-integer.html) - Multiple precision integers
     * [crow/prime](prime.html) - Prime numbers
+    * [crow/probability](probability.html) - Probability
     * [crow/rational](rational.html) - Rational numbers
     * [crow/root-finding](root-finding.html) - Root finding
     * [crow/statistics](statistics.html) - Statistics
