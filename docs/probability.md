@@ -58,8 +58,16 @@ Return the probability value.
 constexpr T Probability::complement() const noexcept;
 ```
 
-Returns the complement of the value (`1-value`). If the actual value is close
+Returns the complement of the value `(1-value).` If the actual value is close
 to 1, this will be more accurate than explicitly calculating `1-value()`.
+
+```c++
+static constexpr Probability Probability::complementary(T t) noexcept;
+```
+
+Returns the complementary probability `(1-t).` If `t` is close to zero, this
+will store a more accurate value than explicitly constructing
+`Probability(1-t).`
 
 ```c++
 std::string Probability::str(FormatSpec spec = {}) const;
@@ -83,7 +91,7 @@ infinity, are handled correctly.
 constexpr Probability Probability::operator~() const noexcept;
 ```
 
-Returns the complementary probability (`1-p`).
+Returns the complementary probability `(1-p).`
 
 ```c++
 constexpr Probability& Probability::operator+=(Probability y) noexcept;
@@ -103,14 +111,29 @@ handled more accurately than simple arithmetic on the values. Behaviour is
 undefined if the second argument to the division operator is zero.
 
 ```c++
+
 constexpr bool operator==(Probability x, Probability y) noexcept;
+constexpr bool operator==(Probability x, T y) noexcept;
+constexpr bool operator==(T x, Probability y) noexcept;
 constexpr bool operator!=(Probability x, Probability y) noexcept;
+constexpr bool operator!=(Probability x, T y) noexcept;
+constexpr bool operator!=(T x, Probability y) noexcept;
 constexpr bool operator<(Probability x, Probability y) noexcept;
+constexpr bool operator<(Probability x, T y) noexcept;
+constexpr bool operator<(T x, Probability y) noexcept;
 constexpr bool operator>(Probability x, Probability y) noexcept;
+constexpr bool operator>(Probability x, T y) noexcept;
+constexpr bool operator>(T x, Probability y) noexcept;
 constexpr bool operator<=(Probability x, Probability y) noexcept;
+constexpr bool operator<=(Probability x, T y) noexcept;
+constexpr bool operator<=(T x, Probability y) noexcept;
 constexpr bool operator>=(Probability x, Probability y) noexcept;
+constexpr bool operator>=(Probability x, T y) noexcept;
+constexpr bool operator>=(T x, Probability y) noexcept;
 constexpr std::strong_ordering
     operator<=>(Probability x, Probability y) noexcept;
+constexpr std::partial_ordering operator<=>(Probability x, T y) noexcept;
+constexpr std::partial_ordering operator<=>(T x, Probability y) noexcept;
 ```
 
 Comparison operators. These all have the natural meaning.

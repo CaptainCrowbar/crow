@@ -39,6 +39,7 @@ namespace Crow {
         constexpr T value() const noexcept { return data_ + T(band() == 3); }
         constexpr T complement() const noexcept { return T(band() != 3) - data_; }
         constexpr explicit operator T() const noexcept { return value(); }
+        static constexpr Probability complementary(T t) noexcept;
 
         std::string str(FormatSpec spec = {}) const;
         T z() const noexcept;
@@ -56,7 +57,11 @@ namespace Crow {
         friend constexpr Probability operator*(T y, Probability x) noexcept { return do_mul(x, y); }
         friend constexpr Probability operator/(Probability x, T y) noexcept { return do_div(x, y); }
         friend constexpr bool operator==(Probability x, Probability y) noexcept { return x.data_ == y.data_; }
+        friend constexpr bool operator==(Probability x, T y) noexcept { return x.value() == y; }
+        friend constexpr bool operator==(T x, Probability y) noexcept { return x == y.value(); }
         friend constexpr std::strong_ordering operator<=>(Probability x, Probability y) noexcept { return do_compare(x, y); }
+        friend constexpr std::partial_ordering operator<=>(Probability x, T y) noexcept { return x.value() <=> y; }
+        friend constexpr std::partial_ordering operator<=>(T x, Probability y) noexcept { return x <=> y.value(); }
         friend std::ostream& operator<<(std::ostream& out, Probability x) { return out << x.str(); }
 
         friend Probability pow(Probability x, T y) noexcept { return do_power(x, y); }
@@ -105,6 +110,20 @@ namespace Crow {
                 data_ = t;
             else
                 data_ = t - 1;
+        }
+
+        template <std::floating_point T>
+        constexpr Probability<T> Probability<T>::complementary(T t) noexcept {
+            Probability p;
+            if (t <= 0)
+                p.data_ = 1;
+            else if (t >= 1)
+                p.data_ = 0;
+            else if (t < half)
+                p.data_ = - t;
+            else
+                p.data_ = 1 - t;
+            return p;
         }
 
         template <std::floating_point T>
