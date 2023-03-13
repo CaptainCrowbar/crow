@@ -98,93 +98,54 @@ void test_crow_probability_comparison() {
 
     PD p, q;
 
-    TRY(p = 0);      TRY(q = 0);      TEST(p == q);
-    TRY(p = 0.125);  TRY(q = 0);      TEST(p != q);  TEST(p > q);
-    TRY(p = 0.375);  TRY(q = 0);      TEST(p != q);  TEST(p > q);
-    TRY(p = 0.5);    TRY(q = 0);      TEST(p != q);  TEST(p > q);
-    TRY(p = 0.625);  TRY(q = 0);      TEST(p != q);  TEST(p > q);
-    TRY(p = 0.875);  TRY(q = 0);      TEST(p != q);  TEST(p > q);
-    TRY(p = 1);      TRY(q = 0);      TEST(p != q);  TEST(p > q);
-    TRY(p = 0);      TRY(q = 0.125);  TEST(p != q);  TEST(p < q);
-    TRY(p = 0.125);  TRY(q = 0.125);  TEST(p == q);
-    TRY(p = 0.375);  TRY(q = 0.125);  TEST(p != q);  TEST(p > q);
-    TRY(p = 0.5);    TRY(q = 0.125);  TEST(p != q);  TEST(p > q);
-    TRY(p = 0.625);  TRY(q = 0.125);  TEST(p != q);  TEST(p > q);
-    TRY(p = 0.875);  TRY(q = 0.125);  TEST(p != q);  TEST(p > q);
-    TRY(p = 1);      TRY(q = 0.125);  TEST(p != q);  TEST(p > q);
-    TRY(p = 0);      TRY(q = 0.375);  TEST(p != q);  TEST(p < q);
-    TRY(p = 0.125);  TRY(q = 0.375);  TEST(p != q);  TEST(p < q);
-    TRY(p = 0.375);  TRY(q = 0.375);  TEST(p == q);
-    TRY(p = 0.5);    TRY(q = 0.375);  TEST(p != q);  TEST(p > q);
-    TRY(p = 0.625);  TRY(q = 0.375);  TEST(p != q);  TEST(p > q);
-    TRY(p = 0.875);  TRY(q = 0.375);  TEST(p != q);  TEST(p > q);
-    TRY(p = 1);      TRY(q = 0.375);  TEST(p != q);  TEST(p > q);
-    TRY(p = 0);      TRY(q = 0.5);    TEST(p != q);  TEST(p < q);
-    TRY(p = 0.125);  TRY(q = 0.5);    TEST(p != q);  TEST(p < q);
-    TRY(p = 0.375);  TRY(q = 0.5);    TEST(p != q);  TEST(p < q);
-    TRY(p = 0.5);    TRY(q = 0.5);    TEST(p == q);
-    TRY(p = 0.625);  TRY(q = 0.5);    TEST(p != q);  TEST(p > q);
-    TRY(p = 0.875);  TRY(q = 0.5);    TEST(p != q);  TEST(p > q);
-    TRY(p = 1);      TRY(q = 0.5);    TEST(p != q);  TEST(p > q);
-    TRY(p = 0);      TRY(q = 0.625);  TEST(p != q);  TEST(p < q);
-    TRY(p = 0.125);  TRY(q = 0.625);  TEST(p != q);  TEST(p < q);
-    TRY(p = 0.375);  TRY(q = 0.625);  TEST(p != q);  TEST(p < q);
-    TRY(p = 0.5);    TRY(q = 0.625);  TEST(p != q);  TEST(p < q);
-    TRY(p = 0.625);  TRY(q = 0.625);  TEST(p == q);
-    TRY(p = 0.875);  TRY(q = 0.625);  TEST(p != q);  TEST(p > q);
-    TRY(p = 1);      TRY(q = 0.625);  TEST(p != q);  TEST(p > q);
-    TRY(p = 0);      TRY(q = 0.875);  TEST(p != q);  TEST(p < q);
-    TRY(p = 0.125);  TRY(q = 0.875);  TEST(p != q);  TEST(p < q);
-    TRY(p = 0.375);  TRY(q = 0.875);  TEST(p != q);  TEST(p < q);
-    TRY(p = 0.5);    TRY(q = 0.875);  TEST(p != q);  TEST(p < q);
-    TRY(p = 0.625);  TRY(q = 0.875);  TEST(p != q);  TEST(p < q);
-    TRY(p = 0.875);  TRY(q = 0.875);  TEST(p == q);
-    TRY(p = 1);      TRY(q = 0.875);  TEST(p != q);  TEST(p > q);
-    TRY(p = 0);      TRY(q = 1);      TEST(p != q);  TEST(p < q);
-    TRY(p = 0.125);  TRY(q = 1);      TEST(p != q);  TEST(p < q);
-    TRY(p = 0.375);  TRY(q = 1);      TEST(p != q);  TEST(p < q);
-    TRY(p = 0.5);    TRY(q = 1);      TEST(p != q);  TEST(p < q);
-    TRY(p = 0.625);  TRY(q = 1);      TEST(p != q);  TEST(p < q);
-    TRY(p = 0.875);  TRY(q = 1);      TEST(p != q);  TEST(p < q);
-    TRY(p = 1);      TRY(q = 1);      TEST(p == q);
-
-}
-
-void test_crow_probability_arithmetic() {
-
-    PD p, q;
-
-    TRY(p = 0);      TRY(q = ~ p);  TEST_EQUAL(q.value(), 1);      TEST_EQUAL(PT::get_data(q), 1);
-    TRY(p = 0.125);  TRY(q = ~ p);  TEST_EQUAL(q.value(), 0.875);  TEST_EQUAL(PT::get_data(q), -0.125);
-    TRY(p = 0.25);   TRY(q = ~ p);  TEST_EQUAL(q.value(), 0.75);   TEST_EQUAL(PT::get_data(q), -0.25);
-    TRY(p = 0.375);  TRY(q = ~ p);  TEST_EQUAL(q.value(), 0.625);  TEST_EQUAL(PT::get_data(q), -0.375);
-    TRY(p = 0.5);    TRY(q = ~ p);  TEST_EQUAL(q.value(), 0.5);    TEST_EQUAL(PT::get_data(q), 0.5);
-    TRY(p = 0.625);  TRY(q = ~ p);  TEST_EQUAL(q.value(), 0.375);  TEST_EQUAL(PT::get_data(q), 0.375);
-    TRY(p = 0.75);   TRY(q = ~ p);  TEST_EQUAL(q.value(), 0.25);   TEST_EQUAL(PT::get_data(q), 0.25);
-    TRY(p = 0.875);  TRY(q = ~ p);  TEST_EQUAL(q.value(), 0.125);  TEST_EQUAL(PT::get_data(q), 0.125);
-    TRY(p = 1);      TRY(q = ~ p);  TEST_EQUAL(q.value(), 0);      TEST_EQUAL(PT::get_data(q), 0);
-
-    // TODO
-    // operator~
-    // operator+
-    // operator-
-    // operator*
-    // operator/
-
-}
-
-void test_crow_probability_powers() {
-
-    // TODO
-    // pow()
-    // compl_pow()
-
-}
-
-void test_crow_probability_normal_variate() {
-
-    // TODO
-    // z()
-    // from_z()
+    TRY(p = 0);      TRY(q = 0);      TEST(p == q);  TEST(p <= q);  TEST(p >= q);
+    TRY(p = 0.125);  TRY(q = 0);      TEST(p != q);  TEST(p > q);   TEST(p >= q);
+    TRY(p = 0.375);  TRY(q = 0);      TEST(p != q);  TEST(p > q);   TEST(p >= q);
+    TRY(p = 0.5);    TRY(q = 0);      TEST(p != q);  TEST(p > q);   TEST(p >= q);
+    TRY(p = 0.625);  TRY(q = 0);      TEST(p != q);  TEST(p > q);   TEST(p >= q);
+    TRY(p = 0.875);  TRY(q = 0);      TEST(p != q);  TEST(p > q);   TEST(p >= q);
+    TRY(p = 1);      TRY(q = 0);      TEST(p != q);  TEST(p > q);   TEST(p >= q);
+    TRY(p = 0);      TRY(q = 0.125);  TEST(p != q);  TEST(p < q);   TEST(p <= q);
+    TRY(p = 0.125);  TRY(q = 0.125);  TEST(p == q);  TEST(p <= q);  TEST(p >= q);
+    TRY(p = 0.375);  TRY(q = 0.125);  TEST(p != q);  TEST(p > q);   TEST(p >= q);
+    TRY(p = 0.5);    TRY(q = 0.125);  TEST(p != q);  TEST(p > q);   TEST(p >= q);
+    TRY(p = 0.625);  TRY(q = 0.125);  TEST(p != q);  TEST(p > q);   TEST(p >= q);
+    TRY(p = 0.875);  TRY(q = 0.125);  TEST(p != q);  TEST(p > q);   TEST(p >= q);
+    TRY(p = 1);      TRY(q = 0.125);  TEST(p != q);  TEST(p > q);   TEST(p >= q);
+    TRY(p = 0);      TRY(q = 0.375);  TEST(p != q);  TEST(p < q);   TEST(p <= q);
+    TRY(p = 0.125);  TRY(q = 0.375);  TEST(p != q);  TEST(p < q);   TEST(p <= q);
+    TRY(p = 0.375);  TRY(q = 0.375);  TEST(p == q);  TEST(p <= q);  TEST(p >= q);
+    TRY(p = 0.5);    TRY(q = 0.375);  TEST(p != q);  TEST(p > q);   TEST(p >= q);
+    TRY(p = 0.625);  TRY(q = 0.375);  TEST(p != q);  TEST(p > q);   TEST(p >= q);
+    TRY(p = 0.875);  TRY(q = 0.375);  TEST(p != q);  TEST(p > q);   TEST(p >= q);
+    TRY(p = 1);      TRY(q = 0.375);  TEST(p != q);  TEST(p > q);   TEST(p >= q);
+    TRY(p = 0);      TRY(q = 0.5);    TEST(p != q);  TEST(p < q);   TEST(p <= q);
+    TRY(p = 0.125);  TRY(q = 0.5);    TEST(p != q);  TEST(p < q);   TEST(p <= q);
+    TRY(p = 0.375);  TRY(q = 0.5);    TEST(p != q);  TEST(p < q);   TEST(p <= q);
+    TRY(p = 0.5);    TRY(q = 0.5);    TEST(p == q);  TEST(p <= q);  TEST(p >= q);
+    TRY(p = 0.625);  TRY(q = 0.5);    TEST(p != q);  TEST(p > q);   TEST(p >= q);
+    TRY(p = 0.875);  TRY(q = 0.5);    TEST(p != q);  TEST(p > q);   TEST(p >= q);
+    TRY(p = 1);      TRY(q = 0.5);    TEST(p != q);  TEST(p > q);   TEST(p >= q);
+    TRY(p = 0);      TRY(q = 0.625);  TEST(p != q);  TEST(p < q);   TEST(p <= q);
+    TRY(p = 0.125);  TRY(q = 0.625);  TEST(p != q);  TEST(p < q);   TEST(p <= q);
+    TRY(p = 0.375);  TRY(q = 0.625);  TEST(p != q);  TEST(p < q);   TEST(p <= q);
+    TRY(p = 0.5);    TRY(q = 0.625);  TEST(p != q);  TEST(p < q);   TEST(p <= q);
+    TRY(p = 0.625);  TRY(q = 0.625);  TEST(p == q);  TEST(p <= q);  TEST(p >= q);
+    TRY(p = 0.875);  TRY(q = 0.625);  TEST(p != q);  TEST(p > q);   TEST(p >= q);
+    TRY(p = 1);      TRY(q = 0.625);  TEST(p != q);  TEST(p > q);   TEST(p >= q);
+    TRY(p = 0);      TRY(q = 0.875);  TEST(p != q);  TEST(p < q);   TEST(p <= q);
+    TRY(p = 0.125);  TRY(q = 0.875);  TEST(p != q);  TEST(p < q);   TEST(p <= q);
+    TRY(p = 0.375);  TRY(q = 0.875);  TEST(p != q);  TEST(p < q);   TEST(p <= q);
+    TRY(p = 0.5);    TRY(q = 0.875);  TEST(p != q);  TEST(p < q);   TEST(p <= q);
+    TRY(p = 0.625);  TRY(q = 0.875);  TEST(p != q);  TEST(p < q);   TEST(p <= q);
+    TRY(p = 0.875);  TRY(q = 0.875);  TEST(p == q);  TEST(p <= q);  TEST(p >= q);
+    TRY(p = 1);      TRY(q = 0.875);  TEST(p != q);  TEST(p > q);   TEST(p >= q);
+    TRY(p = 0);      TRY(q = 1);      TEST(p != q);  TEST(p < q);   TEST(p <= q);
+    TRY(p = 0.125);  TRY(q = 1);      TEST(p != q);  TEST(p < q);   TEST(p <= q);
+    TRY(p = 0.375);  TRY(q = 1);      TEST(p != q);  TEST(p < q);   TEST(p <= q);
+    TRY(p = 0.5);    TRY(q = 1);      TEST(p != q);  TEST(p < q);   TEST(p <= q);
+    TRY(p = 0.625);  TRY(q = 1);      TEST(p != q);  TEST(p < q);   TEST(p <= q);
+    TRY(p = 0.875);  TRY(q = 1);      TEST(p != q);  TEST(p < q);   TEST(p <= q);
+    TRY(p = 1);      TRY(q = 1);      TEST(p == q);  TEST(p <= q);  TEST(p >= q);
 
 }

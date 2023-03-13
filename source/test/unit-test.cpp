@@ -868,13 +868,21 @@ void prime_mp_integer_test_group() {
     UNIT_TEST(crow_prime_list_primes_mp_integer)
 }
 
-void probability_test_group() {
+void probability_arithmetic_test_group() {
+    UNIT_TEST(crow_probability_complement)
+    UNIT_TEST(crow_probability_addition_subtraction)
+    UNIT_TEST(crow_probability_multiplication_division)
+}
+
+void probability_special_functions_test_group() {
+    UNIT_TEST(crow_probability_powers)
+    UNIT_TEST(crow_probability_normal_variates)
+}
+
+void probability_values_test_group() {
     UNIT_TEST(crow_probability_construction)
     UNIT_TEST(crow_probability_formatting)
     UNIT_TEST(crow_probability_comparison)
-    UNIT_TEST(crow_probability_arithmetic)
-    UNIT_TEST(crow_probability_powers)
-    UNIT_TEST(crow_probability_normal_variate)
 }
 
 void process_test_group() {
@@ -1390,7 +1398,9 @@ int main(int argc, char** argv) {
     prime_int_next_prev_test_group();
     prime_int_test_group();
     prime_mp_integer_test_group();
-    probability_test_group();
+    probability_arithmetic_test_group();
+    probability_special_functions_test_group();
+    probability_values_test_group();
     process_test_group();
     progress_test_group();
     projection_test_group();

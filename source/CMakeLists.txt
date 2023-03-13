@@ -246,7 +246,9 @@ add_executable(${unittest}
     test/prime-int-next-prev-test.cpp
     test/prime-int-test.cpp
     test/prime-mp-integer-test.cpp
-    test/probability-test.cpp
+    test/probability-arithmetic-test.cpp
+    test/probability-special-functions-test.cpp
+    test/probability-values-test.cpp
     test/process-test.cpp
     test/progress-test.cpp
     test/projection-test.cpp
