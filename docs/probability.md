@@ -76,7 +76,7 @@ std::ostream& operator<<(std::ostream& out, Probability x);
 
 Format the probability as a string. The format spec follows the same rules as
 for ordinary floating point arguments, except that the default formatting
-mode is `"p"`.
+mode is `"pz6"`.
 
 ```c++
 T Probability::z() const noexcept;

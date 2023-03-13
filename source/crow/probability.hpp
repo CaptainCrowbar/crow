@@ -131,10 +131,16 @@ namespace Crow {
 
             using namespace Detail;
 
-            spec.default_mode('x');
-            spec.default_prec(6);
+            static const FormatSpec default_format("pz6");
 
-            if (spec.lcmode() != 'x')
+            if (spec.empty()) {
+                spec = default_format;
+            } else {
+                spec.default_mode('p');
+                spec.default_prec(6);
+            }
+
+            if (spec.lcmode() != 'p')
                 return format_floating_point(value(), spec);
 
             bool pc = spec.mode() == 'P';
@@ -149,21 +155,29 @@ namespace Crow {
             if (pc)
                 t *= 100;
 
-            if (t >= 0)
-                return format_float_d(t, spec);
+            auto s = format_float_d(std::abs(t), spec);
 
-            auto s = format_float_d(- t, spec);
-            int a = 2 * '0' + 10;
-            int b = a - 1;
+            if (t < 0) {
 
-            for (auto i = int(s.find_last_not_of("0.")); i >= 0; --i, a = b)
-                if (ascii_isdigit(s[i]))
-                    s[i] = char(a - s[i]);
+                int a = 2 * '0' + 10;
+                int b = a - 1;
 
-            if (! pc)
-                s[0] = '0';
-            else if (s.size() == 1 || s[1] == '.')
-                s.insert(0, 1, '9');
+                for (auto i = int(s.find_last_not_of("0.")); i >= 0; --i, a = b)
+                    if (ascii_isdigit(s[i]))
+                        s[i] = char(a - s[i]);
+
+                if (! pc)
+                    s[0] = '0';
+                else if (s.size() == 1 || s[1] == '.')
+                    s.insert(0, 1, '9');
+
+            }
+
+            if (spec.option('z') && s.find('.') != npos) {
+                s = trim_right(s, "0");
+                if (s.back() == '.')
+                    s.pop_back();
+            }
 
             return s;
 
