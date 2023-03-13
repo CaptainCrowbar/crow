@@ -12,17 +12,17 @@ void test_crow_probability_construction() {
 
     PD p;
 
-    TRY(p = -0.125);  TEST_EQUAL(p.value(), 0);      TEST_EQUAL(PT::get_data(p), 0);
-    TRY(p = 0);       TEST_EQUAL(p.value(), 0);      TEST_EQUAL(PT::get_data(p), 0);
-    TRY(p = 0.125);   TEST_EQUAL(p.value(), 0.125);  TEST_EQUAL(PT::get_data(p), 0.125);
-    TRY(p = 0.25);    TEST_EQUAL(p.value(), 0.25);   TEST_EQUAL(PT::get_data(p), 0.25);
-    TRY(p = 0.375);   TEST_EQUAL(p.value(), 0.375);  TEST_EQUAL(PT::get_data(p), 0.375);
-    TRY(p = 0.5);     TEST_EQUAL(p.value(), 0.5);    TEST_EQUAL(PT::get_data(p), 0.5);
-    TRY(p = 0.625);   TEST_EQUAL(p.value(), 0.625);  TEST_EQUAL(PT::get_data(p), -0.375);
-    TRY(p = 0.75);    TEST_EQUAL(p.value(), 0.75);   TEST_EQUAL(PT::get_data(p), -0.25);
-    TRY(p = 0.875);   TEST_EQUAL(p.value(), 0.875);  TEST_EQUAL(PT::get_data(p), -0.125);
-    TRY(p = 1);       TEST_EQUAL(p.value(), 1);      TEST_EQUAL(PT::get_data(p), 1);
-    TRY(p = 1.125);   TEST_EQUAL(p.value(), 1);      TEST_EQUAL(PT::get_data(p), 1);
+    TRY(p = -0.125);  TEST_EQUAL(p.value(), 0);      TEST_EQUAL(PT::get_data(p), 0);       TEST_EQUAL(p.complement(), 1);
+    TRY(p = 0);       TEST_EQUAL(p.value(), 0);      TEST_EQUAL(PT::get_data(p), 0);       TEST_EQUAL(p.complement(), 1);
+    TRY(p = 0.125);   TEST_EQUAL(p.value(), 0.125);  TEST_EQUAL(PT::get_data(p), 0.125);   TEST_EQUAL(p.complement(), 0.875);
+    TRY(p = 0.25);    TEST_EQUAL(p.value(), 0.25);   TEST_EQUAL(PT::get_data(p), 0.25);    TEST_EQUAL(p.complement(), 0.75);
+    TRY(p = 0.375);   TEST_EQUAL(p.value(), 0.375);  TEST_EQUAL(PT::get_data(p), 0.375);   TEST_EQUAL(p.complement(), 0.625);
+    TRY(p = 0.5);     TEST_EQUAL(p.value(), 0.5);    TEST_EQUAL(PT::get_data(p), 0.5);     TEST_EQUAL(p.complement(), 0.5);
+    TRY(p = 0.625);   TEST_EQUAL(p.value(), 0.625);  TEST_EQUAL(PT::get_data(p), -0.375);  TEST_EQUAL(p.complement(), 0.375);
+    TRY(p = 0.75);    TEST_EQUAL(p.value(), 0.75);   TEST_EQUAL(PT::get_data(p), -0.25);   TEST_EQUAL(p.complement(), 0.25);
+    TRY(p = 0.875);   TEST_EQUAL(p.value(), 0.875);  TEST_EQUAL(PT::get_data(p), -0.125);  TEST_EQUAL(p.complement(), 0.125);
+    TRY(p = 1);       TEST_EQUAL(p.value(), 1);      TEST_EQUAL(PT::get_data(p), 1);       TEST_EQUAL(p.complement(), 0);
+    TRY(p = 1.125);   TEST_EQUAL(p.value(), 1);      TEST_EQUAL(PT::get_data(p), 1);       TEST_EQUAL(p.complement(), 0);
 
 }
 

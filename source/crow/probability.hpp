@@ -34,14 +34,15 @@ namespace Crow {
     public:
 
         constexpr Probability() = default;
-        constexpr Probability(T t);
+        constexpr Probability(T t) noexcept;
 
         constexpr T value() const noexcept { return data_ + T(band() == 3); }
+        constexpr T complement() const noexcept { return T(band() != 3) - data_; }
         constexpr explicit operator T() const noexcept { return value(); }
 
         std::string str(FormatSpec spec = {}) const;
-        T z() const noexcept; // 0 -> -inf, 1 > +inf
-        static Probability from_z(T z) noexcept; // -inf -> 0, +inf -> 1
+        T z() const noexcept;
+        static Probability from_z(T z) noexcept;
 
         constexpr Probability operator~() const noexcept;
         constexpr Probability& operator+=(Probability y) noexcept { return *this = do_add(*this, y); }
@@ -53,13 +54,13 @@ namespace Crow {
         friend constexpr Probability operator-(Probability x, Probability y) noexcept { return do_sub(x, y); }
         friend constexpr Probability operator*(Probability x, T y) noexcept { return do_mul(x, y); }
         friend constexpr Probability operator*(T y, Probability x) noexcept { return do_mul(x, y); }
-        friend constexpr Probability operator/(Probability x, T y) noexcept { return do_div(x, y); } // UB if y=0
+        friend constexpr Probability operator/(Probability x, T y) noexcept { return do_div(x, y); }
         friend constexpr bool operator==(Probability x, Probability y) noexcept { return x.data_ == y.data_; }
         friend constexpr std::strong_ordering operator<=>(Probability x, Probability y) noexcept { return do_compare(x, y); }
         friend std::ostream& operator<<(std::ostream& out, Probability x) { return out << x.str(); }
 
-        friend Probability pow(Probability x, T y) noexcept { return do_power(x, y); } // UB if x=0 and y<=0
-        friend Probability compl_pow(Probability x, T y) noexcept { return ~ pow(~ x, y); } // UB if x=1 and y<=0
+        friend Probability pow(Probability x, T y) noexcept { return do_power(x, y); }
+        friend Probability cmp_pow(Probability x, T y) noexcept { return ~ pow(~ x, y); }
 
     private:
 
@@ -95,7 +96,7 @@ namespace Crow {
     };
 
         template <std::floating_point T>
-        constexpr Probability<T>::Probability(T t) {
+        constexpr Probability<T>::Probability(T t) noexcept {
             if (t <= 0)
                 data_ = 0;
             else if (t >= 1)
