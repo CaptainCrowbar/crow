@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.16)
 # and propagate the new version to version.hpp.
 
 project(Crow
-    VERSION 2.0.186
+    VERSION 2.0.187
     LANGUAGES CXX
 )
 
@@ -75,6 +75,7 @@ add_library(${library} STATIC
     ${library}/net.cpp
     ${library}/options.cpp
     ${library}/path.cpp
+    ${library}/probability.cpp
     ${library}/process.cpp
     ${library}/progress.cpp
     ${library}/rational.cpp

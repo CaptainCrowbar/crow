@@ -7,6 +7,7 @@
 #include <compare>
 #include <concepts>
 #include <cstdlib>
+#include <functional>
 #include <limits>
 #include <numbers>
 #include <ostream>
@@ -25,6 +26,10 @@ namespace Crow {
                     return p.data_;
                 }
         };
+
+        std::string format_probability_helper(FormatSpec spec, int band,
+            std::function<std::string(FormatSpec)> g_format,
+            std::function<std::string(FormatSpec)> d_format);
 
     }
 
@@ -128,59 +133,14 @@ namespace Crow {
 
         template <std::floating_point T>
         std::string Probability<T>::str(FormatSpec spec) const {
-
             using namespace Detail;
-
-            static const FormatSpec default_format("pz6");
-
-            if (spec.empty()) {
-                spec = default_format;
-            } else {
-                spec.default_mode('p');
-                spec.default_prec(6);
-            }
-
-            if (spec.lcmode() != 'p')
-                return format_floating_point(value(), spec);
-
-            bool pc = spec.mode() == 'P';
-
-            if (data_ == 0)
-                return "0";
-            else if (data_ == 1)
-                return pc ? "100" : "1";
-
-            auto t = data_;
-
-            if (pc)
-                t *= 100;
-
-            auto s = format_float_d(std::abs(t), spec);
-
-            if (t < 0) {
-
-                int a = 2 * '0' + 10;
-                int b = a - 1;
-
-                for (auto i = int(s.find_last_not_of("0.")); i >= 0; --i, a = b)
-                    if (ascii_isdigit(s[i]))
-                        s[i] = char(a - s[i]);
-
-                if (! pc)
-                    s[0] = '0';
-                else if (s.size() == 1 || s[1] == '.')
-                    s.insert(0, 1, '9');
-
-            }
-
-            if (spec.option('z') && s.find('.') != npos) {
-                s = trim_right(s, "0");
-                if (s.back() == '.')
-                    s.pop_back();
-            }
-
-            return s;
-
+            return format_probability_helper(spec, band(),
+                [this] (FormatSpec spec) { return format_floating_point(value(), spec); },
+                [this] (FormatSpec spec) {
+                    T t = std::abs(data_);
+                    if (spec.mode() == 'P') t *= 100;
+                    return format_float_d(t, spec);
+                });
         }
 
         template <std::floating_point T>
