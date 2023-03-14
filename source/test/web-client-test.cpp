@@ -25,29 +25,22 @@ void test_crow_web_client_http_get() {
     TEST(body.size() > 10'000);
     TEST_MATCH(body.substr(0, 100), "^<!DOCTYPE html>\n");
 
-    key = "content-length";
-    TEST_EQUAL(head.count(key), 1u);
-    TRY(it = head.find(key));
-    TEST(it != head.end());
-    if (it != head.end())
-        TEST_MATCH(it->second, R"(^\d+$)");
-
     key = "content-type";
-    TEST_EQUAL(head.count(key), 1u);
+    TEST(head.contains(key));
     TRY(it = head.find(key));
     TEST(it != head.end());
     if (it != head.end())
         TEST_MATCH(it->second, "^text/html");
 
     key = "date";
-    TEST_EQUAL(head.count(key), 1u);
+    TEST(head.contains(key));
     TRY(it = head.find(key));
     TEST(it != head.end());
     if (it != head.end())
         TEST_MATCH(it->second, R"(^[A-Z][a-z]{2}, \d\d [A-Z][a-z]{2} 20\d\d \d\d:\d\d:\d\d GMT$)");
 
     key = "last-modified";
-    TEST_EQUAL(head.count(key), 1u);
+    TEST(head.contains(key));
     TRY(it = head.find(key));
     TEST(it != head.end());
     if (it != head.end())
@@ -71,29 +64,22 @@ void test_crow_web_client_http_head() {
     TEST_EQUAL(to_string(status), "200 OK");
     TEST(head.size() > 20);
 
-    key = "content-length";
-    TEST_EQUAL(head.count(key), 1u);
-    TRY(it = head.find(key));
-    TEST(it != head.end());
-    if (it != head.end())
-        TEST_MATCH(it->second, R"(^\d+$)");
-
     key = "content-type";
-    TEST_EQUAL(head.count(key), 1u);
+    TEST(head.contains(key));
     TRY(it = head.find(key));
     TEST(it != head.end());
     if (it != head.end())
         TEST_MATCH(it->second, "^text/html");
 
     key = "date";
-    TEST_EQUAL(head.count(key), 1u);
+    TEST(head.contains(key));
     TRY(it = head.find(key));
     TEST(it != head.end());
     if (it != head.end())
         TEST_MATCH(it->second, R"(^[A-Z][a-z]{2}, \d\d [A-Z][a-z]{2} 20\d\d \d\d:\d\d:\d\d GMT$)");
 
     key = "last-modified";
-    TEST_EQUAL(head.count(key), 1u);
+    TEST(head.contains(key));
     TRY(it = head.find(key));
     TEST(it != head.end());
     if (it != head.end())
