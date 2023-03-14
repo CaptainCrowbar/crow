@@ -12,7 +12,7 @@ namespace Crow;
 * TOC
 {:toc}
 
-## Algorithms
+## Arithmetic functions
 
 ```c++
 template <ArithmeticType T> constexpr T binomial(T a, T b) noexcept;
@@ -22,32 +22,6 @@ Returns the binomial coefficient of `(a,b)`, equal to `a!/b!(a-b)!` if
 `b∈[0,a]`, otherwise zero). Behaviour is undefined if the correct result would
 be out of range for `T`, or if `T` is floating point and either argument is
 not an integer value.
-
-```c++
-template <ArithmeticType T> constexpr T const_abs(T x) noexcept;
-```
-
-Absolute value function (defined here because `std::abs()` is not guaranteed
-to be `constexpr`).
-
-```c++
-template <std::integral T2, std::floating_point T1>
-    constexpr T2 const_round(T1 x) noexcept;
-```
-
-Round to nearest integer (defined here because `std::lround()` is not
-guaranteed to be `constexpr`). Behaviour is undefined if the result is not
-representable in `T2`.
-
-```c++
-template <ArithmeticType T> std::pair<T, T> emodf(T x) noexcept;
-template <ArithmeticType T> T fraction(T x) noexcept;
-```
-
-A Euclidean version of `modf()`, returning the integer and fractional parts of
-a number, with the fractional part always in the range `[0,1)`. If `T` is an
-integer type, this will return `{x,0}`. The `fraction()` function is
-shorthand for `emodf(x).second`.
 
 ```c++
 template <typename T>
@@ -100,6 +74,41 @@ must be a floating point arithmetic type; `Y` only needs to define `Y-Y` and
 `X*Y`, and need not be an arithmetic type. Behaviour is undefined if `x1=x2`.
 
 ```c++
+template <std::floating_point T> constexpr T to_degrees(T rad) noexcept;
+template <std::floating_point T> constexpr T to_radians(T deg) noexcept;
+```
+
+Convert between degrees and radians.
+
+## Numerical properties
+
+```c++
+template <ArithmeticType T> constexpr T const_abs(T x) noexcept;
+```
+
+Absolute value function (defined here because `std::abs()` is not guaranteed
+to be `constexpr`).
+
+```c++
+template <std::integral T2, std::floating_point T1>
+    constexpr T2 const_round(T1 x) noexcept;
+```
+
+Round to nearest integer (defined here because `std::lround()` is not
+guaranteed to be `constexpr`). Behaviour is undefined if the result is not
+representable in `T2`.
+
+```c++
+template <ArithmeticType T> std::pair<T, T> emodf(T x) noexcept;
+template <ArithmeticType T> T fraction(T x) noexcept;
+```
+
+A Euclidean version of `modf()`, returning the integer and fractional parts of
+a number, with the fractional part always in the range `[0,1)`. If `T` is an
+integer type, this will return `{x,0}`. The `fraction()` function is
+shorthand for `emodf(x).second`.
+
+```c++
 template <typename T> constexpr int sign_of(T t) noexcept;
 ```
 
@@ -107,12 +116,17 @@ Returns the sign of `t` (-1, 0, or 1). `T` must be default constructible and
 less-than comparable; the default constructed value is assumed to be zero.
 Behaviour is undefined if `t` has an unordered value such as NaN.
 
+## Special functions
+
 ```c++
-template <std::floating_point T> constexpr T to_degrees(T rad) noexcept;
-template <std::floating_point T> constexpr T to_radians(T deg) noexcept;
+template <std::floating_point T> T inverse_erf(T x) noexcept;
+template <std::floating_point T> T inverse_erfc(T x) noexcept;
 ```
 
-Convert between degrees and radians.
+Inverse error function and complementary error function. Arguments of -1 or 1
+for `inverse_erf(),` or 0 or 2 for `inverse_erfc(),` will correctly return
+infinities. Behaviour is undefined if the argument is outside the domain
+`[-1,1]` for `inverse_erf(),` or `[0,2]` for `inverse_erfc().`
 
 ## Literals
 

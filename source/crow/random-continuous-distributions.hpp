@@ -6,13 +6,12 @@
 #include "crow/random-engines.hpp"
 #include "crow/constants.hpp"
 #include "crow/enum.hpp"
+#include "crow/maths.hpp"
 #include "crow/types.hpp"
 #include <cmath>
 #include <concepts>
 #include <cstdlib>
-#include <limits>
 #include <numbers>
-#include <type_traits>
 
 namespace Crow {
 
@@ -128,25 +127,6 @@ namespace Crow {
         T q_z(T p) const noexcept {
             using namespace Detail;
             return - SN::sqrt2_v<T> * inverse_erfc(2 * p);
-        }
-
-        static T inverse_erfc(T y) noexcept {
-            using namespace Detail;
-            static constexpr T epsilon = 2 * std::numeric_limits<T>::epsilon();
-            static constexpr T sqrtpi_over_2 = 1 / (2 * SN::inv_sqrtpi_v<T>);
-            static const auto inv_deriv = [] (T x) { return - sqrtpi_over_2 * std::exp(x * x); };
-            if (y > 1)
-                return - inverse_erfc(2 - y);
-            T x = std::sqrt(- std::log(y));
-            for (;;) {
-                T f = std::erfc(x) - y;
-                if (f == 0)
-                    return x;
-                T delta = - f * inv_deriv(x);
-                if (std::abs(delta) < epsilon * std::abs(x))
-                    return x + delta / 2;
-                x += delta;
-            }
         }
 
     };

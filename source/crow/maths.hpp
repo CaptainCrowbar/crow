@@ -14,7 +14,7 @@
 
 namespace Crow {
 
-    // Algorithms
+    // Arithmetic functions
 
     template <ArithmeticType T>
     constexpr T binomial(T a, T b) noexcept {
@@ -33,45 +33,6 @@ namespace Crow {
             b -= 1;
         }
         return n / d;
-    }
-
-    template <ArithmeticType T>
-    constexpr T const_abs(T x) noexcept {
-        if (std::is_signed_v<T>)
-            return x < 0 ? - x : x;
-        else
-            return x;
-    }
-
-    template <std::integral T2, std::floating_point T1>
-    constexpr T2 const_round(T1 x) noexcept {
-        T2 y = T2(x);
-        T1 d = T1(y) - x;
-        if (d <= T1(-0.5))
-            ++y;
-        else if (d > T1(0.5))
-            --y;
-        return y;
-    }
-
-    template <ArithmeticType T>
-    std::pair<T, T> emodf(T x) noexcept {
-        if constexpr (std::floating_point<T>) {
-            T i, f;
-            f = std::modf(x, &i);
-            if (f < T(0)) {
-                f += T(1);
-                i -= T(1);
-            }
-            return {i, f};
-        } else {
-            return {x, {}};
-        }
-    }
-
-    template <ArithmeticType T>
-    T fraction(T x) noexcept {
-        return emodf(x).second;
     }
 
     template <typename T>
@@ -163,11 +124,6 @@ namespace Crow {
         return y1 + (y2 - y1) * ((x3 - x1) / (x2 - x1));
     }
 
-    template <typename T>
-    constexpr int sign_of(T t) noexcept {
-        return t > T() ? 1 : t == T() ? 0 : -1;
-    }
-
     template <std::floating_point T>
     constexpr T to_degrees(T rad) noexcept {
         using std::numbers::pi_v;
@@ -178,6 +134,108 @@ namespace Crow {
     constexpr T to_radians(T deg) noexcept {
         using std::numbers::pi_v;
         return deg * (pi_v<T> / T(180));
+    }
+
+    // Numerical properties
+
+    template <ArithmeticType T>
+    constexpr T const_abs(T x) noexcept {
+        if (std::is_signed_v<T>)
+            return x < 0 ? - x : x;
+        else
+            return x;
+    }
+
+    template <std::integral T2, std::floating_point T1>
+    constexpr T2 const_round(T1 x) noexcept {
+        T2 y = T2(x);
+        T1 d = T1(y) - x;
+        if (d <= T1(-0.5))
+            ++y;
+        else if (d > T1(0.5))
+            --y;
+        return y;
+    }
+
+    template <ArithmeticType T>
+    std::pair<T, T> emodf(T x) noexcept {
+        if constexpr (std::floating_point<T>) {
+            T i, f;
+            f = std::modf(x, &i);
+            if (f < T(0)) {
+                f += T(1);
+                i -= T(1);
+            }
+            return {i, f};
+        } else {
+            return {x, {}};
+        }
+    }
+
+    template <ArithmeticType T>
+    T fraction(T x) noexcept {
+        return emodf(x).second;
+    }
+
+    template <typename T>
+    constexpr int sign_of(T t) noexcept {
+        return t > T() ? 1 : t == T() ? 0 : -1;
+    }
+
+    // Special functions
+
+    template <std::floating_point T>
+    T inverse_erf(T x) noexcept {
+
+        using namespace std::numbers;
+
+        static constexpr T epsilon = 2 * std::numeric_limits<T>::epsilon();
+        static constexpr T sqrtpi_over_2 = 1 / (2 * inv_sqrtpi_v<T>);
+
+        static const auto inv_deriv = [] (T x) { return sqrtpi_over_2 * std::exp(x * x); };
+
+        if (x < 0)
+            return - inverse_erf(- x);
+
+        T y = std::sqrt(- std::log1p(- x));
+
+        for (;;) {
+            T f = std::erf(y) - x;
+            if (f == 0)
+                return y;
+            T delta = - f * inv_deriv(y);
+            if (std::abs(delta) < epsilon * std::abs(y))
+                return y + delta / 2;
+            y += delta;
+        }
+
+    }
+
+    template <std::floating_point T>
+    T inverse_erfc(T x) noexcept {
+
+        using namespace std::numbers;
+
+        static constexpr T epsilon = 2 * std::numeric_limits<T>::epsilon();
+        static constexpr T sqrtpi_over_2 = 1 / (2 * inv_sqrtpi_v<T>);
+
+        static const auto inv_deriv = [] (T x) { return - sqrtpi_over_2 * std::exp(x * x); };
+
+        if (x > 1)
+            return - inverse_erfc(2 - x);
+
+        T y = std::sqrt(- std::log(x));
+
+        for (;;) {
+            T f = std::erfc(y) - x;
+            if (f == 0)
+                return y;
+            T delta = - f * inv_deriv(y);
+            if (std::abs(delta) < epsilon * std::abs(y))
+                return y + delta / 2;
+            y += delta;
+        }
+
     }
 
     // Literals

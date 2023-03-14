@@ -604,17 +604,27 @@ void markup_test_group() {
     UNIT_TEST(crow_markup_html)
 }
 
-void maths_test_group() {
+void maths_arithmetic_functions_test_group() {
     UNIT_TEST(crow_maths_binomial_coefficients)
-    UNIT_TEST(crow_maths_rounding)
-    UNIT_TEST(crow_maths_emodf)
     UNIT_TEST(crow_maths_euclidean_division)
     UNIT_TEST(crow_maths_symmetric_division)
     UNIT_TEST(crow_maths_integer_power)
     UNIT_TEST(crow_maths_integer_power_generalised)
-    UNIT_TEST(crow_maths_interpolate)
-    UNIT_TEST(crow_maths_sign)
+    UNIT_TEST(crow_maths_interpolation)
+}
+
+void maths_literals_test_group() {
     UNIT_TEST(crow_maths_numeric_literals)
+}
+
+void maths_properties_test_group() {
+    UNIT_TEST(crow_maths_rounding)
+    UNIT_TEST(crow_maths_emodf)
+    UNIT_TEST(crow_maths_sign)
+}
+
+void maths_special_functions_test_group() {
+    UNIT_TEST(crow_maths_inverse_erf)
 }
 
 void matrix_test_group() {
@@ -1359,7 +1369,10 @@ int main(int argc, char** argv) {
     log_scale_parsing_test_group();
     markov_test_group();
     markup_test_group();
-    maths_test_group();
+    maths_arithmetic_functions_test_group();
+    maths_literals_test_group();
+    maths_properties_test_group();
+    maths_special_functions_test_group();
     matrix_test_group();
     meta_test_group();
     mirror_map_test_group();

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "crow/format.hpp"
+#include "crow/maths.hpp"
 #include "crow/string.hpp"
 #include "crow/types.hpp"
 #include <cmath>
@@ -101,7 +102,6 @@ namespace Crow {
         static constexpr Probability do_div(Probability x, T y) noexcept;
         static constexpr std::strong_ordering do_compare(Probability x, Probability y) noexcept;
         static Probability do_power(Probability x, T y) noexcept;
-        static T inverse_erfc(T y) noexcept;
 
     };
 
@@ -297,27 +297,6 @@ namespace Crow {
                 return std::exp(logz);
             else
                 return {std::expm1(logz), raw};
-        }
-
-        template <std::floating_point T>
-        T Probability<T>::inverse_erfc(T y) noexcept {
-            using namespace std::numbers;
-            using limits = std::numeric_limits<T>;
-            static constexpr T epsilon = 2 * limits::epsilon();
-            static constexpr T sqrtpi_over_2 = 1 / (2 * inv_sqrtpi_v<T>);
-            static const auto inv_deriv = [] (T x) { return - sqrtpi_over_2 * std::exp(x * x); };
-            if (y > 1)
-                return - inverse_erfc(2 - y);
-            T x = std::sqrt(- std::log(y));
-            for (;;) {
-                T f = std::erfc(x) - y;
-                if (f == 0)
-                    return x;
-                T delta = - f * inv_deriv(x);
-                if (std::abs(delta) < epsilon * std::abs(x))
-                    return x + delta / 2;
-                x += delta;
-            }
         }
 
 }
