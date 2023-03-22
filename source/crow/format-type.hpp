@@ -14,6 +14,7 @@
 #include <concepts>
 #include <cstddef>
 #include <exception>
+#include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -115,7 +116,8 @@ namespace Crow {
         || ArithmeticType<std::decay_t<T>>
         || RangeType<std::decay_t<T>>
         || Detail::DurationType<std::decay_t<T>>
-        || Detail::ExtendedStrMethodType<std::decay_t<T>>;
+        || Detail::ExtendedStrMethodType<std::decay_t<T>>
+        || Detail::IsOptionalType<std::decay_t<T>>::value;
 
     template <typename T>
     struct FormatType {
@@ -127,6 +129,8 @@ namespace Crow {
                 return spec.option('Z') ? "--" : "<null>";
             else if constexpr (Detail::StdOrderingType<U>)
                 return format_ordering(t);
+            else if constexpr (Detail::IsOptionalType<std::decay_t<T>>::value)
+                return t.has_value() ? FormatType<typename T::value_type>()(*t, spec) : spec.option('Z') ? "--" : "<null>";
             else if constexpr (std::same_as<U, bool>)
                 return format_boolean(t, spec);
             else if constexpr (std::same_as<U, char>)

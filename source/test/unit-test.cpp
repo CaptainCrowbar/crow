@@ -283,6 +283,7 @@ void format_integer_test_group() {
 void format_misc_test_group() {
     UNIT_TEST(crow_format_null_values)
     UNIT_TEST(crow_format_std_ordering)
+    UNIT_TEST(crow_format_std_optional)
 }
 
 void format_numeric_test_group() {

@@ -1,6 +1,7 @@
 #include "crow/format.hpp"
 #include "crow/unit-test.hpp"
 #include <compare>
+#include <optional>
 #include <string>
 
 using namespace Crow;
@@ -55,5 +56,16 @@ void test_crow_format_std_ordering() {
     TEST_EQUAL(format_object(std::weak_ordering::less),           "less");
     TEST_EQUAL(format_object(std::weak_ordering::equivalent),     "equivalent");
     TEST_EQUAL(format_object(std::weak_ordering::greater),        "greater");
+
+}
+
+void test_crow_format_std_optional() {
+
+    std::optional<int> oi;
+
+    oi = {};  TEST_EQUAL(format_object(oi),        "<null>");
+    oi = {};  TEST_EQUAL(format_object(oi, "NZ"),  "--");
+    oi = 42;  TEST_EQUAL(format_object(oi),        "42");
+    oi = 42;  TEST_EQUAL(format_object(oi, "NZ"),  "42");
 
 }

@@ -198,6 +198,8 @@ following algorithm is used to determine how to format an object:
     * ✉️ return `"<null>"`
 * else if the type is one of the standard ordering types
     * ✉️ return the unqualified constant name
+* else if the type is `std::optional<T>`
+    * 🎁 return `"<null>"` if empty, otherwise format as for `T`
 * else if the type is `bool`
     * 🎁 use boolean formatting as described above
 * else if the type is `char`
