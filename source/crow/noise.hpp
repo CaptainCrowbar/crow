@@ -40,8 +40,8 @@ namespace Crow {
 
     public:
 
-        using scalar_type = T;
         using seed_type = uint64_t;
+        using value_type = T;
         using vector_type = Vector<T, 2>;
 
         static constexpr int dim = 2;
@@ -246,8 +246,8 @@ namespace Crow {
 
     public:
 
-        using scalar_type = T;
         using seed_type = uint64_t;
+        using value_type = T;
         using vector_type = Vector<T, 3>;
 
         static constexpr int dim = 3;
@@ -477,8 +477,8 @@ namespace Crow {
 
     public:
 
-        using scalar_type = T;
         using seed_type = uint64_t;
+        using value_type = T;
         using domain_type = std::conditional_t<DimIn == 1, T, Vector<T, DimIn>>;
         using result_type = std::conditional_t<DimOut == 1, T, Vector<T, DimOut>>;
 

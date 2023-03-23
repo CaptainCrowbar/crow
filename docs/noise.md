@@ -29,8 +29,8 @@ which is difficult to emulate in C++. Apart from that the original algorithm
 is unchanged.
 
 ```c++
-using Noise::scalar_type = T;
 using Noise::seed_type = uint64_t;
+using Noise::value_type = T;
 using Noise::vector_type = Vector<T, N>;
 ```
 
@@ -111,8 +111,8 @@ For the sum of `n` octaves of noise:
 | 10       | 1.998      | 0.241      | 0.208    |
 
 ```c++
-using NoiseSource::scalar_type = T;
 using NoiseSource::seed_type = uint64_t;
+using NoiseSource::value_type = T;
 using NoiseSource::domain_type = std::conditional_t<DimIn == 1, T, Vector<T, DimIn>>;
 using NoiseSource::result_type = std::conditional_t<DimOut == 1, T, Vector<T, DimOut>>;
 ```

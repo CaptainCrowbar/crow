@@ -216,9 +216,8 @@ namespace Crow {
 
     public:
 
-        using scalar_type = T;
+        using value_type = T;
         using weight_type = W;
-        using value_type = typename branch_map::value_type;
         using iterator = typename branch_map::const_iterator;
 
         WeightedSuperposition() = default;

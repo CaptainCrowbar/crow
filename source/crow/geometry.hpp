@@ -18,7 +18,7 @@ namespace Crow {
 
     public:
 
-        using scalar_type = T;
+        using value_type = T;
         using vector_type = Vector<T, N>;
 
         static constexpr int dim = N;
@@ -105,7 +105,7 @@ namespace Crow {
 
     public:
 
-        using scalar_type = T;
+        using value_type = T;
         using real_type = std::conditional_t<std::is_floating_point_v<T>, T, double>;
         using vector_type = Vector<T, N>;
 

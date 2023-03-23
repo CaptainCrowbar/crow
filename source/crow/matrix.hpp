@@ -82,7 +82,7 @@ namespace Crow {
 
     public:
 
-        using scalar_type = T;
+        using value_type = T;
         using vector_type = Vector<T, N>;
         using alt_matrix = Matrix<T, N, alt_layout>;
 

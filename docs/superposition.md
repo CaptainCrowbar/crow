@@ -30,9 +30,8 @@ templates.
 
 ```c++
 using FlatSuperposition::value_type = T;
-using WeightedSuperposition::scalar_type = T;
+using WeightedSuperposition::value_type = T;
 using WeightedSuperposition::weight_type = W;
-using WeightedSuperposition::value_type = std::pair<T, W>;
 ```
 
 Member types.

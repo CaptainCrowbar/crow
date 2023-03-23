@@ -38,7 +38,7 @@ using Box_ld4 = Box<long double, 4>;
 Predefined type aliases.
 
 ```c++
-using Box::scalar_type = T;
+using Box::value_type = T;
 using Box::vector_type = Vector<T, N>;
 ```
 
@@ -174,7 +174,7 @@ using Sphere_ld4 = Sphere<long double, 4>;
 Predefined type aliases.
 
 ```c++
-using Sphere::scalar_type = T;
+using Sphere::value_type = T;
 using Sphere::real_type = [see below];
 using Sphere::vector_type = Vector<T, N>;
 ```

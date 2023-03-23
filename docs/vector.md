@@ -36,7 +36,7 @@ using Ldouble4 = Vector<long double, 4>;
 Predefined type aliases.
 
 ```c++
-using Vector::scalar_type = T;
+using Vector::value_type = T;
 using Vector::iterator = T*;
 using Vector::const_iterator = const T*;
 ```

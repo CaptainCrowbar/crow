@@ -124,7 +124,7 @@ template <std::floating_point T> class BasicMapProjection: public MapProjection;
 The common base class for all map projections with a specific scalar type.
 
 ```c++
-using BasicMapProjection::scalar_type = T;
+using BasicMapProjection::value_type = T;
 using BasicMapProjection::vector_type = Vector<T, 2>;
 ```
 
@@ -430,7 +430,7 @@ template <std::floating_point T> class InterruptedProjectionBase:
         const Range& inter_south);
 };
 template <typename Projection> class InterruptedProjection:
-        public InterruptedProjectionBase<Projection::scalar_type> {
+        public InterruptedProjectionBase<Projection::value_type> {
     using InterruptedProjection::projection_type = Projection;
     template <RangeType Range> InterruptedProjection(vector_type origin,
         const Range& inter);

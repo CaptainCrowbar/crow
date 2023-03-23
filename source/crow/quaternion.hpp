@@ -18,7 +18,7 @@ namespace Crow {
 
     public:
 
-        using scalar_type = T;
+        using value_type = T;
 
         constexpr Quaternion() noexcept: array_{} {}
         constexpr Quaternion(T a) noexcept: array_{{a, T(0), T(0), T(0)}} {}

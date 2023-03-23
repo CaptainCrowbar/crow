@@ -24,7 +24,7 @@ using Qldouble = Quaternion<long double>;
 Predefined type aliases.
 
 ```c++
-using Quaternion::scalar_type = T;
+using Quaternion::value_type = T;
 ```
 
 Member types.

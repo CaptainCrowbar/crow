@@ -455,7 +455,7 @@ Generates a random version 4 UUID.
 ```c++
 template <std::floating_point T, int N> class RandomVector {
     using result_type = Vector<T, N>;
-    using scalar_type = T;
+    using value_type = T;
     static constexpr int dim = N;
     constexpr RandomVector() noexcept;
         // apex=(1,1,...)
@@ -468,7 +468,7 @@ template <std::floating_point T, int N> class RandomVector {
 };
 template <std::floating_point T, int N> class SymmetricRandomVector {
     using result_type = Vector<T, N>;
-    using scalar_type = T;
+    using value_type = T;
     static constexpr int dim = N;
     constexpr SymmetricRandomVector() noexcept;
         // apex=(1,1,...)
@@ -492,7 +492,7 @@ point in the box whose corners are `(origin,apex)`, while
 ```c++
 template <std::floating_point T, int N> class RandomPointInSphere {
     using result_type = Vector<T, N>;
-    using scalar_type = T;
+    using value_type = T;
     static constexpr int dim = N;
     constexpr RandomPointInSphere() noexcept;
     constexpr explicit RandomPointInSphere(T r) noexcept;
@@ -510,7 +510,7 @@ origin in `N` dimensions. Behaviour is undefined if `r<0`.
 ```c++
 template <std::floating_point T, int N> class RandomDirection {
     using result_type = Vector<T, N>;
-    using scalar_type = T;
+    using value_type = T;
     static constexpr int dim = N;
     constexpr RandomDirection() noexcept;
     template <RandomEngineType RNG>

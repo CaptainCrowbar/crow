@@ -59,7 +59,7 @@ using Ldouble4x4r = Matrix<long double, 4, MatrixLayout::row>;
 Predefined type aliases.
 
 ```c++
-using Matrix::scalar_type = T;
+using Matrix::value_type = T;
 using Matrix::vector_type = Vector<T, N>;
 using Matrix::alt_matrix = Matrix<T, N, ...>;
 ```

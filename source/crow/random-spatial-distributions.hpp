@@ -22,7 +22,7 @@ namespace Crow {
     public:
 
         using result_type = Vector<T, N>;
-        using scalar_type = T;
+        using value_type = T;
 
         static constexpr int dim = N;
 
@@ -52,7 +52,7 @@ namespace Crow {
     public:
 
         using result_type = Vector<T, N>;
-        using scalar_type = T;
+        using value_type = T;
 
         static constexpr int dim = N;
 
@@ -82,7 +82,7 @@ namespace Crow {
     public:
 
         using result_type = Vector<T, N>;
-        using scalar_type = T;
+        using value_type = T;
 
         static constexpr int dim = N;
 
@@ -141,7 +141,7 @@ namespace Crow {
     public:
 
         using result_type = Vector<T, N>;
-        using scalar_type = T;
+        using value_type = T;
 
         static constexpr int dim = N;
 

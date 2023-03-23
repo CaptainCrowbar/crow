@@ -56,7 +56,7 @@ namespace Crow {
 
         static_assert(N >= 1);
 
-        using scalar_type = T;
+        using value_type = T;
         using iterator = T*;
         using const_iterator = const T*;
 
