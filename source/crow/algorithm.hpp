@@ -912,6 +912,67 @@ namespace Crow {
 
     // Range algorithms
 
+    template <ForwardRangeType Range>
+    class CartesianPowerIterator:
+    public ForwardIterator<CartesianPowerIterator<Range>, std::vector<RangeValue<Range>>> {
+
+    public:
+
+        CartesianPowerIterator() = default;
+
+        CartesianPowerIterator(const Range& range, size_t k):
+        range_(&range), index_(0) {
+            using std::begin;
+            if (k > 0) {
+                iterators_.resize(k, begin(range));
+                elements_.resize(k, *iterators_[0]);
+            }
+        }
+
+        const std::vector<RangeValue<Range>>& operator*() const noexcept {
+            return elements_;
+        }
+
+        CartesianPowerIterator& operator++() {
+            using std::begin;
+            using std::end;
+            ++index_;
+            for (int i = int(iterators_.size()) - 1; i >= 0; --i) {
+                ++iterators_[i];
+                if (iterators_[i] != end(*range_)) {
+                    elements_[i] = *iterators_[i];
+                    return *this;
+                }
+                iterators_[i] = begin(*range_);
+                elements_[i] = *iterators_[i];
+            }
+            index_ = npos;
+            return *this;
+        }
+
+        bool operator==(const CartesianPowerIterator& i) const noexcept {
+            return index_ == i.index_;
+        }
+
+    private:
+
+        using iterator_type = RangeIterator<const Range>;
+        using iterator_vector = std::vector<iterator_type>;
+        using element_type = RangeValue<Range>;
+        using element_vector = std::vector<element_type>;
+
+        iterator_vector iterators_;
+        element_vector elements_;
+        const Range* range_ = nullptr;
+        size_t index_ = npos;
+
+    };
+
+    template <ForwardRangeType Range>
+    Irange<CartesianPowerIterator<Range>> cartesian_power(const Range& range, size_t k) {
+        return {{range, k}, {}};
+    }
+
     template <ForwardRangeType Range,
         std::invocable<RangeValue<Range>> UnaryFunction,
         std::strict_weak_order<

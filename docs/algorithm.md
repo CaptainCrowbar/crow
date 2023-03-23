@@ -14,6 +14,8 @@ namespace Crow;
 
 ## Container algorithms
 
+### Map lookup
+
 ```c++
 template <AssociativeContainerType C,
     std::convertible_to<typename C::key_type> K>
@@ -27,6 +29,8 @@ template <AssociativeContainerType C,
 
 Look up the key in the map, returning the mapped value if found, otherwise
 either the supplied default value, or a default constructed value.
+
+### Uniqueness algorithms
 
 ```c++
 template <typename Container>
@@ -47,6 +51,8 @@ predicate has less-than semantics, where that of `unique_in()`, like
 `std::unique()`, has equality semantics.
 
 ## Difference
+
+### Myers diff
 
 ```c++
 template <RandomAccessRangeType Range> struct DiffEntry {
@@ -84,6 +90,8 @@ and _k_ is the number of differences.
 
 ## Edit distance
 
+### Levenshtein distance
+
 ```c++
 template <ArithmeticType T = double> class Levenshtein {
     Levenshtein() noexcept;
@@ -104,6 +112,8 @@ negative.
 
 Complexity: _O(mn)_, where _m_ and _n_ are the lengths of the input strings.
 
+### Damerau–Levenshtein distance
+
 ```c++
 template <ArithmeticType T = double> class DamerauLevenshtein {
     DamerauLevenshtein() noexcept;
@@ -123,6 +133,8 @@ The constructor will throw `std::invalid_argument` if any of the weights are
 negative, or if `2*exch<ins+del`.
 
 Complexity: _O(mn)_, where _m_ and _n_ are the lengths of the input strings.
+
+### Jaro–Winkler distance
 
 ```c++
 template <std::floating_point T = double> class JaroWinkler {
@@ -172,6 +184,8 @@ Complexity: _O(n)_.
 
 ## Interpolation
 
+### Linear interpolation
+
 ```c++
 enum class Inter: int {
     none   = 0,
@@ -193,6 +207,8 @@ undefined if `x1==x2`; if the `log_x` flag is used and any of the X values
 are less than or equal to zero; or if the `log_y` flag is used and either of
 the Y values is less than or equal to zero.
 
+### Interpolated map
+
 ```c++
 template <std::floating_point T, Inter Flags = Inter::none>
 class InterpolatedMap {
@@ -212,6 +228,8 @@ earlier one. The constructors and `insert()` function will throw
 `std::invalid_argument` if a zero or negative value is supplied for a
 log-scaled parameter.
 
+### Cubic spline interpolation
+
 ```c++
 template <std::floating_point T, Inter Flags = Inter::none>
 class CubicSplineMap {
@@ -229,6 +247,8 @@ points are supplied, or if two points have the same X value but different Y
 values.
 
 ## Numerical algorithms
+
+### Line and volume integrals
 
 ```c++
 template <std::floating_point T, std::invocable<T> F>
@@ -248,6 +268,8 @@ Computes the volume integral of `f(x)` over the rectangular prism whose
 opposite corners are `x1` and `x2`, dividing each side into `k` subdivisions.
 This has complexity _O(k<sup>N</sup>)._ Behaviour is undefined if `k<1` or
 the function has a pole within the volume.
+
+### Precision sum
 
 ```c++
 template <std::floating_point T> class PrecisionSum {
@@ -274,6 +296,38 @@ correct answer (the exact sum correctly rounded) if the value type implements
 IEEE arithmetic (on GCC this requires the `-ffloat-store` option).
 
 ## Range algorithms
+
+### Cartesian power
+
+```c++
+template <ForwardRangeType Range> class CartesianPowerIterator {
+    using difference_type = ptrdiff_t;
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = std::vector<[range value type]>;
+    using pointer = const value_type*;
+    using reference = const value_type&;
+    CartesianPowerIterator();
+    CartesianPowerIterator(const Range& range, size_t k);
+    const value_type& operator*() const noexcept;
+    const value_type* operator->() const noexcept;
+    CartesianPowerIterator& operator++();
+    CartesianPowerIterator operator++(int);
+    bool operator==(const CartesianPowerIterator& i) const noexcept;
+    bool operator!=(const CartesianPowerIterator& i) const noexcept;
+};
+template <ForwardRangeType Range>
+    Irange<CartesianPowerIterator<Range>>
+        cartesian_power(const Range& range, size_t k);
+```
+
+This iterates over the Cartesian power `k` of the input range, i.e.
+`range×range×...×range`. The dereferenced vector contains `k` elements from
+the input range. The output range contains _n<sup>k</sup>_ elements, where
+`n` is the size of the input range. The output elements are in their natural
+lexical order, based on the order of the input range, with the last element
+varying quickest.
+
+### Find optimum
 
 ```c++
 template <ForwardRangeType Range, std::invocable<...> UnaryFunction,

@@ -39,6 +39,7 @@ void algorithm_test_group() {
     UNIT_TEST(crow_algorithm_precision_sum)
     UNIT_TEST(crow_algorithm_line_integral)
     UNIT_TEST(crow_algorithm_volume_integral)
+    UNIT_TEST(crow_algorithm_cartesian_power)
     UNIT_TEST(crow_algorithm_find_optimum)
     UNIT_TEST(crow_algorithm_subsets)
 }

@@ -577,6 +577,68 @@ void test_crow_algorithm_volume_integral() {
 
 }
 
+void test_crow_algorithm_cartesian_power() {
+
+    using Crow::UnitTest::format_range;
+
+    std::string alpha = "abc";
+    std::vector<std::string> vec;
+
+    auto vec2str = [] (const std::vector<char>& v) { return std::string(v.data(), v.size()); };
+
+    auto cp0 = cartesian_power(alpha, 0);
+    auto cp1 = cartesian_power(alpha, 1);
+    auto cp2 = cartesian_power(alpha, 2);
+    auto cp3 = cartesian_power(alpha, 3);
+    auto cp4 = cartesian_power(alpha, 4);
+
+    TEST_EQUAL(std::distance(cp0.begin(), cp0.end()), 1);
+    TEST_EQUAL(std::distance(cp1.begin(), cp1.end()), 3);
+    TEST_EQUAL(std::distance(cp2.begin(), cp2.end()), 9);
+    TEST_EQUAL(std::distance(cp3.begin(), cp3.end()), 27);
+    TEST_EQUAL(std::distance(cp4.begin(), cp4.end()), 81);
+
+    vec.clear();
+    TRY(std::transform(cp0.begin(), cp0.end(), std::back_inserter(vec), vec2str));
+    TEST_EQUAL(vec.size(), 1u);
+    TEST_EQUAL(format_range(vec), "[]");
+
+    vec.clear();
+    TRY(std::transform(cp1.begin(), cp1.end(), std::back_inserter(vec), vec2str));
+    TEST_EQUAL(vec.size(), 3u);
+    TEST_EQUAL(format_range(vec), "[a,b,c]");
+
+    vec.clear();
+    TRY(std::transform(cp2.begin(), cp2.end(), std::back_inserter(vec), vec2str));
+    TEST_EQUAL(vec.size(), 9u);
+    TEST_EQUAL(format_range(vec), "[aa,ab,ac,ba,bb,bc,ca,cb,cc]");
+
+    vec.clear();
+    TRY(std::transform(cp3.begin(), cp3.end(), std::back_inserter(vec), vec2str));
+    TEST_EQUAL(vec.size(), 27u);
+    TEST_EQUAL(format_range(vec),
+        "[aaa,aab,aac,aba,abb,abc,aca,acb,acc,"
+        "baa,bab,bac,bba,bbb,bbc,bca,bcb,bcc,"
+        "caa,cab,cac,cba,cbb,cbc,cca,ccb,ccc]"
+    );
+
+    vec.clear();
+    TRY(std::transform(cp4.begin(), cp4.end(), std::back_inserter(vec), vec2str));
+    TEST_EQUAL(vec.size(), 81u);
+    TEST_EQUAL(format_range(vec),
+        "[aaaa,aaab,aaac,aaba,aabb,aabc,aaca,aacb,aacc,"
+        "abaa,abab,abac,abba,abbb,abbc,abca,abcb,abcc,"
+        "acaa,acab,acac,acba,acbb,acbc,acca,accb,accc,"
+        "baaa,baab,baac,baba,babb,babc,baca,bacb,bacc,"
+        "bbaa,bbab,bbac,bbba,bbbb,bbbc,bbca,bbcb,bbcc,"
+        "bcaa,bcab,bcac,bcba,bcbb,bcbc,bcca,bccb,bccc,"
+        "caaa,caab,caac,caba,cabb,cabc,caca,cacb,cacc,"
+        "cbaa,cbab,cbac,cbba,cbbb,cbbc,cbca,cbcb,cbcc,"
+        "ccaa,ccab,ccac,ccba,ccbb,ccbc,ccca,cccb,cccc]"
+    );
+
+}
+
 void test_crow_algorithm_find_optimum() {
 
     std::vector<std::string> vec;
