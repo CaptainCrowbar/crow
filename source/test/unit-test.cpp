@@ -1032,6 +1032,7 @@ void regex_runtime_flags_test_group() {
 }
 
 void root_finding_test_group() {
+    UNIT_TEST(crow_root_finding_bisection)
     UNIT_TEST(crow_root_finding_newton_raphson)
 }
 
