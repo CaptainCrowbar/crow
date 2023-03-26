@@ -84,11 +84,36 @@ values is an immediate solution, `solve()` will throw `std::domain_error` if
 
 ```c++
 template <std::floating_point T, std::invocable<T> F>
+std::unique_ptr<RootFinder<T>> bisection(F f) {
+    return std::make_unique<Bisection<T, F>>(f);
+}
+```
+
+This function can be used to construct a root finder more simply (note that
+the type `T` must still be specified explicitly).
+
+## False position algorithm
+
+```c++
+template <std::floating_point T, std::invocable<T> F>
 requires requires (T t, F f) {
     { f(t) } -> std::convertible_to<T>;
 }
-std::unique_ptr<RootFinder<T>> bisection(F f) {
-    return std::make_unique<Bisection<T, F>>(f);
+class FalsePosition:
+public RootFinder<T> {
+    explicit FalsePosition(F f);
+};
+```
+
+This implements the false position algorithm to find a root of a function. The
+`solve()` functions require two initial values. If neither of the initial
+values is an immediate solution, `solve()` will throw `std::domain_error` if
+`x1=x2`, or if `f(x1)-y` and `f(x2)-y` have the same sign.
+
+```c++
+template <std::floating_point T, std::invocable<T> F>
+std::unique_ptr<RootFinder<T>> false_position(F f) {
+    return std::make_unique<FalsePosition<T, F>>(f);
 }
 ```
 
@@ -123,7 +148,6 @@ find a root of a function. The arguments are the function and its derivative.
 
 ```c++
 template <std::floating_point T, typename F, typename DF>
-    requires (NewtonRaphsonArgumentTypes<T, F, DF>)
     std::unique_ptr<RootFinder<T>> newton_raphson(F f, DF df);
 ```
 

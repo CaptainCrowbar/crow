@@ -138,6 +138,78 @@ namespace Crow {
         return std::make_unique<Bisection<T, F>>(f);
     }
 
+    // FalsePosition algorithm
+
+    template <std::floating_point T, std::invocable<T> F>
+    requires requires (T t, F f) {
+        { f(t) } -> std::convertible_to<T>;
+    }
+    class FalsePosition:
+    public RootFinder<T> {
+
+    public:
+
+        explicit FalsePosition(F f): RootFinder<T>(), f_(f) {}
+
+    protected:
+
+        T do_solve(T y, T x1, T x2) override {
+
+            this->reset();
+
+            auto y1 = f_(x1) - y;
+            this->set_error(y1);
+            if (this->error() <= this->epsilon())
+                return x1;
+            if (x1 == x2)
+                throw std::domain_error(fmt("Invalid arguments for false position: {0}, {1}", x1, x2));
+
+            auto y2 = f_(x2) - y;
+            this->set_error(y2);
+            if (this->error() <= this->epsilon())
+                return x2;
+
+            bool s1 = std::signbit(y1);
+            bool s2 = std::signbit(y2);
+            if (s1 == s2)
+                throw std::domain_error(fmt("Invalid arguments for false position: {0}, {1}", x1, x2));
+
+            while (this->count() < this->limit()) {
+
+                this->increment();
+
+                auto x3 = x2 - y2 * (x2 - x1) / (y2 - y1);
+                auto y3 = f_(x3) - y;
+                this->set_error(y3);
+
+                if (this->error() <= this->epsilon())
+                    return x3;
+
+                if (std::signbit(y3) == s1)
+                    x1 = x3;
+                else
+                    x2 = x3;
+
+            }
+
+            return (x1 + x2) / 2;
+
+        }
+
+    private:
+
+        F f_;
+
+    };
+
+    template <std::floating_point T, std::invocable<T> F>
+    requires requires (T t, F f) {
+        { f(t) } -> std::convertible_to<T>;
+    }
+    std::unique_ptr<RootFinder<T>> false_position(F f) {
+        return std::make_unique<FalsePosition<T, F>>(f);
+    }
+
     // Newton-Raphson algorithm
 
     template <typename T, typename F, typename DF>
