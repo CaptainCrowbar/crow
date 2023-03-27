@@ -42,6 +42,7 @@ namespace Crow {
         IntervalBound right() const noexcept { return right_; }
         bool empty() const noexcept { return left_ == IntervalBound::empty; }
         bool is_single() const noexcept { return left_ == IntervalBound::closed && right_ == IntervalBound::closed && min_ == max_; }
+        bool is_range() const noexcept { return left_ == IntervalBound::unbound || right_ == IntervalBound::unbound || min_ != max_; }
         bool is_finite() const noexcept { return is_left_bounded() && is_right_bounded(); }
         bool is_infinite() const noexcept { return left_ == IntervalBound::unbound || right_ == IntervalBound::unbound; }
         bool is_universal() const noexcept { return left_ == IntervalBound::unbound && right_ == IntervalBound::unbound; }

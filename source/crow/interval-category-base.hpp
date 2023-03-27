@@ -6,6 +6,7 @@
 #include <compare>
 #include <concepts>
 #include <iterator>
+#include <limits>
 #include <string>
 #include <type_traits>
 
@@ -207,7 +208,12 @@ namespace Crow {
     class IntervalCategoryBase<T, IntervalCategory::continuous>:
     public IntervalTypeBase<T> {
     public:
-        T size() const { return this->max_ - this->min_; }
+        T size() const {
+            if (this->is_infinite())
+                return std::numeric_limits<T>::infinity();
+            else
+                return this->max_ - this->min_;
+        }
     };
 
 }

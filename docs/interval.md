@@ -401,6 +401,7 @@ Interval properties.
 | --------              | -----------                                                                 |
 | `empty()`             | True if the interval is empty                                               |
 | `is_single()`         | True if the interval contains exactly one value                             |
+| `is_range()`          | True if the interval contains more than one value                           |
 | `is_finite()`         | True if the interval is non-empty and bounded on both sides                 |
 | `is_infinite()`       | True if the interval is non-empty and unbound on at least one side          |
 | `is_universal()`      | True if the interval contains all values of the underlying type             |
@@ -421,8 +422,9 @@ Returns the length of the interval. For integral types, the return type is
 
 For continuous types, the return type is `T`, and `size()` returns the
 difference between the upper and lower bounds, without regard to whether they
-are open or closed bounds. Behaviour is undefined if one or both of the
-bounds is `unbound`.
+are open or closed bounds. If one or both of the bounds is `unbound`, `size()`
+will return infinity if the type has a value for infinity; otherwise,
+behaviour is undefined.
 
 For ordered and stepwise types, the `size()` function is not defined.
 
