@@ -122,7 +122,7 @@ std::ostream& operator<<(std::ostream& out, const IntervalSet& set);
 
 Format an interval set as a string. The format is `"{A,B,C...}"`, where `A`,
 `B`, `C`, etc are intervals or values of `T`, formatted as described for
-`Interval::str()` above.
+`Interval::str()`.
 
 ```c++
 size_t IntervalSet::hash() const noexcept;

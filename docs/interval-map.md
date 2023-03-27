@@ -160,9 +160,9 @@ std::ostream& operator<<(std::ostream& out, const IntervalMap& set);
 
 Format an interval map as a string. The format is `"{A:X,B:Y,C:Z,...}"`, where
 `A`, `B`, `C`, etc are intervals or values of `K` (formatted as described for
-`Interval::str()` above), and `X`, `Y`, `Z`, etc are values of `T`. The two
-sets of formatting parameters (`kspec` and `vspec`) are used for the keys and
-values respectively. The default value is not reported.
+`Interval::str()`), and `X`, `Y`, `Z`, etc are values of `T`. The two sets of
+formatting parameters (`kspec` and `vspec`) are used for the keys and values
+respectively. The default value is not reported.
 
 ```c++
 size_t IntervalMap::hash() const noexcept;
