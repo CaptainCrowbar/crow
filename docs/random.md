@@ -148,8 +148,6 @@ but we don't want to make it a template.
 
 ### Seeding functions
 
-// Seeding functions
-
 ```c++
 template <typename RNG> void seed_from_device(RNG& rng);
 ```
