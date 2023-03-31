@@ -1042,6 +1042,14 @@ void signal_test_group() {
     UNIT_TEST(crow_signal_name)
 }
 
+void spatial_index_test_group() {
+    UNIT_TEST(crow_spatial_index_construction)
+    UNIT_TEST(crow_spatial_index_insert)
+    UNIT_TEST(crow_spatial_index_find)
+    UNIT_TEST(crow_spatial_index_erase)
+    UNIT_TEST(crow_spatial_index_search)
+}
+
 void spectrum_formatting_test_group() {
     UNIT_TEST(crow_spectrum_enumerations)
     UNIT_TEST(crow_spectrum_formatting)
@@ -1442,6 +1450,7 @@ int main(int argc, char** argv) {
     regex_runtime_flags_test_group();
     root_finding_test_group();
     signal_test_group();
+    spatial_index_test_group();
     spectrum_formatting_test_group();
     spectrum_parsing_test_group();
     spectrum_property_test_group();

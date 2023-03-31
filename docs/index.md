@@ -47,6 +47,7 @@ Other libraries required:
     * [crow/linear-map](linear-map.html) - Linear interpolated map
     * [crow/mirror-map](mirror-map.html) - Map with two-way lookup
     * [crow/multi-array](multi-array.html) - Multi-dimensional array
+    * [crow/spatial-index](spatial-index.html) - Spatial index
     * [crow/stack](stack.html) - Stack
     * [crow/superposition](superposition.html) - Superposition of states
 * Database
