@@ -18,7 +18,7 @@
 #include <utility>
 #include <vector>
 
-#if __apple_build_version__ / 10000 == 1400
+#if __apple_build_version__ / 1'000'000 == 14
 
     // Missing comparison operators in Xcode 14
 

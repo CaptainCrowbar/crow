@@ -259,14 +259,13 @@ namespace Crow {
     template <typename T>
     concept ContiguousContainerType = SimpleContainerType<T>
         // Missing range concepts in Xcode 14
-        #if __apple_build_version__ / 10000 == 1400
-            && (requires (T t) {
+        #if __apple_build_version__ / 1'000'000 == 14
+            && requires (T t) {
                 { t.data() } -> std::same_as<typename T::value_type*>;
-            }
+            };
         #else
-            && std::ranges::contiguous_range<T>
+            && std::ranges::contiguous_range<T>;
         #endif
-        );
 
     // Comparison functions
 

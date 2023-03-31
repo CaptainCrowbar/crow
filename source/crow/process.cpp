@@ -128,7 +128,7 @@ namespace Crow {
             return false;
         size_t lf = buf_.find('\n');
         if (lf == std::string::npos) {
-            t = move(buf_);
+            t = std::move(buf_);
             buf_.clear();
         } else {
             if (lf > 0 && buf_[lf - 1] == '\r')

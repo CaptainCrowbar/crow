@@ -251,28 +251,28 @@ void test_crow_unicode_utf_iterators() {
     UtfRange u;
     std::u32string s;
 
-    TRY(u = utf_range(a8));  TEST_EQUAL_RANGES(u, a32);
-    TRY(u = utf_range(b8));  TEST_EQUAL_RANGES(u, b32);
-    TRY(u = utf_range(c8));  TEST_EQUAL_RANGES(u, c32);
-    TRY(u = utf_range(x8));  TEST_EQUAL_RANGES(u, x32);
+    TRY(u = utf_range(a8));  std::copy(u.begin(), u.end(), overwrite(s));  TEST(s == a32);
+    TRY(u = utf_range(b8));  std::copy(u.begin(), u.end(), overwrite(s));  TEST(s == b32);
+    TRY(u = utf_range(c8));  std::copy(u.begin(), u.end(), overwrite(s));  TEST(s == c32);
+    TRY(u = utf_range(x8));  std::copy(u.begin(), u.end(), overwrite(s));  TEST(s == x32);
 
     TRY(u = utf_range(x8, true));
     TEST_THROW(std::copy(u.begin(), u.end(), std::back_inserter(s)), UnicodeError);
 
-    TRY(i = utf_begin(c8));  TEST_EQUAL(*i, U'M');           TEST_EQUAL(i.view(), "M");
-    TRY(++i);                TEST_EQUAL(*i, U'\u0430');      TEST_EQUAL(i.view(), "\u0430");
-    TRY(++i);                TEST_EQUAL(*i, U'\u4e8c');      TEST_EQUAL(i.view(), "\u4e8c");
-    TRY(++i);                TEST_EQUAL(*i, U'\U00010302');  TEST_EQUAL(i.view(), "\U00010302");
-    TRY(++i);                TEST_EQUAL(*i, U'\U0010fffd');  TEST_EQUAL(i.view(), "\U0010fffd");
+    TRY(i = utf_begin(c8));  TEST(*i == U'M');           TEST_EQUAL(i.view(), "M");
+    TRY(++i);                TEST(*i == U'\u0430');      TEST_EQUAL(i.view(), "\u0430");
+    TRY(++i);                TEST(*i == U'\u4e8c');      TEST_EQUAL(i.view(), "\u4e8c");
+    TRY(++i);                TEST(*i == U'\U00010302');  TEST_EQUAL(i.view(), "\U00010302");
+    TRY(++i);                TEST(*i == U'\U0010fffd');  TEST_EQUAL(i.view(), "\U0010fffd");
 
     TRY(++i);
     TEST(i == utf_end(c8));
 
-    TRY(i = utf_begin(x8, true));  TEST_EQUAL(*i, U'H');  TEST_EQUAL(i.view(), "H");
-    TRY(++i);                      TEST_EQUAL(*i, U'e');  TEST_EQUAL(i.view(), "e");
-    TRY(++i);                      TEST_EQUAL(*i, U'l');  TEST_EQUAL(i.view(), "l");
-    TRY(++i);                      TEST_EQUAL(*i, U'l');  TEST_EQUAL(i.view(), "l");
-    TRY(++i);                      TEST_EQUAL(*i, U'o');  TEST_EQUAL(i.view(), "o");
+    TRY(i = utf_begin(x8, true));  TEST(*i == U'H');  TEST_EQUAL(i.view(), "H");
+    TRY(++i);                      TEST(*i == U'e');  TEST_EQUAL(i.view(), "e");
+    TRY(++i);                      TEST(*i == U'l');  TEST_EQUAL(i.view(), "l");
+    TRY(++i);                      TEST(*i == U'l');  TEST_EQUAL(i.view(), "l");
+    TRY(++i);                      TEST(*i == U'o');  TEST_EQUAL(i.view(), "o");
 
     TEST_THROW(++i, UnicodeError);
 

@@ -292,14 +292,16 @@ void test_crow_maths_integer_power() {
 
 void test_crow_maths_integer_power_generalised() {
 
-    static const auto f = std::plus<std::string>();
+    std::string a = "A";
+    std::string s, z;
+    auto f = std::plus<std::string>();
 
-    TEST_EQUAL(integer_power("A"s, 0, f, ""s),  "");
-    TEST_EQUAL(integer_power("A"s, 1, f, ""s),  "A");
-    TEST_EQUAL(integer_power("A"s, 2, f, ""s),  "AA");
-    TEST_EQUAL(integer_power("A"s, 3, f, ""s),  "AAA");
-    TEST_EQUAL(integer_power("A"s, 4, f, ""s),  "AAAA");
-    TEST_EQUAL(integer_power("A"s, 5, f, ""s),  "AAAAA");
+    TRY(s = integer_power(a, 0, f, z));    TEST_EQUAL(s, "");
+    TRY(s = integer_power(a, 1, f, z));    TEST_EQUAL(s, "A");
+    TRY(s = integer_power(a, 2, f, z));    TEST_EQUAL(s, "AA");
+    TRY(s = integer_power(a, 3, f, z));    TEST_EQUAL(s, "AAA");
+    TRY(s = integer_power(a, 4, f, z));    TEST_EQUAL(s, "AAAA");
+    TRY(s = integer_power(a, 5, f, z));    TEST_EQUAL(s, "AAAAA");
 
 }
 
