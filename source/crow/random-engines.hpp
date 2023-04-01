@@ -269,6 +269,13 @@ namespace Crow {
 
     // Seeding functions
 
+    inline uint64_t seed64() {
+        std::random_device dev;
+        uint64_t a = dev();
+        uint64_t b = dev();
+        return (a << 32) + b;
+    }
+
     template <typename RNG>
     void seed_from_device(RNG& rng) {
 

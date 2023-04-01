@@ -149,6 +149,12 @@ but we don't want to make it a template.
 ### Seeding functions
 
 ```c++
+uint64_t seed64();
+```
+
+Convenience function to generate a 64-bit seed from `std::random_device()`.
+
+```c++
 template <typename RNG> void seed_from_device(RNG& rng);
 ```
 
