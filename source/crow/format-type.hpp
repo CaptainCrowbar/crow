@@ -200,6 +200,16 @@ namespace Crow {
         }
     };
 
+    class FormatObject {
+    public:
+        FormatObject() = default;
+        explicit FormatObject(const FormatSpec& spec): spec_(spec) {}
+        template <typename T> std::string operator()(const T& t) const { return FormatType<T>()(t, spec_); }
+        FormatSpec spec() const { return spec_; }
+    private:
+        FormatSpec spec_;
+    };
+
     template <typename T>
     std::string format_object(const T& t, const FormatSpec& spec = {}) {
         return FormatType<T>()(t, spec);

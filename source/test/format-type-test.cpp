@@ -232,6 +232,37 @@ void test_crow_format_type_names() {
 
 }
 
+void test_crow_format_object() {
+
+    FormatObject f;
+    FormatObject fq("q");
+    FormatObject fx4("x4");
+
+    TEST_EQUAL(f(0),              "0");            TEST_EQUAL(fx4(0),             "0000");
+    TEST_EQUAL(f(42),             "42");           TEST_EQUAL(fx4(42),            "002a");
+    TEST_EQUAL(f(Foo()),          "*0");           TEST_EQUAL(fx4(Foo()),         "*0000");
+    TEST_EQUAL(f(Foo(42)),        "*42");          TEST_EQUAL(fx4(Foo(42)),       "*002a");
+    TEST_EQUAL(f(Bar()),          "@0");           TEST_EQUAL(fx4(Bar()),         "@0000");
+    TEST_EQUAL(f(Bar(42)),        "@42");          TEST_EQUAL(fx4(Bar(42)),       "@002a");
+    TEST_EQUAL(f(Zap()),          "#0");           TEST_EQUAL(fx4(Zap()),         "#0000");
+    TEST_EQUAL(f(Zap(42)),        "#42");          TEST_EQUAL(fx4(Zap(42)),       "#002a");
+    TEST_EQUAL(f(""),             "");             TEST_EQUAL(fq(""),             "\"\"");
+    TEST_EQUAL(f("Hello world"),  "Hello world");  TEST_EQUAL(fq("Hello world"),  "\"Hello world\"");
+    TEST_EQUAL(f("αβγδε"),        "αβγδε");        TEST_EQUAL(fq("αβγδε"),        "\"αβγδε\"");
+    TEST_EQUAL(f(u"αβγδε"),       "αβγδε");        TEST_EQUAL(fq(u"αβγδε"),       "\"αβγδε\"");
+    TEST_EQUAL(f(U"αβγδε"),       "αβγδε");        TEST_EQUAL(fq(U"αβγδε"),       "\"αβγδε\"");
+    TEST_EQUAL(f(L"αβγδε"),       "αβγδε");        TEST_EQUAL(fq(L"αβγδε"),       "\"αβγδε\"");
+    TEST_EQUAL(f('\x1b'),         "\x1b");         TEST_EQUAL(fq('\x1b'),         "\"\\x1b\"");
+    TEST_EQUAL(f('X'),            "X");            TEST_EQUAL(fq('X'),            "\"X\"");
+    TEST_EQUAL(f(U'\u001f'),      "\x1f");         TEST_EQUAL(fq(U'\u001f'),      "\"\\x1f\"");
+    TEST_EQUAL(f(U'X'),           "X");            TEST_EQUAL(fq(U'X'),           "\"X\"");
+    TEST_EQUAL(f(U'€'),           "€");            TEST_EQUAL(fq(U'€'),           "\"€\"");
+    TEST_EQUAL(f(U'😀'),          "😀");           TEST_EQUAL(fq(U'😀'),          "\"😀\"");
+    TEST_EQUAL(f(u'€'),           "€");            TEST_EQUAL(fq(u'€'),           "\"€\"");
+    TEST_EQUAL(f(L'€'),           "€");            TEST_EQUAL(fq(L'€'),           "\"€\"");
+
+}
+
 void test_crow_format_class() {
 
     std::vector<int> v = {123,456,789};

@@ -437,11 +437,18 @@ out above. UTF-32 strings are first converted to UTF-8.
 ## Generic formatting functions
 
 ```c++
+class FormatObject {
+    FormatObject();
+    explicit FormatObject(const FormatSpec& spec);
+    template <typename T> std::string operator()(const T& t) const;
+    FormatSpec spec() const;
+};
 template <typename T> std::string format_object(const T& t,
     const FormatSpec& spec = {});
 ```
 
-Calls `FormatType<T>()(t, spec)`.
+A unified object formatter that calls `FormatType<T>()(t, spec)`. This is
+available as either a function object or a function template.
 
 ```c++
 template <typename Range> std::string format_range(const Range& r,
