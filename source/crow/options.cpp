@@ -1,6 +1,5 @@
 #include "crow/options.hpp"
 #include "crow/terminal.hpp"
-#include <random>
 #include <set>
 
 using namespace std::literals;
@@ -214,10 +213,6 @@ namespace Crow {
         if (it != options_.end())
             throw user_error("Required option not found: --" + it->name);
 
-        for (auto& opt: options_)
-            if (! opt.found && opt.generator)
-                opt.generator();
-
         return true;
 
     }
@@ -232,14 +227,12 @@ namespace Crow {
         return i != npos && options_[i].found;
     }
 
-    void Options::do_add(Callback generator, Callback reset,
-            setter_callback setter, validator_callback validator,
+    void Options::do_add(Callback reset, setter_callback setter, validator_callback validator,
             const std::string& name, char abbrev, const std::string& description,
             const std::string& placeholder, const std::string& default_value,
             mode kind, flag_type flags, const std::string& group) {
 
         option_info info = {
-            .generator      = generator,
             .reset          = reset,
             .setter         = setter,
             .validator      = validator,
@@ -277,8 +270,6 @@ namespace Crow {
             throw setup_error("Boolean options can't be anonymous: --" + info.name);
         if (info.kind == mode::boolean && has_bit(info.flags, required))
             throw setup_error("Boolean options can't be required: --" + info.name);
-        if (has_bits(info.flags, random | required))
-            throw setup_error("Required options can't have a random default: --" + info.name);
         if (has_bit(info.flags, required) && ! group.empty())
             throw setup_error("Required options can't be in a mutual exclusion group: --" + info.name);
         if (has_bit(info.flags, not_exists) && has_bit(info.flags, dir_exists | file_exists))
@@ -341,7 +332,7 @@ namespace Crow {
             left.push_back(block);
             left_width = std::max(left_width, block.size());
             block = info.description;
-            bool show_default = ! has_bit(info.flags, no_default | random) && ! info.default_value.empty();
+            bool show_default = ! has_bit(info.flags, no_default) && ! info.default_value.empty();
 
             if (has_bit(info.flags, required) || show_default) {
                 if (block.back() == ')') {

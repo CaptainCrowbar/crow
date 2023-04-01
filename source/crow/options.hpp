@@ -4,7 +4,6 @@
 #include "crow/enum.hpp"
 #include "crow/format.hpp"
 #include "crow/path.hpp"
-#include "crow/random.hpp"
 #include "crow/regex.hpp"
 #include "crow/string.hpp"
 #include "crow/types.hpp"
@@ -60,12 +59,11 @@ namespace Crow {
             none           = 0,
             anon           = 1u << 0,  // Arguments not claimed by other options are assigned to this
             no_default     = 1u << 1,  // Don't show default value in help
-            random         = 1u << 2,  // Random number if not supplied
-            required       = 1u << 3,  // Required option
-            dir_exists     = 1u << 4,  // Must be an existing directory
-            file_exists    = 1u << 5,  // Must be an existing file
-            not_exists     = 1u << 6,  // Must not be an existing file or directory
-            parent_exists  = 1u << 7,  // Parent directory must exist
+            required       = 1u << 2,  // Required option
+            dir_exists     = 1u << 3,  // Must be an existing directory
+            file_exists    = 1u << 4,  // Must be an existing file
+            not_exists     = 1u << 5,  // Must not be an existing file or directory
+            parent_exists  = 1u << 6,  // Parent directory must exist
         };
 
         using enum flag_type;
@@ -104,7 +102,6 @@ namespace Crow {
         enum class mode { boolean, single, multiple };
 
         struct option_info {
-            Callback generator;
             Callback reset;
             setter_callback setter;
             validator_callback validator;
@@ -128,8 +125,7 @@ namespace Crow {
         bool allow_help_ = false;
         bool auto_help_ = false;
 
-        void do_add(Callback generator, Callback reset,
-            setter_callback setter, validator_callback validator,
+        void do_add(Callback reset, setter_callback setter, validator_callback validator,
             const std::string& name, char abbrev, const std::string& description,
             const std::string& placeholder, const std::string& default_value,
             mode kind, flag_type flags, const std::string& group);
@@ -140,8 +136,6 @@ namespace Crow {
 
         static void validate_path(const std::string& name, flag_type flags);
 
-        template <ArithmeticType T>
-            static T generate_random(T max);
         template <Detail::ScalarOptionType T>
             static T parse_argument(const std::string& arg);
         template <Detail::ScalarOptionType T>
@@ -161,7 +155,6 @@ namespace Crow {
 
             using namespace Detail;
 
-            Callback generator;
             Callback reset;
             setter_callback setter;
             validator_callback validator;
@@ -183,14 +176,6 @@ namespace Crow {
 
             } else if constexpr (ScalarOptionType<T>) {
 
-                if (has_bit(flags, random)) {
-                    if constexpr (ArithmeticType<T>)
-                        generator = [&var,max=var] { var = generate_random<T>(max); };
-                    else
-                        throw setup_error("Invalid variable type for random generation: --" + name);
-
-                }
-
                 setter = [&var] (const std::string& str) { var = parse_argument<T>(str); };
                 validator = type_validator<T>(pattern);
                 placeholder = type_placeholder<T>(flags);
@@ -206,17 +191,6 @@ namespace Crow {
             } else {
 
                 using V = typename T::value_type;
-
-                if (has_bit(flags, random)) {
-                    if constexpr (ArithmeticType<V>) {
-                        if (var.size() > 1)
-                            throw setup_error("Invalid initial value: --" + name);
-                        V max = var.empty() ? V(0) : *var.begin();
-                        generator = [&var,max] { var.insert(var.end(), generate_random<V>(max)); };
-                    } else {
-                        throw setup_error("Invalid variable type for random generation: --" + name);
-                    }
-                }
 
                 reset = [&var] { var.clear(); };
                 setter = [&var] (const std::string& str) { var.insert(var.end(), parse_argument<V>(str)); };
@@ -237,29 +211,11 @@ namespace Crow {
 
             }
 
-            do_add(generator, reset, setter, validator, name, abbrev, description,
+            do_add(reset, setter, validator, name, abbrev, description,
                 placeholder, default_value, kind, flags, group);
 
             return *this;
 
-        }
-
-        template <ArithmeticType T>
-        T Options::generate_random(T max) {
-            std::random_device rng;
-            T result;
-            if constexpr (std::floating_point<T>) {
-                if (max <= 0)
-                    max = 1;
-                UniformReal<T> gen(0, max);
-                result = gen(rng);
-            } else {
-                if (max <= 0)
-                    max = std::numeric_limits<T>::max();
-                UniformInteger<T> gen(0, max);
-                result = gen(rng);
-            }
-            return result;
         }
 
         template <Detail::ScalarOptionType T>
