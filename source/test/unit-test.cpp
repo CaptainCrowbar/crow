@@ -91,28 +91,6 @@ void cache_test_group() {
     UNIT_TEST(crow_cache_function)
 }
 
-void channel_classes_test_group() {
-    UNIT_TEST(crow_channel_generator)
-    UNIT_TEST(crow_channel_buffer)
-    UNIT_TEST(crow_channel_queue)
-    UNIT_TEST(crow_channel_value)
-    UNIT_TEST(crow_channel_timer)
-}
-
-void channel_dispatch_test_group() {
-    UNIT_TEST(crow_channel_dispatch_empty)
-    UNIT_TEST(crow_channel_dispatch_sync_close)
-    UNIT_TEST(crow_channel_dispatch_async_close)
-    UNIT_TEST(crow_channel_dispatch_sync_exception)
-    UNIT_TEST(crow_channel_dispatch_async_exception)
-    UNIT_TEST(crow_channel_dispatch_multiple_sync_exception)
-    UNIT_TEST(crow_channel_dispatch_multiple_async_exception)
-    UNIT_TEST(crow_channel_dispatch_heterogeneous_sync_exception)
-    UNIT_TEST(crow_channel_dispatch_heterogeneous_async_exception)
-    UNIT_TEST(crow_channel_dispatch_async_message_channel)
-    UNIT_TEST(crow_channel_dispatch_async_stream_channel)
-}
-
 void colour_alpha_test_group() {
     UNIT_TEST(crow_colour_concepts)
     UNIT_TEST(crow_colour_channel_order)
@@ -581,22 +559,6 @@ void named_mutex_test_group() {
     UNIT_TEST(crow_named_mutex)
 }
 
-void net_address_test_group() {
-    UNIT_TEST(crow_net_ipv4)
-    UNIT_TEST(crow_net_ipv6)
-    UNIT_TEST(crow_net_socket_address)
-    UNIT_TEST(crow_net_ip_literals)
-}
-
-void net_dns_test_group() {
-    UNIT_TEST(crow_net_dns_query)
-}
-
-void net_tcp_test_group() {
-    UNIT_TEST(crow_net_tcp_client_server)
-    UNIT_TEST(crow_net_socket_set)
-}
-
 void noise_test_group() {
     UNIT_TEST(crow_noise_result_stability)
     UNIT_TEST(crow_noise_multiple_sources)
@@ -725,12 +687,6 @@ void probability_values_test_group() {
     UNIT_TEST(crow_probability_construction)
     UNIT_TEST(crow_probability_formatting)
     UNIT_TEST(crow_probability_comparison)
-}
-
-void process_test_group() {
-    UNIT_TEST(crow_process_stream)
-    UNIT_TEST(crow_process_text)
-    UNIT_TEST(crow_process_shell_command)
 }
 
 void progress_test_group() {
@@ -870,11 +826,6 @@ void root_finding_test_group() {
     UNIT_TEST(crow_root_finding_bisection)
     UNIT_TEST(crow_root_finding_false_position)
     UNIT_TEST(crow_root_finding_newton_raphson)
-}
-
-void signal_test_group() {
-    UNIT_TEST(crow_signal_channel)
-    UNIT_TEST(crow_signal_name)
 }
 
 void spatial_index_test_group() {
@@ -1135,8 +1086,6 @@ int main(int argc, char** argv) {
     bounded_array_misc_test_group();
     bounded_array_tracking_test_group();
     cache_test_group();
-    channel_classes_test_group();
-    channel_dispatch_test_group();
     colour_alpha_test_group();
     colour_conversion_test_group();
     colour_floating_channel_test_group();
@@ -1206,9 +1155,6 @@ int main(int argc, char** argv) {
     multi_array_test_group();
     name_test_group();
     named_mutex_test_group();
-    net_address_test_group();
-    net_dns_test_group();
-    net_tcp_test_group();
     noise_test_group();
     options_anonymous_test_group();
     options_boolean_test_group();
@@ -1233,7 +1179,6 @@ int main(int argc, char** argv) {
     probability_arithmetic_test_group();
     probability_special_functions_test_group();
     probability_values_test_group();
-    process_test_group();
     progress_test_group();
     projection_test_group();
     quaternion_test_group();
@@ -1257,7 +1202,6 @@ int main(int argc, char** argv) {
     regex_replace_test_group();
     regex_runtime_flags_test_group();
     root_finding_test_group();
-    signal_test_group();
     spatial_index_test_group();
     spectrum_formatting_test_group();
     spectrum_parsing_test_group();

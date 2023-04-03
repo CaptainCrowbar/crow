@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.16)
 # and propagate the new version to version.hpp.
 
 project(Crow
-    VERSION 2.0.202
+    VERSION 2.0.203
     LANGUAGES CXX
 )
 
@@ -49,7 +49,6 @@ set(executable PERMISSIONS
 add_library(${library} STATIC
 
     ${library}/approx.cpp
-    ${library}/channel.cpp
     ${library}/colour.cpp
     ${library}/curl-api.cpp
     ${library}/dice.cpp
@@ -71,15 +70,12 @@ add_library(${library} STATIC
     ${library}/mp-integer.cpp
     ${library}/name.cpp
     ${library}/named-mutex.cpp
-    ${library}/net.cpp
     ${library}/options.cpp
     ${library}/path.cpp
     ${library}/probability.cpp
-    ${library}/process.cpp
     ${library}/progress.cpp
     ${library}/rational.cpp
     ${library}/regex.cpp
-    ${library}/signal.cpp
     ${library}/spectrum.cpp
     ${library}/sqlite.cpp
     ${library}/stdio.cpp
@@ -126,8 +122,6 @@ add_executable(${unittest}
     test/bounded-array-misc-test.cpp
     test/bounded-array-tracking-test.cpp
     test/cache-test.cpp
-    test/channel-classes-test.cpp
-    test/channel-dispatch-test.cpp
     test/colour-alpha-test.cpp
     test/colour-conversion-test.cpp
     test/colour-floating-channel-test.cpp
@@ -197,9 +191,6 @@ add_executable(${unittest}
     test/multi-array-test.cpp
     test/name-test.cpp
     test/named-mutex-test.cpp
-    test/net-address-test.cpp
-    test/net-dns-test.cpp
-    test/net-tcp-test.cpp
     test/noise-test.cpp
     test/options-anonymous-test.cpp
     test/options-boolean-test.cpp
@@ -224,7 +215,6 @@ add_executable(${unittest}
     test/probability-arithmetic-test.cpp
     test/probability-special-functions-test.cpp
     test/probability-values-test.cpp
-    test/process-test.cpp
     test/progress-test.cpp
     test/projection-test.cpp
     test/quaternion-test.cpp
@@ -248,7 +238,6 @@ add_executable(${unittest}
     test/regex-replace-test.cpp
     test/regex-runtime-flags-test.cpp
     test/root-finding-test.cpp
-    test/signal-test.cpp
     test/spatial-index-test.cpp
     test/spectrum-formatting-test.cpp
     test/spectrum-parsing-test.cpp

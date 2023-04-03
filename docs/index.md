@@ -73,13 +73,11 @@ Other libraries required:
     * [crow/hexmap](hexmap.html) - Hex mapping
     * [crow/projection](projection.html) - Map projections
 * Multithreading
-    * [crow/channel](channel.html) - Channel-based message dispatch
     * [crow/named-mutex](named-mutex.html) - Named mutex
     * [crow/thread](thread.html) - Thread
     * [crow/thread-pool](thread-pool.html) - Thread pool
 * Networking
     * [crow/http](http.html) - HTTP status codes
-    * [crow/net](net.html) - TCP/IP networking
     * [crow/uri](uri.html) - URI
     * [crow/web-client](web-client.html) - Web client
 * Numerics
@@ -106,8 +104,6 @@ Other libraries required:
     * [crow/spectrum](spectrum.html) - Stellar spectral class
 * System facilities
     * [crow/dso](dso.html) - Dynamic libraries
-    * [crow/process](process.html) - Process control
-    * [crow/signal](signal.html) - Signal handling
 * Text manipulation
     * [crow/encoding](encoding.html) - Encoding conversion
     * [crow/english](english.html) - English language tools
