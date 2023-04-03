@@ -64,10 +64,6 @@ Other libraries required:
     * [crow/progress](progress.html) - Progress bar
     * [crow/stdio](stdio.html) - Standard I/O
     * [crow/terminal](terminal.html) - Terminal control
-* Intervals
-    * [crow/interval](interval.html) - Interval class
-    * [crow/interval-map](interval-map.html) - Interval map class
-    * [crow/interval-set](interval-set.html) - Interval set class
 * Linear algebra
     * [crow/matrix](matrix.html) - Matrix
     * [crow/quaternion](quaternion.html) - Quaternion

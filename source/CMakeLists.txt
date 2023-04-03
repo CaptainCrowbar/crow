@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.16)
 # and propagate the new version to version.hpp.
 
 project(Crow
-    VERSION 2.0.201
+    VERSION 2.0.202
     LANGUAGES CXX
 )
 
@@ -66,7 +66,6 @@ add_library(${library} STATIC
     ${library}/hexmap.cpp
     ${library}/http-status.cpp
     ${library}/image.cpp
-    ${library}/interval.cpp
     ${library}/log-scale.cpp
     ${library}/markup.cpp
     ${library}/mp-integer.cpp
@@ -172,33 +171,6 @@ add_executable(${unittest}
     test/image-resize-test.cpp
     test/image-test.cpp
     test/index-table-test.cpp
-    test/interval-continuous-arithmetic-test.cpp
-    test/interval-continuous-basic-test.cpp
-    test/interval-continuous-boundary-addition-test.cpp
-    test/interval-continuous-boundary-basic-test.cpp
-    test/interval-continuous-boundary-comparison-test.cpp
-    test/interval-continuous-boundary-multiplication-test.cpp
-    test/interval-continuous-map-test.cpp
-    test/interval-continuous-set-test.cpp
-    test/interval-integral-arithmetic-test.cpp
-    test/interval-integral-basic-test.cpp
-    test/interval-integral-boundary-addition-test.cpp
-    test/interval-integral-boundary-basic-test.cpp
-    test/interval-integral-boundary-comparison-test.cpp
-    test/interval-integral-boundary-multiplication-test.cpp
-    test/interval-integral-map-test.cpp
-    test/interval-integral-set-test.cpp
-    test/interval-ordered-basic-test.cpp
-    test/interval-ordered-boundary-basic-test.cpp
-    test/interval-ordered-boundary-comparison-test.cpp
-    test/interval-ordered-map-test.cpp
-    test/interval-ordered-set-test.cpp
-    test/interval-stepwise-basic-test.cpp
-    test/interval-stepwise-boundary-basic-test.cpp
-    test/interval-stepwise-boundary-comparison-test.cpp
-    test/interval-stepwise-map-test.cpp
-    test/interval-stepwise-set-test.cpp
-    test/interval-types-test.cpp
     test/iterator-test.cpp
     test/linear-map-test.cpp
     test/log-scale-arithmetic-test.cpp
