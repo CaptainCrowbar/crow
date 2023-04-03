@@ -981,6 +981,11 @@ void random_spatial_test_group() {
     UNIT_TEST(crow_random_direction)
 }
 
+void random_squirrel_test_group() {
+    UNIT_TEST(crow_random_squirrel_32)
+    UNIT_TEST(crow_random_squirrel_64)
+}
+
 void random_xoshiro_test_group() {
     UNIT_TEST(crow_random_splitmix64)
     UNIT_TEST(crow_random_xoshiro256ss)
@@ -1435,6 +1440,7 @@ int main(int argc, char** argv) {
     random_pcg_test_group();
     random_seed_test_group();
     random_spatial_test_group();
+    random_squirrel_test_group();
     random_xoshiro_test_group();
     rational_test_group();
     regex_basic_test_group();

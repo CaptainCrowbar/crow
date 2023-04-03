@@ -95,6 +95,35 @@ class Lcg128 {
 };
 ```
 
+### Squirrel generators
+
+```c++
+class Squirrel32 {
+    using result_type = uint32_t;
+    constexpr Squirrel32() noexcept; // seed(0)
+    explicit constexpr Squirrel32(uint32_t s) noexcept;
+    constexpr uint32_t operator()() noexcept;
+    constexpr bool operator==(const Squirrel32& rhs) const noexcept;
+    constexpr bool operator!=(const Squirrel32& rhs) const noexcept;
+    constexpr void seed(uint32_t s) noexcept;
+    static constexpr uint32_t min() noexcept;
+    static constexpr uint32_t max() noexcept;
+};
+class Squirrel64 {
+    using result_type = uint64_t;
+    constexpr Squirrel64() noexcept; // seed(0)
+    explicit constexpr Squirrel64(uint64_t s) noexcept;
+    uint64_t constexpr operator()() noexcept;
+    bool constexpr operator==(const Squirrel64& rhs) const noexcept;
+    bool constexpr operator!=(const Squirrel64& rhs) const noexcept;
+    void constexpr seed(uint64_t s) noexcept;
+    static constexpr uint64_t min() noexcept;
+    static constexpr uint64_t max() noexcept;
+};
+```
+
+Squirrel3 simple fast hash functions by Squirrel Eiserloh.
+
 ### PCG generator
 
 ```c++

@@ -110,6 +110,64 @@ namespace Crow {
         Uint128 state_ = 0;
     };
 
+    // Squirrel3 hash functions by Squirrel Eiserloh
+
+    constexpr uint32_t squirrel32(uint32_t x) noexcept {
+        constexpr uint32_t a = 0xb529'7a4dul;
+        constexpr uint32_t b = 0x68e3'1da4ul;
+        constexpr uint32_t c = 0x1b56'c4e9ul;
+        x *= a;
+        x ^= x >> 8;
+        x += b;
+        x ^= x << 8;
+        x *= c;
+        x ^= x >> 8;
+        return x;
+    }
+
+    constexpr uint64_t squirrel64(uint64_t x) noexcept {
+        constexpr uint64_t a = 0x9e37'79b1'85eb'ca87ull;
+        constexpr uint64_t b = 0xc2b2'ae3d'27d4'eb4full;
+        constexpr uint64_t c = 0x27d4'eb2f'1656'67c5ull;
+        x *= a;
+        x ^= x >> 8;
+        x += b;
+        x ^= x << 8;
+        x *= c;
+        x ^= x >> 8;
+        return x;
+    }
+
+    class Squirrel32 {
+    public:
+        using result_type = uint32_t;
+        constexpr Squirrel32() noexcept {}
+        explicit constexpr Squirrel32(uint32_t s) noexcept: state_(s) {}
+        constexpr uint32_t operator()() noexcept { state_ = squirrel32(state_); return state_; }
+        constexpr bool operator==(const Squirrel32& rhs) const noexcept { return state_ == rhs.state_; }
+        constexpr bool operator!=(const Squirrel32& rhs) const noexcept { return state_ != rhs.state_; }
+        constexpr void seed(uint32_t s) noexcept { state_ = s; }
+        static constexpr uint32_t min() noexcept { return 0; }
+        static constexpr uint32_t max() noexcept { return ~ uint32_t(0); }
+    private:
+        uint32_t state_ = 0;
+    };
+
+    class Squirrel64 {
+    public:
+        using result_type = uint64_t;
+        constexpr Squirrel64() noexcept {}
+        explicit constexpr Squirrel64(uint64_t s) noexcept: state_(s) {}
+        constexpr uint64_t operator()() noexcept { state_ = squirrel64(state_); return state_; }
+        constexpr bool operator==(const Squirrel64& rhs) const noexcept { return state_ == rhs.state_; }
+        constexpr bool operator!=(const Squirrel64& rhs) const noexcept { return state_ != rhs.state_; }
+        constexpr void seed(uint64_t s) noexcept { state_ = s; }
+        static constexpr uint64_t min() noexcept { return 0; }
+        static constexpr uint64_t max() noexcept { return ~ uint64_t(0); }
+    private:
+        uint64_t state_ = 0;
+    };
+
     // PCG generator by Melissa O'Neill
     // http://www.pcg-random.org/
 
