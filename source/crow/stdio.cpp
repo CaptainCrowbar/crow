@@ -222,26 +222,26 @@ namespace Crow {
 
     void Cstdio::flush() {
         errno = 0;
-        ::fflush(fp_);
+        ::fflush(fp_.get());
         check_for_error(errno);
     }
 
     int Cstdio::getc() {
         errno = 0;
-        int c = ::fgetc(fp_);
+        int c = ::fgetc(fp_.get());
         check_for_error(errno);
         return c;
     }
 
     void Cstdio::putc(char c) {
         errno = 0;
-        ::fputc(int(uint8_t(c)), fp_);
+        ::fputc(int(uint8_t(c)), fp_.get());
         check_for_error(errno);
     }
 
     size_t Cstdio::read(void* ptr, size_t maxlen) {
         errno = 0;
-        size_t n = ::fread(ptr, 1, maxlen, fp_);
+        size_t n = ::fread(ptr, 1, maxlen, fp_.get());
         check_for_error(errno);
         return n;
     }
@@ -252,7 +252,7 @@ namespace Crow {
             size_t offset = buf.size();
             buf.resize(offset + small_block, '\0');
             errno = 0;
-            auto rc = ::fgets(&buf[0] + offset, small_block, fp_);
+            auto rc = ::fgets(&buf[0] + offset, small_block, fp_.get());
             check_for_error(errno);
             if (rc == nullptr)
                 return buf.substr(0, offset);
@@ -269,9 +269,9 @@ namespace Crow {
     void Cstdio::seek(ptrdiff_t offset, int which) {
         errno = 0;
         #ifdef _XOPEN_SOURCE
-            ::fseeko(fp_, offset, which);
+            ::fseeko(fp_.get(), offset, which);
         #else
-            _fseeki64(fp_, offset, which);
+            _fseeki64(fp_.get(), offset, which);
         #endif
         check_for_error(errno);
     }
@@ -279,9 +279,9 @@ namespace Crow {
     ptrdiff_t Cstdio::tell() {
         errno = 0;
         #ifdef _XOPEN_SOURCE
-            ptrdiff_t offset = ::ftello(fp_);
+            ptrdiff_t offset = ::ftello(fp_.get());
         #else
-            ptrdiff_t offset = _ftelli64(fp_);
+            ptrdiff_t offset = _ftelli64(fp_.get());
         #endif
         check_for_error(errno);
         return offset;
@@ -289,24 +289,24 @@ namespace Crow {
 
     size_t Cstdio::write(const void* ptr, size_t len) {
         errno = 0;
-        size_t n = ::fwrite(ptr, 1, len, fp_);
+        size_t n = ::fwrite(ptr, 1, len, fp_.get());
         check_for_error(errno);
         return n;
     }
 
     int Cstdio::fd() const {
-        return fp_ ? IO_FUNCTION(fileno)(fp_) : -1;
+        return fp_ ? IO_FUNCTION(fileno)(fp_.get()) : -1;
     }
 
     void Cstdio::ungetc(char c) {
         errno = 0;
-        ::ungetc(int(uint8_t(c)), fp_);
+        ::ungetc(int(uint8_t(c)), fp_.get());
         check_for_error(errno);
     }
 
     Cstdio Cstdio::null() {
         Cstdio io(null_device, "r+");
-        ::fgetc(io.fp_); // Clear bogus ioctl error
+        ::fgetc(io.fp_.get()); // Clear bogus ioctl error
         return io;
     }
 
@@ -383,10 +383,10 @@ namespace Crow {
     void Fdio::flush() {
         #ifdef _XOPEN_SOURCE
             errno = 0;
-            ::fsync(fd_);
+            ::fsync(fd_.get());
             check_for_error(errno);
         #else
-            auto h = reinterpret_cast<HANDLE>(_get_osfhandle(fd_));
+            auto h = reinterpret_cast<HANDLE>(_get_osfhandle(fd_.get()));
             if (h == INVALID_HANDLE_VALUE)
                 check_for_error(EBADF);
             else if (! FlushFileBuffers(h))
@@ -396,41 +396,41 @@ namespace Crow {
 
     size_t Fdio::read(void* ptr, size_t maxlen) {
         errno = 0;
-        auto rc = IO_FUNCTION(read)(fd_, ptr, iosize(maxlen));
+        auto rc = IO_FUNCTION(read)(fd_.get(), ptr, iosize(maxlen));
         check_for_error(errno);
         return rc;
     }
 
     void Fdio::seek(ptrdiff_t offset, int which) {
         errno = 0;
-        IO_FUNCTION(lseek)(fd_, ofsize(offset), which);
+        IO_FUNCTION(lseek)(fd_.get(), ofsize(offset), which);
         check_for_error(errno);
     }
 
     ptrdiff_t Fdio::tell() {
         errno = 0;
-        auto offset = IO_FUNCTION(lseek)(fd_, 0, SEEK_CUR);
+        auto offset = IO_FUNCTION(lseek)(fd_.get(), 0, SEEK_CUR);
         check_for_error(errno);
         return offset;
     }
 
     size_t Fdio::write(const void* ptr, size_t len) {
         errno = 0;
-        size_t n = IO_FUNCTION(write)(fd_, ptr, iosize(len));
+        size_t n = IO_FUNCTION(write)(fd_.get(), ptr, iosize(len));
         check_for_error(errno);
         return n;
     }
 
     Fdio Fdio::dup() {
         errno = 0;
-        int rc = IO_FUNCTION(dup)(fd_);
+        int rc = IO_FUNCTION(dup)(fd_.get());
         check_for_error(errno);
         return Fdio(rc);
     }
 
     Fdio Fdio::dup(int f) {
         errno = 0;
-        IO_FUNCTION(dup2)(fd_, f);
+        IO_FUNCTION(dup2)(fd_.get(), f);
         check_for_error(errno);
         return Fdio(f);
     }
@@ -502,7 +502,7 @@ namespace Crow {
             if (m == IoMode::append) {
                 LARGE_INTEGER distance;
                 distance.QuadPart = 0;
-                auto rc = SetFilePointerEx(fh_, distance, nullptr, FILE_END);
+                auto rc = SetFilePointerEx(fh_.get(), distance, nullptr, FILE_END);
                 auto err = GetLastError();
                 if (rc == 0)
                     throw IoError(err, f.name(), std::system_category());
@@ -529,14 +529,14 @@ namespace Crow {
         }
 
         void Winio::flush() {
-            if (! FlushFileBuffers(fh_))
+            if (! FlushFileBuffers(fh_.get()))
                 check_for_error(GetLastError(), std::system_category());
         }
 
         size_t Winio::read(void* ptr, size_t maxlen) {
             DWORD n = 0;
             SetLastError(0);
-            ReadFile(fh_, ptr, uint32_t(maxlen), &n, nullptr);
+            ReadFile(fh_.get(), ptr, uint32_t(maxlen), &n, nullptr);
             check_for_error(GetLastError(), std::system_category());
             return n;
         }
@@ -552,7 +552,7 @@ namespace Crow {
                 default:        break;
             }
             SetLastError(0);
-            SetFilePointerEx(fh_, distance, nullptr, method);
+            SetFilePointerEx(fh_.get(), distance, nullptr, method);
             check_for_error(GetLastError(), std::system_category());
         }
 
@@ -560,7 +560,7 @@ namespace Crow {
             LARGE_INTEGER distance, result;
             distance.QuadPart = result.QuadPart = 0;
             SetLastError(0);
-            SetFilePointerEx(fh_, distance, &result, FILE_CURRENT);
+            SetFilePointerEx(fh_.get(), distance, &result, FILE_CURRENT);
             check_for_error(GetLastError(), std::system_category());
             return result.QuadPart;
         }
@@ -568,7 +568,7 @@ namespace Crow {
         size_t Winio::write(const void* ptr, size_t len) {
             DWORD n = 0;
             SetLastError(0);
-            WriteFile(fh_, ptr, uint32_t(len), &n, nullptr);
+            WriteFile(fh_.get(), ptr, uint32_t(len), &n, nullptr);
             check_for_error(GetLastError(), std::system_category());
             return n;
         }

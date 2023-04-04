@@ -1,7 +1,6 @@
 #pragma once
 
 #include "crow/enum.hpp"
-#include "crow/io-utility.hpp"
 #include "crow/iterator.hpp"
 #include "crow/types.hpp"
 #include "crow/unicode.hpp"

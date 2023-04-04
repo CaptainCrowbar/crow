@@ -237,6 +237,7 @@ add_executable(${unittest}
     test/regex-match-test.cpp
     test/regex-replace-test.cpp
     test/regex-runtime-flags-test.cpp
+    test/resource-test.cpp
     test/root-finding-test.cpp
     test/spatial-index-test.cpp
     test/spectrum-formatting-test.cpp

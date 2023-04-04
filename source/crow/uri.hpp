@@ -1,7 +1,6 @@
 #pragma once
 
 #include "crow/binary.hpp"
-#include "crow/io-utility.hpp"
 #include "crow/string.hpp"
 #include "crow/types.hpp"
 #include <compare>

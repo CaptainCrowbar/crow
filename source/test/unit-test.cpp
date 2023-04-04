@@ -822,6 +822,10 @@ void regex_runtime_flags_test_group() {
     UNIT_TEST(crow_regex_runtime_flags)
 }
 
+void resource_test_group() {
+    UNIT_TEST(crow_resource_handle)
+}
+
 void root_finding_test_group() {
     UNIT_TEST(crow_root_finding_bisection)
     UNIT_TEST(crow_root_finding_false_position)
@@ -1201,6 +1205,7 @@ int main(int argc, char** argv) {
     regex_match_test_group();
     regex_replace_test_group();
     regex_runtime_flags_test_group();
+    resource_test_group();
     root_finding_test_group();
     spatial_index_test_group();
     spectrum_formatting_test_group();

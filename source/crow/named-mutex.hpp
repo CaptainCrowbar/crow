@@ -1,6 +1,5 @@
 #pragma once
 
-#include "crow/io-utility.hpp"
 #include "crow/types.hpp"
 #include <chrono>
 #include <string>

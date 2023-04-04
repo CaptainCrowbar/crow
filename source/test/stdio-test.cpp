@@ -1,6 +1,5 @@
 #include "crow/stdio.hpp"
 #include "crow/guard.hpp"
-#include "crow/io-utility.hpp"
 #include "crow/path.hpp"
 #include "crow/unit-test.hpp"
 #include <algorithm>

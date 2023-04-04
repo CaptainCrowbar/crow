@@ -4,7 +4,6 @@
 #include "crow/format-floating.hpp"
 #include "crow/format-integer.hpp"
 #include "crow/format-spec.hpp"
-#include "crow/io-utility.hpp"
 #include "crow/string.hpp"
 #include "crow/types.hpp"
 #include <chrono>
