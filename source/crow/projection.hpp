@@ -10,6 +10,7 @@
 #include "crow/types.hpp"
 #include "crow/vector.hpp"
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <concepts>
 #include <cstdlib>
@@ -925,7 +926,8 @@ namespace Crow {
         const segment_type& find_segment(T x, bool south) const noexcept;
     private:
         using segment_map = std::map<T, segment_type>;
-        segment_map segments_[2];
+        using segment_array = std::array<segment_map, 2>;
+        segment_array segments_;
     };
 
     template <std::floating_point T>
@@ -933,7 +935,7 @@ namespace Crow {
     void BasicInterruptedProjection<T>::interrupt(const Range& inter_north, const Range& inter_south) {
         using std::numbers::pi_v;
         const Range* ptrs[] = {&inter_north, &inter_south};
-        segment_map new_segments[2];
+        segment_array new_segments;
         for (int i = 0; i < 2; ++i) {
             coord_list inter(begin(*ptrs[i]), end(*ptrs[i]));
             for (auto& t: inter)
