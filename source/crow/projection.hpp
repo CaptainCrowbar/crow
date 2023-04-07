@@ -336,13 +336,13 @@ namespace Crow {
 
     template <std::floating_point T>
     class AzimuthalEquidistantProjection:
-    public AzimuthalProjection<T> {
+    public BasicClone<AzimuthalEquidistantProjection<T>, AzimuthalProjection<T>, MapProjection> {
     public:
         static constexpr Maps map_properties = Maps::azimuthal | Maps::sphere | Maps::circle | Maps::hemisphere_circle;
         AzimuthalEquidistantProjection() noexcept: AzimuthalEquidistantProjection(BasicMapProjection<T>::default_origin) {}
         explicit AzimuthalEquidistantProjection(Vector<T, 2> origin) noexcept: AzimuthalProjection<T>(origin) {}
-        virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-            { return std::make_shared<AzimuthalEquidistantProjection>(*this); }
+        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
+        //     { return std::make_shared<AzimuthalEquidistantProjection>(*this); }
         virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
         virtual T max_y() const noexcept override { return std::numbers::pi_v<T>; }
         virtual std::string name() const override { return "azimuthal equidistant projection"; }
@@ -396,13 +396,13 @@ namespace Crow {
 
     template <std::floating_point T>
     class GnomonicProjection:
-    public AzimuthalProjection<T> {
+    public BasicClone<GnomonicProjection<T>, AzimuthalProjection<T>, MapProjection> {
     public:
         static constexpr Maps map_properties = Maps::azimuthal | Maps::sub_hemisphere | Maps::plane;
         GnomonicProjection() noexcept: GnomonicProjection(BasicMapProjection<T>::default_origin) {}
         explicit GnomonicProjection(Vector<T, 2> origin) noexcept: AzimuthalProjection<T>(origin) {}
-        virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-            { return std::make_shared<GnomonicProjection>(*this); }
+        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
+        //     { return std::make_shared<GnomonicProjection>(*this); }
         virtual std::string name() const override { return "gnomonic projection"; }
         virtual Maps properties() const noexcept override { return map_properties; }
     protected:
@@ -451,13 +451,13 @@ namespace Crow {
 
     template <std::floating_point T>
     class LambertAzimuthalProjection:
-    public AzimuthalProjection<T> {
+    public BasicClone<LambertAzimuthalProjection<T>, AzimuthalProjection<T>, MapProjection> {
     public:
         static constexpr Maps map_properties = Maps::azimuthal | Maps::sphere | Maps::circle | Maps::equal_area | Maps::hemisphere_circle;
         LambertAzimuthalProjection() noexcept: LambertAzimuthalProjection(BasicMapProjection<T>::default_origin) {}
         explicit LambertAzimuthalProjection(Vector<T, 2> origin) noexcept: AzimuthalProjection<T>(origin) {}
-        virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-            { return std::make_shared<LambertAzimuthalProjection>(*this); }
+        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
+        //     { return std::make_shared<LambertAzimuthalProjection>(*this); }
         virtual T max_x() const noexcept override { return T(2); }
         virtual T max_y() const noexcept override { return T(2); }
         virtual std::string name() const override { return "Lambert azimuthal projection"; }
@@ -505,13 +505,13 @@ namespace Crow {
 
     template <std::floating_point T>
     class OrthographicProjection:
-    public AzimuthalProjection<T> {
+    public BasicClone<OrthographicProjection<T>, AzimuthalProjection<T>, MapProjection> {
     public:
         static constexpr Maps map_properties = Maps::azimuthal | Maps::hemisphere | Maps::circle | Maps::hemisphere_circle;
         OrthographicProjection() noexcept: OrthographicProjection(BasicMapProjection<T>::default_origin) {}
         explicit OrthographicProjection(Vector<T, 2> origin) noexcept: AzimuthalProjection<T>(origin) {}
-        virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-            { return std::make_shared<OrthographicProjection>(*this); }
+        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
+        //     { return std::make_shared<OrthographicProjection>(*this); }
         virtual T max_x() const noexcept override { return T(1); }
         virtual T max_y() const noexcept override { return T(1); }
         virtual std::string name() const override { return "orthographic projection"; }
@@ -555,13 +555,13 @@ namespace Crow {
 
     template <std::floating_point T>
     class StereographicProjection:
-    public AzimuthalProjection<T> {
+    public BasicClone<StereographicProjection<T>, AzimuthalProjection<T>, MapProjection> {
     public:
         static constexpr Maps map_properties = Maps::azimuthal | Maps::sub_sphere | Maps::plane | Maps::conformal | Maps::hemisphere_circle;
         StereographicProjection() noexcept: StereographicProjection(BasicMapProjection<T>::default_origin) {}
         explicit StereographicProjection(Vector<T, 2> origin) noexcept: AzimuthalProjection<T>(origin) {}
-        virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-            { return std::make_shared<StereographicProjection>(*this); }
+        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
+        //     { return std::make_shared<StereographicProjection>(*this); }
         virtual std::string name() const override { return "stereographic projection"; }
         virtual Maps properties() const noexcept override { return map_properties; }
     protected:
@@ -612,13 +612,13 @@ namespace Crow {
 
     template <std::floating_point T>
     class CylindricalEquidistantProjection:
-    public CylindricalProjection<T> {
+    public BasicClone<CylindricalEquidistantProjection<T>, CylindricalProjection<T>, MapProjection> {
     public:
         static constexpr Maps map_properties = Maps::cylindrical | Maps::sphere | Maps::rectangle;
         CylindricalEquidistantProjection() noexcept: CylindricalEquidistantProjection(BasicMapProjection<T>::default_origin) {}
         explicit CylindricalEquidistantProjection(Vector<T, 2> origin) noexcept: CylindricalProjection<T>(origin) {}
-        virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-            { return std::make_shared<CylindricalEquidistantProjection>(*this); }
+        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
+        //     { return std::make_shared<CylindricalEquidistantProjection>(*this); }
         virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
         virtual T max_y() const noexcept override { return std::numbers::pi_v<T> / 2; }
         virtual std::string name() const override { return "cylindrical equidistant projection"; }
@@ -652,13 +652,13 @@ namespace Crow {
 
     template <std::floating_point T>
     class LambertCylindricalProjection:
-    public CylindricalProjection<T> {
+    public BasicClone<LambertCylindricalProjection<T>, CylindricalProjection<T>, MapProjection> {
     public:
         static constexpr Maps map_properties = Maps::cylindrical | Maps::sphere | Maps::rectangle | Maps::equal_area;
         LambertCylindricalProjection() noexcept: LambertCylindricalProjection(BasicMapProjection<T>::default_origin) {}
         explicit LambertCylindricalProjection(Vector<T, 2> origin) noexcept: CylindricalProjection<T>(origin) {}
-        virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-            { return std::make_shared<LambertCylindricalProjection>(*this); }
+        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
+        //     { return std::make_shared<LambertCylindricalProjection>(*this); }
         virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
         virtual T max_y() const noexcept override { return T(1); }
         virtual std::string name() const override { return "Lambert cylindrical projection"; }
@@ -693,13 +693,13 @@ namespace Crow {
 
     template <std::floating_point T>
     class GallPetersProjection:
-    public CylindricalProjection<T> {
+    public BasicClone<GallPetersProjection<T>, CylindricalProjection<T>, MapProjection> {
     public:
         static constexpr Maps map_properties = LambertCylindricalProjection<T>::map_properties;
         GallPetersProjection() noexcept: GallPetersProjection(BasicMapProjection<T>::default_origin) {}
         explicit GallPetersProjection(Vector<T, 2> origin) noexcept: CylindricalProjection<T>(origin), lambert_(origin) {}
-        virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-            { return std::make_shared<GallPetersProjection>(*this); }
+        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
+        //     { return std::make_shared<GallPetersProjection>(*this); }
         virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
         virtual T max_y() const noexcept override { return T(2); }
         virtual std::string name() const override { return "Gall-Peters projection"; }
@@ -727,13 +727,13 @@ namespace Crow {
 
     template <std::floating_point T>
     class MercatorProjection:
-    public CylindricalProjection<T> {
+    public BasicClone<MercatorProjection<T>, CylindricalProjection<T>, MapProjection> {
     public:
         static constexpr Maps map_properties = Maps::cylindrical | Maps::sub_sphere | Maps::other_shape | Maps::conformal;
         MercatorProjection() noexcept: MercatorProjection(BasicMapProjection<T>::default_origin) {}
         explicit MercatorProjection(Vector<T, 2> origin) noexcept: CylindricalProjection<T>(origin) {}
-        virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-            { return std::make_shared<MercatorProjection>(*this); }
+        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
+        //     { return std::make_shared<MercatorProjection>(*this); }
         virtual bool has_max_x() const noexcept override { return true; }
         virtual bool has_max_y() const noexcept override { return false; }
         virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
@@ -776,13 +776,13 @@ namespace Crow {
 
     template <std::floating_point T>
     class Eckert4Projection:
-    public PseudocylindricalProjection<T> {
+    public BasicClone<Eckert4Projection<T>, PseudocylindricalProjection<T>, MapProjection> {
     public:
         static constexpr Maps map_properties = Maps::pseudocylindrical | Maps::sphere | Maps::other_shape | Maps::equal_area | Maps::numerical;
         Eckert4Projection() noexcept: Eckert4Projection(BasicMapProjection<T>::default_origin) {}
         explicit Eckert4Projection(Vector<T, 2> origin) noexcept: PseudocylindricalProjection<T>(origin) {}
-        virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-            { return std::make_shared<Eckert4Projection>(*this); }
+        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
+        //     { return std::make_shared<Eckert4Projection>(*this); }
         virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
         virtual T max_y() const noexcept override { return std::numbers::pi_v<T> / 2; }
         virtual std::string name() const override { return "Eckert IV projection"; }
@@ -836,14 +836,14 @@ namespace Crow {
 
     template <std::floating_point T>
     class MollweideProjection:
-    public PseudocylindricalProjection<T> {
+    public BasicClone<MollweideProjection<T>, PseudocylindricalProjection<T>, MapProjection> {
     public:
         static constexpr Maps map_properties = Maps::pseudocylindrical | Maps::sphere | Maps::ellipse | Maps::equal_area
             | Maps::hemisphere_circle | Maps::numerical;
         MollweideProjection() noexcept: MollweideProjection(BasicMapProjection<T>::default_origin) {}
         explicit MollweideProjection(Vector<T, 2> origin) noexcept: PseudocylindricalProjection<T>(origin) {}
-        virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-            { return std::make_shared<MollweideProjection>(*this); }
+        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
+        //     { return std::make_shared<MollweideProjection>(*this); }
         virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
         virtual T max_y() const noexcept override { return std::numbers::pi_v<T> / 2; }
         virtual std::string name() const override { return "Mollweide projection"; }
@@ -894,13 +894,13 @@ namespace Crow {
 
     template <std::floating_point T>
     class SinusoidalProjection:
-    public PseudocylindricalProjection<T> {
+    public BasicClone<SinusoidalProjection<T>, PseudocylindricalProjection<T>, MapProjection> {
     public:
         static constexpr Maps map_properties = Maps::pseudocylindrical | Maps::sphere | Maps::other_shape | Maps::equal_area;
         SinusoidalProjection() noexcept: SinusoidalProjection(BasicMapProjection<T>::default_origin) {}
         explicit SinusoidalProjection(Vector<T, 2> origin) noexcept: PseudocylindricalProjection<T>(origin) {}
-        virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-            { return std::make_shared<SinusoidalProjection>(*this); }
+        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
+        //     { return std::make_shared<SinusoidalProjection>(*this); }
         virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
         virtual T max_y() const noexcept override { return std::numbers::pi_v<T> / 2; }
         virtual std::string name() const override { return "sinusoidal projection"; }
@@ -997,7 +997,7 @@ namespace Crow {
     template <typename Projection>
     requires std::derived_from<Projection, PseudocylindricalProjection<typename Projection::value_type>>
     class InterruptedProjection:
-    public BasicInterruptedProjection<typename Projection::value_type> {
+    public BasicClone<InterruptedProjection<Projection>, BasicInterruptedProjection<typename Projection::value_type>> {
     private:
         using T = typename Projection::value_type;
         using base_type = BasicInterruptedProjection<T>;
@@ -1013,8 +1013,8 @@ namespace Crow {
             base_type(origin, inter, inter), proj_() {}
         template <RangeType Range> InterruptedProjection(vector_type origin, const Range& inter_north, const Range& inter_south):
             base_type(origin, inter_north, inter_south), proj_() {}
-        virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-            { return std::make_shared<InterruptedProjection>(*this); }
+        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
+        //     { return std::make_shared<InterruptedProjection>(*this); }
         virtual T max_x() const noexcept override { return proj_.max_x(); }
         virtual T max_y() const noexcept override { return proj_.max_y(); }
         virtual std::string name() const override { return "interrupted " + proj_.name(); }

@@ -9,6 +9,7 @@
 #include <functional>
 #include <iterator>
 #include <limits>
+#include <memory>
 #include <ranges>
 #include <stdexcept>
 #include <string>
@@ -464,5 +465,40 @@ namespace Crow {
     template <typename T> struct SfinaeTrue<T, true>: std::true_type {};
 
     template <typename T> constexpr bool dependent_false = false;
+
+    // Mixin classes
+
+    template <typename T>
+    concept UniqueCloneable = std::has_virtual_destructor_v<T>
+        && requires (const T& obj) {
+            { obj.clone() } -> std::convertible_to<std::unique_ptr<T>>;
+        };
+
+    template <typename T>
+    concept SharedCloneable = std::has_virtual_destructor_v<T>
+        && ! UniqueCloneable<T>
+        && requires (const T& obj) {
+            { obj.clone() } -> std::convertible_to<std::shared_ptr<T>>;
+        };
+
+    template <typename T>
+    concept Cloneable = UniqueCloneable<T> || SharedCloneable<T>;
+
+    template <typename T, typename U, Cloneable V = U>
+    requires (std::derived_from<U, V>)
+    class BasicClone:
+    public U {
+    private:
+        using clone_return_type = std::conditional_t<UniqueCloneable<V>,
+            std::unique_ptr<V>, std::shared_ptr<V>>;
+    public:
+        clone_return_type clone() const override {
+            auto tptr = static_cast<const T*>(this);
+            if constexpr (UniqueCloneable<V>)
+                return std::make_unique<T>(*tptr);
+            else
+                return std::make_shared<T>(*tptr);
+        }
+    };
 
 }

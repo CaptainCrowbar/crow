@@ -111,6 +111,24 @@ template <typename T> concept ThreeWayComparable;
 Satisfied if `T` supports the `<=>` operator.
 
 ```c++
+template <typename T>
+    concept UniqueCloneable = std::has_virtual_destructor_v<T>
+        && requires (const T& obj) {
+            { obj.clone() } -> std::convertible_to<std::unique_ptr<T>>;
+        };
+template <typename T>
+    concept SharedCloneable = std::has_virtual_destructor_v<T>
+        && ! UniqueCloneable<T>
+        && requires (const T& obj) {
+            { obj.clone() } -> std::convertible_to<std::shared_ptr<T>>;
+        };
+template <typename T>
+    concept Cloneable = UniqueCloneable<T> || SharedCloneable<T>;
+```
+
+Satisfied if `T` is the root class of a cloneable hierarchy.
+
+```c++
 template <typename T> concept IteratorType;
 ```
 
@@ -290,3 +308,19 @@ template <typename T> constexpr bool dependent_false = false;
 ```
 
 Allows compile time failure in an `if constexpr` branch.
+
+## Mixin classes
+
+```c++
+template <typename T, typename U, Cloneable V = U>
+requires (std::derived_from<U, V>)
+class BasicClone:
+public U {
+    [smart pointer type] clone() const override;
+};
+```
+
+Deriving a class `T` from `BasicClone<T,U[,V]>` implicitly derives `T` from
+`U` and defines the `T::clone()` function (which calls the copy constructor).
+The third template argument is used when a multilevel hierarchy is desired,
+and the immediate base class `U` is not the same as the root class `V`.

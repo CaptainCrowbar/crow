@@ -16,6 +16,68 @@ using namespace Crow;
 using namespace Crow::Literals;
 using namespace std::literals;
 
+namespace {
+
+    class UniqueCloneBase {
+    public:
+        virtual ~UniqueCloneBase() = default;
+        virtual std::unique_ptr<UniqueCloneBase> clone() const = 0;
+        virtual int get() const = 0;
+    };
+
+    class UniqueClone:
+    public BasicClone<UniqueClone, UniqueCloneBase> {
+    public:
+        explicit UniqueClone(int n): value_(n) {}
+        int get() const override { return value_; }
+    private:
+        int value_;
+    };
+
+    class SharedCloneBase {
+    public:
+        virtual ~SharedCloneBase() = default;
+        virtual std::shared_ptr<SharedCloneBase> clone() const = 0;
+        virtual int get() const = 0;
+    };
+
+    class SharedClone:
+    public BasicClone<SharedClone, SharedCloneBase> {
+    public:
+        explicit SharedClone(int n): value_(n) {}
+        int get() const override { return value_; }
+    private:
+        int value_;
+    };
+
+}
+
+void test_crow_types_cloneable() {
+
+    TEST((Cloneable<UniqueCloneBase>));
+    TEST((UniqueCloneable<UniqueCloneBase>));
+    TEST((! SharedCloneable<UniqueCloneBase>));
+    TEST((Cloneable<SharedCloneBase>));
+    TEST((! UniqueCloneable<SharedCloneBase>));
+    TEST((SharedCloneable<SharedCloneBase>));
+    TEST((! Cloneable<std::string>));
+    TEST((! UniqueCloneable<std::string>));
+    TEST((! SharedCloneable<std::string>));
+
+    std::unique_ptr<UniqueCloneBase> uptr;
+    UniqueClone uc(86);
+    TRY(uptr = uc.clone());
+    REQUIRE(uptr);
+    TEST_EQUAL(uptr->get(), 86);
+
+    std::shared_ptr<SharedCloneBase> sptr;
+    SharedClone sc(99);
+    TRY(sptr = sc.clone());
+    REQUIRE(sptr);
+    TEST_EQUAL(sptr->get(), 99);
+
+}
+
 void test_crow_types_assertions() {
 
     int n = 42;
@@ -35,7 +97,7 @@ void test_crow_types_assertions() {
         TEST_MATCH(ex.expression(), "n == 99");
         TEST_MATCH(ex.file(), R"(^(.+[/\\])?types-test\.cpp$)");
         TEST_EQUAL(ex.function(), "test_crow_types_assertions");
-        TEST_EQUAL(ex.line(), 27);
+        TEST_EQUAL(ex.line(), 89);
     }
 
 }
