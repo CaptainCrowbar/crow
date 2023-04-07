@@ -547,8 +547,8 @@ namespace {
 
     void make_map(std::shared_ptr<BasicMapProjection<double>> proj) {
 
-        static const std::vector<double> cut_north = {-30_degd};
-        static const std::vector<double> cut_south = {-15_degd, 75_degd};
+        static const std::vector<double> cut_north = {-20_degd};
+        static const std::vector<double> cut_south = {-20_degd, 75_degd};
 
         auto iproj = std::dynamic_pointer_cast<BasicInterruptedProjection<double>>(proj);
         if (iproj)

@@ -19,7 +19,6 @@
 #include <numbers>
 #include <ostream>
 #include <string>
-#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -46,7 +45,7 @@ namespace Crow {
                 template <std::floating_point T> class SinusoidalProjection;
                 template <std::floating_point T> class BasicInterruptedProjection;
                     template <typename Projection>
-                        requires std::derived_from<Projection, PseudocylindricalProjection<typename Projection::value_type>>
+                        requires (std::derived_from<Projection, PseudocylindricalProjection<typename Projection::value_type>>)
                         class InterruptedProjection;
 
     // Constants
@@ -233,34 +232,36 @@ namespace Crow {
         vector_type map_to_globe(vector_type xy) const noexcept;
         bool is_on_globe(vector_type polar) const noexcept;
         bool is_on_map(vector_type xy) const noexcept;
-        vector_type origin() const noexcept { return offset_.reference(); }
+        vector_type origin() const noexcept { return origin_.reference(); }
     protected:
-        explicit BasicMapProjection(vector_type origin) noexcept: offset_(origin) {}
+        BasicMapProjection() = default;
+        explicit BasicMapProjection(vector_type origin) noexcept: origin_(origin) {}
         virtual bool canonical_on_globe(vector_type polar) const noexcept;
         virtual bool canonical_on_map(vector_type xy) const noexcept;
         virtual vector_type canonical_to_globe(vector_type xy) const noexcept = 0;
         virtual vector_type canonical_to_map(vector_type polar) const noexcept = 0;
         T angle_from_origin(vector_type polar) const noexcept;
+        void set_origin(vector_type origin) noexcept { origin_ = polar_reduce(origin); }
     private:
         using polar_reduce = Detail::PolarReduce<T>;
-        polar_reduce offset_;
+        polar_reduce origin_{default_origin};
     };
 
     template <std::floating_point T>
     Vector<T, 2> BasicMapProjection<T>::globe_to_map(Vector<T, 2> polar) const noexcept {
-        auto rel_polar = offset_.reduce_to_polar(polar);
+        auto rel_polar = origin_.reduce_to_polar(polar);
         return canonical_to_map(rel_polar);
     }
 
     template <std::floating_point T>
     Vector<T, 2> BasicMapProjection<T>::map_to_globe(Vector<T, 2> xy) const noexcept {
         auto rel_polar = canonical_to_globe(xy);
-        return offset_.inverse_from_polar(rel_polar);
+        return origin_.inverse_from_polar(rel_polar);
     }
 
     template <std::floating_point T>
     bool BasicMapProjection<T>::is_on_globe(Vector<T, 2> polar) const noexcept {
-        auto rel_polar = offset_.reduce_to_polar(polar);
+        auto rel_polar = origin_.reduce_to_polar(polar);
         return canonical_on_globe(rel_polar);
     }
 
@@ -276,7 +277,7 @@ namespace Crow {
             case Maps::sub_hemisphere:  return angle_from_origin(polar) < pi_v<T>;
             case Maps::hemisphere:      return angle_from_origin(polar) <= pi_v<T>;
             case Maps::sub_sphere:      return angle_from_origin(polar) < 2 * pi_v<T>;
-            default:                   return true;
+            default:                    return true;
         }
     }
 
@@ -310,39 +311,29 @@ namespace Crow {
 
     template <std::floating_point T>
     class AzimuthalProjection:
-    public BasicMapProjection<T> {
-    protected:
-        explicit AzimuthalProjection(Vector<T, 2> origin) noexcept: BasicMapProjection<T>(origin) {}
-    };
+    public BasicMapProjection<T> {};
 
     template <std::floating_point T>
     class CylindricalProjection:
-    public BasicMapProjection<T> {
-    protected:
-        explicit CylindricalProjection(Vector<T, 2> origin) noexcept: BasicMapProjection<T>(origin) {}
-    };
+    public BasicMapProjection<T> {};
 
     template <std::floating_point T>
     class PseudocylindricalProjection:
     public BasicMapProjection<T> {
-    protected:
         template <typename Projection>
-            requires std::derived_from<Projection, PseudocylindricalProjection<typename Projection::value_type>>
+            requires (std::derived_from<Projection, PseudocylindricalProjection<typename Projection::value_type>>)
             friend class InterruptedProjection;
-        explicit PseudocylindricalProjection(Vector<T, 2> origin) noexcept: BasicMapProjection<T>(origin) {}
     };
 
     // Azimuthal projection classes
 
     template <std::floating_point T>
     class AzimuthalEquidistantProjection:
-    public BasicClone<AzimuthalEquidistantProjection<T>, AzimuthalProjection<T>, MapProjection> {
+    public BasicClone<AzimuthalEquidistantProjection<T>, AzimuthalProjection<T>, BasicMapProjection<T>> {
     public:
         static constexpr Maps map_properties = Maps::azimuthal | Maps::sphere | Maps::circle | Maps::hemisphere_circle;
-        AzimuthalEquidistantProjection() noexcept: AzimuthalEquidistantProjection(BasicMapProjection<T>::default_origin) {}
-        explicit AzimuthalEquidistantProjection(Vector<T, 2> origin) noexcept: AzimuthalProjection<T>(origin) {}
-        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-        //     { return std::make_shared<AzimuthalEquidistantProjection>(*this); }
+        AzimuthalEquidistantProjection() = default;
+        explicit AzimuthalEquidistantProjection(Vector<T, 2> origin) { this->set_origin(origin); }
         virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
         virtual T max_y() const noexcept override { return std::numbers::pi_v<T>; }
         virtual std::string name() const override { return "azimuthal equidistant projection"; }
@@ -358,7 +349,7 @@ namespace Crow {
     template <std::floating_point T>
     bool AzimuthalEquidistantProjection<T>::canonical_on_map(Vector<T, 2> xy) const noexcept {
         using std::numbers::pi_v;
-        return pow(xy.x(), T(2)) + pow(xy.y(), T(2)) <= pi_v<T> * pi_v<T>;
+        return xy.x() * xy.x() + xy.y() * xy.y() <= pi_v<T> * pi_v<T>;
     }
 
     template <std::floating_point T>
@@ -396,13 +387,11 @@ namespace Crow {
 
     template <std::floating_point T>
     class GnomonicProjection:
-    public BasicClone<GnomonicProjection<T>, AzimuthalProjection<T>, MapProjection> {
+    public BasicClone<GnomonicProjection<T>, AzimuthalProjection<T>, BasicMapProjection<T>> {
     public:
         static constexpr Maps map_properties = Maps::azimuthal | Maps::sub_hemisphere | Maps::plane;
-        GnomonicProjection() noexcept: GnomonicProjection(BasicMapProjection<T>::default_origin) {}
-        explicit GnomonicProjection(Vector<T, 2> origin) noexcept: AzimuthalProjection<T>(origin) {}
-        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-        //     { return std::make_shared<GnomonicProjection>(*this); }
+        GnomonicProjection() = default;
+        explicit GnomonicProjection(Vector<T, 2> origin) { this->set_origin(origin); }
         virtual std::string name() const override { return "gnomonic projection"; }
         virtual Maps properties() const noexcept override { return map_properties; }
     protected:
@@ -451,20 +440,18 @@ namespace Crow {
 
     template <std::floating_point T>
     class LambertAzimuthalProjection:
-    public BasicClone<LambertAzimuthalProjection<T>, AzimuthalProjection<T>, MapProjection> {
+    public BasicClone<LambertAzimuthalProjection<T>, AzimuthalProjection<T>, BasicMapProjection<T>> {
     public:
         static constexpr Maps map_properties = Maps::azimuthal | Maps::sphere | Maps::circle | Maps::equal_area | Maps::hemisphere_circle;
-        LambertAzimuthalProjection() noexcept: LambertAzimuthalProjection(BasicMapProjection<T>::default_origin) {}
-        explicit LambertAzimuthalProjection(Vector<T, 2> origin) noexcept: AzimuthalProjection<T>(origin) {}
-        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-        //     { return std::make_shared<LambertAzimuthalProjection>(*this); }
+        LambertAzimuthalProjection() = default;
+        explicit LambertAzimuthalProjection(Vector<T, 2> origin) { this->set_origin(origin); }
         virtual T max_x() const noexcept override { return T(2); }
         virtual T max_y() const noexcept override { return T(2); }
         virtual std::string name() const override { return "Lambert azimuthal projection"; }
         virtual Maps properties() const noexcept override { return map_properties; }
     protected:
         virtual bool canonical_on_globe(Vector<T, 2> /*polar*/) const noexcept override { return true; }
-        virtual bool canonical_on_map(Vector<T, 2> xy) const noexcept override { return pow(xy.x(), T(2)) + pow(xy.y(), T(2)) <= T(4); }
+        virtual bool canonical_on_map(Vector<T, 2> xy) const noexcept override { return xy.x() * xy.x() + xy.y() * xy.y() <= T(4); }
         virtual Vector<T, 2> canonical_to_globe(Vector<T, 2> xy) const noexcept override;
         virtual Vector<T, 2> canonical_to_map(Vector<T, 2> polar) const noexcept override;
     };
@@ -505,20 +492,18 @@ namespace Crow {
 
     template <std::floating_point T>
     class OrthographicProjection:
-    public BasicClone<OrthographicProjection<T>, AzimuthalProjection<T>, MapProjection> {
+    public BasicClone<OrthographicProjection<T>, AzimuthalProjection<T>, BasicMapProjection<T>> {
     public:
         static constexpr Maps map_properties = Maps::azimuthal | Maps::hemisphere | Maps::circle | Maps::hemisphere_circle;
-        OrthographicProjection() noexcept: OrthographicProjection(BasicMapProjection<T>::default_origin) {}
-        explicit OrthographicProjection(Vector<T, 2> origin) noexcept: AzimuthalProjection<T>(origin) {}
-        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-        //     { return std::make_shared<OrthographicProjection>(*this); }
+        OrthographicProjection() = default;
+        explicit OrthographicProjection(Vector<T, 2> origin) { this->set_origin(origin); }
         virtual T max_x() const noexcept override { return T(1); }
         virtual T max_y() const noexcept override { return T(1); }
         virtual std::string name() const override { return "orthographic projection"; }
         virtual Maps properties() const noexcept override { return map_properties; }
     protected:
         virtual bool canonical_on_globe(Vector<T, 2> polar) const noexcept override;
-        virtual bool canonical_on_map(Vector<T, 2> xy) const noexcept override { return pow(xy.x(), T(2)) + pow(xy.y(), T(2)) <= 1; }
+        virtual bool canonical_on_map(Vector<T, 2> xy) const noexcept override { return xy.x() * xy.x() + xy.y() * xy.y() <= 1; }
         virtual Vector<T, 2> canonical_to_globe(Vector<T, 2> xy) const noexcept override;
         virtual Vector<T, 2> canonical_to_map(Vector<T, 2> polar) const noexcept override;
     };
@@ -555,13 +540,11 @@ namespace Crow {
 
     template <std::floating_point T>
     class StereographicProjection:
-    public BasicClone<StereographicProjection<T>, AzimuthalProjection<T>, MapProjection> {
+    public BasicClone<StereographicProjection<T>, AzimuthalProjection<T>, BasicMapProjection<T>> {
     public:
         static constexpr Maps map_properties = Maps::azimuthal | Maps::sub_sphere | Maps::plane | Maps::conformal | Maps::hemisphere_circle;
-        StereographicProjection() noexcept: StereographicProjection(BasicMapProjection<T>::default_origin) {}
-        explicit StereographicProjection(Vector<T, 2> origin) noexcept: AzimuthalProjection<T>(origin) {}
-        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-        //     { return std::make_shared<StereographicProjection>(*this); }
+        StereographicProjection() = default;
+        explicit StereographicProjection(Vector<T, 2> origin) { this->set_origin(origin); }
         virtual std::string name() const override { return "stereographic projection"; }
         virtual Maps properties() const noexcept override { return map_properties; }
     protected:
@@ -612,13 +595,11 @@ namespace Crow {
 
     template <std::floating_point T>
     class CylindricalEquidistantProjection:
-    public BasicClone<CylindricalEquidistantProjection<T>, CylindricalProjection<T>, MapProjection> {
+    public BasicClone<CylindricalEquidistantProjection<T>, CylindricalProjection<T>, BasicMapProjection<T>> {
     public:
         static constexpr Maps map_properties = Maps::cylindrical | Maps::sphere | Maps::rectangle;
-        CylindricalEquidistantProjection() noexcept: CylindricalEquidistantProjection(BasicMapProjection<T>::default_origin) {}
-        explicit CylindricalEquidistantProjection(Vector<T, 2> origin) noexcept: CylindricalProjection<T>(origin) {}
-        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-        //     { return std::make_shared<CylindricalEquidistantProjection>(*this); }
+        CylindricalEquidistantProjection() = default;
+        explicit CylindricalEquidistantProjection(Vector<T, 2> origin) { this->set_origin(origin); }
         virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
         virtual T max_y() const noexcept override { return std::numbers::pi_v<T> / 2; }
         virtual std::string name() const override { return "cylindrical equidistant projection"; }
@@ -652,13 +633,11 @@ namespace Crow {
 
     template <std::floating_point T>
     class LambertCylindricalProjection:
-    public BasicClone<LambertCylindricalProjection<T>, CylindricalProjection<T>, MapProjection> {
+    public BasicClone<LambertCylindricalProjection<T>, CylindricalProjection<T>, BasicMapProjection<T>> {
     public:
         static constexpr Maps map_properties = Maps::cylindrical | Maps::sphere | Maps::rectangle | Maps::equal_area;
-        LambertCylindricalProjection() noexcept: LambertCylindricalProjection(BasicMapProjection<T>::default_origin) {}
-        explicit LambertCylindricalProjection(Vector<T, 2> origin) noexcept: CylindricalProjection<T>(origin) {}
-        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-        //     { return std::make_shared<LambertCylindricalProjection>(*this); }
+        LambertCylindricalProjection() = default;
+        explicit LambertCylindricalProjection(Vector<T, 2> origin) { this->set_origin(origin); }
         virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
         virtual T max_y() const noexcept override { return T(1); }
         virtual std::string name() const override { return "Lambert cylindrical projection"; }
@@ -693,13 +672,11 @@ namespace Crow {
 
     template <std::floating_point T>
     class GallPetersProjection:
-    public BasicClone<GallPetersProjection<T>, CylindricalProjection<T>, MapProjection> {
+    public BasicClone<GallPetersProjection<T>, CylindricalProjection<T>, BasicMapProjection<T>> {
     public:
         static constexpr Maps map_properties = LambertCylindricalProjection<T>::map_properties;
-        GallPetersProjection() noexcept: GallPetersProjection(BasicMapProjection<T>::default_origin) {}
-        explicit GallPetersProjection(Vector<T, 2> origin) noexcept: CylindricalProjection<T>(origin), lambert_(origin) {}
-        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-        //     { return std::make_shared<GallPetersProjection>(*this); }
+        GallPetersProjection() = default;
+        explicit GallPetersProjection(Vector<T, 2> origin) noexcept: lambert_(origin) { this->set_origin(origin); }
         virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
         virtual T max_y() const noexcept override { return T(2); }
         virtual std::string name() const override { return "Gall-Peters projection"; }
@@ -727,13 +704,11 @@ namespace Crow {
 
     template <std::floating_point T>
     class MercatorProjection:
-    public BasicClone<MercatorProjection<T>, CylindricalProjection<T>, MapProjection> {
+    public BasicClone<MercatorProjection<T>, CylindricalProjection<T>, BasicMapProjection<T>> {
     public:
         static constexpr Maps map_properties = Maps::cylindrical | Maps::sub_sphere | Maps::other_shape | Maps::conformal;
-        MercatorProjection() noexcept: MercatorProjection(BasicMapProjection<T>::default_origin) {}
-        explicit MercatorProjection(Vector<T, 2> origin) noexcept: CylindricalProjection<T>(origin) {}
-        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-        //     { return std::make_shared<MercatorProjection>(*this); }
+        MercatorProjection() = default;
+        explicit MercatorProjection(Vector<T, 2> origin) { this->set_origin(origin); }
         virtual bool has_max_x() const noexcept override { return true; }
         virtual bool has_max_y() const noexcept override { return false; }
         virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
@@ -776,13 +751,11 @@ namespace Crow {
 
     template <std::floating_point T>
     class Eckert4Projection:
-    public BasicClone<Eckert4Projection<T>, PseudocylindricalProjection<T>, MapProjection> {
+    public BasicClone<Eckert4Projection<T>, PseudocylindricalProjection<T>, BasicMapProjection<T>> {
     public:
         static constexpr Maps map_properties = Maps::pseudocylindrical | Maps::sphere | Maps::other_shape | Maps::equal_area | Maps::numerical;
-        Eckert4Projection() noexcept: Eckert4Projection(BasicMapProjection<T>::default_origin) {}
-        explicit Eckert4Projection(Vector<T, 2> origin) noexcept: PseudocylindricalProjection<T>(origin) {}
-        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-        //     { return std::make_shared<Eckert4Projection>(*this); }
+        Eckert4Projection() = default;
+        explicit Eckert4Projection(Vector<T, 2> origin) { this->set_origin(origin); }
         virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
         virtual T max_y() const noexcept override { return std::numbers::pi_v<T> / 2; }
         virtual std::string name() const override { return "Eckert IV projection"; }
@@ -800,10 +773,11 @@ namespace Crow {
         auto abs_x = std::abs(xy.x());
         if (abs_x <= pi_v<T> / 2)
             return std::abs(xy.y()) <= pi_v<T> / 2;
-        else if (abs_x <= pi_v<T>)
-            return std::pow(2 * abs_x / pi_v<T> - 1, T(2)) + std::pow(2 * xy.y() / pi_v<T>, T(2)) <= 1;
-        else
+        else if (abs_x > pi_v<T>)
             return false;
+        auto u = 2 * abs_x / pi_v<T> - 1;
+        auto v = 2 * xy.y() / pi_v<T>;
+        return u * u + v * v <= 1;
     }
 
     template <std::floating_point T>
@@ -836,14 +810,12 @@ namespace Crow {
 
     template <std::floating_point T>
     class MollweideProjection:
-    public BasicClone<MollweideProjection<T>, PseudocylindricalProjection<T>, MapProjection> {
+    public BasicClone<MollweideProjection<T>, PseudocylindricalProjection<T>, BasicMapProjection<T>> {
     public:
         static constexpr Maps map_properties = Maps::pseudocylindrical | Maps::sphere | Maps::ellipse | Maps::equal_area
             | Maps::hemisphere_circle | Maps::numerical;
-        MollweideProjection() noexcept: MollweideProjection(BasicMapProjection<T>::default_origin) {}
-        explicit MollweideProjection(Vector<T, 2> origin) noexcept: PseudocylindricalProjection<T>(origin) {}
-        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-        //     { return std::make_shared<MollweideProjection>(*this); }
+        MollweideProjection() = default;
+        explicit MollweideProjection(Vector<T, 2> origin) { this->set_origin(origin); }
         virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
         virtual T max_y() const noexcept override { return std::numbers::pi_v<T> / 2; }
         virtual std::string name() const override { return "Mollweide projection"; }
@@ -894,13 +866,11 @@ namespace Crow {
 
     template <std::floating_point T>
     class SinusoidalProjection:
-    public BasicClone<SinusoidalProjection<T>, PseudocylindricalProjection<T>, MapProjection> {
+    public BasicClone<SinusoidalProjection<T>, PseudocylindricalProjection<T>, BasicMapProjection<T>> {
     public:
         static constexpr Maps map_properties = Maps::pseudocylindrical | Maps::sphere | Maps::other_shape | Maps::equal_area;
-        SinusoidalProjection() noexcept: SinusoidalProjection(BasicMapProjection<T>::default_origin) {}
-        explicit SinusoidalProjection(Vector<T, 2> origin) noexcept: PseudocylindricalProjection<T>(origin) {}
-        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-        //     { return std::make_shared<SinusoidalProjection>(*this); }
+        SinusoidalProjection() = default;
+        explicit SinusoidalProjection(Vector<T, 2> origin) { this->set_origin(origin); }
         virtual T max_x() const noexcept override { return std::numbers::pi_v<T>; }
         virtual T max_y() const noexcept override { return std::numbers::pi_v<T> / 2; }
         virtual std::string name() const override { return "sinusoidal projection"; }
@@ -952,8 +922,6 @@ namespace Crow {
     protected:
         using coord_list = std::vector<T>;
         struct segment_type { T begin, centre, delta, end; };
-        template <RangeType Range> BasicInterruptedProjection(Vector<T, 2> origin, const Range& inter_north, const Range& inter_south):
-            PseudocylindricalProjection<T>(origin), segments_() { interrupt(inter_north, inter_south); }
         const segment_type& find_segment(T x, bool south) const noexcept;
     private:
         using segment_map = std::map<T, segment_type>;
@@ -967,7 +935,6 @@ namespace Crow {
         const Range* ptrs[] = {&inter_north, &inter_south};
         segment_map new_segments[2];
         for (int i = 0; i < 2; ++i) {
-            new_segments[i].clear();
             coord_list inter(begin(*ptrs[i]), end(*ptrs[i]));
             for (auto& t: inter)
                 t = symmetric_remainder(t, 2 * pi_v<T>);
@@ -981,13 +948,17 @@ namespace Crow {
                 new_segments[i][*j] = {*j, (*j + *k) / 2, (*k - *j) / 2, *k};
         }
         for (int i = 0; i < 2; ++i)
-            segments_[i].swap(new_segments[i]);
+            segments_[i] = std::move(new_segments[i]);
     }
 
     template <std::floating_point T>
     const typename BasicInterruptedProjection<T>::segment_type&
     BasicInterruptedProjection<T>::find_segment(T x, bool south) const noexcept {
+        using std::numbers::pi_v;
+        static const segment_type default_segment = {- pi_v<T>, 0, pi_v<T>, pi_v<T>};
         auto& map = segments_[int(south)];
+        if (map.empty())
+            return default_segment;
         auto s = map.upper_bound(x);
         if (s != map.begin())
             --s;
@@ -995,9 +966,10 @@ namespace Crow {
     }
 
     template <typename Projection>
-    requires std::derived_from<Projection, PseudocylindricalProjection<typename Projection::value_type>>
+    requires (std::derived_from<Projection, PseudocylindricalProjection<typename Projection::value_type>>)
     class InterruptedProjection:
-    public BasicClone<InterruptedProjection<Projection>, BasicInterruptedProjection<typename Projection::value_type>> {
+    public BasicClone<InterruptedProjection<Projection>, BasicInterruptedProjection<typename Projection::value_type>,
+        BasicMapProjection<typename Projection::value_type>> {
     private:
         using T = typename Projection::value_type;
         using base_type = BasicInterruptedProjection<T>;
@@ -1007,14 +979,9 @@ namespace Crow {
         using vector_type = Vector<T, 2>;
         static constexpr Maps map_properties =
             (Projection::map_properties & ~ Maps::shape_mask & ~ Maps::hemisphere_circle) | Maps::other_shape | Maps::interrupted;
-        InterruptedProjection():
-            base_type(BasicMapProjection<T>::default_origin, coord_list(), coord_list()), proj_() {}
-        template <RangeType Range> InterruptedProjection(vector_type origin, const Range& inter):
-            base_type(origin, inter, inter), proj_() {}
-        template <RangeType Range> InterruptedProjection(vector_type origin, const Range& inter_north, const Range& inter_south):
-            base_type(origin, inter_north, inter_south), proj_() {}
-        // virtual std::shared_ptr<BasicMapProjection<T>> clone() const override
-        //     { return std::make_shared<InterruptedProjection>(*this); }
+        InterruptedProjection() = default;
+        template <RangeType Range> InterruptedProjection(vector_type origin, const Range& inter);
+        template <RangeType Range> InterruptedProjection(vector_type origin, const Range& inter_north, const Range& inter_south);
         virtual T max_x() const noexcept override { return proj_.max_x(); }
         virtual T max_y() const noexcept override { return proj_.max_y(); }
         virtual std::string name() const override { return "interrupted " + proj_.name(); }
@@ -1030,7 +997,23 @@ namespace Crow {
     };
 
     template <typename Projection>
-    requires std::derived_from<Projection, PseudocylindricalProjection<typename Projection::value_type>>
+    requires (std::derived_from<Projection, PseudocylindricalProjection<typename Projection::value_type>>)
+    template <RangeType Range>
+    InterruptedProjection<Projection>::InterruptedProjection(vector_type origin, const Range& inter) {
+        this->set_origin(origin);
+        this->interrupt(inter);
+    }
+
+    template <typename Projection>
+    requires (std::derived_from<Projection, PseudocylindricalProjection<typename Projection::value_type>>)
+    template <RangeType Range>
+    InterruptedProjection<Projection>::InterruptedProjection(vector_type origin, const Range& inter_north, const Range& inter_south) {
+        this->set_origin(origin);
+        this->interrupt(inter_north, inter_south);
+    }
+
+    template <typename Projection>
+    requires (std::derived_from<Projection, PseudocylindricalProjection<typename Projection::value_type>>)
     bool InterruptedProjection<Projection>::canonical_on_map(vector_type xy) const noexcept {
         using std::numbers::pi_v;
         if (std::abs(xy.x()) > proj_.max_x() || std::abs(xy.y()) > proj_.max_y())
@@ -1047,7 +1030,7 @@ namespace Crow {
     }
 
     template <typename Projection>
-    requires std::derived_from<Projection, PseudocylindricalProjection<typename Projection::value_type>>
+    requires (std::derived_from<Projection, PseudocylindricalProjection<typename Projection::value_type>>)
     typename InterruptedProjection<Projection>::vector_type
     InterruptedProjection<Projection>::canonical_to_globe(vector_type xy) const noexcept {
         using std::numbers::pi_v;
@@ -1062,7 +1045,7 @@ namespace Crow {
     }
 
     template <typename Projection>
-    requires std::derived_from<Projection, PseudocylindricalProjection<typename Projection::value_type>>
+    requires (std::derived_from<Projection, PseudocylindricalProjection<typename Projection::value_type>>)
     typename InterruptedProjection<Projection>::vector_type
     InterruptedProjection<Projection>::canonical_to_map(vector_type polar) const noexcept {
         using std::numbers::pi_v;
