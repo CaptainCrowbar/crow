@@ -550,7 +550,7 @@ namespace {
         static const std::vector<double> cut_north = {-30_degd};
         static const std::vector<double> cut_south = {-15_degd, 75_degd};
 
-        auto iproj = std::dynamic_pointer_cast<InterruptedProjectionBase<double>>(proj);
+        auto iproj = std::dynamic_pointer_cast<BasicInterruptedProjection<double>>(proj);
         if (iproj)
             iproj->interrupt(cut_north, cut_south);
         std::string name = ascii_lowercase(proj->name());

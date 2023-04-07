@@ -44,7 +44,7 @@ namespace Crow {
                 template <std::floating_point T> class Eckert4Projection;
                 template <std::floating_point T> class MollweideProjection;
                 template <std::floating_point T> class SinusoidalProjection;
-                template <std::floating_point T> class InterruptedProjectionBase;
+                template <std::floating_point T> class BasicInterruptedProjection;
                     template <typename Projection>
                         requires std::derived_from<Projection, PseudocylindricalProjection<typename Projection::value_type>>
                         class InterruptedProjection;
@@ -944,7 +944,7 @@ namespace Crow {
     // Interrupted projection classes
 
     template <std::floating_point T>
-    class InterruptedProjectionBase:
+    class BasicInterruptedProjection:
     public PseudocylindricalProjection<T> {
     public:
         template <RangeType Range> void interrupt(const Range& inter) { interrupt(inter, inter); }
@@ -952,7 +952,7 @@ namespace Crow {
     protected:
         using coord_list = std::vector<T>;
         struct segment_type { T begin, centre, delta, end; };
-        template <RangeType Range> InterruptedProjectionBase(Vector<T, 2> origin, const Range& inter_north, const Range& inter_south):
+        template <RangeType Range> BasicInterruptedProjection(Vector<T, 2> origin, const Range& inter_north, const Range& inter_south):
             PseudocylindricalProjection<T>(origin), segments_() { interrupt(inter_north, inter_south); }
         const segment_type& find_segment(T x, bool south) const noexcept;
     private:
@@ -962,7 +962,7 @@ namespace Crow {
 
     template <std::floating_point T>
     template <RangeType Range>
-    void InterruptedProjectionBase<T>::interrupt(const Range& inter_north, const Range& inter_south) {
+    void BasicInterruptedProjection<T>::interrupt(const Range& inter_north, const Range& inter_south) {
         using std::numbers::pi_v;
         const Range* ptrs[] = {&inter_north, &inter_south};
         segment_map new_segments[2];
@@ -985,8 +985,8 @@ namespace Crow {
     }
 
     template <std::floating_point T>
-    const typename InterruptedProjectionBase<T>::segment_type&
-    InterruptedProjectionBase<T>::find_segment(T x, bool south) const noexcept {
+    const typename BasicInterruptedProjection<T>::segment_type&
+    BasicInterruptedProjection<T>::find_segment(T x, bool south) const noexcept {
         auto& map = segments_[int(south)];
         auto s = map.upper_bound(x);
         if (s != map.begin())
@@ -997,10 +997,10 @@ namespace Crow {
     template <typename Projection>
     requires std::derived_from<Projection, PseudocylindricalProjection<typename Projection::value_type>>
     class InterruptedProjection:
-    public InterruptedProjectionBase<typename Projection::value_type> {
+    public BasicInterruptedProjection<typename Projection::value_type> {
     private:
         using T = typename Projection::value_type;
-        using base_type = InterruptedProjectionBase<T>;
+        using base_type = BasicInterruptedProjection<T>;
         using coord_list = typename base_type::coord_list;
     public:
         using projection_type = Projection;

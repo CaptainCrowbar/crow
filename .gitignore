@@ -4,4 +4,5 @@ build*
 _*
 *.bkp
 *.log
+.$*
 /UCD

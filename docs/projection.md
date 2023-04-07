@@ -423,14 +423,14 @@ also known as the Mercator equal-area projection or Sanson–Flamsteed projectio
 ## Interrupted projection classes
 
 ```c++
-template <std::floating_point T> class InterruptedProjectionBase:
+template <std::floating_point T> class BasicInterruptedProjection:
         public PseudocylindricalProjection<T> {
     template <RangeType Range> void interrupt(const Range& inter);
     template <RangeType Range> void interrupt(const Range& inter_north,
         const Range& inter_south);
 };
 template <typename Projection> class InterruptedProjection:
-        public InterruptedProjectionBase<Projection::value_type> {
+        public BasicInterruptedProjection<Projection::value_type> {
     using InterruptedProjection::projection_type = Projection;
     template <RangeType Range> InterruptedProjection(vector_type origin,
         const Range& inter);
