@@ -92,7 +92,7 @@ template <CharacterType C>
 ```
 
 These perform the same operation as `decode_char()` above, but throw an
-exception(without advancing the position) instead of returning an error code
+exception (without advancing the position) instead of returning an error code
 on failure. They will throw `std::out_of_range` if the initial position is at
 or past the end of the string, or `UnicodeError` if invalid UTF encoding is
 encountered.

@@ -60,6 +60,59 @@ void test_crow_string_common_prefix() {
 
 }
 
+void test_crow_string_concatenation() {
+
+    std::string s;
+
+    TRY(s = concat());                              TEST_EQUAL(s, "");
+    TRY(s = concat("Hello"));                       TEST_EQUAL(s, "Hello");
+    TRY(s = concat("Hello"s));                      TEST_EQUAL(s, "Hello");
+    TRY(s = concat("Hello"sv));                     TEST_EQUAL(s, "Hello");
+    TRY(s = concat(U"Hello"));                      TEST_EQUAL(s, "Hello");
+    TRY(s = concat(U"Hello"s));                     TEST_EQUAL(s, "Hello");
+    TRY(s = concat(U"Hello"sv));                    TEST_EQUAL(s, "Hello");
+    TRY(s = concat('A'));                           TEST_EQUAL(s, "A");
+    TRY(s = concat(U'A'));                          TEST_EQUAL(s, "A");
+    TRY(s = concat(U'α'));                          TEST_EQUAL(s, "α");
+    TRY(s = concat("Hello", "World"));              TEST_EQUAL(s, "HelloWorld");
+    TRY(s = concat("Hello"s, "World"));             TEST_EQUAL(s, "HelloWorld");
+    TRY(s = concat("Hello"sv, "World"));            TEST_EQUAL(s, "HelloWorld");
+    TRY(s = concat(U"Hello", "World"));             TEST_EQUAL(s, "HelloWorld");
+    TRY(s = concat(U"Hello"s, "World"));            TEST_EQUAL(s, "HelloWorld");
+    TRY(s = concat(U"Hello"sv, "World"));           TEST_EQUAL(s, "HelloWorld");
+    TRY(s = concat("Hello", U"World"sv));           TEST_EQUAL(s, "HelloWorld");
+    TRY(s = concat("Hello"s, U"World"sv));          TEST_EQUAL(s, "HelloWorld");
+    TRY(s = concat("Hello"sv, U"World"sv));         TEST_EQUAL(s, "HelloWorld");
+    TRY(s = concat(U"Hello", U"World"sv));          TEST_EQUAL(s, "HelloWorld");
+    TRY(s = concat(U"Hello"s, U"World"sv));         TEST_EQUAL(s, "HelloWorld");
+    TRY(s = concat(U"Hello"sv, U"World"sv));        TEST_EQUAL(s, "HelloWorld");
+    TRY(s = concat("Hello", ' ', "World"));         TEST_EQUAL(s, "Hello World");
+    TRY(s = concat("Hello", ' ', "World"s));        TEST_EQUAL(s, "Hello World");
+    TRY(s = concat("Hello", ' ', "World"sv));       TEST_EQUAL(s, "Hello World");
+    TRY(s = concat("Hello", ' ', U"World"));        TEST_EQUAL(s, "Hello World");
+    TRY(s = concat("Hello", ' ', U"World"s));       TEST_EQUAL(s, "Hello World");
+    TRY(s = concat("Hello", ' ', U"World"sv));      TEST_EQUAL(s, "Hello World");
+    TRY(s = concat(U"Hello"sv, ' ', "World"));      TEST_EQUAL(s, "Hello World");
+    TRY(s = concat(U"Hello"sv, ' ', "World"s));     TEST_EQUAL(s, "Hello World");
+    TRY(s = concat(U"Hello"sv, ' ', "World"sv));    TEST_EQUAL(s, "Hello World");
+    TRY(s = concat(U"Hello"sv, ' ', U"World"));     TEST_EQUAL(s, "Hello World");
+    TRY(s = concat(U"Hello"sv, ' ', U"World"s));    TEST_EQUAL(s, "Hello World");
+    TRY(s = concat(U"Hello"sv, ' ', U"World"sv));   TEST_EQUAL(s, "Hello World");
+    TRY(s = concat("Hello", U'×', "World"));        TEST_EQUAL(s, "Hello×World");
+    TRY(s = concat("Hello", U'×', "World"s));       TEST_EQUAL(s, "Hello×World");
+    TRY(s = concat("Hello", U'×', "World"sv));      TEST_EQUAL(s, "Hello×World");
+    TRY(s = concat("Hello", U'×', U"World"));       TEST_EQUAL(s, "Hello×World");
+    TRY(s = concat("Hello", U'×', U"World"s));      TEST_EQUAL(s, "Hello×World");
+    TRY(s = concat("Hello", U'×', U"World"sv));     TEST_EQUAL(s, "Hello×World");
+    TRY(s = concat(U"Hello"sv, U'×', "World"));     TEST_EQUAL(s, "Hello×World");
+    TRY(s = concat(U"Hello"sv, U'×', "World"s));    TEST_EQUAL(s, "Hello×World");
+    TRY(s = concat(U"Hello"sv, U'×', "World"sv));   TEST_EQUAL(s, "Hello×World");
+    TRY(s = concat(U"Hello"sv, U'×', U"World"));    TEST_EQUAL(s, "Hello×World");
+    TRY(s = concat(U"Hello"sv, U'×', U"World"s));   TEST_EQUAL(s, "Hello×World");
+    TRY(s = concat(U"Hello"sv, U'×', U"World"sv));  TEST_EQUAL(s, "Hello×World");
+
+}
+
 void test_crow_string_indentation() {
 
     std::string s;

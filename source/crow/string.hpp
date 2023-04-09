@@ -181,6 +181,39 @@ namespace Crow {
         size_t width = npos, size_t margin = npos, bool checked = false);
     std::string indent_lines(std::string_view str, size_t spaces = 4);
 
+    namespace Detail {
+
+        template <typename T>
+        concept StringConcatType =
+            std::convertible_to<T, std::string_view>
+            || std::convertible_to<T, std::u32string_view>
+            || std::same_as<T, char>
+            || std::same_as<T, char32_t>;
+
+        template <StringConcatType T, StringConcatType... TS>
+        void concat_helper(std::string& str, T&& t, TS&&... ts) {
+            if constexpr (std::convertible_to<T, std::string_view>)
+                str += std::string_view(std::forward<T>(t));
+            else if constexpr (std::convertible_to<T, std::u32string_view>)
+                str += to_utf8(std::u32string_view(std::forward<T>(t)));
+            else if constexpr (std::same_as<T, char>)
+                str += t;
+            else
+                check_encode_char(t, str);
+            if constexpr (sizeof...(TS) > 0)
+                concat_helper(str, std::forward<TS>(ts)...);
+        }
+
+    }
+
+    template <Detail::StringConcatType... Args>
+    std::string concat(Args&&... args) {
+        std::string s;
+        if constexpr (sizeof...(Args) > 0)
+            Detail::concat_helper(s, std::forward<Args>(args)...);
+        return s;
+    }
+
     template <typename Range>
     std::string join(const Range& range, std::string_view delimiter = {}) {
         std::string result, str;

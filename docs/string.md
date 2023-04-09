@@ -106,6 +106,16 @@ Returns the length (in bytes) of the longest common prefix of the two
 strings.
 
 ```c++
+template <typename... Args> std::string concat(Args&&... args);
+```
+
+Concatenates any number of strings or string-like objects. The arguments can
+be 8-bit or 32-bit string views (or any type convertible to one of those), or
+8-bit or 32-bit characters. 8-bit text will be copied verbatim without
+checking, but a `UnicodeError` exception will be thrown if invalid UTF-32 is
+passed.
+
+```c++
 std::string dent(size_t level);
 ```
 
