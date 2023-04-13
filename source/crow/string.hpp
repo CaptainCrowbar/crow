@@ -60,10 +60,6 @@
 
 namespace Crow {
 
-    // Constants
-
-    constexpr const char* ascii_whitespace = "\t\n\f\r ";
-
     // Character functions
 
     constexpr bool ascii_isupper(char c) noexcept { return c >= 'A' && c <= 'Z'; }

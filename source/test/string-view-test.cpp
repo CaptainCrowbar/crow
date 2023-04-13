@@ -110,3 +110,40 @@ void test_crow_string_view_left_right() {
     u = t.substr(4, 3);  TRY(v = view_from_right(t, u));  TEST_EQUAL(view_pos(t, v), 4u);  TEST_EQUAL(v, "o world");
 
 }
+
+void test_crow_string_view_trim() {
+
+    std::string_view s;
+
+    s = "";                     TEST(! view_trim_left(s));         TEST_EQUAL(s, "");
+    s = "\t\t\t\t";             TEST(view_trim_left(s));           TEST_EQUAL(s, "");
+    s = "Hello world";          TEST(! view_trim_left(s));         TEST_EQUAL(s, "Hello world");
+    s = "\r\nHello world\r\n";  TEST(view_trim_left(s));           TEST_EQUAL(s, "Hello world\r\n");
+    s = "";                     TEST(! view_trim_right(s));        TEST_EQUAL(s, "");
+    s = "\t\t\t\t";             TEST(view_trim_right(s));          TEST_EQUAL(s, "");
+    s = "Hello world";          TEST(! view_trim_right(s));        TEST_EQUAL(s, "Hello world");
+    s = "\r\nHello world\r\n";  TEST(view_trim_right(s));          TEST_EQUAL(s, "\r\nHello world");
+    s = "";                     TEST(! view_trim(s));              TEST_EQUAL(s, "");
+    s = "\t\t\t\t";             TEST(view_trim(s));                TEST_EQUAL(s, "");
+    s = "Hello world";          TEST(! view_trim(s));              TEST_EQUAL(s, "Hello world");
+    s = "\r\nHello world\r\n";  TEST(view_trim(s));                TEST_EQUAL(s, "Hello world");
+    s = "";                     TEST(! view_trim_left(s, "+-"));   TEST_EQUAL(s, "");
+    s = "\t\t\t\t";             TEST(! view_trim_left(s, "+-"));   TEST_EQUAL(s, "\t\t\t\t");
+    s = "+-+-+-+-";             TEST(view_trim_left(s, "+-"));     TEST_EQUAL(s, "");
+    s = "Hello world";          TEST(! view_trim_left(s, "+-"));   TEST_EQUAL(s, "Hello world");
+    s = "\r\nHello world\r\n";  TEST(! view_trim_left(s, "+-"));   TEST_EQUAL(s, "\r\nHello world\r\n");
+    s = "+-+-Hello world+-+-";  TEST(view_trim_left(s, "+-"));     TEST_EQUAL(s, "Hello world+-+-");
+    s = "";                     TEST(! view_trim_right(s, "+-"));  TEST_EQUAL(s, "");
+    s = "\t\t\t\t";             TEST(! view_trim_right(s, "+-"));  TEST_EQUAL(s, "\t\t\t\t");
+    s = "+-+-+-+-";             TEST(view_trim_right(s, "+-"));    TEST_EQUAL(s, "");
+    s = "Hello world";          TEST(! view_trim_right(s, "+-"));  TEST_EQUAL(s, "Hello world");
+    s = "\r\nHello world\r\n";  TEST(! view_trim_right(s, "+-"));  TEST_EQUAL(s, "\r\nHello world\r\n");
+    s = "+-+-Hello world+-+-";  TEST(view_trim_right(s, "+-"));    TEST_EQUAL(s, "+-+-Hello world");
+    s = "";                     TEST(! view_trim(s, "+-"));        TEST_EQUAL(s, "");
+    s = "\t\t\t\t";             TEST(! view_trim(s, "+-"));        TEST_EQUAL(s, "\t\t\t\t");
+    s = "+-+-+-+-";             TEST(view_trim(s, "+-"));          TEST_EQUAL(s, "");
+    s = "Hello world";          TEST(! view_trim(s, "+-"));        TEST_EQUAL(s, "Hello world");
+    s = "\r\nHello world\r\n";  TEST(! view_trim(s, "+-"));        TEST_EQUAL(s, "\r\nHello world\r\n");
+    s = "+-+-Hello world+-+-";  TEST(view_trim(s, "+-"));          TEST_EQUAL(s, "Hello world");
+
+}

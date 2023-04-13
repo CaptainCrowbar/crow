@@ -8,6 +8,8 @@
 
 namespace Crow {
 
+    constexpr const char* ascii_whitespace = "\t\n\f\r ";
+
     constexpr const char* view_endptr(std::string_view view) noexcept {
         return view.data() + view.size();
     }
@@ -89,6 +91,38 @@ namespace Crow {
             return {};
         else
             return str.substr(view_pos(str, view), npos);
+    }
+
+    constexpr bool view_trim_left(std::string_view& view, std::string_view chars = ascii_whitespace) noexcept {
+        if (view.empty())
+            return false;
+        auto i = view.find_first_not_of(chars);
+        if (i == 0)
+            return false;
+        else if (i == npos)
+            view = view_end(view);
+        else
+            view = view.substr(i, npos);
+        return true;
+    }
+
+    constexpr bool view_trim_right(std::string_view& view, std::string_view chars = ascii_whitespace) noexcept {
+        if (view.empty())
+            return false;
+        auto i = view.find_last_not_of(chars) + 1;
+        if (i == view.size())
+            return false;
+        else if (i == 0)
+            view = view_begin(view);
+        else
+            view = view.substr(0, i);
+        return true;
+    }
+
+    constexpr bool view_trim(std::string_view& view, std::string_view chars = ascii_whitespace) noexcept {
+        bool l = view_trim_left(view, chars);
+        bool r = view_trim_right(view, chars);
+        return l || r;
     }
 
 }

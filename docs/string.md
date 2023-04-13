@@ -468,6 +468,21 @@ Return the substrings of `str` to the left or right of `view`, excluding
 itself. These will return a null view if both arguments are null; otherwise,
 behaviour is undefined if `view` is not a substring of `str`.
 
+```c++
+constexpr bool view_trim(std::string_view& view,
+    std::string_view chars = ascii_whitespace) noexcept;
+constexpr bool view_trim_left(std::string_view& view,
+    std::string_view chars = ascii_whitespace) noexcept;
+constexpr bool view_trim_right(std::string_view& view,
+    std::string_view chars = ascii_whitespace) noexcept;
+```
+
+Trim bytes from the left or right of a string view. These are the same
+operation as `trim()` etc, except that the view is trimmed in place. The
+return value is true if the string was changed. If there are no remaining
+untrimmed bytes, `view_trim()` and `view_trim_left()` will return `view_end
+(view)`, `view_trim_right()` will return `view_begin(view)`.
+
 ## Type functions
 
 ```c++

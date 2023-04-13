@@ -940,6 +940,7 @@ void string_view_test_group() {
     UNIT_TEST(crow_string_view_cat)
     UNIT_TEST(crow_string_view_extend)
     UNIT_TEST(crow_string_view_left_right)
+    UNIT_TEST(crow_string_view_trim)
 }
 
 void string_wrapping_test_group() {
