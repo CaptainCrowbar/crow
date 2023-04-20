@@ -31,7 +31,7 @@ namespace {
     constexpr Double2 xy_south = {0.1, -0.1};
 
     const std::string docs_image_dir = "../docs/images/";
-    const std::string test_image_dir = "../source/test/images/";
+    const std::string test_image_dir = "../src/test/images/";
     const std::string earth_map = test_image_dir + "nasa-earth.png";
 
 }

@@ -20,8 +20,8 @@ fi
 version_header=$(find . -name version.hpp -not -path "./*build*")
 
 if ! [ "$version_header" ]; then
-    if [ -d source ]; then
-        version_header=source/version.hpp
+    if [ -d src ]; then
+        version_header=src/version.hpp
     else
         version_header=version.hpp
     fi

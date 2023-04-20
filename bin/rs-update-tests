@@ -12,12 +12,9 @@ if ! [ "$main" ]; then
 
     srcdir=.
 
-    for s in source src; do
-        if [ -d "$s" ]; then
-            srcdir="$s"
-            break
-        fi
-    done
+    if [ -d src ]; then
+        srcdir=src
+    fi
 
     if [ -d "$srcdir/test" ]; then
         srcdir="$srcdir/test"
@@ -36,7 +33,7 @@ if ! [ "$cmake" ]; then
 fi
 
 testfiles=$(grep -E '[-]test\.cpp$' "$cmake" \
-    | sed -E 's!^ +!source/!' \
+    | sed -E 's!^ +!src/!' \
     | grep -Ev "/unit-test\.cpp")
 
 testinc=$(grep -Eh '#include ".*unit-test\.hpp"' $testfiles | head -n 1)

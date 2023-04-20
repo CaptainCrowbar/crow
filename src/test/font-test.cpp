@@ -11,7 +11,7 @@ using namespace Crow;
 
 namespace {
 
-    const std::string fonts_dir = "../source/test/fonts/";
+    const std::string fonts_dir = "../src/test/fonts/";
     const std::string mono_file = fonts_dir + "DejaVuSansMono.ttf";
     const std::string serif_file = fonts_dir + "DejaVuSerif.ttf";
     const std::string ttc_file = fonts_dir + "DejaVu2.ttc";

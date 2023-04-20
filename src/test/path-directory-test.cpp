@@ -40,13 +40,13 @@ void test_crow_path_directory_iterators() {
         TEST_EQUAL(files[0], Path("CMakeCache.txt"));
     #endif
 
-    TRY(dir = "../source/crow");
+    TRY(dir = "../src/crow");
     TRY(range = dir.directory());
     REQUIRE(! range.empty());
     files.clear();
     TRY(std::copy(range.begin(), range.end(), std::back_inserter(files)));
     TRY(std::sort(files.begin(), files.end()));
-    TEST_EQUAL(files[0], Path("../source/crow/algorithm.hpp"));
+    TEST_EQUAL(files[0], Path("../src/crow/algorithm.hpp"));
 
 }
 

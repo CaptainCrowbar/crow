@@ -9,7 +9,7 @@ using namespace Crow;
 
 namespace {
 
-    const std::string image_dir = "../source/test/images/";
+    const std::string image_dir = "../src/test/images/";
     const std::string png_file = image_dir + "test-image.png";
     const std::string jpg_file = image_dir + "test-image.jpg";
     const std::string no_such_file = image_dir + "no-such-file.png";
