@@ -105,11 +105,13 @@ Other libraries required:
     * [crow/spectrum](spectrum.html) - Stellar spectral class
 * System facilities
     * [crow/dso](dso.html) - Dynamic libraries
+* File formats
+    * [crow/markup](markup.html) - Quick HTML/XML markup
+    * [crow/xml](xml.html) - XML
 * Text manipulation
     * [crow/encoding](encoding.html) - Encoding conversion
     * [crow/english](english.html) - English language tools
     * [crow/format](format.html) - Formatting functions
-    * [crow/markup](markup.html) - HTML/XML markup
     * [crow/name](name.html) - Name formatting
     * [crow/regex](regex.html) - Regular expressions
     * [crow/string](string.html) - String functions

@@ -1075,6 +1075,40 @@ void web_client_test_group() {
     UNIT_TEST(crow_web_client_http_head)
 }
 
+void xml_construction_test_group() {
+    UNIT_TEST(crow_xml_construct_simple_nodes)
+    UNIT_TEST(crow_xml_construct_element)
+    UNIT_TEST(crow_xml_construct_document)
+}
+
+void xml_functions_test_group() {
+    UNIT_TEST(crow_xml_functions_character_encoding)
+    UNIT_TEST(crow_xml_functions_character_decoding)
+    UNIT_TEST(crow_xml_functions_name_validation)
+}
+
+void xml_options_test_group() {
+    UNIT_TEST(crow_xml_options_autoclose)
+    UNIT_TEST(crow_xml_options_foldws)
+    UNIT_TEST(crow_xml_options_icase)
+    UNIT_TEST(crow_xml_options_keyonly)
+    UNIT_TEST(crow_xml_options_noxmldecl)
+    UNIT_TEST(crow_xml_options_selfclose)
+    UNIT_TEST(crow_xml_options_xentity)
+}
+
+void xml_parsing_test_group() {
+    UNIT_TEST(crow_xml_parse_cdata)
+    UNIT_TEST(crow_xml_parse_comment)
+    UNIT_TEST(crow_xml_parse_entity)
+    UNIT_TEST(crow_xml_parse_processing)
+    UNIT_TEST(crow_xml_parse_text)
+    UNIT_TEST(crow_xml_parse_text_entities)
+    UNIT_TEST(crow_xml_parse_prologueext)
+    UNIT_TEST(crow_xml_parse_simple_elements)
+    UNIT_TEST(crow_xml_parse_complex_elements)
+}
+
 int main(int argc, char** argv) {
 
     Crow::UnitTest::begin_tests(argc, argv);
@@ -1244,6 +1278,10 @@ int main(int argc, char** argv) {
     uuid_test_group();
     vector_test_group();
     web_client_test_group();
+    xml_construction_test_group();
+    xml_functions_test_group();
+    xml_options_test_group();
+    xml_parsing_test_group();
 
     return Crow::UnitTest::end_tests();
 

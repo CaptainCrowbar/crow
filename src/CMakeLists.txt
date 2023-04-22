@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.16)
 # and propagate the new version to version.hpp.
 
 project(Crow
-    VERSION 2.0.212
+    VERSION 2.0.213
     LANGUAGES CXX
 )
 
@@ -90,6 +90,8 @@ add_library(${library} STATIC
     ${library}/uri.cpp
     ${library}/uuid.cpp
     ${library}/web-client.cpp
+    ${library}/xml.cpp
+    ${library}/xml-reference-data.cpp
 
     ${library}/ucd/canonical-combining-class.cpp
     ${library}/ucd/canonical-decomposition-mapping.cpp
@@ -273,6 +275,10 @@ add_executable(${unittest}
     test/uuid-test.cpp
     test/vector-test.cpp
     test/web-client-test.cpp
+    test/xml-construction-test.cpp
+    test/xml-functions-test.cpp
+    test/xml-options-test.cpp
+    test/xml-parsing-test.cpp
 
 )
 
