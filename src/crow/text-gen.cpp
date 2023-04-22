@@ -287,7 +287,7 @@ namespace Crow {
 
         TextGen operator""_tg(const char* ptr, size_t len) {
             std::string str(ptr, len);
-            auto vec = splits(str);
+            auto vec = split(str);
             switch (vec.size()) {
                 case 0:   return TextGen();
                 case 1:   return TextGen(str);

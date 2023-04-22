@@ -183,51 +183,63 @@ Replaces all (non-overlapping) occurrences of `target` in the string with
 `target` is empty.
 
 ```c++
-std::vector<std::string> splits(std::string_view str,
+std::vector<std::string> split(std::string_view str,
     std::string_view chars = ascii_whitespace);
-std::vector<std::string_view> splitv(std::string_view str,
+std::vector<std::string_view> split_v(std::string_view str,
     std::string_view chars = ascii_whitespace);
-std::vector<std::string> splits_at(std::string_view str,
+std::vector<std::string> split_at(std::string_view str,
     std::string_view delimiter);
-std::vector<std::string_view> splitv_at(std::string_view str,
+std::vector<std::string_view> split_at_v(std::string_view str,
     std::string_view delimiter);
-std::vector<std::string> splits_lines(std::string_view str,
+std::vector<std::string> split_lines(std::string_view str,
     bool keep = false);
-std::vector<std::string_view> splitv_lines(std::string_view str,
+std::vector<std::string_view> split_lines_v(std::string_view str,
     bool keep = false);
 ```
 
 Split a string into multiple pieces, delimited by any substring that either
 consists of one or more characters from `chars`, or that exactly matches
-`delimiter`. The `split[sv]()` functions trim leading and trailing delimiters,
+`delimiter`. The `split[_v]()` functions trim leading and trailing delimiters,
 and will never include an empty string in the returned vector. The other
 functions may include empty strings in the returned vector, if there are
 leading, trailing, or adjacent delimiters.
 
-The `split[sv]_lines()` functions split the string into lines, delimited by
+The `split_lines[_v]()` functions split the string into lines, delimited by
 `"\n"` or `"\r\n"`. The trailing line breaks from each line will be retained
 if the `keep` flag is set, otherwise discarded.
 
 ```c++
 std::string trim(std::string_view str,
     std::string_view chars = ascii_whitespace);
+std::string_view trim_v(std::string_view str,
+    std::string_view chars = ascii_whitespace);
 std::string trim_left(std::string_view str,
+    std::string_view chars = ascii_whitespace);
+std::string_view trim_left_v(std::string_view str,
     std::string_view chars = ascii_whitespace);
 std::string trim_right(std::string_view str,
     std::string_view chars = ascii_whitespace);
+std::string_view trim_right_v(std::string_view str,
+    std::string_view chars = ascii_whitespace);
 ```
 
-Trims any characters in the `chars` list from the left, right, or both ends of
-the string.
+Trim any characters in the `chars` list from the left, right, or both ends of
+the string. The original string will be returned unchanged if the discard
+list is empty. For the functions that return a view, if the original string
+contains no bytes that are not in the discard list, the result will be an
+empty view at the start of the original view for `trim_right_v()`, at the end
+for the other two functions.
 
 ```c++
 std::string unqualify(std::string_view str,
     std::string_view delimiters = ".:");
+std::string_view unqualify_v(std::string_view str,
+    std::string_view delimiters = ".:");
 ```
 
-Removes any qualifying prefix from a name, up to the last occurrence of any of
+Remove any qualifying prefix from a name, up to the last occurrence of any of
 the delimiter characters. The string will be returned unchanged if it does
-not contain any delimiters.
+not contain any delimiters, or if the delimiter set is empty.
 
 ```c++
 std::string unwrap_lines(std::string_view str);

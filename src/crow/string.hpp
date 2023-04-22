@@ -162,16 +162,20 @@ namespace Crow {
     std::string repeat(std::string_view str, size_t n);
     std::string replace(std::string_view str, std::string_view target, std::string_view replacement);
     std::string remove(std::string_view str, std::string_view target);
-    std::vector<std::string> splits(std::string_view str, std::string_view chars = ascii_whitespace);
-    std::vector<std::string_view> splitv(std::string_view str, std::string_view chars = ascii_whitespace);
-    std::vector<std::string> splits_at(std::string_view str, std::string_view delimiter);
-    std::vector<std::string_view> splitv_at(std::string_view str, std::string_view delimiter);
-    std::vector<std::string> splits_lines(std::string_view str, bool keep = false);
-    std::vector<std::string_view> splitv_lines(std::string_view str, bool keep = false);
+    std::vector<std::string> split(std::string_view str, std::string_view chars = ascii_whitespace);
+    std::vector<std::string_view> split_v(std::string_view str, std::string_view chars = ascii_whitespace);
+    std::vector<std::string> split_at(std::string_view str, std::string_view delimiter);
+    std::vector<std::string_view> split_at_v(std::string_view str, std::string_view delimiter);
+    std::vector<std::string> split_lines(std::string_view str, bool keep = false);
+    std::vector<std::string_view> split_lines_v(std::string_view str, bool keep = false);
     std::string trim(std::string_view str, std::string_view chars = ascii_whitespace);
+    std::string_view trim_v(std::string_view str, std::string_view chars = ascii_whitespace);
     std::string trim_left(std::string_view str, std::string_view chars = ascii_whitespace);
+    std::string_view trim_left_v(std::string_view str, std::string_view chars = ascii_whitespace);
     std::string trim_right(std::string_view str, std::string_view chars = ascii_whitespace);
+    std::string_view trim_right_v(std::string_view str, std::string_view chars = ascii_whitespace);
     std::string unqualify(std::string_view str, std::string_view delimiters = ".:");
+    std::string_view unqualify_v(std::string_view str, std::string_view delimiters = ".:");
     std::string unwrap_lines(std::string_view str);
     std::string wrap_lines(std::string_view str, Usize mode = Usize::columns,
         size_t width = npos, size_t margin = npos, bool checked = false);
@@ -389,7 +393,7 @@ namespace Crow {
         std::string operator""_doc(const char* ptr, size_t len);
 
         inline std::vector<std::string> operator""_qw(const char* ptr, size_t len) {
-            return splits(std::string_view(ptr, len));
+            return split(std::string_view(ptr, len));
         }
 
     }

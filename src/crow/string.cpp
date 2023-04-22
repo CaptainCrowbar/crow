@@ -281,66 +281,78 @@ namespace Crow {
 
     }
 
-    std::vector<std::string> splits(std::string_view str, std::string_view chars) {
+    std::vector<std::string> split(std::string_view str, std::string_view chars) {
         return split_impl<std::string>(str, chars);
     }
 
-    std::vector<std::string_view> splitv(std::string_view str, std::string_view chars) {
+    std::vector<std::string_view> split_v(std::string_view str, std::string_view chars) {
         return split_impl<std::string_view>(str, chars);
     }
 
-    std::vector<std::string> splits_at(std::string_view str, std::string_view delimiter) {
+    std::vector<std::string> split_at(std::string_view str, std::string_view delimiter) {
         return split_at_impl<std::string>(str, delimiter);
     }
 
-    std::vector<std::string_view> splitv_at(std::string_view str, std::string_view delimiter) {
+    std::vector<std::string_view> split_at_v(std::string_view str, std::string_view delimiter) {
         return split_at_impl<std::string_view>(str, delimiter);
     }
 
-    std::vector<std::string> splits_lines(std::string_view str, bool keep) {
+    std::vector<std::string> split_lines(std::string_view str, bool keep) {
         return split_lines_impl<std::string>(str, keep);
     }
 
-    std::vector<std::string_view> splitv_lines(std::string_view str, bool keep) {
+    std::vector<std::string_view> split_lines_v(std::string_view str, bool keep) {
         return split_lines_impl<std::string_view>(str, keep);
     }
 
     std::string trim(std::string_view str, std::string_view chars) {
-        size_t i = str.find_first_not_of(chars);
-        if (i == npos)
-            return {};
-        size_t j = str.find_last_not_of(chars);
-        return std::string(str, i, j - i + 1);
+        view_trim(str, chars);
+        return std::string(str);
+    }
+
+    std::string_view trim_v(std::string_view str, std::string_view chars) {
+        view_trim(str, chars);
+        return str;
     }
 
     std::string trim_left(std::string_view str, std::string_view chars) {
-        size_t i = str.find_first_not_of(chars);
-        if (i == npos)
-            return {};
-        else
-            return std::string(str, i, npos);
+        view_trim_left(str, chars);
+        return std::string(str);
+    }
+
+    std::string_view trim_left_v(std::string_view str, std::string_view chars) {
+        view_trim_left(str, chars);
+        return str;
     }
 
     std::string trim_right(std::string_view str, std::string_view chars) {
-        size_t i = str.find_last_not_of(chars);
-        if (i == npos)
-            return {};
-        else
-            return std::string(str, 0, i + 1);
+        view_trim_right(str, chars);
+        return std::string(str);
+    }
+
+    std::string_view trim_right_v(std::string_view str, std::string_view chars) {
+        view_trim_right(str, chars);
+        return str;
     }
 
     std::string unqualify(std::string_view str, std::string_view delimiters) {
+        return std::string(unqualify_v(str, delimiters));
+    }
+
+    std::string_view unqualify_v(std::string_view str, std::string_view delimiters) {
+        if (delimiters.empty())
+            return str;
         size_t i = str.find_last_of(delimiters);
         if (i == npos)
-            return std::string(str);
+            return str;
         else
-            return std::string(str, i + 1, npos);
+            return str.substr(i + 1, npos);
     }
 
     std::string unwrap_lines(std::string_view str) {
         std::string result;
         bool was_empty = true;
-        for (auto line: splitv_lines(str)) {
+        for (auto line: split_lines_v(str)) {
             if (line.empty()) {
                 result.append(size_t(! was_empty) + 1, '\n');
             } else if (was_empty) {
@@ -366,7 +378,7 @@ namespace Crow {
 
         static const auto is_empty = [] (std::string_view s) { return s.empty(); };
 
-        auto lines = splits_lines(str);
+        auto lines = split_lines(str);
 
         for (auto& line: lines)
             line = trim_right(line);
@@ -401,7 +413,7 @@ namespace Crow {
 
             for (; line_j != line_i; ++line_j) {
 
-                auto words = splitv(*line_j);
+                auto words = split_v(*line_j);
 
                 for (auto& word: words) {
 
@@ -439,7 +451,7 @@ namespace Crow {
 
     std::string indent_lines(std::string_view str, size_t spaces) {
         std::string result;
-        for (auto& line: splitv_lines(str)) {
+        for (auto& line: split_lines_v(str)) {
             if (! line.empty()) {
                 result.append(spaces, ' ');
                 result += line;
@@ -545,7 +557,7 @@ namespace Crow {
 
         std::string operator""_doc(const char* ptr, size_t len) {
             std::string str(ptr, len);
-            auto lines = splits_at(str, "\n");
+            auto lines = split_at(str, "\n");
             if (lines.empty())
                 return {};
             auto prefix = lines.back();
