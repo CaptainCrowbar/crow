@@ -91,7 +91,7 @@ namespace Crow::Xml {
         xentity    = 1 << 6,  // Recognise extended HTML character entities
         // Others
         comments   = 1 << 7,  // Keep comments
-        encoded    = 1 << 8,  // Text is already encoded (only affects Text::make())
+        encoded    = 1 << 8,  // Text is already encoded (only affects Text::create())
         // Combinations
         html       = autoclose | foldws | icase | keyonly | noxmldecl | selfclose | xentity,
     };
@@ -165,7 +165,7 @@ namespace Crow::Xml {
 
             template <typename... Args>
             requires std::constructible_from<T, Node::hidden, Args&&...>
-            static std::shared_ptr<T> make(Args&&... args) {
+            static std::shared_ptr<T> create(Args&&... args) {
                 return std::make_shared<T>(Node::hidden(), std::forward<Args>(args)...);
             }
 

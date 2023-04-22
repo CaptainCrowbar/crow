@@ -16,8 +16,8 @@ void test_crow_xml_options_autoclose() {
     str = "<abc><def><ghi>hello</abc>"
           "<jkl><mno><pqr>world</uvw></pqr></xyz></mno></jkl>";
 
-    TEST_THROW(Document::make(str), Error);
-    TRY(doc = Document::make(str, Options::autoclose));
+    TEST_THROW(Document::create(str), Error);
+    TRY(doc = Document::create(str, Options::autoclose));
     REQUIRE(doc);
 
     TEST_EQUAL(dump(doc), R"(
@@ -55,7 +55,7 @@ void test_crow_xml_options_foldws() {
         </abc>
         )"_doc;
 
-    TRY(doc = Document::make(str));
+    TRY(doc = Document::create(str));
     REQUIRE(doc);
 
     TEST_EQUAL(dump(doc), R"(
@@ -83,7 +83,7 @@ void test_crow_xml_options_foldws() {
         </abc>
         )"_doc);
 
-    TRY(doc = Document::make(str, Options::foldws));
+    TRY(doc = Document::create(str, Options::foldws));
     REQUIRE(doc);
 
     TEST_EQUAL(dump(doc), R"(
@@ -118,8 +118,8 @@ void test_crow_xml_options_icase() {
         </ghi></DEF></abc>
         )"_doc;
 
-    TEST_THROW(Document::make(str), Error);
-    TRY(doc = Document::make(str, Options::icase));
+    TEST_THROW(Document::create(str), Error);
+    TRY(doc = Document::create(str, Options::icase));
     REQUIRE(doc);
 
     TEST_EQUAL(dump(doc), R"(
@@ -148,8 +148,8 @@ void test_crow_xml_options_keyonly() {
 
     str = "<abc x y z>hello</abc>\n";
 
-    TEST_THROW(Document::make(str), Error);
-    TRY(doc = Document::make(str, Options::keyonly));
+    TEST_THROW(Document::create(str), Error);
+    TRY(doc = Document::create(str, Options::keyonly));
     REQUIRE(doc);
 
     TEST_EQUAL(dump(doc), R"(
@@ -179,7 +179,7 @@ void test_crow_xml_options_noxmldecl() {
 
     str = "<abc>hello</abc>\n";
 
-    TRY(doc = Document::make(str));
+    TRY(doc = Document::create(str));
     REQUIRE(doc);
 
     TEST_EQUAL(dump(doc), R"(
@@ -195,7 +195,7 @@ void test_crow_xml_options_noxmldecl() {
         <abc>hello</abc>
         )"_doc);
 
-    TRY(doc = Document::make(str, Options::noxmldecl));
+    TRY(doc = Document::create(str, Options::noxmldecl));
     REQUIRE(doc);
 
     TEST_EQUAL(dump(doc), R"(
@@ -218,8 +218,8 @@ void test_crow_xml_options_selfclose() {
 
     str = "<abc><br><img>hello</abc>\n";
 
-    TEST_THROW(Document::make(str), Error);
-    TRY(doc = Document::make(str, Options::selfclose));
+    TEST_THROW(Document::create(str), Error);
+    TRY(doc = Document::create(str, Options::selfclose));
     REQUIRE(doc);
 
     TEST_EQUAL(dump(doc), R"(
@@ -260,7 +260,7 @@ void test_crow_xml_options_xentity() {
         &gamma; gamma
         )"_doc;
 
-    TRY(doc = Document::make(str));
+    TRY(doc = Document::create(str));
     REQUIRE(doc);
 
     TEST_EQUAL(dump(doc), R"(
@@ -287,7 +287,7 @@ void test_crow_xml_options_xentity() {
         &gamma; gamma
         )"_doc);
 
-    TRY(doc = Document::make(str, Options::xentity));
+    TRY(doc = Document::create(str, Options::xentity));
     REQUIRE(doc);
 
     TEST_EQUAL(dump(doc), R"(

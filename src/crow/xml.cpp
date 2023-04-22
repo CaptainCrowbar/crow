@@ -294,7 +294,7 @@ namespace Crow::Xml {
                         && ! parent.empty()
                         && parent.back()->type() == NodeType::text) {
                     auto merged_text = parent.back()->outer() + node->outer();
-                    node = Text::make(merged_text, Options::encoded);
+                    node = Text::create(merged_text, Options::encoded);
                     parent.pop_back();
                 }
 
@@ -372,7 +372,7 @@ namespace Crow::Xml {
                     throw Error("Invalid XML declaration", xml_);
 
                 auto xmldecl = read(end);
-                append(Xmldecl::make(xmldecl));
+                append(Xmldecl::create(xmldecl));
                 skip_line_break(xml_);
 
             }
@@ -385,7 +385,7 @@ namespace Crow::Xml {
                     throw Error("Invalid document type definition", xml_);
 
                 auto dtd = read(end);
-                append(Dtd::make(dtd));
+                append(Dtd::create(dtd));
                 skip_line_break(xml_);
 
             }
@@ -398,7 +398,7 @@ namespace Crow::Xml {
                     throw Error("Invalid character data", xml_);
 
                 auto text = read(end + 3);
-                append(Cdata::make(text));
+                append(Cdata::create(text));
 
             }
 
@@ -412,7 +412,7 @@ namespace Crow::Xml {
                 auto text = read(end + 3);
 
                 if (has_bit(opt_, Options::comments))
-                    append(Comment::make(text));
+                    append(Comment::create(text));
 
             }
 
@@ -428,9 +428,9 @@ namespace Crow::Xml {
                 bool is_char = xml_decode_char(entity, text, opt_);
 
                 if (is_char)
-                    append(Text::make(text));
+                    append(Text::create(text));
                 else
-                    append(Entity::make(text));
+                    append(Entity::create(text));
 
             }
 
@@ -442,7 +442,7 @@ namespace Crow::Xml {
                     throw Error("Invalid processing instruction", xml_);
 
                 auto text = read(end + 2);
-                append(Processing::make(text));
+                append(Processing::create(text));
 
             }
 
@@ -451,7 +451,7 @@ namespace Crow::Xml {
                 if (is_special_char(xml_[0])) {
 
                     auto ch = read(1);
-                    append(Entity::make(encode_text(ch)));
+                    append(Entity::create(encode_text(ch)));
 
                 } else {
 
@@ -463,11 +463,11 @@ namespace Crow::Xml {
                         auto text = fold_ws(view);
 
                         if (! text.empty())
-                            append(Text::make(text, Options::encoded));
+                            append(Text::create(text, Options::encoded));
 
                     } else {
 
-                        append(Text::make(view, Options::encoded));
+                        append(Text::create(view, Options::encoded));
 
                     }
 
@@ -553,7 +553,7 @@ namespace Crow::Xml {
 
             void ParseState::handle_opening_tag(const tag_info& tag) {
 
-                auto elem = Element::make(tag.name);
+                auto elem = Element::create(tag.name);
                 append(elem);
 
                 for (auto [key,value]: tag.attrs)
@@ -848,7 +848,7 @@ namespace Crow::Xml {
     void Document::init_xmldecl(Options opt) {
         if (! has_bit(opt, Options::noxmldecl)
                 && (empty() || front()->type() != NodeType::xmldecl))
-            insert(begin(), Xmldecl::make());
+            insert(begin(), Xmldecl::create());
     }
 
 }

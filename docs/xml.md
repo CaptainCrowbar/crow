@@ -44,14 +44,14 @@ returns the part of the input text that appears to be invalid.
 enum class Options: int {
     xml = 0,
     autoclose,  // Implicit closing
+    comments,   // Keep comments
+    encoded,    // Text is already encoded
     foldws,     // Collapse whitespace
     icase,      // Case insensitive names
     keyonly,    // Attribute values are optional
     noxmldecl,  // No default XML declaration
     selfclose,  // HTML self-closing elements
     xentity,    // HTML character entities
-    comments,   // Keep comments
-    encoded,    // Text is already encoded
     html = autoclose | foldws | icase | keyonly
         | noxmldecl | selfclose | xentity,
 };
@@ -70,6 +70,13 @@ only affect XML parsing, and ignored in any other context.
   tag for an outer element is encountered before that for an inner element.
   Also, ignore spurious closing tags for which a matching opening tag has not
   been seen.
+* `Options::comments` -- Keep comments when parsing. In the absence of this
+  option, the parsed XML tree will not contain any comment node. This does
+  not prevent user from inserting them explicitly. This option is not
+  included in `html`.
+* `Options::encoded` -- The input text is assumed to be already encoded. This
+  option only affects the `Text::create()` function; it has no effect on
+  parsing. This option is not included in `html`.
 * `Options::foldws` -- Inside text elements, collapse any sequence of
   whitespace characters into a single space.
 * `Options::icase` -- Element and attribute names are folded to lower case
@@ -80,7 +87,7 @@ only affect XML parsing, and ignored in any other context.
   `Node::outer()` function.
 * `Options::noxmldecl` -- Do not insert the standard default XML declaration
   if one was not found in the document. Besides parsing, this also affects
-  the `Document::make()` function(refer to the `Document` class below for
+  the `Document::create()` function(refer to the `Document` class below for
   details).
 * `Options::selfclose` -- Recognise the standard list of HTML self-closing
   elements, always treating them as standalone elements. Besides parsing,
@@ -89,12 +96,6 @@ only affect XML parsing, and ignored in any other context.
   entities. In the absence of this option, only the five standard XML
   character entities are recognised(`&amp; &lt; &gt; &quot; &apos;`). Besides
   parsing, this also affects the `decode_text()` function.
-* `Options::comments` -- Keep comments when parsing. In the absence of this
-  option, the parsed XML tree will not contain any comment node. This does
-  not prevent user from inserting them explicitly.
-* `Options::encoded` -- The input text is assumed to be already encoded. This
-  option only affects the `Text::make()` function; it has no effect on
-  parsing.
 
 ```c++
 enum class NodeType: int {
@@ -201,15 +202,26 @@ Defined for convenience.
 
 ```c++
 class Node {
-    virtual ~Node() noexcept = default;
+    virtual ~Node() noexcept;
     virtual NodePtr clone() const = 0;
     virtual NodeType type() const noexcept = 0;
-    std::string inner(Options opt = Options::xml) const { return inner_core(opt); }
-    std::string outer(Options opt = Options::xml) const { return outer_core(opt); }
+    std::string inner(Options opt = Options::xml) const;
+    std::string outer(Options opt = Options::xml) const;
 };
 ```
 
-TODO
+Common abstract base class for all XML node classes. Derived classes do not
+have public constructors; they must be created on the heap using each concrete
+class's static `create()` function.
+
+The `clone()` function returns a shallow copy of the current node. The
+`type()` function is a quick way of checking the node's type.
+
+The `inner()` and `outer()` functions return the node's inner and outer XML.
+The `outer()` function returns the complete XML for the node. The `inner()`
+function returns the XML text inside the node; it will return an empty string
+for all node types except `Element`. The only options that affect these
+functions are `keyonly` and `selfclose()`.
 
 ### Simple node base class
 
@@ -217,7 +229,7 @@ TODO
 class SimpleNode: public Node;
 ```
 
-TODO
+Abstract base class for nodes that do not contain any other nodes.
 
 ## Prologue node classes
 
@@ -225,23 +237,28 @@ TODO
 class PrologueNode: public SimpleNode;
 ```
 
-TODO
+Abstract base class for node types that normally appear only in a document's
+prologue (`Xmldecl` and `Dtd`).
 
 ```c++
 class Xmldecl: public PrologueNode {
-    static std::shared_ptr<Xmldecl> make(std::string_view str = {});
+    static std::shared_ptr<Xmldecl> create(std::string_view str = {});
 };
 ```
 
-TODO
+An XML declaration of the form `"<?xml...?>"` (case insensitive). The
+bracketing `"<?xml"` and `"?>"` will be inserted if they are not supplied. If
+`Xmldecl::create()` is called with no arguments, or with an empty string, the
+standard default XML declaration will be used.
 
 ```c++
 class Dtd: public PrologueNode {
-    static std::shared_ptr<Dtd> make(std::string_view str);
+    static std::shared_ptr<Dtd> create(std::string_view str);
 };
 ```
 
-TODO
+A document type declaration of the form `"<!DOCTYPE...>"`. The bracketing
+`"<!DOCTYPE"` and `">"` will be inserted if they are not supplied.
 
 ## Inline node classes
 
@@ -249,49 +266,57 @@ TODO
 class InlineNode: public SimpleNode;
 ```
 
-TODO
+Abstract base class for simple inline nodes.
 
 ```c++
 class Cdata: public InlineNode {
-    static std::shared_ptr<Cdata> make(std::string_view str);
+    static std::shared_ptr<Cdata> create(std::string_view str);
 };
 ```
 
-TODO
+A character data block of the form `"<[CDATA[...]]>"`. The bracketing
+`"<[[CDATA"` and `"]]>"` will be inserted if they are not supplied.
 
 ```c++
 class Comment: public InlineNode {
-    static std::shared_ptr<Comment> make(std::string_view str);
+    static std::shared_ptr<Comment> create(std::string_view str);
 };
 ```
 
-TODO
+A comment of the form `"<!--...-->"`. The bracketing `"<!--"` and `"-->"` will
+be inserted if they are not supplied.
 
 ```c++
 class Entity: public InlineNode {
-    static std::shared_ptr<Entity> make(std::string_view str);
+    static std::shared_ptr<Entity> create(std::string_view str);
 };
 ```
 
-TODO
+An inline entity of the form `"&...;>"`. The bracketing `"&"` and `";"` will
+be inserted if they are not supplied.
 
 ```c++
 class Processing: public InlineNode {
-    static std::shared_ptr<Processing> make(std::string_view str);
+    static std::shared_ptr<Processing> create(std::string_view str);
 };
 ```
 
-TODO
+A processing instruction of the form `"<?...?>"`. The bracketing `"<?"` and
+`"?>"` will be inserted if they are not supplied.
 
 ```c++
 class Text: public InlineNode {
     std::string plain() const;
-    static std::shared_ptr<Text> make(std::string_view str,
+    static std::shared_ptr<Text> create(std::string_view str,
         Options opt = Options::xml);
 };
 ```
 
-TODO
+A plain text block. By default, the input text is assumed to be plain text
+that needs to be encoded. It will be assumed to be already encoded if
+`Options::encoded` is passed. No other option affects this function.
+
+The `plain()` function returns the node's contents as decoded plain text.
 
 ## Compound node classes
 
@@ -316,33 +341,45 @@ class CompoundNode: public Node {
 };
 ```
 
-TODO
+Abstract base class for nodes that contain other nodes(`Element` and
+`Document`). Most of these functions have their normal meaning for
+containers. The `child()` function will return a child node by index, or a
+null pointer if the index is out of bounds. The `+=` operator is equivalent
+to `push_back()`. Inserting a null `NodePtr` will have no effect.
 
 ```c++
 class Element: public CompoundNode, public AttributeMap {
     std::string name() const { return name_; }
-    static std::shared_ptr<Element> make(const std::string& name);
+    static std::shared_ptr<Element> create(const std::string& name);
 };
 ```
 
-TODO
+An XML element. This is constructed with only a name; attributes can be added
+after construction.
 
 ```c++
 class Document: public CompoundNode {
     XmldeclPtr xmldecl() const noexcept;
     DtdPtr dtd() const noexcept;
-    static std::shared_ptr<Document> make(Options opt = {});
-    static std::shared_ptr<Document> make(std::string_view xml, Options opt = {});
+    static std::shared_ptr<Document> create(Options opt = {});
+    static std::shared_ptr<Document> create(std::string_view xml,
+        Options opt = {});
 };
 ```
 
-TODO
+An XML document. The first version of `create()` returns an empty document
+(except possibly for an XML declaration, as described below); the second
+version parses an existing document.
 
-<!--
-// Document construction         Xmldecl in doc?  noxmldecl flag?  Document xmldecl
-// Construct from options alone  n/a              no               Default xmldecl
-// ''                            ''               yes              None
-// Construct from XML source     no               no               Default xmldecl
-// ''                            ''               yes              None
-// ''                            yes              ignored          Xmldecl from source
--->
+If the parsed document contains an XML declaration, it will be retained
+regardless of the `Options::noxmldecl` flag. Otherwise, a default `Xmldecl`
+will be created unless suppressed by the flag.
+
+| Document creation          | Xmldecl in doc?  | Noxmldecl flag?  | Document xmldecl     |
+| -----------------          | ---------------  | ---------------  | ----------------     |
+| Default create             | N/A              | N/A              | Default xmldecl      |
+| Create from options alone  | N/A              | No               | Default xmldecl      |
+|                            |                  | Yes              | None                 |
+| Create from XML source     | No               | No               | Default xmldecl      |
+|                            |                  | Yes              | None                 |
+|                            | Yes              | Ignored          | Xmldecl from source  |

@@ -12,7 +12,7 @@ void test_crow_xml_parse_cdata() {
 
     DocumentPtr doc;
 
-    TRY(doc = Document::make(R"(
+    TRY(doc = Document::create(R"(
         <![CDATA[<Hello world>]]>
         )"_doc));
     REQUIRE(doc);
@@ -38,7 +38,7 @@ void test_crow_xml_parse_comment() {
 
     DocumentPtr doc;
 
-    TRY(doc = Document::make(R"(
+    TRY(doc = Document::create(R"(
         <!-- Hello world -->
         )"_doc, Options::comments));
     REQUIRE(doc);
@@ -64,7 +64,7 @@ void test_crow_xml_parse_entity() {
 
     DocumentPtr doc;
 
-    TRY(doc = Document::make(R"(
+    TRY(doc = Document::create(R"(
         &hello;
         )"_doc));
     REQUIRE(doc);
@@ -90,7 +90,7 @@ void test_crow_xml_parse_processing() {
 
     DocumentPtr doc;
 
-    TRY(doc = Document::make(R"(
+    TRY(doc = Document::create(R"(
         <? Hello world ?>
         )"_doc));
     REQUIRE(doc);
@@ -117,7 +117,7 @@ void test_crow_xml_parse_text() {
     DocumentPtr doc;
     TextPtr text;
 
-    TRY(doc = Document::make(R"(
+    TRY(doc = Document::create(R"(
         Hello world
         )"_doc));
     REQUIRE(doc);
@@ -147,7 +147,7 @@ void test_crow_xml_parse_text_entities() {
     DocumentPtr doc;
     TextPtr text;
 
-    TRY(doc = Document::make(R"(
+    TRY(doc = Document::create(R"(
         Hello&lt;world&gt;
         Goodnight&abc;moon&xyz;
         )"_doc));
@@ -182,7 +182,7 @@ void test_crow_xml_parse_prologueext() {
     DocumentPtr doc;
     TextPtr text;
 
-    TRY(doc = Document::make(R"(
+    TRY(doc = Document::create(R"(
         <?xml version="1.0" standalone="yes"?>
         Hello world
         )"_doc));
@@ -201,7 +201,7 @@ void test_crow_xml_parse_prologueext() {
             text: "Hello world\n"
         )"_doc);
 
-    TRY(doc = Document::make(R"(
+    TRY(doc = Document::create(R"(
         <!DOCTYPE note SYSTEM "Note.dtd">
         Hello world
         )"_doc));
@@ -223,7 +223,7 @@ void test_crow_xml_parse_prologueext() {
             text: "Hello world\n"
         )"_doc);
 
-    TRY(doc = Document::make(R"(
+    TRY(doc = Document::create(R"(
         <?xml version="1.0" standalone="yes"?>
         <!DOCTYPE note
         [
@@ -268,7 +268,7 @@ void test_crow_xml_parse_simple_elements() {
     ElementPtr elem;
     TextPtr text;
 
-    TRY(doc = Document::make(R"(
+    TRY(doc = Document::create(R"(
         <Hello/>
         )"_doc));
     REQUIRE(doc);
@@ -296,7 +296,7 @@ void test_crow_xml_parse_simple_elements() {
     TEST_EQUAL(elem->children(), 0u);
     TEST_EQUAL(elem->num_attrs(), 0u);
 
-    TRY(doc = Document::make(R"(
+    TRY(doc = Document::create(R"(
         <Hello abc="xyz" def="uvw"/>
         )"_doc));
     REQUIRE(doc);
@@ -326,7 +326,7 @@ void test_crow_xml_parse_simple_elements() {
     TEST_EQUAL(elem->attr("abc"), "xyz");
     TEST_EQUAL(elem->attr("def"), "uvw");
 
-    TRY(doc = Document::make(R"(
+    TRY(doc = Document::create(R"(
         <Hello>World</Hello>
         )"_doc));
     REQUIRE(doc);
@@ -365,7 +365,7 @@ void test_crow_xml_parse_complex_elements() {
 
     DocumentPtr doc;
 
-    TRY(doc = Document::make(R"(
+    TRY(doc = Document::create(R"(
         <alpha a=1 b=2 c=3>
         <bravo>
         Hello
