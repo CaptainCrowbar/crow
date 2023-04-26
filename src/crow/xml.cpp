@@ -673,6 +673,89 @@ namespace Crow::Xml {
     }()),
     error_text_(text) {}
 
+    // Node class
+
+    Node::search_range Node::search(Options opt) const {
+        return search_core(NodeType::null, {}, opt);
+    }
+
+    Node::search_range Node::search(NodeType type, Options opt) const {
+        return search_core(type, {}, opt);
+    }
+
+    Node::search_range Node::search(const std::string& element, Options opt) const {
+        return search_core(NodeType::element, element, opt);
+    }
+
+    Node::search_range Node::search_core(NodeType /*type*/, const std::string& /*element*/, Options /*opt*/) const {
+        return {};
+    }
+
+    // Node::search_iterator class
+
+    Node::search_iterator::search_iterator(const CompoundNode& root, NodeType type, const std::string& element, Options opt) {
+
+        if (root.empty())
+            return;
+
+        path_.push_back({root.begin(), &root});
+        type_ = type;
+        element_ = element;
+
+        if (! element_.empty() && has_bit(opt, Options::icase))
+            equal_ = AsciiIcaseEqual();
+
+        while (! path_.empty() && ! accept(**path_.back().current))
+            next();
+
+    }
+
+    Node::search_iterator& Node::search_iterator::operator++() {
+        do next();
+            while (! path_.empty() && ! accept(**path_.back().current));
+        return *this;
+    }
+
+    bool Node::search_iterator::operator==(const search_iterator& si) const noexcept {
+        if (path_.size() != si.path_.size())
+            return false;
+        else if (path_.empty() || si.path_.empty())
+            return path_.empty() && si.path_.empty();
+        else
+            return path_.back().current == si.path_.back().current;
+    }
+
+    bool Node::search_iterator::accept(const Node& node) const noexcept {
+        if (type_ != NodeType::null && node.type() != type_)
+            return false;
+        else if (! element_.empty() && ! equal_(static_cast<const Element*>(&node)->name(), element_))
+            return false;
+        else
+            return true;
+    }
+
+    void Node::search_iterator::next() {
+
+        auto compound_ptr = dynamic_cast<const CompoundNode*>(path_.back().current->get());
+
+        if (compound_ptr != nullptr && ! compound_ptr->empty()) {
+
+            path_.push_back({compound_ptr->begin(), compound_ptr});
+
+        } else {
+
+            do {
+                ++path_.back().current;
+                if (path_.back().current != path_.back().parent->end()) {
+                    break;
+                }
+                path_.pop_back();
+            } while (! path_.empty());
+
+        }
+
+    }
+
     // SimpleNode class
 
     void SimpleNode::init(std::string_view str, std::string_view left, std::string_view right) {
@@ -767,6 +850,10 @@ namespace Crow::Xml {
 
         return xml;
 
+    }
+
+    Node::search_range CompoundNode::search_core(NodeType type, const std::string& element, Options opt) const {
+        return {{*this, type, element, opt}, {}};
     }
 
     // AttributeMap class

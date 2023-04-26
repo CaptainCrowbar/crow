@@ -4,6 +4,7 @@
 #include "crow/iterator.hpp"
 #include "crow/types.hpp"
 #include <concepts>
+#include <functional>
 #include <iterator>
 #include <map>
 #include <memory>
@@ -58,6 +59,8 @@ namespace Crow::Xml {
 
     namespace Detail {
 
+        using NodeList = std::vector<NodePtr>;
+        using NodeIterator = NodeList::const_iterator;
         using StringViewSet = std::unordered_set<std::string_view>;
         using StringViewMap = std::unordered_map<std::string_view, std::string_view>;
 
@@ -80,19 +83,17 @@ namespace Crow::Xml {
     };
 
     enum class Options: int {
-        xml        = 0,
-        // HTML related
-        autoclose  = 1 << 0,  // Allow implicit closing and ignore spurious closing tags
-        foldws     = 1 << 1,  // Collapse whitespace in text elements
-        icase      = 1 << 2,  // Case insensitive element and attribute names
-        keyonly    = 1 << 3,  // Attribute values are optional (also affects output)
-        noxmldecl  = 1 << 4,  // No default XML declaration
-        selfclose  = 1 << 5,  // Recognise HTML self-closing elements (also affects output)
-        xentity    = 1 << 6,  // Recognise extended HTML character entities
-        // Others
-        comments   = 1 << 7,  // Keep comments
-        encoded    = 1 << 8,  // Text is already encoded (only affects Text::create())
-        // Combinations
+        none       = 0,
+        autoclose  = 1 << 0,  // Implicit closing
+        comments   = 1 << 1,  // Keep comments
+        encoded    = 1 << 2,  // Text is already encoded
+        foldws     = 1 << 3,  // Collapse whitespace
+        icase      = 1 << 4,  // Case insensitive names
+        keyonly    = 1 << 5,  // Attribute values are optional
+        noxmldecl  = 1 << 6,  // No default XML declaration
+        selfclose  = 1 << 7,  // HTML self-closing elements
+        xentity    = 1 << 8,  // HTML character entities
+        xml        = none,
         html       = autoclose | foldws | icase | keyonly | noxmldecl | selfclose | xentity,
     };
 
@@ -119,10 +120,32 @@ namespace Crow::Xml {
 
     // XML node base class
 
-    class Node:
-    public std::enable_shared_from_this<Node> {
+    class Node {
 
     public:
+
+        class search_iterator:
+        public ForwardIterator<search_iterator, const NodePtr> {
+        public:
+            search_iterator() = default;
+            search_iterator(const CompoundNode& root, NodeType type, const std::string& element, Options opt);
+            const NodePtr& operator*() const noexcept { return *path_.back().current; }
+            search_iterator& operator++();
+            bool operator==(const search_iterator& si) const noexcept;
+        private:
+            struct level {
+                Detail::NodeIterator current;
+                const CompoundNode* parent = nullptr;
+            };
+            std::vector<level> path_;
+            NodeType type_ = NodeType::null;
+            std::string element_;
+            std::function<bool(const std::string&, const std::string&)> equal_ = std::equal_to<std::string>();
+            bool accept(const Node& node) const noexcept;
+            void next();
+        };
+
+        using search_range = Irange<search_iterator>;
 
         virtual ~Node() noexcept = default;
 
@@ -132,6 +155,10 @@ namespace Crow::Xml {
         std::string inner(Options opt = Options::xml) const { return inner_core(opt); }
         std::string outer(Options opt = Options::xml) const { return outer_core(opt); }
 
+        search_range search(Options opt = Options::none) const;
+        search_range search(NodeType type, Options opt = Options::none) const;
+        search_range search(const std::string& element, Options opt = Options::none) const;
+
     protected:
 
         struct hidden {
@@ -140,6 +167,7 @@ namespace Crow::Xml {
 
         virtual std::string inner_core(Options opt) const = 0;
         virtual std::string outer_core(Options opt) const = 0;
+        virtual search_range search_core(NodeType type, const std::string& element, Options opt) const;
 
     };
 
@@ -247,13 +275,9 @@ namespace Crow::Xml {
     class CompoundNode:
     public Node {
 
-    private:
-
-        using node_list = std::vector<NodePtr>;
-
     public:
 
-        using iterator = node_list::const_iterator;
+        using iterator = Detail::NodeIterator;
 
         iterator begin() const noexcept { return iterator(children_.begin()); }
         iterator end() const noexcept { return iterator(children_.end()); }
@@ -272,10 +296,11 @@ namespace Crow::Xml {
     protected:
 
         std::string inner_core(Options opt) const override;
+        search_range search_core(NodeType type, const std::string& element, Options opt) const override;
 
     private:
 
-        node_list children_;
+        Detail::NodeList children_;
 
         void check_insert(NodePtr node) const;
 

@@ -42,7 +42,7 @@ returns the part of the input text that appears to be invalid.
 
 ```c++
 enum class Options: int {
-    xml = 0,
+    none = 0,
     autoclose,  // Implicit closing
     comments,   // Keep comments
     encoded,    // Text is already encoded
@@ -52,6 +52,7 @@ enum class Options: int {
     noxmldecl,  // No default XML declaration
     selfclose,  // HTML self-closing elements
     xentity,    // HTML character entities
+    xml = none,
     html = autoclose | foldws | icase | keyonly
         | noxmldecl | selfclose | xentity,
 };
@@ -202,11 +203,18 @@ Defined for convenience.
 
 ```c++
 class Node {
+    class search_iterator;
+        // Forward iterator
+        // Dereferences to a non-null NodePtr
+    using search_range = Irange<search_iterator>;
     virtual ~Node() noexcept;
     virtual NodePtr clone() const = 0;
     virtual NodeType type() const noexcept = 0;
     std::string inner(Options opt = Options::xml) const;
     std::string outer(Options opt = Options::xml) const;
+    search_range search(Options opt = Options::none) const;
+    search_range search(NodeType type, Options opt = Options::none) const;
+    search_range search(const std::string& element, Options opt = Options::none) const;
 };
 ```
 
@@ -222,6 +230,13 @@ The `outer()` function returns the complete XML for the node. The `inner()`
 function returns the XML text inside the node; it will return an empty string
 for all node types except `Element`. The only options that affect these
 functions are `keyonly` and `selfclose()`.
+
+The `search()` functions iterate over all descendant nodes of the current
+node. For nodes that are not derived from `CompoundNode` this will always be
+empty. Optionally, a node type or element name can be supplied; only nodes
+with the specified type, or elements with the specified name, will be visited
+by the search iterators. The only option that has any effect here is
+`Options::icase,` which makes element name matching case insensitive.
 
 ### Simple node base class
 

@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.16)
 # and propagate the new version to version.hpp.
 
 project(Crow
-    VERSION 2.0.214
+    VERSION 2.0.215
     LANGUAGES CXX
 )
 
@@ -279,6 +279,7 @@ add_executable(${unittest}
     test/xml-functions-test.cpp
     test/xml-options-test.cpp
     test/xml-parsing-test.cpp
+    test/xml-search-test.cpp
 
 )
 

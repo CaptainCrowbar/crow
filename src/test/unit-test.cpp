@@ -1109,6 +1109,11 @@ void xml_parsing_test_group() {
     UNIT_TEST(crow_xml_parse_complex_elements)
 }
 
+void xml_search_test_group() {
+    UNIT_TEST(crow_xml_search_all)
+    UNIT_TEST(crow_xml_search_selected)
+}
+
 int main(int argc, char** argv) {
 
     Crow::UnitTest::begin_tests(argc, argv);
@@ -1282,6 +1287,7 @@ int main(int argc, char** argv) {
     xml_functions_test_group();
     xml_options_test_group();
     xml_parsing_test_group();
+    xml_search_test_group();
 
     return Crow::UnitTest::end_tests();
 
