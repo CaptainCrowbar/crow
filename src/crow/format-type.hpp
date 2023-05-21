@@ -11,6 +11,7 @@
 #include "crow/unicode.hpp"
 #include <chrono>
 #include <compare>
+#include <complex>
 #include <concepts>
 #include <cstddef>
 #include <exception>
@@ -23,6 +24,13 @@
 #include <vector>
 
 namespace Crow {
+
+    namespace Detail {
+
+        template <typename T> struct IsComplex: std::false_type {};
+        template <std::floating_point T> struct IsComplex<std::complex<T>>: std::true_type {};
+
+    }
 
     std::string format_boolean(bool b, const FormatSpec& spec);
     std::string format_ordering(std::partial_ordering ord);
@@ -119,6 +127,7 @@ namespace Crow {
         || std::convertible_to<T, std::wstring_view>
         || std::derived_from<std::decay_t<T>, Formatted>
         || ArithmeticType<std::decay_t<T>>
+        || Detail::IsComplex<std::decay_t<T>>::value
         || RangeType<std::decay_t<T>>
         || Detail::DurationType<std::decay_t<T>>
         || Detail::ExtendedStrMethodType<std::decay_t<T>>
@@ -150,6 +159,8 @@ namespace Crow {
                 return format_integer(t, spec);
             else if constexpr (std::is_floating_point_v<U>)
                 return format_floating_point(t, spec);
+            else if constexpr (Detail::IsComplex<std::decay_t<T>>::value)
+                return format_complex(t, spec);
             else if constexpr (Detail::DurationType<U>)
                 return format_time(t, spec);
             else if constexpr (std::same_as<U, std::chrono::system_clock::time_point>)
