@@ -36,7 +36,6 @@ be formatted by use of the customization points described below.
         * `u` = With `T` mode, show the unqualified name
         * `Z` = Use `"--"` in place of a null value (zero, an empty string, or a null pointer)
     * Notes:
-        * This is used for any type if the format spec has mode `T`
         * Reference and `const` qualifiers are stripped from the type because
           the fully qualified original type of a function argument can't be
           easily retrieved
@@ -110,6 +109,17 @@ be formatted by use of the customization points described below.
             * Treats leading nines as non-significant
             * `P` format multiplies by 100 to show the value as a percentage
             * Throws `std::domain_error` if the argument is not 0-1
+* **Complex number formatting**
+    * Applies to `std::complex<T>` where `T` is a floating point type
+    * Options:
+        * `i` = Use `x+yi` format
+        * `j` = Use `x+yj` format
+        * `p` = Use polar format `(r,θ)` with `-π<θ≤π`
+        * `P` = Use polar format `(r,θ)` with `0≤θ<2π`
+        * `o` = Show only one component if the other is zero
+    * Notes:
+        * All of the floating point formatting codes also apply to complex numbers
+        * Default layout is `(x,y)`
 * **String formatting**
     * Applies to: `std::string` and `const char*`
     * Mode:
@@ -389,20 +399,27 @@ supplied to the constructor, but it will be semantically equivalent.
 ## Type specific formatting functions
 
 ```c++
-std::string format_boolean(bool b,
-    const FormatSpec& spec);
+std::string format_boolean(bool b, const FormatSpec& spec);
 template <std::integral T> std::string format_integer(T t,
     FormatSpec spec = {});
 template <ArithmeticType T> std::string format_floating_point(T t,
     FormatSpec spec = {});
-template <ArithmeticType T> std::string format_number(T t,
+template <std::floating_point T> std::string format_complex(std::complex<T> t,
+    FormatSpec spec = {});
+template <std::floating_point T> std::string format_complex(T t,
+    FormatSpec spec = {});
+template <std::integral T> std::string format_number(T t,
+    FormatSpec spec = {});
+template <std::floating_point T> std::string format_number(T t,
+    FormatSpec spec = {});
+template <std::floating_point T> std::string format_number(std::complex<T> t,
     FormatSpec spec = {});
 ```
 
 Arithmetic type formatting functions. These format their arguments according
 to the rules laid out above. The `format_number()` function will call
-`format_integer()` or `format_floating_point()`, whichever is appropriate to
-the argument type.
+whichever of the more specific functions is appropriate to the argument
+type.
 
 ```c++
 std::string format_string(const std::string& str,

@@ -247,6 +247,12 @@ void font_test_group() {
     UNIT_TEST(crow_font_map)
 }
 
+void format_complex_test_group() {
+    UNIT_TEST(crow_format_complex_default)
+    UNIT_TEST(crow_format_complex_cartesian)
+    UNIT_TEST(crow_format_complex_polar)
+}
+
 void format_floating_test_group() {
     UNIT_TEST(crow_format_floating_point_significant_digits_format)
     UNIT_TEST(crow_format_floating_point_scientific_notation)
@@ -1157,6 +1163,7 @@ int main(int argc, char** argv) {
     flexible_map_test_group();
     flexible_set_test_group();
     font_test_group();
+    format_complex_test_group();
     format_floating_test_group();
     format_integer_test_group();
     format_misc_test_group();

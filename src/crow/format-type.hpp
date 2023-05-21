@@ -40,6 +40,11 @@ namespace Crow {
         return format_floating_point(t, spec);
     }
 
+    template <std::floating_point T>
+    std::string format_number(std::complex<T> t, const FormatSpec& spec = {}) {
+        return format_complex(t, spec);
+    }
+
     template <typename T>
     std::string format_pointer(T* ptr, const FormatSpec& spec) {
         if (ptr != nullptr)

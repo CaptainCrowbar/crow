@@ -5,9 +5,11 @@
 #include "crow/string.hpp"
 #include "crow/types.hpp"
 #include <algorithm>
+#include <complex>
 #include <concepts>
 #include <cstdio>
 #include <cstdlib>
+#include <numbers>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -156,6 +158,54 @@ namespace Crow {
 
         }
 
+    }
+
+    template <std::floating_point T>
+    std::string format_complex(std::complex<T> t, FormatSpec spec = {}) {
+
+        using namespace std::numbers;
+
+        bool brief = spec.option('o');
+        bool polar = spec.find_option("Pp") != 0;
+
+        if (brief && t.imag() == 0 && (! polar || t.real() >= 0))
+            return format_floating_point(t.real(), spec);
+
+        char iunit = spec.find_option("ij");
+
+        if (brief && iunit != 0 && t.real() == 0 && t.imag() != 0)
+            return format_floating_point(t.imag(), spec) + iunit;
+
+        T a, b;
+
+        if (polar) {
+            a = std::abs(t);
+            b = std::arg(t);
+            if (spec.option('P') && b < 0)
+                b += 2 * pi_v<T>;
+        } else {
+            a = t.real();
+            b = t.imag();
+        }
+
+        auto sa = format_floating_point(a, spec);
+        auto sb = format_floating_point(b, spec);
+
+        if (iunit == 0)
+            return '(' + sa + ',' + sb + ')';
+
+        if (sb[0] != '+' && sb[0] != '-')
+            sa += '+';
+
+        sa += sb + iunit;
+
+        return sa;
+
+    }
+
+    template <std::floating_point T>
+    std::string format_complex(T t, FormatSpec spec = {}) {
+        return format_complex(std::complex(t), spec);
     }
 
 }
