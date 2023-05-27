@@ -102,6 +102,7 @@ The type used for bitmask flags.
 
 | Flag               | Description                                                         | Usage        |
 | ----               | -----------                                                         | -----        |
+| `none`             | No flags                                                            |              |
 | `anchor`           | Anchor the match at the start of the subject string                 | Match        |
 | `ascii`            | Character classes match only ASCII                                  | Compile      |
 | `byte`             | Treat the pattern and subject string as bytes instead of UTF-8      | Compile      |
