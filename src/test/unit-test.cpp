@@ -32,11 +32,6 @@ void algorithm_test_group() {
     UNIT_TEST(crow_algorithm_edit_distance_damerau_levenshtein)
     UNIT_TEST(crow_algorithm_edit_distance_jaro_winkler)
     UNIT_TEST(crow_algorithm_hash_compare)
-    UNIT_TEST(crow_algorithm_interpolation)
-    UNIT_TEST(crow_algorithm_interpolated_map)
-    UNIT_TEST(crow_algorithm_interpolated_map_lin_log)
-    UNIT_TEST(crow_algorithm_interpolated_map_log_log)
-    UNIT_TEST(crow_algorithm_cubic_spline_map)
     UNIT_TEST(crow_algorithm_precision_sum)
     UNIT_TEST(crow_algorithm_line_integral)
     UNIT_TEST(crow_algorithm_volume_integral)
@@ -372,16 +367,38 @@ void index_table_test_group() {
     UNIT_TEST(crow_index_table_classes)
 }
 
+void interpolate_concepts_test_group() {
+    UNIT_TEST(lerp_concepts)
+}
+
+void interpolate_functions_test_group() {
+    UNIT_TEST(lerp_linear_interpolation)
+    UNIT_TEST(lerp_logarithmic_interpolation)
+    UNIT_TEST(lerp_smoothstep)
+}
+
+void interpolate_map_test_group() {
+    UNIT_TEST(lerp_interpolated_map)
+    UNIT_TEST(lerp_interpolated_map_lin_log)
+    UNIT_TEST(lerp_interpolated_map_log_log)
+}
+
+void interpolate_segmented_test_group() {
+    UNIT_TEST(lerp_segment_map)
+    UNIT_TEST(lerp_segment_map_log_log)
+}
+
+void interpolate_spline_test_group() {
+    UNIT_TEST(lerp_cubic_spline_map)
+    UNIT_TEST(lerp_cubic_spline_map_log_log)
+}
+
 void iterator_test_group() {
     UNIT_TEST(crow_iterator_mixins)
     UNIT_TEST(crow_iterator_append_overwrite)
     UNIT_TEST(crow_iterator_dereference)
     UNIT_TEST(crow_iterator_iota)
     UNIT_TEST(crow_iterator_subrange)
-}
-
-void linear_map_test_group() {
-    UNIT_TEST(crow_linear_map)
 }
 
 void log_scale_arithmetic_test_group() {
@@ -432,7 +449,6 @@ void maths_arithmetic_functions_test_group() {
     UNIT_TEST(crow_maths_symmetric_division)
     UNIT_TEST(crow_maths_integer_power)
     UNIT_TEST(crow_maths_integer_power_generalised)
-    UNIT_TEST(crow_maths_interpolation)
 }
 
 void maths_literals_test_group() {
@@ -1182,8 +1198,12 @@ int main(int argc, char** argv) {
     image_resize_test_group();
     image_test_group();
     index_table_test_group();
+    interpolate_concepts_test_group();
+    interpolate_functions_test_group();
+    interpolate_map_test_group();
+    interpolate_segmented_test_group();
+    interpolate_spline_test_group();
     iterator_test_group();
-    linear_map_test_group();
     log_scale_arithmetic_test_group();
     log_scale_basics_test_group();
     log_scale_formatting_test_group();

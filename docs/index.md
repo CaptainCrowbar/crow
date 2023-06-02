@@ -45,7 +45,6 @@ Other libraries required:
     * [crow/compact-array](compact-array.html) - Compact array optimized for small size
     * [crow/flexible-map](flexible-map.html) - Maps and sets with flexible implementation
     * [crow/index-table](index-table.html) - Indexed table with multiple keys
-    * [crow/linear-map](linear-map.html) - Linear interpolated map
     * [crow/mirror-map](mirror-map.html) - Map with two-way lookup
     * [crow/multi-array](multi-array.html) - Multi-dimensional array
     * [crow/spatial-index](spatial-index.html) - Spatial index
@@ -86,6 +85,7 @@ Other libraries required:
     * [crow/binary](binary.html) - Bitwise operations
     * [crow/constants](constants.html) - Constants
     * [crow/fixed-binary](fixed-binary.html) - Fixed-size binary numbers
+    * [crow/interpolate](interpolate.html) - Interpolation and shaping functions
     * [crow/log-scale](log-scale.html) - Log scale floating point
     * [crow/maths](maths.html) - Mathematical utilities
     * [crow/mp-integer](mp-integer.html) - Multiple precision integers

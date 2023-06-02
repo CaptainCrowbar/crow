@@ -64,16 +64,6 @@ The function and unit arguments must be supplied if `T` is not constructible
 from an integer.
 
 ```c++
-template <std::floating_point X, ArithmeticType Y>
-    constexpr Y interpolate(X x1, Y y1, X x2, Y y2, X x3) noexcept;
-```
-
-Given two points, `(x1,y1)` and `(x2,y2)`, and a third input argument `x3`,
-this calculates the value `y3` by linear interpolation or extrapolation. `X`
-must be a floating point arithmetic type; `Y` only needs to define `Y-Y` and
-`X*Y`, and need not be an arithmetic type. Behaviour is undefined if `x1=x2`.
-
-```c++
 template <std::floating_point T> constexpr T to_degrees(T rad) noexcept;
 template <std::floating_point T> constexpr T to_radians(T deg) noexcept;
 ```

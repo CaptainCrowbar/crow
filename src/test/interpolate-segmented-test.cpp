@@ -1,28 +1,26 @@
-#include "crow/linear-map.hpp"
+#include "crow/interpolate.hpp"
 #include "crow/unit-test.hpp"
 
 using namespace Crow;
 
-namespace {
+void test_lerp_segment_map() {
 
-    constexpr double eps = 1e-10;
+    static constexpr double eps = 1e-10;
 
-}
-
-void test_crow_linear_map() {
-
-    LinearMap<double> map;
+    SegmentMap<double> map;
 
     TEST(map.empty());
     TEST_EQUAL(map.min(), 0);
     TEST_EQUAL(map.max(), 0);
-    TEST_NEAR(map[0], 0, eps);
-    TEST_NEAR(map[10], 0, eps);
+
+    TEST_EQUAL(map[0], 0);
+    TEST_EQUAL(map[10], 0);
 
     TRY(map.insert(5, 10));
     TEST(! map.empty());
     TEST_EQUAL(map.min(), 5);
     TEST_EQUAL(map.max(), 5);
+
     TEST_NEAR(map[0], 10, eps);
     TEST_NEAR(map[5], 10, eps);
     TEST_NEAR(map[10], 10, eps);
@@ -30,6 +28,7 @@ void test_crow_linear_map() {
     TRY(map.insert(10, 20));
     TEST_EQUAL(map.min(), 5);
     TEST_EQUAL(map.max(), 10);
+
     TEST_NEAR(map[4], 10, eps);
     TEST_NEAR(map[5], 10, eps);
     TEST_NEAR(map[6], 12, eps);
@@ -43,6 +42,7 @@ void test_crow_linear_map() {
     TRY(map.insert(20, -10));
     TEST_EQUAL(map.min(), 5);
     TEST_EQUAL(map.max(), 20);
+
     TEST_NEAR(map[4], 10, eps);
     TEST_NEAR(map[5], 10, eps);
     TEST_NEAR(map[6], 12, eps);
@@ -65,6 +65,7 @@ void test_crow_linear_map() {
     TRY(map.erase(10));
     TEST_EQUAL(map.min(), 5);
     TEST_EQUAL(map.max(), 20);
+
     TEST_NEAR(map[4], 10, eps);
     TEST_NEAR(map[5], 10, eps);
     TEST_NEAR(map[6], 19, eps);
@@ -87,6 +88,7 @@ void test_crow_linear_map() {
     TRY(map.erase(5, 15));
     TEST_EQUAL(map.min(), 20);
     TEST_EQUAL(map.max(), 20);
+
     TEST_NEAR(map[4], -10, eps);
     TEST_NEAR(map[5], -10, eps);
     TEST_NEAR(map[6], -10, eps);
@@ -110,6 +112,7 @@ void test_crow_linear_map() {
     TEST(map.empty());
     TEST_EQUAL(map.min(), 0);
     TEST_EQUAL(map.max(), 0);
+
     TEST_NEAR(map[0], 0, eps);
     TEST_NEAR(map[10], 0, eps);
 
@@ -118,9 +121,11 @@ void test_crow_linear_map() {
         {20, 200, 300, 400},
         {30, 500, 600},
     }));
+
     TEST(! map.empty());
     TEST_EQUAL(map.min(), 10);
     TEST_EQUAL(map.max(), 30);
+
     TEST_NEAR(map[5], 100, eps);
     TEST_NEAR(map[10], 100, eps);
     TEST_NEAR(map[15], 150, eps);
@@ -128,5 +133,33 @@ void test_crow_linear_map() {
     TEST_NEAR(map[25], 450, eps);
     TEST_NEAR(map[30], 550, eps);
     TEST_NEAR(map[35], 600, eps);
+
+}
+
+void test_lerp_segment_map_log_log() {
+
+    static constexpr double eps = 1e-10;
+
+    SegmentMap<double, double, Logs::XY> map;
+
+    TRY((map = {
+        {10, 1},
+        {80, 27, 100, 125},
+        {640, 1, 4},
+    }));
+
+    TEST(! map.empty());
+    TEST_EQUAL(map.min(), 10);
+    TEST_EQUAL(map.max(), 640);
+
+    TEST_NEAR(map[5], 1, eps);
+    TEST_NEAR(map[10], 1, eps);
+    TEST_NEAR(map[20], 3, eps);
+    TEST_NEAR(map[40], 9, eps);
+    TEST_NEAR(map[80], 100, eps);
+    TEST_NEAR(map[160], 25, eps);
+    TEST_NEAR(map[320], 5, eps);
+    TEST_NEAR(map[640], 2, eps);
+    TEST_NEAR(map[1280], 4, eps);
 
 }

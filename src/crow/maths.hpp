@@ -115,15 +115,6 @@ namespace Crow {
         return integer_power(x, y, std::multiplies<T>());
     }
 
-    template <std::floating_point X, typename Y>
-    requires requires (X x, Y y) {
-        { y - y } -> std::convertible_to<Y>;
-        { x * y } -> std::convertible_to<Y>;
-    }
-    constexpr Y interpolate(X x1, Y y1, X x2, Y y2, X x3) noexcept {
-        return y1 + (y2 - y1) * ((x3 - x1) / (x2 - x1));
-    }
-
     template <std::floating_point T>
     constexpr T to_degrees(T rad) noexcept {
         using std::numbers::pi_v;

@@ -2,7 +2,7 @@
 #include "crow/constants.hpp"
 #include "crow/format.hpp"
 #include "crow/formula.hpp"
-#include "crow/linear-map.hpp"
+#include "crow/interpolate.hpp"
 #include "crow/maths.hpp"
 #include "crow/regex.hpp"
 #include "crow/string.hpp"
@@ -22,7 +22,7 @@ namespace Crow {
 
     namespace {
 
-        using Linmap = LinearMap<double>;
+        using Linmap = LerpMap<double>;
 
         constexpr double NaN = std::numeric_limits<double>::quiet_NaN();
 
@@ -557,8 +557,6 @@ namespace Crow {
     }
 
     double Spectrum::log_t() const {
-
-        using Linmap = LinearMap<double>;
 
         if (cls_ == Sp::none || is_stellar_remnant())
             return NaN;

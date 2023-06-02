@@ -1,8 +1,8 @@
 #include "crow/maths.hpp"
 #include "crow/unit-test.hpp"
 #include <functional>
+#include <string>
 #include <tuple>
-#include <utility>
 
 using namespace Crow;
 using namespace std::literals;
@@ -302,19 +302,5 @@ void test_crow_maths_integer_power_generalised() {
     TRY(s = integer_power(a, 3, f, z));    TEST_EQUAL(s, "AAA");
     TRY(s = integer_power(a, 4, f, z));    TEST_EQUAL(s, "AAAA");
     TRY(s = integer_power(a, 5, f, z));    TEST_EQUAL(s, "AAAAA");
-
-}
-
-void test_crow_maths_interpolation() {
-
-    TEST_EQUAL(interpolate(2.0, 1.0, 6.0, 2.0, 0.0), 0.50);
-    TEST_EQUAL(interpolate(2.0, 1.0, 6.0, 2.0, 1.0), 0.75);
-    TEST_EQUAL(interpolate(2.0, 1.0, 6.0, 2.0, 2.0), 1.00);
-    TEST_EQUAL(interpolate(2.0, 1.0, 6.0, 2.0, 3.0), 1.25);
-    TEST_EQUAL(interpolate(2.0, 1.0, 6.0, 2.0, 4.0), 1.50);
-    TEST_EQUAL(interpolate(2.0, 1.0, 6.0, 2.0, 5.0), 1.75);
-    TEST_EQUAL(interpolate(2.0, 1.0, 6.0, 2.0, 6.0), 2.00);
-    TEST_EQUAL(interpolate(2.0, 1.0, 6.0, 2.0, 7.0), 2.25);
-    TEST_EQUAL(interpolate(2.0, 1.0, 6.0, 2.0, 8.0), 2.50);
 
 }
