@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <compare>
 #include <concepts>
+#include <cstddef>
 #include <functional>
 #include <initializer_list>
 #include <iterator>
@@ -22,6 +23,8 @@ namespace Crow {
         public RandomAccessIterator<BoundedArrayIterator<CT>, CT> {
 
         public:
+
+            using iterator_category = std::contiguous_iterator_tag;
 
             BoundedArrayIterator() = default;
             explicit BoundedArrayIterator(CT* p) noexcept: ptr_(p) {}
@@ -112,9 +115,7 @@ namespace Crow {
 
     private:
 
-        using raw_memory = typename std::aligned_union<1, T>::type;
-
-        raw_memory mem_[N];
+        alignas(T) std::byte mem_[N * sizeof(T)];
         size_t num_ = 0;
 
         void check_index(size_t i) const { if (i >= num_) throw std::out_of_range("Bounded array index out of bounds"); }

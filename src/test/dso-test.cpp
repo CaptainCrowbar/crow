@@ -1,11 +1,37 @@
 #include "crow/dso.hpp"
 #include "crow/path.hpp"
 #include "crow/unit-test.hpp"
+#include <cstdlib>
 #include <functional>
+#include <string>
+#include <stdexcept>
 #include <system_error>
 #include <utility>
 
 using namespace Crow;
+
+#ifdef __APPLE__
+
+    namespace {
+
+        Path find_xcode_root() {
+            Path out = "__dso_test__";
+            auto cmd = "clang++ --version | grep InstalledDir >" + out.name();
+            std::system(cmd.data());
+            std::string line;
+            out.load(line);
+            out.remove();
+            auto p = line.find("/Applications");
+            auto q = line.find("/Contents");
+            if (p == npos || q == npos)
+                throw std::runtime_error("Can't find Xcode installation root");
+            auto name = line.substr(p, q - p);
+            return Path(name);
+        }
+
+    }
+
+#endif
 
 void test_crow_dso_loading() {
 
@@ -15,16 +41,38 @@ void test_crow_dso_loading() {
     TRY(lib1 = Dso::self());
     TEST_THROW(Dso("no-such-thing"), std::system_error);
 
-    #ifdef _XOPEN_SOURCE
+    #ifdef __APPLE__
 
-        #ifdef __APPLE__
-            dir = "/usr/local/lib";
-            file = "libpng.dylib";
-        #else
-            dir = "/usr/lib/x86_64-linux-gnu";
-            file = "libpng.so";
-        #endif
+        TRY(dir = find_xcode_root());
+        REQUIRE(dir.is_directory());
+        dir /= "Contents/Developer/usr/lib";
+        file = "libxcrun.dylib";
 
+        REQUIRE(dir.is_directory());
+        Path path = dir / file;
+        REQUIRE(path.exists());
+
+        TRY(lib1 = Dso(path));
+        TRY(lib2 = Dso(file));
+        TRY(lib3 = Dso::search("xcrun"));
+        TEST(lib1);
+        TEST(lib2);
+        TEST(lib3);
+        REQUIRE(lib1 || lib2 || lib3);
+
+        if (! lib1 && ! lib2)
+            lib1 = std::move(lib3);
+        else if (! lib1)
+            lib1 = std::move(lib2);
+
+        // TODO - function tests for Apple
+
+    #elifdef _XOPEN_SOURCE
+
+        dir = "/usr/lib/x86_64-linux-gnu";
+        file = "libpng.so";
+
+        REQUIRE(dir.is_directory());
         Path path = dir / file;
         REQUIRE(path.exists());
 

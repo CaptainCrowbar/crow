@@ -4,9 +4,11 @@
 #include "crow/iterator.hpp"
 #include "crow/types.hpp"
 #include <algorithm>
+#include <array>
 #include <bit>
 #include <compare>
 #include <concepts>
+#include <cstddef>
 #include <functional>
 #include <initializer_list>
 #include <iterator>
@@ -24,6 +26,8 @@ namespace Crow {
         public RandomAccessIterator<CompactArrayIterator<CT>, CT> {
 
         public:
+
+            using iterator_category = std::contiguous_iterator_tag;
 
             CompactArrayIterator() = default;
             explicit CompactArrayIterator(CT* p) noexcept: ptr_(p) {}
@@ -117,7 +121,9 @@ namespace Crow {
 
     private:
 
-        using raw_memory = typename std::aligned_union<1, T>::type;
+        using raw_memory = struct {
+            alignas(T) std::byte bytes[sizeof(T)];
+        };
 
         union {
             raw_memory mem[N];
