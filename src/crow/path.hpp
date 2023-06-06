@@ -261,6 +261,7 @@ namespace Crow {
 
         // I/O functions
 
+        std::string load(size_t maxlen = npos, flag_type flags = no_flags) const;
         void load(std::string& content, size_t maxlen = npos, flag_type flags = no_flags) const;
         void save(std::string_view content, flag_type flags = no_flags) const;
 

@@ -275,21 +275,21 @@ void test_crow_path_io() {
     Path nofile = "__no_such_file__";
     std::string s;
 
-    TRY(cmcache.load(s));
+    TRY(s = cmcache.load());
     TEST_EQUAL(s.size(), cmcache.size());
     TEST_EQUAL(s.substr(0, 30), "# This is the CMakeCache file.");
-    TRY(cmcache.load(s, 10));
+    TRY(s = cmcache.load(10));
     TEST_EQUAL(s, "# This is ");
 
     TRY(testfile.save("Hello world\n"));
     TEST(testfile.exists());
     TEST_EQUAL(testfile.size(), 12u);
 
-    TRY(testfile.load(s));
+    TRY(s = testfile.load());
     TEST_EQUAL(s, "Hello world\n");
     TRY(testfile.save("Goodbye\n", Path::append));
     TEST_EQUAL(testfile.size(), 20u);
-    TRY(testfile.load(s));
+    TRY(s = testfile.load());
     TEST_EQUAL(s, "Hello world\nGoodbye\n");
 
     TRY(testfile.save("Hello world\n", Path::overwrite));
@@ -299,7 +299,7 @@ void test_crow_path_io() {
     TRY(testfile.load(s, npos, Path::append));
     TEST_EQUAL(s, "Hello world\nGoodbye\n");
 
-    TEST_THROW(nofile.load(s), std::system_error);
+    TEST_THROW(nofile.load(), std::system_error);
     TRY(nofile.load(s, npos, Path::may_fail));
     TEST(s.empty());
 

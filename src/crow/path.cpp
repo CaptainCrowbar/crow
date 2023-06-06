@@ -8,6 +8,7 @@
 #include <cerrno>
 #include <cstring>
 #include <stdexcept>
+#include <stdio.h>
 #include <system_error>
 
 #ifdef __APPLE__
@@ -1176,11 +1177,22 @@ namespace Crow {
 
     // I/O functions
 
+    std::string Path::load(size_t maxlen, flag_type flags) const {
+        std::string content;
+        load(content, maxlen, flags & ~ append);
+        return content;
+    }
+
     void Path::load(std::string& content, size_t maxlen, flag_type flags) const {
 
         static constexpr size_t block_size = 16384;
+
         FILE* in = nullptr;
-        auto guard = on_scope_exit([&] { if (in != nullptr && in != stdin) fclose(in); });
+
+        auto guard = on_scope_exit([&] {
+            if (in != nullptr && in != stdin)
+                fclose(in);
+        });
 
         if (has_bit(flags, stdio) && (filename_.empty() || filename_ == OS_CHAR("-"))) {
             in = stdin;

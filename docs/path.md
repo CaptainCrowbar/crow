@@ -707,16 +707,19 @@ throw `std::system_error`.
 ## I/O functions
 
 ```c++
+std::string Path::load(size_t maxlen = npos,
+    flag_type flags = no_flags) const;
 void Path::load(std::string& content, size_t maxlen = npos,
     flag_type flags = no_flags) const;
 ```
 
 Read the contents of a file into a string. Optionally, a maximum number of
-bytes can be specified. By default this will overwrite the string's former
-contents; set the `append` flag to append instead. If the `may_fail` flag is
-set, this will return an empty string (or append nothing) if the file does
-not exist or a read error occurs. If the `stdio` flag is set, this will read
-from standard input if the path is an empty string or `"-"`.
+bytes can be specified. In the second version, by default this will overwrite
+the string's former contents; set the `append` flag to append instead (the
+`append` flag has no effect on the first version). If the `may_fail` flag is
+set, this will return an empty string (or append nothing) if the file does not
+exist or a read error occurs. If the `stdio` flag is set, this will read from
+standard input if the path is an empty string or `"-"`.
 
 If the `may_fail` flag is not set, this will throw `std::system_error` if the
 file does not exist or an I/O error occurs.
