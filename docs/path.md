@@ -98,7 +98,7 @@ using Path::time_point = std::chrono::system_clock::time_point;
 Type used to represent file times.
 
 ```c++
-enum class Path::cmp: int {
+enum class Path::cmp: uint32_t {
     cased,
     icase,
     native
@@ -124,7 +124,7 @@ Case insensitivity here applies only to ASCII characters; the semantics of
 Unicode case sensitivity are too complicated to emulate here,
 
 ```c++
-enum class Path::flag_type: int {
+enum class Path::flag_type: uint32_t {
     no_flags = 0,
     append,        // If file exists, append instead of overwriting
     bottom_up,     // Search directory tree in bottom up order
@@ -148,7 +148,7 @@ As a general rule, flags that are not relevant to a specific function are
 ignored.
 
 ```c++
-enum class Path::form: int {
+enum class Path::form: uint32_t {
     empty,
     absolute,
     drive_absolute,
@@ -169,7 +169,7 @@ return one of those values; `is_drive_absolute()` and `is_drive_relative()`
 are always false.
 
 ```c++
-enum class Path::kind: int {
+enum class Path::kind: uint32_t {
     none,
     directory,
     file,
@@ -373,7 +373,8 @@ for a drive letter (e.g. `"C:\"`) or a network path (e.g. `"\\server\"`).
 bool Path::is_unicode() const noexcept;
 ```
 
-True if the name is valid UTF.
+True if the name is valid UTF. (This checks the name of the file, not its
+contents; see `file_content()` for content encoding checks.)
 
 ```c++
 Path Path::relative_to(const Path& base, flag_type flags = no_flags) const;
@@ -705,6 +706,21 @@ modification time. The `set_status_time()` functions exist but will always
 throw `std::system_error`.
 
 ## I/O functions
+
+```c++
+bool Path::is_binary(flag_type flags = no_flags) const;
+bool Path::is_text(flag_type flags = no_flags) const;
+```
+
+Try to determine whether this is a text or binary file. This is a best guess
+based on reading a limited amount of data from the file, and should not be
+relied on to be guaranteed correct. It does not attempt to detect UTF-16,
+UTF-32, or any other wide encoding; only 8-bit text is checked for. Both
+functions will return false if the file is empty, does not exist, or is not a
+regular file.
+
+Symlinks are followed by default. If the `no_follow` flag is set, symlinks
+will always return false for both functions.
 
 ```c++
 std::string Path::load(size_t maxlen = npos,

@@ -393,3 +393,40 @@ void test_crow_path_metadata() {
     TEST(! file.exists());
 
 }
+
+void test_crow_path_text_or_binary() {
+
+    static const Path empty = "";
+    static const Path dot = ".";
+    static const Path cmcache = "CMakeCache.txt";
+    static const Path cmfiles = "CMakeFiles";
+    static const Path cmconfig = "CMakeFiles/CMakeConfigureLog.yaml";
+    static const Path cmdirinfo = "CMakeFiles/CMakeDirectoryInformation.cmake";
+    static const Path cmtarget = "CMakeFiles/TargetDirectories.txt";
+    static const Path libcrow = "libcrow.a";
+    static const Path none = "no such file";
+
+    #ifdef _XOPEN_SOURCE
+        static const Path testcrow = "test-crow";
+        static const Path root = "/";
+        static const Path null = "/dev/null";
+    #else
+        static const Path testcrow = "test-crow.exe";
+        static const Path root = "C:/";
+        static const Path null = "NUL";
+    #endif
+
+    TEST(! empty.is_binary());      TEST(! empty.is_text());
+    TEST(! dot.is_binary());        TEST(! dot.is_text());
+    TEST(! cmcache.is_binary());    TEST(cmcache.is_text());
+    TEST(! cmfiles.is_binary());    TEST(! cmfiles.is_text());
+    TEST(! cmconfig.is_binary());   TEST(cmconfig.is_text());
+    TEST(! cmdirinfo.is_binary());  TEST(cmdirinfo.is_text());
+    TEST(! cmtarget.is_binary());   TEST(cmtarget.is_text());
+    TEST(libcrow.is_binary());      TEST(! libcrow.is_text());
+    TEST(testcrow.is_binary());     TEST(! testcrow.is_text());
+    TEST(! none.is_binary());       TEST(! none.is_text());
+    TEST(! root.is_binary());       TEST(! root.is_text());
+    TEST(! null.is_binary());       TEST(! null.is_text());
+
+}

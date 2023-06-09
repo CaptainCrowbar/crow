@@ -652,6 +652,7 @@ void path_file_system_test_group() {
     UNIT_TEST(crow_path_io)
     UNIT_TEST(crow_path_links)
     UNIT_TEST(crow_path_metadata)
+    UNIT_TEST(crow_path_text_or_binary)
 }
 
 void path_name_test_group() {

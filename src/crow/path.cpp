@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <stdio.h>
 #include <system_error>
+#include <type_traits>
 
 #ifdef __APPLE__
     #include <Availability.h>
@@ -239,6 +240,32 @@ namespace Crow {
             #endif
         }
 
+    }
+
+    // Member types
+
+    std::ostream& operator<<(std::ostream& out, Path::form f) {
+        switch (f) {
+            case Path::form::empty:           out << "empty"; break;
+            case Path::form::absolute:        out << "absolute"; break;
+            case Path::form::relative:        out << "relative"; break;
+            case Path::form::drive_absolute:  out << "drive_absolute"; break;
+            case Path::form::drive_relative:  out << "drive_relative"; break;
+            default:                          out << int(f); break;
+        }
+        return out;
+    }
+
+    std::ostream& operator<<(std::ostream& out, Path::kind k) {
+        switch (k) {
+            case Path::kind::none:       out << "none"; break;
+            case Path::kind::directory:  out << "directory"; break;
+            case Path::kind::file:       out << "file"; break;
+            case Path::kind::special:    out << "special"; break;
+            case Path::kind::symlink:    out << "symlink"; break;
+            default:                     out << int(k); break;
+        }
+        return out;
     }
 
     // Constructors
@@ -514,30 +541,6 @@ namespace Crow {
             result += os_delimiter;
         result += rhs.os_name();
         return result;
-    }
-
-    std::ostream& operator<<(std::ostream& out, Path::form f) {
-        switch (f) {
-            case Path::form::empty:           out << "empty"; break;
-            case Path::form::absolute:        out << "absolute"; break;
-            case Path::form::relative:        out << "relative"; break;
-            case Path::form::drive_absolute:  out << "drive_absolute"; break;
-            case Path::form::drive_relative:  out << "drive_relative"; break;
-            default:                          out << int(f); break;
-        }
-        return out;
-    }
-
-    std::ostream& operator<<(std::ostream& out, Path::kind k) {
-        switch (k) {
-            case Path::kind::none:       out << "none"; break;
-            case Path::kind::directory:  out << "directory"; break;
-            case Path::kind::file:       out << "file"; break;
-            case Path::kind::special:    out << "special"; break;
-            case Path::kind::symlink:    out << "symlink"; break;
-            default:                     out << int(k); break;
-        }
-        return out;
     }
 
     std::strong_ordering operator<=>(const Path& lhs, const Path& rhs) noexcept {
@@ -1495,6 +1498,27 @@ namespace Crow {
         }
 
     #endif
+
+    Path::content_type Path::test_content(flag_type flags) const {
+
+        static constexpr size_t max_bytes = 4096;
+
+        if (! is_file(flags))
+            return content_type::none;
+
+        std::string buf;
+        load(buf, max_bytes, may_fail);
+
+        if (buf.empty())
+            return content_type::none;
+
+        for (char c: buf)
+            if ((uint8_t(c) <= 0x1f && c != '\t' && c != '\n' && c != '\r') || c == '\x7f')
+                return content_type::binary;
+
+        return content_type::text;
+
+    }
 
     // Comparison objects
 

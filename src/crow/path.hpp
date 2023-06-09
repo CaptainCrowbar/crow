@@ -37,7 +37,7 @@ namespace Crow {
         using os_string = std::basic_string<os_char>;
         using time_point = std::chrono::system_clock::time_point;
 
-        enum class flag_type: int {
+        enum class flag_type: uint32_t {
             no_flags      = 0,
             append        = 1 << 0,   // Append if file exists
             bottom_up     = 1 << 1,   // Bottom up order
@@ -55,7 +55,7 @@ namespace Crow {
 
         using enum flag_type;
 
-        enum class form: int {
+        enum class form: uint32_t {
             empty,
             absolute,
             drive_absolute,
@@ -63,13 +63,16 @@ namespace Crow {
             relative,
         };
 
-        enum class kind: int {
+        enum class kind: uint32_t {
             none,
             directory,
             file,
             special,
             symlink
         };
+
+        friend std::ostream& operator<<(std::ostream& out, form f);
+        friend std::ostream& operator<<(std::ostream& out, kind k);
 
         class directory_iterator:
         public InputIterator<directory_iterator, const Path> {
@@ -124,7 +127,7 @@ namespace Crow {
 
         // Comparison objects
 
-        enum class cmp: int {
+        enum class cmp: uint32_t {
             cased,
             icase,
             native = os_case_sensitive ? cased : icase,
@@ -212,8 +215,6 @@ namespace Crow {
         friend Path& operator/=(Path& lhs, const Path& rhs) { lhs = Path::join(lhs, rhs); return lhs; }
 
         friend std::ostream& operator<<(std::ostream& out, const Path& p) { return out << p.name(); }
-        friend std::ostream& operator<<(std::ostream& out, form f);
-        friend std::ostream& operator<<(std::ostream& out, kind k);
         friend bool operator==(const Path& lhs, const Path& rhs) noexcept { return lhs.filename_ == rhs.filename_; }
         friend std::strong_ordering operator<=>(const Path& lhs, const Path& rhs) noexcept;
 
@@ -261,6 +262,8 @@ namespace Crow {
 
         // I/O functions
 
+        bool is_binary(flag_type flags = no_flags) const { return test_content(flags) == content_type::binary; }
+        bool is_text(flag_type flags = no_flags) const { return test_content(flags) == content_type::text; }
         std::string load(size_t maxlen = npos, flag_type flags = no_flags) const;
         void load(std::string& content, size_t maxlen = npos, flag_type flags = no_flags) const;
         void save(std::string_view content, flag_type flags = no_flags) const;
@@ -272,11 +275,15 @@ namespace Crow {
 
     private:
 
+        enum class content_type { none, binary, text };
+
         os_string filename_;
 
         std::pair<os_string, os_string> get_base_ext() const noexcept;
         os_string get_leaf() const noexcept;
         void make_canonical(flag_type flags);
+        content_type test_content(flag_type flags) const;
+
         template <typename Range, typename BinaryFunction> static Path do_combine(const Range& range, BinaryFunction f);
 
         #ifdef _XOPEN_SOURCE
