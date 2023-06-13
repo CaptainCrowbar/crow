@@ -94,30 +94,30 @@ namespace Crow {
         spec.exclude_mode("Pp");
         spec.default_prec(default_prec);
 
+        char opt = spec.find_option("TtUuVv");
+        spec.no_option("AaCcTtUuVvWw");
+
         if (is_exact())
             return format_object(value_, spec);
 
-        spec.no_option("z");
-        char opt = spec.find_option("lrxX");
+        if (opt == 'T' || opt == 't') {
 
-        if (opt == 'r') {
-
-            // r = Round based on error
+            // T/t = Round based on error
 
             // TODO
             return {};
 
-        } else if (opt == 'x' || opt == 'X') {
+        } else if (opt == 'V' || opt == 'v') {
 
-            // x = Show error as explicit value
-            // X = Same but with +/-
+            // v = Show error as explicit value
+            // V = Same but with +/-
 
             // TODO
             return {};
 
         } else {
 
-            // l = Show error as ulps (default)
+            // U/u = Show error as ulps (default)
 
             // TODO
             return {};
