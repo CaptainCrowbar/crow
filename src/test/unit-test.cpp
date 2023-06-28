@@ -777,6 +777,7 @@ void random_lcg_test_group() {
 
 void random_non_arithmetic_test_group() {
     UNIT_TEST(crow_random_choice_distribution)
+    UNIT_TEST(crow_random_unique_choice_distribution)
     UNIT_TEST(crow_random_weighted_distribution)
     UNIT_TEST(crow_random_uuid)
 }

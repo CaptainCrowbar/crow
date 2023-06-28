@@ -2,7 +2,9 @@
 #include "crow/random-other-distributions.hpp"
 #include "crow/uuid.hpp"
 #include "crow/unit-test.hpp"
+#include <algorithm>
 #include <map>
+#include <stdexcept>
 #include <string>
 
 using namespace Crow;
@@ -77,6 +79,33 @@ void test_crow_random_choice_distribution() {
     TEST_NEAR(census['x'] / double(iterations), 0.1, 0.001);
     TEST_NEAR(census['y'] / double(iterations), 0.1, 0.001);
     TEST_NEAR(census['z'] / double(iterations), 0.1, 0.001);
+
+}
+
+void test_crow_random_unique_choice_distribution() {
+
+    static constexpr int iterations = 10'000;
+
+    Pcg64 rng(42);
+    UniqueChoice<char> choice;
+    std::string alpha = "abcdefghij";
+    std::string prev;
+
+    TRY(choice = unique_choice(alpha));
+    TEST_EQUAL(choice.size(), 10u);
+
+    for (int i = 0; i < iterations; ++i) {
+        std::string s;
+        for (size_t i = 0; i < alpha.size(); ++i)
+            TRY(s += choice(rng));
+        TEST(choice.pool_empty());
+        TEST(s != prev);
+        TEST_THROW(choice(rng), std::length_error);
+        std::sort(s.begin(), s.end());
+        TEST_EQUAL(s, alpha);
+        prev = s;
+        TRY(choice.reset());
+    }
 
 }
 

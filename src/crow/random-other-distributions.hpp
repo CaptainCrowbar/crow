@@ -123,6 +123,8 @@ namespace Crow {
 
         template <RandomEngineType RNG>
         const T& operator()(RNG& rng) const {
+            if (vec_.empty())
+                throw std::length_error("Random choice pool is empty");
             UniformInteger<size_t> dist(vec_.size());
             size_t index = dist(rng);
             return vec_[index];
@@ -161,6 +163,76 @@ namespace Crow {
     template <typename T>
     RandomChoice<T> random_choice(std::initializer_list<T> list) {
         return RandomChoice<T>(list);
+    }
+
+    template <typename T>
+    class UniqueChoice {
+
+    public:
+
+        using result_type = T;
+
+        UniqueChoice() = default;
+        UniqueChoice(std::initializer_list<T> list): all_(list), current_(all_) {}
+
+        template <typename Range>
+        explicit UniqueChoice(const Range& range) {
+            using std::begin;
+            using std::end;
+            all_.assign(begin(range), end(range));
+            current_ = all_;
+        }
+
+        template <RandomEngineType RNG>
+        T operator()(RNG& rng) {
+            if (current_.empty())
+                throw std::length_error("Random choice pool is empty");
+            UniformInteger<size_t> dist(current_.size());
+            auto it = current_.begin() + dist(rng);
+            auto t = *it;
+            current_.erase(it);
+            return t;
+        }
+
+        template <typename... Args>
+        UniqueChoice& add(const T& t, const Args&... args) {
+            all_.push_back(t);
+            current_.push_back(t);
+            if constexpr (sizeof...(Args) > 0)
+                add(args...);
+            return *this;
+        }
+
+        template <typename Range>
+        UniqueChoice& add(const Range& range) {
+            using std::begin;
+            using std::end;
+            all_.insert(all_.end(), begin(range), end(range));
+            current_.insert(current_.end(), begin(range), end(range));
+            return *this;
+        }
+
+        bool empty() const noexcept { return all_.empty(); }
+        size_t size() const noexcept { return all_.size(); }
+        bool pool_empty() const noexcept { return current_.empty(); }
+        size_t pool_size() const noexcept { return current_.size(); }
+        void reset() { current_ = all_; }
+
+    private:
+
+        std::vector<T> all_;
+        std::vector<T> current_;
+
+    };
+
+    template <typename Range>
+    UniqueChoice<RangeValue<Range>> unique_choice(const Range& range) {
+        return UniqueChoice<RangeValue<Range>>(range);
+    }
+
+    template <typename T>
+    UniqueChoice<T> unique_choice(std::initializer_list<T> list) {
+        return UniqueChoice<T>(list);
     }
 
     template <typename T>

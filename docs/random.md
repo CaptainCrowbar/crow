@@ -431,15 +431,55 @@ template <typename T> class RandomChoice {
 };
 ```
 
-Selects a random item from a set of values. Behaviour is undefined if the
-function call operator is called on an empty distribution.
+Selects a random item from a set of values. The function call operator will
+throw `std::length_error` if it is called on an empty distribution.
 
 ```c++
 template <typename Range>
     RandomChoice<RangeValue<Range>> random_choice(const Range& range);
+template <typename T>
+    RandomChoice<T> random_choice(std::initializer_list<T> list);
+
 ```
 
-Convenience function to construct a `RandomChoice` object.
+Convenience functions to construct a `RandomChoice` object.
+
+### Unique random choice
+
+```c++
+template <typename T> class UniqueChoice {
+    using result_type = T;
+    UniqueChoice();
+    UniqueChoice(std::initializer_list<T> list);
+    template <typename Range>
+        explicit UniqueChoice(const Range& range);
+    template <RandomEngineType RNG> T operator()(RNG& rng);
+    template <typename... Args>
+        UniqueChoice& add(const Args&... args);
+    template <typename Range>
+        UniqueChoice& add(const Range& range);
+    bool empty() const noexcept;
+    size_t size() const noexcept;
+    bool pool_empty() const noexcept;
+    size_t pool_size() const noexcept;
+    void reset();
+};
+```
+
+Selects a random item from a set of values, without replacement. The
+`pool_*()` functions report the size of the remaining pool of possible return
+values. The `reset()` function restores the current pool to the full set of
+values. The function call operator will throw `std::length_error` if the
+remaining pool of return values is empty.
+
+```c++
+template <typename Range>
+    UniqueChoice<RangeValue<Range>> unique_choice(const Range& range);
+template <typename T>
+    UniqueChoice<T> unique_choice(std::initializer_list<T> list);
+```
+
+Convenience functions to construct a `UniqueChoice` object.
 
 ### Weighted random choice
 
