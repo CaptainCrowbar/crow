@@ -15,6 +15,7 @@
 #include <iterator>
 #include <limits>
 #include <map>
+#include <numeric>
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
@@ -173,31 +174,37 @@ namespace Crow {
         using result_type = T;
 
         UniqueChoice() = default;
-        UniqueChoice(std::initializer_list<T> list): all_(list), current_(all_) {}
+        UniqueChoice(std::initializer_list<T> list): vec_(list) {}
 
         template <typename Range>
         explicit UniqueChoice(const Range& range) {
             using std::begin;
             using std::end;
-            all_.assign(begin(range), end(range));
-            current_ = all_;
+            vec_.assign(begin(range), end(range));
         }
 
         template <RandomEngineType RNG>
         T operator()(RNG& rng) {
-            if (current_.empty())
+            if (! ready_) {
+                pool_.resize(vec_.size());
+                std::iota(pool_.begin(), pool_.end(), size_t(0));
+                ready_ = true;
+            }
+            if (pool_.empty())
                 throw std::length_error("Random choice pool is empty");
-            UniformInteger<size_t> dist(current_.size());
-            auto it = current_.begin() + dist(rng);
-            auto t = *it;
-            current_.erase(it);
-            return t;
+            UniformInteger<size_t> dist(pool_.size());
+            auto pool_index = dist(rng);
+            auto vec_index = pool_[pool_index];
+            if (pool_index + 1 < pool_.size())
+                std::swap(pool_[pool_index], pool_.back());
+            pool_.pop_back();
+            return vec_[vec_index];
         }
 
         template <typename... Args>
         UniqueChoice& add(const T& t, const Args&... args) {
-            all_.push_back(t);
-            current_.push_back(t);
+            vec_.push_back(t);
+            ready_ = false;
             if constexpr (sizeof...(Args) > 0)
                 add(args...);
             return *this;
@@ -207,21 +214,22 @@ namespace Crow {
         UniqueChoice& add(const Range& range) {
             using std::begin;
             using std::end;
-            all_.insert(all_.end(), begin(range), end(range));
-            current_.insert(current_.end(), begin(range), end(range));
+            vec_.insert(vec_.end(), begin(range), end(range));
+            ready_ = false;
             return *this;
         }
 
-        bool empty() const noexcept { return all_.empty(); }
-        size_t size() const noexcept { return all_.size(); }
-        bool pool_empty() const noexcept { return current_.empty(); }
-        size_t pool_size() const noexcept { return current_.size(); }
-        void reset() { current_ = all_; }
+        bool empty() const noexcept { return vec_.empty(); }
+        size_t size() const noexcept { return vec_.size(); }
+        bool pool_empty() const noexcept { return ready_ ? pool_.empty() : vec_.empty(); }
+        size_t pool_size() const noexcept { return ready_ ? pool_.size() : vec_.size(); }
+        void reset() noexcept { ready_ = false; }
 
     private:
 
-        std::vector<T> all_;
-        std::vector<T> current_;
+        std::vector<T> vec_;
+        std::vector<size_t> pool_;
+        bool ready_ = false;
 
     };
 

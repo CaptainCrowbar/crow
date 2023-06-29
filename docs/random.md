@@ -462,15 +462,16 @@ template <typename T> class UniqueChoice {
     size_t size() const noexcept;
     bool pool_empty() const noexcept;
     size_t pool_size() const noexcept;
-    void reset();
+    void reset() noexcept;
 };
 ```
 
 Selects a random item from a set of values, without replacement. The
 `pool_*()` functions report the size of the remaining pool of possible return
 values. The `reset()` function restores the current pool to the full set of
-values. The function call operator will throw `std::length_error` if the
-remaining pool of return values is empty.
+values. The `add()` functions perform an implicit `reset()`. The function call
+operator will throw `std::length_error` if the remaining pool of return values
+is empty.
 
 ```c++
 template <typename Range>
