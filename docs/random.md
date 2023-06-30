@@ -409,6 +409,28 @@ overload resolution). The constructors will throw `std::invalid_argument` if
 `min>max` or if the intersection of `[min,max]` and the range of the base
 distribution is empty.
 
+### Unique distribution
+
+```c++
+template <typename Base>
+requires (SemiregularHashable<typename Base::result_type>)
+class UniqueDistribution:
+public Base {
+    explicit UniqueDistribution(const Base& dist);
+    template <typename... Args> UniqueDistribution(Args&&... args);
+    template <RandomEngineType RNG> result_type operator()(RNG& rng);
+    void reset() noexcept;
+};
+```
+
+Creates a distribution without replacement, recording the set of values
+returned so far and not returning any of them again. The `reset()` function
+restores the pool of possible outputs to the full set of values. Note that
+this can be very slow if the full set of possible outputs is large and most of
+them have already been returned (see also `UniqueChoice` below). Behaviour is
+undefined if the function call operator is called (without calling `reset()`)
+after all possible output values have already been returned.
+
 ## Non-arithmetic discrete distributions
 
 ### Uniform random choice
@@ -467,12 +489,14 @@ template <typename T> class UniqueChoice {
 };
 ```
 
-Selects a random item from a set of values, without replacement. The
-constructor from a `RandomChoice` copies the set of values.
+Selects a random item from a set of values, without replacement. This produces
+the same distribution as `UniqueDistribution<RandomChoice<T>>` (although not
+the exact same output sequence) but is much more efficient.
 
-The `pool_*()` functions report the size of the remaining pool of possible
-return values. The `reset()` function restores the current pool to the full
-set of values. The `add()` functions perform an implicit `reset()`.
+The constructor from a `RandomChoice` copies the set of values. The `pool_*()`
+functions report the size of the remaining pool of possible return values. The
+`reset()` function restores the current pool to the full set of values. The
+`add()` functions perform an implicit `reset()`.
 
 The function call operator will throw `std::length_error` if the remaining
 pool of return values is empty.

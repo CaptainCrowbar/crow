@@ -5,6 +5,7 @@
 
 #include "crow/random-discrete-distributions.hpp"
 #include "crow/random-engines.hpp"
+#include "crow/hash.hpp"
 #include "crow/iterator.hpp"
 #include "crow/types.hpp"
 #include "crow/uuid.hpp"
@@ -18,6 +19,7 @@
 #include <numeric>
 #include <stdexcept>
 #include <type_traits>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -104,6 +106,35 @@ namespace Crow {
             if (min_ > max_)
                 throw std::invalid_argument("Constrained distribution has no possible values");
         }
+
+    template <typename Base>
+    requires (SemiregularHashable<typename Base::result_type>)
+    class UniqueDistribution:
+    public Base {
+
+    public:
+
+        using base_distribution = Base;
+        using result_type = typename Base::result_type;
+
+        explicit UniqueDistribution(const Base& dist): Base(dist) {}
+        template <typename... Args> UniqueDistribution(Args&&... args): Base(std::forward<Args>(args)...) {}
+
+        template <RandomEngineType RNG> result_type operator()(RNG& rng) {
+            result_type t;
+            do t = static_cast<Base&>(*this)(rng);
+                while (used_.contains(t));
+            used_.insert(t);
+            return t;
+        }
+
+        void reset() noexcept { used_.clear(); }
+
+    private:
+
+        std::unordered_set<result_type> used_;
+
+    };
 
     template <typename T> class UniqueChoice;
 

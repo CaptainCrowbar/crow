@@ -743,6 +743,7 @@ void quaternion_test_group() {
 
 void random_adapter_test_group() {
     UNIT_TEST(crow_random_constrained_distribution)
+    UNIT_TEST(crow_random_unique_distribution)
 }
 
 void random_algorithm_test_group() {
