@@ -105,6 +105,8 @@ namespace Crow {
                 throw std::invalid_argument("Constrained distribution has no possible values");
         }
 
+    template <typename T> class UniqueChoice;
+
     template <typename T>
     class RandomChoice {
 
@@ -152,6 +154,8 @@ namespace Crow {
 
     private:
 
+        friend class UniqueChoice<T>;
+
         std::vector<T> vec_;
 
     };
@@ -175,6 +179,7 @@ namespace Crow {
 
         UniqueChoice() = default;
         UniqueChoice(std::initializer_list<T> list): vec_(list) {}
+        explicit UniqueChoice(const RandomChoice<T>& choice): vec_(choice.vec_) {}
 
         template <typename Range>
         explicit UniqueChoice(const Range& range) {

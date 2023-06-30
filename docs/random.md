@@ -453,6 +453,7 @@ template <typename T> class UniqueChoice {
     UniqueChoice(std::initializer_list<T> list);
     template <typename Range>
         explicit UniqueChoice(const Range& range);
+    explicit UniqueChoice(const RandomChoice& choice);
     template <RandomEngineType RNG> T operator()(RNG& rng);
     template <typename... Args>
         UniqueChoice& add(const Args&... args);
@@ -467,11 +468,14 @@ template <typename T> class UniqueChoice {
 ```
 
 Selects a random item from a set of values, without replacement. The
-`pool_*()` functions report the size of the remaining pool of possible return
-values. The `reset()` function restores the current pool to the full set of
-values. The `add()` functions perform an implicit `reset()`. The function call
-operator will throw `std::length_error` if the remaining pool of return values
-is empty.
+constructor from a `RandomChoice` copies the set of values.
+
+The `pool_*()` functions report the size of the remaining pool of possible
+return values. The `reset()` function restores the current pool to the full
+set of values. The `add()` functions perform an implicit `reset()`.
+
+The function call operator will throw `std::length_error` if the remaining
+pool of return values is empty.
 
 ```c++
 template <typename Range>
