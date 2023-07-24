@@ -1,5 +1,6 @@
 #include "crow/dso.hpp"
 #include "crow/path.hpp"
+#include "crow/regex.hpp"
 #include "crow/unit-test.hpp"
 #include <cstdlib>
 #include <functional>
@@ -10,28 +11,28 @@
 
 using namespace Crow;
 
-#ifdef __APPLE__
+// #ifdef __APPLE__
 
-    namespace {
+//     namespace {
 
-        Path find_xcode_root() {
-            Path out = "__dso_test__";
-            auto cmd = "clang++ --version | grep InstalledDir >" + out.name();
-            std::system(cmd.data());
-            std::string line;
-            out.load(line);
-            out.remove();
-            auto p = line.find("/Applications");
-            auto q = line.find("/Contents");
-            if (p == npos || q == npos)
-                throw std::runtime_error("Can't find Xcode installation root");
-            auto name = line.substr(p, q - p);
-            return Path(name);
-        }
+//         Path find_xcode_root() {
+//             Path out = "__dso_test__";
+//             auto cmd = "clang++ --version | grep InstalledDir >" + out.name();
+//             std::system(cmd.data());
+//             std::string line;
+//             out.load(line);
+//             out.remove();
+//             Regex pattern("InstalledDir: (.+)\n", Regex::full);
+//             auto match = pattern(line);
+//             if (! match)
+//                 throw std::runtime_error("Can't find Xcode installation root");
+//             auto name = match[1];
+//             return Path(name);
+//         }
 
-    }
+//     }
 
-#endif
+// #endif
 
 void test_crow_dso_loading() {
 
@@ -43,29 +44,31 @@ void test_crow_dso_loading() {
 
     #ifdef __APPLE__
 
-        TRY(dir = find_xcode_root());
-        REQUIRE(dir.is_directory());
-        dir /= "Contents/Developer/usr/lib";
-        file = "libxcrun.dylib";
+        // TODO - Temporarily removed because of issues with Xcode 15 beta
 
-        REQUIRE(dir.is_directory());
-        Path path = dir / file;
-        REQUIRE(path.exists());
+        // TRY(dir = find_xcode_root());
+        // REQUIRE(dir.is_directory());
+        // dir /= "Contents/Developer/usr/lib";
+        // file = "libxcrun.dylib";
 
-        TRY(lib1 = Dso(path));
-        TRY(lib2 = Dso(file));
-        TRY(lib3 = Dso::search("xcrun"));
-        TEST(lib1);
-        TEST(lib2);
-        TEST(lib3);
-        REQUIRE(lib1 || lib2 || lib3);
+        // REQUIRE(dir.is_directory());
+        // Path path = dir / file;
+        // REQUIRE(path.exists());
 
-        if (! lib1 && ! lib2)
-            lib1 = std::move(lib3);
-        else if (! lib1)
-            lib1 = std::move(lib2);
+        // TRY(lib1 = Dso(path));
+        // TRY(lib2 = Dso(file));
+        // TRY(lib3 = Dso::search("xcrun"));
+        // TEST(lib1);
+        // TEST(lib2);
+        // TEST(lib3);
+        // REQUIRE(lib1 || lib2 || lib3);
 
-        // TODO - function tests for Apple
+        // if (! lib1 && ! lib2)
+        //     lib1 = std::move(lib3);
+        // else if (! lib1)
+        //     lib1 = std::move(lib2);
+
+        // TODO - Function tests for Apple
 
     #elifdef _XOPEN_SOURCE
 
