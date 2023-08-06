@@ -373,8 +373,8 @@ for a drive letter (e.g. `"C:\"`) or a network path (e.g. `"\\server\"`).
 bool Path::is_unicode() const noexcept;
 ```
 
-True if the name is valid UTF. (This checks the name of the file, not its
-contents; see `file_content()` for content encoding checks.)
+True if the name is valid UTF. This checks the name of the file, not its
+contents.
 
 ```c++
 Path Path::relative_to(const Path& base, flag_type flags = no_flags) const;
