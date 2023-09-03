@@ -203,31 +203,31 @@ that matches the object being formatted will be used; subsequent rules are
 not checked even if they would also have matched. The "Spec?" column
 indicates whether or not the `FormatSpec` is used if supplied.
 
-| Rule                                     | Formatting                                    | Spec?  |
-| ----                                     | ----------                                    | -----  |
-| Format spec uses `T` mode                | Type name as described above                  | No     |
-| `std::nullptr_t`                         | `"<null>"`                                    | No     |
-| Any of the standard ordering types       | Unqualified constant name                     | No     |
-| `std::optional<T>`                       | `"<null>"` if empty, otherwise as for `T`     | Yes    |
-| `bool`                                   | Boolean formatting as described above         | Yes    |
-| `char`                                   | Format as a one-character string              | Yes    |
-| `char16_t`, `char32_t`, or `wchar_t`     | Format as a UTF-8 string                      | Yes    |
-| `std::is_integral<T>`                    | Integer formatting as described above         | Yes    |
-| `std::is_floating_point<T>`              | Floating point formatting as described above  | Yes    |
-| Instantiation of `std::duration`         | Time span formatting as described above       | Yes    |
-| `std::chrono::system_clock::time_point`  | Date formatting as described above            | Yes    |
-| Derived from `Formatted`                 | Call `T::str()`                               | Yes    |
-| Has a `str(FormatSpec)` function         | Call `T::str()`                               | Yes    |
-| Has a `str()` function                   | Call `T::str()`                               | No     |
-| `to_string(T)` function (ADL or `std`)   | Call `to_string(T)`                           | No     |
-| String-like type (see below)             | String formatting as described above          | Yes    |
-| Explicitly convertible to `std::string`  | Return converted string without formatting    | No     |
-| Derived from `std::exception`            | Call `T::what()`                              | No     |
-| Map-like range type                      | Call `format_map(T)`                          | Yes    |
-| Range type                               | Call `format_range(T)`                        | Yes    |
-| Pointer type                             | `"<null>"` if null, otherwise address in hex  | No     |
-| `std::ostream << T` is valid             | Format using `std::ostringstream`             | No     |
-| Otherwise                                | Return the type and address                   | No     |
+| Rule                                      | Formatting                                    | Spec?  |
+| ----                                      | ----------                                    | -----  |
+| Format spec uses `T` mode                 | Type name as described above                  | No     |
+| `std::nullptr_t`                          | `"<null>"`                                    | No     |
+| Any of the standard ordering types        | Unqualified constant name                     | No     |
+| `std::optional<T>`                        | `"<null>"` if empty, otherwise as for `T`     | Yes    |
+| `bool`                                    | Boolean formatting as described above         | Yes    |
+| `char`                                    | Format as a one-character string              | Yes    |
+| `char16_t`, `char32_t`, or `wchar_t`      | Format as a UTF-8 string                      | Yes    |
+| `std::is_integral<T>`                     | Integer formatting as described above         | Yes    |
+| `std::is_floating_point<T>`               | Floating point formatting as described above  | Yes    |
+| Instantiation of `std::chrono::duration`  | Time span formatting as described above       | Yes    |
+| `std::chrono::system_clock::time_point`   | Date formatting as described above            | Yes    |
+| Derived from `Formatted`                  | Call `t.str()`                                | Yes    |
+| Has a `str(FormatSpec)` method            | Call `t.str()`                                | Yes    |
+| Has a `str()` method                      | Call `t.str()`                                | No     |
+| `to_string(T)` function (ADL or `std`)    | Call `to_string(T)`                           | No     |
+| String-like type (see below)              | String formatting as described above          | Yes    |
+| Explicitly convertible to `std::string`   | Return converted string without formatting    | No     |
+| Derived from `std::exception`             | Call `t.what()`                               | No     |
+| Map-like range type                       | Call `format_map(T)`                          | Yes    |
+| Range type                                | Call `format_range(T)`                        | Yes    |
+| Pointer type                              | `"<null>"` if null, otherwise address in hex  | No     |
+| `std::ostream << T` is valid              | Format using `std::ostringstream`             | No     |
+| Otherwise                                 | Return the type and address                   | No     |
 
 For the purposes of this algorithm, a "string-like type" is defined to be any of the following:
 
