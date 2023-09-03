@@ -1,5 +1,6 @@
 #include "crow/format-integer.hpp"
 #include "crow/unit-test.hpp"
+#include <stdexcept>
 
 using namespace Crow;
 
@@ -59,6 +60,7 @@ void test_crow_format_signed_integers() {
     TEST_EQUAL(format_integer(9999,        "R"),    "MMMMMMMMMCMXCIX");
     TEST_EQUAL(format_integer(42,          "r"),    "xlii");
     TEST_EQUAL(format_integer(0,           "Rz"),   "0");
+    TEST_EQUAL(format_integer(0,           "RZ"),   "--");
     TEST_EQUAL(format_integer(0,           4),      "0000");
     TEST_EQUAL(format_integer(42,          4),      "0042");
     TEST_EQUAL(format_integer(-42,         4),      "-0042");
@@ -67,6 +69,9 @@ void test_crow_format_signed_integers() {
     TEST_EQUAL(format_integer(0,           0),      "");
     TEST_EQUAL(format_integer(42,          0),      "42");
     TEST_EQUAL(format_integer(-42,         0),      "-42");
+
+    TEST_THROW(format_integer(0, "R"), std::invalid_argument);
+    TEST_THROW(format_integer(-1, "R"), std::invalid_argument);
 
 }
 
@@ -107,10 +112,13 @@ void test_crow_format_unsigned_integers() {
     TEST_EQUAL(format_integer(9999u,       "R"),    "MMMMMMMMMCMXCIX");
     TEST_EQUAL(format_integer(42u,         "r"),    "xlii");
     TEST_EQUAL(format_integer(0u,          "Rz"),   "0");
+    TEST_EQUAL(format_integer(0u,          "RZ"),   "--");
     TEST_EQUAL(format_integer(0u,          4),      "0000");
     TEST_EQUAL(format_integer(42u,         4),      "0042");
     TEST_EQUAL(format_integer(123456789u,  4),      "123456789");
     TEST_EQUAL(format_integer(0u,          0),      "");
     TEST_EQUAL(format_integer(42u,         0),      "42");
+
+    TEST_THROW(format_integer(0u, "R"), std::invalid_argument);
 
 }

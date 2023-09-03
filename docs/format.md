@@ -76,7 +76,7 @@ be formatted by use of the customization points described below.
     * Mode:
         * `B,b` = Binary integer
         * `N,n` = Decimal integer
-        * `R,r` = Roman numerals (throws `invalid_argument` if less than 1, or 0 if `Z` is set)
+        * `R,r` = Roman numerals (throws `invalid_argument` if less than 1, or 0 if `Z` or `z` is set)
         * `X,x` = Hexadecimal integer
     * Options:
         * `z` = With `R/r`, use `0` for zero.
@@ -118,40 +118,38 @@ be formatted by use of the customization points described below.
         * `P` = Use polar format `(r,θ)` with `0≤θ<2π`
         * `o` = Show only one component if the other is zero
     * Notes:
-        * All of the floating point formatting codes also apply to complex numbers
         * Default layout is `(x,y)`
+        * All of the floating point formatting codes also apply to complex numbers
 * **String formatting**
     * Applies to: `std::string` and `const char*`
     * Mode:
         * `q` = Quote the string, with escapes (e.g. `"\"Hello\\n\""`)
-        * `s` = Just print the literal string
+        * `s` = Just print the literal string (default)
         * `X,x` = Expand the string as hex byte values (e.g. `"48 65 6c 6c 6f 0a"`)
     * Options:
         * `z` = No spaces in `X/x` format
     * Precision:
-        * Default format is `"s"`
         * If a precision is supplied, the string is truncated to that many characters (Unicode code points)
+        * Null pointers are formatted as `"<null>"`
 * **Time interval formatting**
     * Applies to: Any instantiation of `std::chrono::duration`
     * Mode:
         * `s` = Format as seconds (the common numerical options also apply here)
-        * `t` = Expanded time format (e.g. `"12h34m56s"`)
+        * `t` = Expanded time format (e.g. `"12h34m56s"`) (default)
     * Precision:
-        * Default format is `"t"`
         * If a precision is supplied, seconds are shown to this many decimal places
 * **Date formatting**
     * Applies to: `std::chrono::system_clock::time_point`
     * Mode:
         * `d` = Day, month, year, time (e.g. `"3 Feb 2021 04:05:06"`)
         * `D` = Weekday, day, month, year, time (e.g. `"Wed 3 Feb 2021 04:05:06"`)
-        * `i` = ISO 8601 with space delimiter (e.g. `"2021-02-03 04:05:06"`)
+        * `i` = ISO 8601 with space delimiter (e.g. `"2021-02-03 04:05:06"`) (default)
         * `I` = ISO 8601 with T delimiter (e.g. `"2021-02-03T04:05:06"`)
     * Options:
         * `d` = Show only the date (no time of day)
         * `l` = Use the local time zone (default is UTC)
         * `t` = Show only the time of day (no date)
     * Precision:
-        * Default format is `"i"`
         * If a precision is supplied, seconds are shown to this many decimal places
 
 ## Customization points
@@ -200,65 +198,45 @@ are present, the second version will be used.
 ## Formatting algorithm
 
 Many common ways of providing formatting for a type are recognised. The
-following algorithm is used to determine how to format an object:
+following table is used to determine how to format an object. The first rule
+that matches the object being formatted will be used; subsequent rules are
+not checked even if they would also have matched. The "Spec?" column
+indicates whether or not the `FormatSpec` is used if supplied.
 
-* if the format spec uses `T` mode
-    * ✉️ return the type name as described above
-* else if the type is `std::nullptr_t`
-    * ✉️ return `"<null>"`
-* else if the type is one of the standard ordering types
-    * ✉️ return the unqualified constant name
-* else if the type is `std::optional<T>`
-    * 🎁 return `"<null>"` if empty, otherwise format as for `T`
-* else if the type is `bool`
-    * 🎁 use boolean formatting as described above
-* else if the type is `char`
-    * 🎁 make a one-character string, then use string formatting as described above
-* else if the type is `char16_t`, `char32_t`, or `wchar_t`
-    * 🎁 convert it to a UTF-8 string, then use string formatting as described above
-* else if the type is an integer (according to `std::is_integral<T>`)
-    * 🎁 use integer formatting as described above
-* else if the type is floating point (according to `std::is_floating_point<T>`)
-    * 🎁 use floating point formatting as described above
-* else if the type is an instantiation of `std::duration`
-    * 🎁 use time span formatting as described above
-* else if the type is `std::chrono::system_clock::time_point`
-    * 🎁 use date formatting as described above
-* else if the type is derived from `Formatted`
-    * 🎁 call the object's `str()` function
-* else if the type has a `str(FormatSpec)` function
-    * 🎁 call the object's `str()` function
-* else if the type has a `str()` function
-    * ✉️ call the object's `str()` function
-* else if a `to_string(T)` function is found (either by ADL or in `namespace std`)
-    * ✉️ call `to_string(T)`
-* else if the type is a string-like type (see below), or implicitly convertible to one
-    * 🎁 return `"<null>"` if the object is a null pointer, otherwise use string formatting as described above
-* else if the type is explicitly convertible to `std::string`
-    * ✉️ convert it to a string and return that (string formatting is not applied here)
-* else if the type is derived from `std::exception`
-    * ✉️ return the object's `what()` string
-* else if the object is a map-like range
-    * 🎁 call `format_map(T)`
-* else if the object is a range
-    * 🎁 call `format_range(T)`
-* else if the object is a pointer
-    * ✉️ return `"<null>"` if the pointer is null, otherwise return the hex address as `"<0xHHH...>"`
-* else if an output operator exists (`std::ostream << T`)
-    * ✉️ use a `std::ostringstream` to format the object
-* else
-    * ✉️ return the object's type name and address
+| Rule                                     | Formatting                                    | Spec?  |
+| ----                                     | ----------                                    | -----  |
+| Format spec uses `T` mode                | Type name as described above                  | No     |
+| `std::nullptr_t`                         | `"<null>"`                                    | No     |
+| Any of the standard ordering types       | Unqualified constant name                     | No     |
+| `std::optional<T>`                       | `"<null>"` if empty, otherwise as for `T`     | Yes    |
+| `bool`                                   | Boolean formatting as described above         | Yes    |
+| `char`                                   | Format as a one-character string              | Yes    |
+| `char16_t`, `char32_t`, or `wchar_t`     | Format as a UTF-8 string                      | Yes    |
+| `std::is_integral<T>`                    | Integer formatting as described above         | Yes    |
+| `std::is_floating_point<T>`              | Floating point formatting as described above  | Yes    |
+| Instantiation of `std::duration`         | Time span formatting as described above       | Yes    |
+| `std::chrono::system_clock::time_point`  | Date formatting as described above            | Yes    |
+| Derived from `Formatted`                 | Call `T::str()`                               | Yes    |
+| Has a `str(FormatSpec)` function         | Call `T::str()`                               | Yes    |
+| Has a `str()` function                   | Call `T::str()`                               | No     |
+| `to_string(T)` function (ADL or `std`)   | Call `to_string(T)`                           | No     |
+| String-like type (see below)             | String formatting as described above          | Yes    |
+| Explicitly convertible to `std::string`  | Return converted string without formatting    | No     |
+| Derived from `std::exception`            | Call `T::what()`                              | No     |
+| Map-like range type                      | Call `format_map(T)`                          | Yes    |
+| Range type                               | Call `format_range(T)`                        | Yes    |
+| Pointer type                             | `"<null>"` if null, otherwise address in hex  | No     |
+| `std::ostream << T` is valid             | Format using `std::ostringstream`             | No     |
+| Otherwise                                | Return the type and address                   | No     |
 
-Notes:
+For the purposes of this algorithm, a "string-like type" is defined to be any of the following:
 
-* Entries marked 🎁 use the `FormatSpec`; those marked ✉️ ignore it.
-* For the purposes of this algorithm, a "string-like type" is defined to be any of the following:
-    * `std::string`
-    * `std::string_view`
-    * `char*` or `const char*`
-    * A C-style array of `char`
-    * The `char16_t`, `char32_t`, or `wchar_t` equivalents of any of the above
-    * Any type that can be implicitly converted to any of the above
+* `std::string`
+* `std::string_view`
+* `char*` or `const char*`
+* A C-style array of `char`
+* The `char16_t`, `char32_t`, or `wchar_t` equivalents of any of the above
+* Any type that can be implicitly converted to any of the above and isn't covered by another rule
 
 ```c++
 template <typename T> concept FixedFormatType;
