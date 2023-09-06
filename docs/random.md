@@ -189,7 +189,7 @@ Sebastiano Vigna.
 ### Default generator
 
 ```c++
-using StdRng = Pcg64;
+using StdRng = Pcg64dxsm;
 ```
 
 A good generator to use as a default when we have a function that calls an RNG

@@ -376,7 +376,7 @@ namespace Crow {
 
     // Default choice of RNG
 
-    using StdRng = Pcg64;
+    using StdRng = Pcg64dxsm;
 
     // Seeding functions
 
