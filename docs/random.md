@@ -124,7 +124,7 @@ class Squirrel64 {
 
 Squirrel3 simple fast hash functions by Squirrel Eiserloh.
 
-### PCG generator
+### PCG generators
 
 ```c++
 class Pcg64 {
@@ -142,6 +142,26 @@ class Pcg64 {
 ```
 
 [PCG generator](http://www.pcg-random.org/) by Melissa O'Neill.
+
+```c++
+class Pcg64dxsm {
+    using result_type = uint64_t;
+    constexpr Pcg64dxsm() noexcept;
+    constexpr explicit Pcg64dxsm(uint64_t s) noexcept;
+    constexpr explicit Pcg64dxsm(uint64_t s0, uint64_t s1) noexcept;
+    constexpr explicit Pcg64dxsm(uint64_t s0, uint64_t s1, uint64_t s2, uint64_t s3) noexcept;
+    constexpr uint64_t operator()() noexcept;
+    constexpr void seed(uint64_t s) noexcept;
+    constexpr void seed(uint64_t s0, uint64_t s1) noexcept;
+    constexpr void seed(uint64_t s0, uint64_t s1, uint64_t s2, uint64_t s3) noexcept;
+    static constexpr uint64_t min() noexcept;
+    static constexpr uint64_t max() noexcept;
+};
+```
+
+PCG64 DXSM generator. This is an improved version of PCG64, with better
+large-scale statistical quality, but a larger internal state (256 bits vs 128
+for the original PCG64).
 
 ### Xoshiro generator
 

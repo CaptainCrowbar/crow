@@ -785,6 +785,7 @@ void random_non_arithmetic_test_group() {
 
 void random_pcg_test_group() {
     UNIT_TEST(crow_random_pcg64)
+    UNIT_TEST(crow_random_pcg64dxsm)
 }
 
 void random_seed_test_group() {

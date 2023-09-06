@@ -237,6 +237,59 @@ namespace Crow {
 
     };
 
+    // PCG64 DXSM implementation
+    // Based on code by Tony Finch
+    // https://dotat.at/@/2023-06-21-pcg64-dxsm.html
+
+    class Pcg64dxsm {
+
+    public:
+
+        using result_type = uint64_t;
+
+        constexpr Pcg64dxsm() noexcept { seed(default_seed); }
+        constexpr explicit Pcg64dxsm(uint64_t s) noexcept { seed(s); }
+        constexpr explicit Pcg64dxsm(uint64_t s0, uint64_t s1) noexcept { seed(s0, s1); }
+        constexpr explicit Pcg64dxsm(uint64_t s0, uint64_t s1, uint64_t s2, uint64_t s3) noexcept { seed(s0, s1, s2, s3); }
+
+        constexpr uint64_t operator()() noexcept {
+            auto st = this->state_;
+            this->state_ = st * mul + this->inc_;
+            auto hi = uint64_t(st >> 64);
+            auto lo = uint64_t(st | 1);
+            hi ^= hi >> 32;
+            hi *= mul;
+            hi ^= hi >> 48;
+            hi *= lo;
+            return hi;
+        }
+
+        constexpr void seed(uint64_t s) noexcept { seed(0, s, 0, 0); }
+        constexpr void seed(uint64_t s0, uint64_t s1) noexcept { seed(s0, s1, 0, 0); }
+
+        constexpr void seed(uint64_t s0, uint64_t s1, uint64_t s2, uint64_t s3) noexcept {
+            state_ = {s0, s1};
+            inc_ = {s2, s3};
+            inc_ = (inc_ << 1) | 1;
+            state_ += inc_;
+            (*this)();
+        }
+
+        static constexpr uint64_t min() noexcept { return 0; }
+        static constexpr uint64_t max() noexcept { return ~ uint64_t(0); }
+
+    private:
+
+        using state_type = Uint128;
+
+        static constexpr uint64_t default_seed = 0xcafe'f00d'd15e'a5e5ull;
+        static constexpr uint64_t mul = 0xda94'2042'e4dd'58b5ull;
+
+        state_type state_;
+        state_type inc_;
+
+    };
+
     // Xoshiro256** generator by David Blackman and Sebastiano Vigna
     // http://xoshiro.di.unimi.it/
 
