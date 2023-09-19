@@ -28,9 +28,9 @@ and reference qualifications from `T`).
 ## Hash mixing functions
 
 ```c++
-template <Hashable... Args> size_t hash_mix(const Args&... args);
-template <Hashable... TS> size_t hash_mix(const std::tuple<TS...>& t);
-template <RangeType Range> size_t hash_mix(const Range& r);
+template <Hashable... Args> constexpr size_t hash_mix(const Args&... args);
+template <Hashable... TS> constexpr size_t hash_mix(const std::tuple<TS...>& t);
+template <RangeType Range> constexpr size_t hash_mix(const Range& r);
 ```
 
 Hash mixing functions. These return the combined hash of a list, tuple, or

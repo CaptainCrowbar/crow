@@ -36,7 +36,7 @@ namespace Crow {
         }
 
         template <size_t Index, Hashable... TS>
-        void hash_mix_tuple_helper(size_t& h, const std::tuple<TS...>& t) {
+        constexpr void hash_mix_tuple_helper(size_t& h, const std::tuple<TS...>& t) {
             using T = std::remove_cvref_t<std::tuple_element_t<Index, std::tuple<TS...>>>;
             size_t h1 = std::hash<T>()(std::get<Index>(t));
             hash_mix_helper(h, h1);
@@ -47,7 +47,7 @@ namespace Crow {
     }
 
     template <Hashable... TS>
-    size_t hash_mix(const std::tuple<TS...>& t) {
+    constexpr size_t hash_mix(const std::tuple<TS...>& t) {
         using namespace Detail;
         size_t h = 0;
         if constexpr (sizeof...(TS) > 0)
@@ -56,12 +56,12 @@ namespace Crow {
     }
 
     template <Hashable T1, Hashable T2, Hashable... Args>
-    size_t hash_mix(T1&& t1, T2&& t2, Args&&... args) {
+    constexpr size_t hash_mix(T1&& t1, T2&& t2, Args&&... args) {
         return hash_mix(std::tie(std::forward<T1>(t1), std::forward<T2>(t2), std::forward<Args>(args)...));
     }
 
     template <RangeType Range>
-    size_t hash_mix(const Range& r) {
+    constexpr size_t hash_mix(const Range& r) {
         using namespace Detail;
         using T = RangeValue<Range>;
         std::hash<T> t_hash;
