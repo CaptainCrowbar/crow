@@ -582,6 +582,18 @@ void named_mutex_test_group() {
     UNIT_TEST(crow_named_mutex)
 }
 
+void newtype_test_group() {
+    UNIT_TEST(crow_newtype_constructors)
+    UNIT_TEST(crow_newtype_conversions)
+    UNIT_TEST(crow_newtype_arithmetic_operators)
+    UNIT_TEST(crow_newtype_bitwise_operators)
+    UNIT_TEST(crow_newtype_comparison_operators)
+    UNIT_TEST(crow_newtype_formatting_functions)
+    UNIT_TEST(crow_newtype_hash_functions)
+    UNIT_TEST(crow_newtype_range_access)
+    UNIT_TEST(crow_newtype_string_functions)
+}
+
 void noise_test_group() {
     UNIT_TEST(crow_noise_result_stability)
     UNIT_TEST(crow_noise_multiple_sources)
@@ -1232,6 +1244,7 @@ int main(int argc, char** argv) {
     multi_array_test_group();
     name_test_group();
     named_mutex_test_group();
+    newtype_test_group();
     noise_test_group();
     options_anonymous_test_group();
     options_boolean_test_group();

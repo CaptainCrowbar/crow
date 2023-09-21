@@ -30,6 +30,7 @@ Other libraries required:
     * [crow/guard](guard.html) - Scope guards
     * [crow/iterator](iterator.html) - Iterator types and algorithms
     * [crow/meta](meta.html) - Metaprogramming utilities
+    * [crow/newtype](newtype.html) - Hard type alias
     * [crow/resource](resource.html) - Resource handle
     * [crow/types](types.html) - Basic types
     * [crow/uuid](uuid.html) - UUID
