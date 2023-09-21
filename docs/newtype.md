@@ -35,11 +35,47 @@ All of the usual bitwise operators are defined.
 ## Newtype class template
 
 ```c++
-template <typename T, typename Tag = Ntag<0>, Ntype Flags = Ntype::none>
+template <typename T, typename Tag = void, Ntype Flags = Ntype::none>
     class Newtype;
 ```
 
-TODO
+This template wrapper creates a "hard type alias" -- a new type with the same
+behaviour as `T`, as far as possible in C++. The new type will usually
+support all the same operators as `T`, apart from the dereference operators,
+which are used to access the underlying `T` value.
+
+Most of the member functions of `T` can be called using the arrow operator. A
+few are explicitly implemented as special cases, providing direct member
+functions of `Newtype`(for example, if `T` has a `substr()` function, we
+expect `Newtype::substr()` to return another `Newtype` instead of the plain
+`T` that `Newtype->substr()` would return).
+
+Explicit conversion operators always exist in both directions between `T` and
+`Newtype<T>`, and between different instantiations of `Newtype` for the same
+`T`.
+
+The second template argument, `Tag`, can be used to distinguish different
+instantiations with the same underlying type. This can be any type, and does
+not need to be complete; only its identity is used. The convenience
+definition `Ntag<int>` is supplied to make it easy to define multiple aliases
+of the same type. When aliases from different sources may be used together
+and distinguishing them is necessary, incomplete dummy types can be created
+to give aliases a unique identity.
+
+The third template argument, `Flags`, specifies optional behaviour for the
+alias:
+
+* `Ntype::compare` -- If this is supplied, heterogeneous comparison operators
+  between `Newtype<T>` and `T` will be defined. By default, only homogeneous
+  comparison operators are defined. This has no effect if `T` is not
+  comparable.
+* `Ntype::construct` -- If this is supplied, an implicit conversion
+  constructor from `T` to `Newtype<T>` is defined. By default, this
+  conversion is explicit.
+* `Ntype::convert` -- If this is supplied, an implicit conversion operator
+  from `Newtype<T>` to `T` is defined. By default, this conversion is
+  explicit. Combining `construct` and `convert` is legal but likely to lead
+  to ambiguous overload resolution issues.
 
 ### Parameter visibility
 
@@ -80,19 +116,25 @@ Move operations. These are only defined if `T` is movable.
 
 ```c++
 [optionally explicit] Newtype::Newtype(const T& t);
+[optionally explicit] Newtype::Newtype(T&& t);
+Newtype& Newtype::operator=(const T& t);
+Newtype& Newtype::operator=(T&& t);
 ```
 
-Conversion constructor from a `T`. The explicit conversion constructor is
-always defined; an implicit conversion constructor is defined if the
-`construct` flag is present.
+Conversions from a `T`. The explicit conversion constructors are always
+defined; implicit conversions and assignment operators are defined if the
+`construct` flag is present and `T` has the necessary properties.
 
 ```c++
 template <typename Tag2, Ntype F2>
     explicit Newtype::Newtype(const Newtype<T, Tag2, F2>& nt);
+template <typename Tag2, Ntype F2>
+    explicit Newtype::Newtype(Newtype<T, Tag2, F2>&& nt);
 ```
 
 Conversion constructors between different hard type aliases based on the same
-underlying type. These are always defined and always explicit.
+underlying type. These are always defined if the corresponding operation on
+`T` is defined, and always explicit.
 
 ```c++
 explicit Newtype::Newtype(TS&&... args);
@@ -248,7 +290,8 @@ size_t Newtype::hash() const noexcept;
 class std::hash<Newtype>;
 ```
 
-Hash functions. Defined if `std::hash<T>` is defined.
+Hash functions. These are defined if `std::hash<T>` is defined, and return the
+same value.
 
 ### Range access
 
@@ -258,23 +301,26 @@ const [value type]& Newtype::operator[](size_t i) const;
 [value type] Newtype::operator[](size_t i) const;
 ```
 
-TODO
+Indexing operator. Defined if the corresponding operator for `T` is defined.
+The `const` version can return either a reference or a value, whichever is
+returned by the underlying operator.
 
 ```c++
 [iterator] Newtype::begin();
 [iterator] Newtype::begin() const;
-[iterator] Newtype::end();
-[iterator] Newtype::end() const;
+[iterator or sentinel] Newtype::end();
+[iterator or sentinel] Newtype::end() const;
 ```
 
-TODO
+Range access functions. Defined if `std::ranges::begin/end(T)` are defined,
+and returning the same type as those functions.
 
 ```c++
 size_t Newtype::size() const;
 bool Newtype::empty() const;
 ```
 
-TODO
+Range property functions. Defined if `std::ranges::size/empty(T)` are defined.
 
 ### String functions
 
@@ -282,4 +328,6 @@ TODO
 Newtype Newtype::substr(size_t pos, size_t len = npos) const;
 ```
 
-TODO
+Defined if `T::substr()` is defined. This returns a `Newtype` wrapped around
+the substring, instead of the raw `T` substring that `Newtype->substr()` would
+return.

@@ -42,7 +42,7 @@ namespace Crow {
 
     CROW_BITMASK_OPERATORS(Ntype)
 
-    template <typename T, typename Tag = Ntag<0>, Ntype Flags = Ntype::none>
+    template <typename T, typename Tag = void, Ntype Flags = Ntype::none>
     class Newtype {
 
     private:
@@ -69,21 +69,32 @@ namespace Crow {
 
         template <bool OK = std::default_initializable<T>, std::enable_if_t<OK, int> = 0>
             Newtype() {}
+
         template <bool OK = std::copyable<T>, std::enable_if_t<OK, int> = 0>
             Newtype(const Newtype& nt): value_(nt.value_) {}
         template <bool OK = std::movable<T>, std::enable_if_t<OK, int> = 0>
             Newtype(Newtype&& nt): value_(std::move(nt.value_)) {}
-        template <typename Tag2, Ntype F2, bool OK = std::copyable<T>, std::enable_if_t<OK, int> = 0>
-            explicit Newtype(const Newtype<T, Tag2, F2>& nt): value_(nt.value_) {}
-        explicit(! implicit_construct)
-            Newtype(const T& t): value_(t) {}
-        template <typename... TS, std::enable_if_t<std::constructible_from<T, TS...>, int> = 0>
-            explicit Newtype(TS&&... args): value_(std::forward<TS>(args)...) {}
-
         template <bool OK = std::copyable<T>, std::enable_if_t<OK, int> = 0>
             Newtype& operator=(const Newtype& nt) { value_ = nt.value_; return *this; }
         template <bool OK = std::movable<T>, std::enable_if_t<OK, int> = 0>
             Newtype& operator=(Newtype&& nt) { value_ = std::move(nt.value_); return *this; }
+
+        template <bool OK = std::copyable<T>, std::enable_if_t<OK, int> = 0>
+            explicit(! implicit_construct) Newtype(const T& t): value_(t) {}
+        template <bool OK = std::movable<T>, std::enable_if_t<OK, int> = 0>
+            explicit(! implicit_construct) Newtype(T&& t): value_(std::move(t)) {}
+        template <bool OK = implicit_construct && std::copyable<T>, std::enable_if_t<OK, int> = 0>
+            Newtype& operator=(const T& t) { value_ = t; return *this; }
+        template <bool OK = implicit_construct && std::movable<T>, std::enable_if_t<OK, int> = 0>
+            Newtype& operator=(T&& t) { value_ = std::move(t); return *this; }
+
+        template <typename Tag2, Ntype F2, bool OK = std::copyable<T>, std::enable_if_t<OK, int> = 0>
+            explicit Newtype(const Newtype<T, Tag2, F2>& nt): value_(nt.value_) {}
+        template <typename Tag2, Ntype F2, bool OK = std::movable<T>, std::enable_if_t<OK, int> = 0>
+            explicit Newtype(Newtype<T, Tag2, F2>&& nt): value_(std::move(nt.value_)) {}
+
+        template <typename... TS, std::enable_if_t<std::constructible_from<T, TS...>, int> = 0>
+            explicit Newtype(TS&&... args): value_(std::forward<TS>(args)...) {}
 
         // Conversion operators
 
