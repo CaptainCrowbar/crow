@@ -65,7 +65,8 @@ both(supplying `linear` here will fail to compile).
 ## FlexibleMap class
 
 ```c++
-template <std::equality_comparable K, std::regular T, FlexImpl Prefer = FlexImpl::order>
+template <std::equality_comparable K, std::regular T,
+    FlexImpl Prefer = FlexImpl::order>
 class FlexibleMap {
     class const_iterator;
     class iterator;
@@ -104,7 +105,8 @@ class FlexibleMap {
 ## FlexibleSet class
 
 ```c++
-template <std::equality_comparable K, FlexImpl Prefer = FlexImpl::order>
+template <std::equality_comparable K,
+    FlexImpl Prefer = FlexImpl::order>
 class FlexibleSet {
     class const_iterator;
     class iterator;
