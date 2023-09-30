@@ -20,7 +20,18 @@ implementation will behave like a `std::map/set,` a `std::unordered_map/set,`
 or a simple `vector` with linear search, depending on whether the key type
 provides a comparison function, a hash function, or neither.
 
-## Supporting types
+## Infrastructure
+
+### Concepts
+
+```c++
+template <typename T> concept Setlike;
+```
+
+True if `T` is an instantiation of `std::set`, `std::unordered_set`, or
+`FlexibleSet`.
+
+### Supporting types
 
 ```c++
 enum class FlexImpl: int {
@@ -38,32 +49,6 @@ implementation (the default) or a hash implementation when the key type
 allows both (supplying `linear` here will fail to compile).
 
 ## Flexible associative container classes
-
-### Complexity
-
-`C` is the container type, `n` is the size of the container, and `k` is the
-number of elements involved in the operation.
-
-| Operation           | `ordered`        | `hash`  | `linear`  |
-| ---------           | -------        | ------  | --------  |
-| `Container()`       | `O(1)`         | `O(1)`  | `O(1)`    |
-| `Container(value)`  | `O(1)`         | `O(1)`  | `O(1)`    |
-| `Container(list)`   | `O(k)`         | `O(k)`  | `O(k)`    |
-| `Container(i,j)`    | `O(k)`         | `O(k)`  | `O(k)`    |
-| `operator[](key)`   | `O(log(n))`    | `O(1)`  | `O(n)`    |
-| `begin()`           | `O(1)`         | `O(1)`  | `O(1)`    |
-| `end()`             | `O(1)`         | `O(1)`  | `O(1)`    |
-| `size()`            | `O(1)`         | `O(1)`  | `O(1)`    |
-| `empty()`           | `O(1)`         | `O(1)`  | `O(1)`    |
-| `contains(key)`     | `O(log(n))`    | `O(1)`  | `O(n)`    |
-| `find(key)`         | `O(log(n))`    | `O(1)`  | `O(n)`    |
-| `insert(value)`     | `O(log(n))`    | `O(1)`  | `O(n)`    |
-| `insert(i,value)`   | `O(log(n))`    | `O(1)`  | `O(n)`    |
-| `insert(i,j)`       | `O(k.log(n))`  | `O(k)`  | `O(k.n)`  |
-| `insert(list)`      | `O(k.log(n))`  | `O(k)`  | `O(k.n)`  |
-| `erase(i)`          | `O(1)`         | `O(1)`  | `O(n)`    |
-| `erase(key)`        | `O(log(n))`    | `O(1)`  | `O(n)`    |
-| `clear()`           | `O(1)`         | `O(1)`  | `O(n)`    |
 
 ### FlexibleMap class
 
@@ -142,18 +127,33 @@ class FlexibleSet {
 };
 ```
 
+### Complexity
+
+`C` is the container type, `n` is the size of the container, and `k` is the
+number of elements involved in the operation.
+
+| Operation           | `ordered`        | `hash`  | `linear`  |
+| ---------           | -------        | ------  | --------  |
+| `Container()`       | `O(1)`         | `O(1)`  | `O(1)`    |
+| `Container(value)`  | `O(1)`         | `O(1)`  | `O(1)`    |
+| `Container(list)`   | `O(k)`         | `O(k)`  | `O(k)`    |
+| `Container(i,j)`    | `O(k)`         | `O(k)`  | `O(k)`    |
+| `operator[](key)`   | `O(log(n))`    | `O(1)`  | `O(n)`    |
+| `begin()`           | `O(1)`         | `O(1)`  | `O(1)`    |
+| `end()`             | `O(1)`         | `O(1)`  | `O(1)`    |
+| `size()`            | `O(1)`         | `O(1)`  | `O(1)`    |
+| `empty()`           | `O(1)`         | `O(1)`  | `O(1)`    |
+| `contains(key)`     | `O(log(n))`    | `O(1)`  | `O(n)`    |
+| `find(key)`         | `O(log(n))`    | `O(1)`  | `O(n)`    |
+| `insert(value)`     | `O(log(n))`    | `O(1)`  | `O(n)`    |
+| `insert(i,value)`   | `O(log(n))`    | `O(1)`  | `O(n)`    |
+| `insert(i,j)`       | `O(k.log(n))`  | `O(k)`  | `O(k.n)`  |
+| `insert(list)`      | `O(k.log(n))`  | `O(k)`  | `O(k.n)`  |
+| `erase(i)`          | `O(1)`         | `O(1)`  | `O(n)`    |
+| `erase(key)`        | `O(log(n))`    | `O(1)`  | `O(n)`    |
+| `clear()`           | `O(1)`         | `O(1)`  | `O(n)`    |
+
 ## Generic set operations
-
-### Concepts
-
-```c++
-template <typename T> concept Setlike;
-```
-
-True if `T` is an instantiation of `std::set`, `std::unordered_set`, or
-`FlexibleSet`.
-
-### Set functions
 
 ```c++
 template <Setlike S, Setlike T>
@@ -178,7 +178,7 @@ These perform the corresponding set theoretic operations. The first
 (two argument) version of each function returns a set of the same type as its
 first argument; the second (three argument) version writes the result into
 its third argument (discarding any existing content). In all cases any
-combination of set-like types is supported, and aliasing between any
+combination of set-like types is supported, and aliasing between any or all
 arguments is allowed.
 
 Complexity is _O(n<sup>2</sup>)_ if both input arguments are linear sets,
