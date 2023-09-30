@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <functional>
 #include <string>
+#include <utility>
 #include <vector>
 
 using namespace Crow;
@@ -35,14 +36,14 @@ namespace std {
 
 }
 
-void test_crow_flexible_map_order() {
+void test_crow_flexible_map_ordered() {
 
     using FM = FlexibleMap<int, std::string>;
 
-    FM map;
+    FM map, map2;
     FM::const_iterator i;
 
-    TEST_EQUAL(map.impl, FlexImpl::order);
+    TEST_EQUAL(map.impl, FlexImpl::ordered);
     TEST(map.empty());
     TEST_EQUAL(map.size(), 0u);
 
@@ -196,13 +197,21 @@ void test_crow_flexible_map_order() {
     TEST(map.contains(6));
     TEST(! map.contains(7));
 
+    TRY((map2 = {{1, "xx"}, {2, "yy"}, {3, "zz"}}));
+    TRY(map.swap(map2));
+    TEST_EQUAL(map[1], "xx");
+    TEST_EQUAL(map[2], "yy");
+    TEST_EQUAL(map[3], "zz");
+    TEST_EQUAL(map2[5], "ee");
+    TEST_EQUAL(map2[6], "ff");
+
 }
 
 void test_crow_flexible_map_hash() {
 
     using FM = FlexibleMap<HashKey, std::string>;
 
-    FM map;
+    FM map, map2;
     FM::const_iterator i;
 
     TEST_EQUAL(map.impl, FlexImpl::hash);
@@ -359,13 +368,21 @@ void test_crow_flexible_map_hash() {
     TEST(map.contains({6}));
     TEST(! map.contains({7}));
 
+    TRY((map2 = {{{1}, "xx"}, {{2}, "yy"}, {{3}, "zz"}}));
+    TRY(map.swap(map2));
+    TEST_EQUAL(map[{1}], "xx");
+    TEST_EQUAL(map[{2}], "yy");
+    TEST_EQUAL(map[{3}], "zz");
+    TEST_EQUAL(map2[{5}], "ee");
+    TEST_EQUAL(map2[{6}], "ff");
+
 }
 
 void test_crow_flexible_map_linear() {
 
     using FM = FlexibleMap<LinearKey, std::string>;
 
-    FM map;
+    FM map, map2;
     FM::const_iterator i;
 
     TEST_EQUAL(map.impl, FlexImpl::linear);
@@ -521,5 +538,13 @@ void test_crow_flexible_map_linear() {
     TEST(map.contains({5}));
     TEST(map.contains({6}));
     TEST(! map.contains({7}));
+
+    TRY((map2 = {{{1}, "xx"}, {{2}, "yy"}, {{3}, "zz"}}));
+    TRY(map.swap(map2));
+    TEST_EQUAL(map[{1}], "xx");
+    TEST_EQUAL(map[{2}], "yy");
+    TEST_EQUAL(map[{3}], "zz");
+    TEST_EQUAL(map2[{5}], "ee");
+    TEST_EQUAL(map2[{6}], "ff");
 
 }

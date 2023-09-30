@@ -220,15 +220,20 @@ void fixed_binary_small_binary_5_test_group() {
 }
 
 void flexible_map_test_group() {
-    UNIT_TEST(crow_flexible_map_order)
+    UNIT_TEST(crow_flexible_map_ordered)
     UNIT_TEST(crow_flexible_map_hash)
     UNIT_TEST(crow_flexible_map_linear)
 }
 
 void flexible_set_test_group() {
-    UNIT_TEST(crow_flexible_set_order)
+    UNIT_TEST(crow_flexible_set_ordered)
     UNIT_TEST(crow_flexible_set_hash)
     UNIT_TEST(crow_flexible_set_linear)
+    UNIT_TEST(crow_flexible_set_concepts)
+    UNIT_TEST(crow_flexible_set_union)
+    UNIT_TEST(crow_flexible_set_intersection)
+    UNIT_TEST(crow_flexible_set_difference)
+    UNIT_TEST(crow_flexible_set_symmetric_difference)
 }
 
 void font_test_group() {
