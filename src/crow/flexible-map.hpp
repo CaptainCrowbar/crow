@@ -307,62 +307,86 @@ namespace Crow {
 
     template <Setlike S, Setlike T, Setlike U>
     void set_union(const S& s, const T& t, U& u) {
-        U v;
-        if constexpr (Detail::both_ordered<S, T>) {
+        constexpr auto m = Detail::SetlikeMode<S>::value;
+        constexpr auto n = Detail::SetlikeMode<T>::value;
+        if constexpr (m == FlexImpl::linear && n != FlexImpl::linear) {
+            set_union(t, s, u);
+        } else if constexpr (m == FlexImpl::ordered && n == FlexImpl::ordered) {
+            U v;
             std::set_union(s.begin(), s.end(), t.begin(), t.end(),
                 std::inserter(v, v.end()));
+            u.swap(v);
         } else {
+            U v;
             for (auto& x: s)
                 v.insert(v.end(), x);
             for (auto& y: t)
                 v.insert(v.end(), y);
+            u.swap(v);
         }
-        u.swap(v);
     }
 
     template <Setlike S, Setlike T, Setlike U>
     void set_intersection(const S& s, const T& t, U& u) {
-        U v;
-        if constexpr (Detail::both_ordered<S, T>) {
+        constexpr auto m = Detail::SetlikeMode<S>::value;
+        constexpr auto n = Detail::SetlikeMode<T>::value;
+        if constexpr (m == FlexImpl::linear && n != FlexImpl::linear) {
+            set_intersection(t, s, u);
+        } else if constexpr (m == FlexImpl::ordered && n == FlexImpl::ordered) {
+            U v;
             std::set_intersection(s.begin(), s.end(), t.begin(), t.end(),
                 std::inserter(v, v.end()));
+            u.swap(v);
         } else {
+            U v;
             for (auto& x: s)
                 if (t.contains(x))
                     v.insert(v.end(), x);
+            u.swap(v);
         }
-        u.swap(v);
     }
 
     template <Setlike S, Setlike T, Setlike U>
     void set_difference(const S& s, const T& t, U& u) {
-        U v;
-        if constexpr (Detail::both_ordered<S, T>) {
+        constexpr auto m = Detail::SetlikeMode<S>::value;
+        constexpr auto n = Detail::SetlikeMode<T>::value;
+        if constexpr (m == FlexImpl::linear && n != FlexImpl::linear) {
+            set_difference(t, s, u);
+        } else if constexpr (m == FlexImpl::ordered && n == FlexImpl::ordered) {
+            U v;
             std::set_difference(s.begin(), s.end(), t.begin(), t.end(),
                 std::inserter(v, v.end()));
+            u.swap(v);
         } else {
+            U v;
             for (auto& x: s)
                 if (! t.contains(x))
                     v.insert(v.end(), x);
+            u.swap(v);
         }
-        u.swap(v);
     }
 
     template <Setlike S, Setlike T, Setlike U>
     void set_symmetric_difference(const S& s, const T& t, U& u) {
-        U v;
-        if constexpr (Detail::both_ordered<S, T>) {
+        constexpr auto m = Detail::SetlikeMode<S>::value;
+        constexpr auto n = Detail::SetlikeMode<T>::value;
+        if constexpr (m == FlexImpl::linear && n != FlexImpl::linear) {
+            set_symmetric_difference(t, s, u);
+        } else if constexpr (m == FlexImpl::ordered && n == FlexImpl::ordered) {
+            U v;
             std::set_symmetric_difference(s.begin(), s.end(), t.begin(), t.end(),
                 std::inserter(v, v.end()));
+            u.swap(v);
         } else {
+            U v;
             for (auto& x: s)
                 if (! t.contains(x))
                     v.insert(v.end(), x);
             for (auto& y: t)
                 if (! s.contains(y))
                     v.insert(v.end(), y);
+            u.swap(v);
         }
-        u.swap(v);
     }
 
     template <Setlike S, Setlike T>
