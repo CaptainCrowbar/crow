@@ -309,7 +309,7 @@ namespace Crow {
     void set_union(const S& s, const T& t, U& u) {
         constexpr auto m = Detail::SetlikeMode<S>::value;
         constexpr auto n = Detail::SetlikeMode<T>::value;
-        if constexpr (m == FlexImpl::linear && n != FlexImpl::linear) {
+        if constexpr (m != FlexImpl::linear && n == FlexImpl::linear) {
             set_union(t, s, u);
         } else if constexpr (m == FlexImpl::ordered && n == FlexImpl::ordered) {
             U v;
@@ -330,7 +330,7 @@ namespace Crow {
     void set_intersection(const S& s, const T& t, U& u) {
         constexpr auto m = Detail::SetlikeMode<S>::value;
         constexpr auto n = Detail::SetlikeMode<T>::value;
-        if constexpr (m == FlexImpl::linear && n != FlexImpl::linear) {
+        if constexpr (m != FlexImpl::linear && n == FlexImpl::linear) {
             set_intersection(t, s, u);
         } else if constexpr (m == FlexImpl::ordered && n == FlexImpl::ordered) {
             U v;
@@ -350,7 +350,7 @@ namespace Crow {
     void set_difference(const S& s, const T& t, U& u) {
         constexpr auto m = Detail::SetlikeMode<S>::value;
         constexpr auto n = Detail::SetlikeMode<T>::value;
-        if constexpr (m == FlexImpl::linear && n != FlexImpl::linear) {
+        if constexpr (m != FlexImpl::linear && n == FlexImpl::linear) {
             set_difference(t, s, u);
         } else if constexpr (m == FlexImpl::ordered && n == FlexImpl::ordered) {
             U v;
@@ -370,7 +370,7 @@ namespace Crow {
     void set_symmetric_difference(const S& s, const T& t, U& u) {
         constexpr auto m = Detail::SetlikeMode<S>::value;
         constexpr auto n = Detail::SetlikeMode<T>::value;
-        if constexpr (m == FlexImpl::linear && n != FlexImpl::linear) {
+        if constexpr (m != FlexImpl::linear && n == FlexImpl::linear) {
             set_symmetric_difference(t, s, u);
         } else if constexpr (m == FlexImpl::ordered && n == FlexImpl::ordered) {
             U v;
