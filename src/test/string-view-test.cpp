@@ -78,6 +78,29 @@ void test_crow_string_view_cat() {
 
 }
 
+void test_crow_string_view_between() {
+
+    std::string_view s = "Hello world";
+    std::string_view t, u, v;
+
+    t = s.substr(0, 0);  u = s.substr(0, 0);   TRY(v = view_between(t, u));  TEST_EQUAL(view_pos(s, v), 0u);  TEST_EQUAL(v, "");
+    t = s.substr(0, 0);  u = s.substr(0, 5);   TRY(v = view_between(t, u));  TEST_EQUAL(view_pos(s, v), 0u);  TEST_EQUAL(v, "");
+    t = s.substr(0, 0);  u = s.substr(5, 6);   TRY(v = view_between(t, u));  TEST_EQUAL(view_pos(s, v), 0u);  TEST_EQUAL(v, "Hello");
+    t = s.substr(0, 0);  u = s.substr(11, 0);  TRY(v = view_between(t, u));  TEST_EQUAL(view_pos(s, v), 0u);  TEST_EQUAL(v, "Hello world");
+    t = s.substr(0, 5);  u = s.substr(0, 0);   TRY(v = view_between(t, u));  TEST_EQUAL(view_pos(s, v), 5u);  TEST_EQUAL(v, "");
+    t = s.substr(0, 5);  u = s.substr(0, 5);   TRY(v = view_between(t, u));  TEST_EQUAL(view_pos(s, v), 5u);  TEST_EQUAL(v, "");
+    t = s.substr(0, 5);  u = s.substr(5, 0);   TRY(v = view_between(t, u));  TEST_EQUAL(view_pos(s, v), 5u);  TEST_EQUAL(v, "");
+    t = s.substr(0, 5);  u = s.substr(5, 1);   TRY(v = view_between(t, u));  TEST_EQUAL(view_pos(s, v), 5u);  TEST_EQUAL(v, "");
+    t = s.substr(0, 5);  u = s.substr(6, 0);   TRY(v = view_between(t, u));  TEST_EQUAL(view_pos(s, v), 5u);  TEST_EQUAL(v, " ");
+    t = s.substr(0, 5);  u = s.substr(6, 5);   TRY(v = view_between(t, u));  TEST_EQUAL(view_pos(s, v), 5u);  TEST_EQUAL(v, " ");
+    t = s.substr(0, 5);  u = s.substr(11, 0);  TRY(v = view_between(t, u));  TEST_EQUAL(view_pos(s, v), 5u);  TEST_EQUAL(v, " world");
+    t = s.substr(5, 0);  u = s.substr(0, 0);   TRY(v = view_between(t, u));  TEST_EQUAL(view_pos(s, v), 5u);  TEST_EQUAL(v, "");
+    t = s.substr(5, 0);  u = s.substr(11, 0);  TRY(v = view_between(t, u));  TEST_EQUAL(view_pos(s, v), 5u);  TEST_EQUAL(v, " world");
+    t = s.substr(5, 1);  u = s.substr(5, 1);   TRY(v = view_between(t, u));  TEST_EQUAL(view_pos(s, v), 6u);  TEST_EQUAL(v, "");
+    t = s.substr(5, 1);  u = s.substr(11, 0);  TRY(v = view_between(t, u));  TEST_EQUAL(view_pos(s, v), 6u);  TEST_EQUAL(v, "world");
+
+}
+
 void test_crow_string_view_extend() {
 
     std::string_view s = "Hello world";

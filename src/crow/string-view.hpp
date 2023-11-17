@@ -54,6 +54,12 @@ namespace Crow {
             return std::string_view(left.data(), size_t(view_endptr(right) - left.data()));
     }
 
+    constexpr std::string_view view_between(std::string_view left, std::string_view right) noexcept {
+        auto p = view_endptr(left);
+        auto q = right.data();
+        return {p, std::max(p, q)};
+    }
+
     constexpr std::string_view view_extend(std::string_view view, size_t add) noexcept {
         return std::string_view(view.data(), view.size() + add);
     }

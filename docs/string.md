@@ -451,6 +451,17 @@ substrings of the same underlying string, or if the end of `right` is to the
 left of the beginning of `left`.
 
 ```c++
+constexpr std::string_view view_between(std::string_view left,
+    std::string_view right) noexcept;
+```
+
+Returns the text between the end of one view and the beginning of another. If
+the beginning of `right` is at or before the end of `left`, an empty string
+at the end of `left` will be returned. Behaviour is undefined if either
+argument is a null view, or if the arguments are not substrings of the same
+underlying string.
+
+```c++
 constexpr std::string_view view_extend(std::string_view view,
     size_t add) noexcept;
 constexpr std::string_view view_extend(std::string_view str,
