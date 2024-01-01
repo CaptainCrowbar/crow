@@ -94,6 +94,7 @@ namespace Crow {
             size_t offset(size_t i = 0) const noexcept;
             size_t endpos(size_t i = 0) const noexcept;
             size_t count(size_t i = 0) const noexcept;
+            bool empty(size_t i = 0) const noexcept;
             std::string_view str(size_t i = 0) const noexcept;
             std::string_view operator[](size_t i) const noexcept { return str(i); }
             operator std::string() const { return std::string(str()); }
@@ -104,6 +105,7 @@ namespace Crow {
             size_t offset(std::string_view name) const { return offset(index_by_name(name)); }
             size_t endpos(std::string_view name) const { return endpos(index_by_name(name)); }
             size_t count(std::string_view name) const { return count(index_by_name(name)); }
+            bool empty(std::string_view name) const { return empty(index_by_name(name)); }
             std::string_view str(std::string_view name) const { return str(index_by_name(name)); }
             std::string_view operator[](std::string_view name) const { return str(name); }
             size_t first() const noexcept;

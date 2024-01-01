@@ -32,6 +32,7 @@ void test_crow_regex_match() {
     TEST(! m.full());
     TEST(! m.partial());
     TEST(! m.matched());
+    TEST(m.empty());
     s = "ABC123 xyz789";
     TRY(m = r(s));
     TEST(m);
@@ -43,6 +44,7 @@ void test_crow_regex_match() {
     TEST_EQUAL(m.count(), 3u);
     TEST_EQUAL(m.str(), "xyz");
     TEST(! m.matched(1));
+    TEST(! m.empty());
 
     TRY(r = Regex("([a-z]+)(\\d+)"));
     TEST(! r.is_null());
@@ -52,15 +54,19 @@ void test_crow_regex_match() {
     s = "ABC123 xyz789";
     TRY(m = r(s));
     TEST(m);
+    TEST(! m.empty());
     TEST_EQUAL(m.offset(), 7u);
     TEST_EQUAL(m.endpos(), 13u);
     TEST_EQUAL(m.count(), 6u);
     TEST_EQUAL(m.str(), "xyz789");
     TEST(m.matched(1));
+    TEST(! m.empty(1));
     TEST_EQUAL(m.str(1), "xyz");
     TEST(m.matched(2));
+    TEST(! m.empty(2));
     TEST_EQUAL(m.str(2), "789");
     TEST(! m.matched(3));
+    TEST(m.empty(3));
     TEST_EQUAL(m.str(3), "");
 
     TRY(r = Regex("([a-z]+)(\\d+)", Regex::icase));
@@ -71,15 +77,19 @@ void test_crow_regex_match() {
     s = "ABC123 xyz789";
     TRY(m = r(s));
     TEST(m);
+    TEST(! m.empty());
     TEST_EQUAL(m.offset(), 0u);
     TEST_EQUAL(m.endpos(), 6u);
     TEST_EQUAL(m.count(), 6u);
     TEST_EQUAL(m.str(), "ABC123");
     TEST(m.matched(1));
+    TEST(! m.empty(1));
     TEST_EQUAL(m.str(1), "ABC");
     TEST(m.matched(2));
+    TEST(! m.empty(2));
     TEST_EQUAL(m.str(2), "123");
     TEST(! m.matched(3));
+    TEST(m.empty(3));
     TEST_EQUAL(m.str(3), "");
 
     TRY(r = Regex("[a-z]+"));
@@ -123,6 +133,49 @@ void test_crow_regex_match() {
     TEST(! m);
     TRY(m = r(s, 11));
     TEST(! m);
+
+    TRY(r = Regex("([a-z]*)([0-9]+)([a-z]*)"));
+    s = "";
+    TRY(m = r(s));
+    TEST(! m);
+    TEST(! m.matched(0));
+    TEST(! m.matched(1));
+    TEST(! m.matched(2));
+    TEST(! m.matched(3));
+    TEST(m.empty());
+    TEST(m.empty(1));
+    TEST(m.empty(2));
+    TEST(m.empty(3));
+    s = "...abc123xyz...";
+    TRY(m = r(s));
+    TEST(m);
+    TEST(m.matched(0));
+    TEST(m.matched(1));
+    TEST(m.matched(2));
+    TEST(m.matched(3));
+    TEST(! m.empty());
+    TEST(! m.empty(1));
+    TEST(! m.empty(2));
+    TEST(! m.empty(3));
+    TEST_EQUAL(m.str(), "abc123xyz");
+    TEST_EQUAL(m.str(1), "abc");
+    TEST_EQUAL(m.str(2), "123");
+    TEST_EQUAL(m.str(3), "xyz");
+    s = "...ABC123XYZ...";
+    TRY(m = r(s));
+    TEST(m);
+    TEST(m.matched(0));
+    TEST(m.matched(1));
+    TEST(m.matched(2));
+    TEST(m.matched(3));
+    TEST(! m.empty());
+    TEST(m.empty(1));
+    TEST(! m.empty(2));
+    TEST(m.empty(3));
+    TEST_EQUAL(m.str(), "123");
+    TEST_EQUAL(m.str(1), "");
+    TEST_EQUAL(m.str(2), "123");
+    TEST_EQUAL(m.str(3), "");
 
     TRY(r = Regex("([0-9]+)|([A-Z]+)|([a-z]+)"));
     s = "...123...456...";

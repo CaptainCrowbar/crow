@@ -341,14 +341,24 @@ namespace Crow {
     size_t Regex::match::count(size_t i) const noexcept {
         if (i >= offset_count_)
             return 0;
-        size_t start = offset_vector_[2 * i], stop = offset_vector_[2 * i + 1];
+        size_t start = offset_vector_[2 * i];
+        size_t stop = offset_vector_[2 * i + 1];
         return start == PCRE2_UNSET || stop < start ? 0 : stop - start;
+    }
+
+    bool Regex::match::empty(size_t i) const noexcept {
+        if (i >= offset_count_)
+            return true;
+        size_t start = offset_vector_[2 * i];
+        size_t stop = offset_vector_[2 * i + 1];
+        return start == PCRE2_UNSET || start == stop;
     }
 
     std::string_view Regex::match::str(size_t i) const noexcept {
         if (i >= offset_count_)
             return {};
-        size_t start = offset_vector_[2 * i], stop = offset_vector_[2 * i + 1];
+        size_t start = offset_vector_[2 * i];
+        size_t stop = offset_vector_[2 * i + 1];
         if (start == PCRE2_UNSET)
             return {};
         else if (start <= stop)
@@ -359,7 +369,8 @@ namespace Crow {
 
     size_t Regex::match::first() const noexcept {
         for (size_t i = 1; i < offset_count_; ++i) {
-            size_t start = offset_vector_[2 * i], stop = offset_vector_[2 * i + 1];
+            size_t start = offset_vector_[2 * i];
+            size_t stop = offset_vector_[2 * i + 1];
             if (start != PCRE2_UNSET && start < stop)
                 return i;
         }
@@ -369,7 +380,8 @@ namespace Crow {
     size_t Regex::match::last() const noexcept {
         if (offset_count_ > 1) {
             for (size_t i = offset_count_ - 1; i > 0; --i) {
-                size_t start = offset_vector_[2 * i], stop = offset_vector_[2 * i + 1];
+                size_t start = offset_vector_[2 * i];
+                size_t stop = offset_vector_[2 * i + 1];
                 if (start != PCRE2_UNSET && start < stop)
                     return i;
             }

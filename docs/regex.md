@@ -441,15 +441,18 @@ const char* match::end(size_t i = 0) const noexcept;
 size_t match::offset(size_t i = 0) const noexcept;
 size_t match::endpos(size_t i = 0) const noexcept;
 size_t match::count(size_t i = 0) const noexcept;
+bool match::empty(size_t i = 0) const noexcept;
 ```
 
-These report the position of the match, or of a numbered capture group, in the
-subject string. The `offset()` and `endpos()` functions return the start and
-end positions; `count()` returns the length of the match (offsets are measured
-in code units, not characters, from the start of the subject string, not the
-position from which matching was started). If the match failed, or if a
-specific capture group was not matched, `begin()` and `end()` return null
-pointers, `offset()` and `endpos()` return `npos`, and `count()` returns zero.
+These report the position and length of the match, or of a numbered capture
+group, in the subject string. The `offset()` and `endpos()` functions return
+the start and end positions; `count()` returns the length of the match
+(offsets are measured in code units, not characters, from the start of the
+subject string, not the position from which matching was started). If the
+match failed, or if a specific capture group was not matched, `begin()` and
+`end()` return null pointers, `offset()` and `endpos()` return `npos`, and
+`count()` returns zero. The `empty()` function returns true if the match
+failed or matched an empty substring.
 
 ```c++
 std::string_view match::str(size_t i = 0) const noexcept;
@@ -470,11 +473,12 @@ const char* match::end(std::string_view name) const;
 size_t match::offset(std::string_view name) const;
 size_t match::endpos(std::string_view name) const;
 size_t match::count(std::string_view name) const;
+bool match::empty(std::string_view name) const;
 std::string_view match::str(std::string_view name) const;
 std::string_view match::operator[](std::string_view name) const;
 ```
 
-These return the same result as the functions above with the same names, but
+These return the same results as the functions above with the same names, but
 the capture group is identified by name instead of number. If the named group
 does not exist in the pattern, the result is the same as if the match
 failed.
