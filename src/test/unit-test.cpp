@@ -552,7 +552,8 @@ void mp_integer_signed_arithmetic_test_group() {
 void mp_integer_signed_conversion_test_group() {
     UNIT_TEST(crow_mp_integer_signed_conversion_integers)
     UNIT_TEST(crow_mp_integer_signed_conversion_strings)
-    UNIT_TEST(crow_mp_integer_signed_conversion_base_strings)
+    UNIT_TEST(crow_mp_integer_signed_conversion_base_from_string)
+    UNIT_TEST(crow_mp_integer_signed_conversion_base_to_string)
     UNIT_TEST(crow_mp_integer_signed_conversion_double)
 }
 
@@ -566,7 +567,8 @@ void mp_integer_unsigned_arithmetic_test_group() {
 void mp_integer_unsigned_conversion_test_group() {
     UNIT_TEST(crow_mp_integer_unsigned_conversion_integers)
     UNIT_TEST(crow_mp_integer_unsigned_conversion_strings)
-    UNIT_TEST(crow_mp_integer_unsigned_conversion_base_strings)
+    UNIT_TEST(crow_mp_integer_unsigned_conversion_base_from_string)
+    UNIT_TEST(crow_mp_integer_unsigned_conversion_base_to_string)
     UNIT_TEST(crow_mp_integer_unsigned_conversion_double)
 }
 

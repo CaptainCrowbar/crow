@@ -48,6 +48,7 @@ namespace Crow {
         MPN& operator<<=(ptrdiff_t rhs);
         MPN& operator>>=(ptrdiff_t rhs);
 
+        std::string base(int b) const;
         size_t bits() const noexcept;
         size_t bits_set() const noexcept;
         size_t bytes() const noexcept;
@@ -150,6 +151,7 @@ namespace Crow {
         MPZ& operator%=(const MPZ& rhs) { MPZ q, r; do_divide(*this, rhs, q, r); std::swap(*this, r); return *this; }
 
         MPN abs() const { return mag_; }
+        std::string base(int b) const;
         size_t hash() const noexcept;
         bool is_even() const noexcept { return mag_.is_even(); }
         bool is_odd() const noexcept { return mag_.is_odd(); }

@@ -117,6 +117,13 @@ bool operator>=(const MPN& x, const MPN& y) noexcept;
 Comparison operators.
 
 ```c++
+std::string MPN::base(int b) const;
+```
+
+Converts the number to a given base. This will throw `std::invalid_argument`
+if the base is not 2-36.
+
+```c++
 size_t MPN::bits() const noexcept;
 size_t MPN::bits_set() const noexcept;
 ```
@@ -325,6 +332,13 @@ MPN MPZ::abs() const;
 ```
 
 Returns the absolute value of `*this`.
+
+```c++
+std::string MPZ::base(int b) const;
+```
+
+Converts the number to a given base. This will throw `std::invalid_argument`
+if the base is not 2-36.
 
 ```c++
 int MPZ::compare(const MPZ& y) const noexcept;

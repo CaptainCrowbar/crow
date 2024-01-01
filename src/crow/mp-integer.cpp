@@ -155,6 +155,32 @@ namespace Crow {
         return *this;
     }
 
+    std::string MPN::base(int b) const {
+
+        if (b < 2 || b > 36)
+            throw std::invalid_argument("Invalid base: " + std::to_string(b));
+
+        std::string result;
+        MPN n = *this;
+        MPN m = unsigned(b);
+        MPN q, r;
+
+        do {
+            do_divide(n, m, q, r);
+            auto x = r.rep_[0];
+            if (x < 10)
+                result += char(x + '0');
+            else
+                result += char(x - 10 + 'a');
+            n = q;
+        } while (n);
+
+        std::reverse(result.begin(), result.end());
+
+        return result;
+
+    }
+
     size_t MPN::bits() const noexcept {
         size_t n = 32 * rep_.size();
         if (! rep_.empty())
@@ -467,6 +493,13 @@ namespace Crow {
             }
         }
         return *this;
+    }
+
+    std::string MPZ::base(int b) const {
+        auto s = mag_.base(b);
+        if (neg_)
+            s.insert(0, 1, '-');
+        return s;
     }
 
     size_t MPZ::hash() const noexcept {
