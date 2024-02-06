@@ -67,15 +67,17 @@ HttpStatus http_get(const Uri& uri, Headers& head, std::string& body);
 HttpStatus http_head(const Uri& uri, Headers& head);
 ```
 
-Perform an HTTP(S) request. The `head` and `body` arguments, if present, will
+Perform an HTTP[S] request. The `head` and `body` arguments, if present, will
 be filled with the response headers and body. These may throw `CurlError` if
 anything goes wrong internally, but actual HTTP errors will be returned as
 status codes. If anything goes wrong, either by throwing an exception or
 returning an error code, `head` and `body` will be empty.
 
 ```c++
-template <typename R, typename P> void set_connect_timeout(std::chrono::duration<R, P> t);
-template <typename R, typename P> void set_request_timeout(std::chrono::duration<R, P> t);
+template <typename R, typename P>
+    void set_connect_timeout(std::chrono::duration<R, P> t);
+template <typename R, typename P>
+    void set_request_timeout(std::chrono::duration<R, P> t);
 ```
 
 Set timeouts for the initial connection and the complete request. These may

@@ -111,13 +111,13 @@ equivalent to `clear_query()`).
 
 The scheme will always be converted to lower case. If the `smart` argument to
 `set_scheme()` is true (this is the default), and the scheme supplied does
-not end in `"://"`, the slashes will be added unless the scheme is
-`"mailto"`.
+not end in `"://"`, the colon will be added, and the slashes unless the
+scheme is `"mailto"`.
 
 All of these except `set_scheme()` will throw `std::invalid_argument` if the
 existing URI is empty, or under the following circumstances:
 
-* `set_scheme()` if the scheme is invalid (it must match `/[a-z][a-z0-9.+-]*(:(//)?)?/`).
+* `set_scheme()` if the scheme is invalid (it must match `[a-z][a-z0-9.+-]*(:(//)?)?`).
 * `set_user()` if the host is empty and the new user is not empty.
 * `set_password()` if the user or host is empty and the new password is not empty.
 * `set_path()` if the path contains `"//"`.
