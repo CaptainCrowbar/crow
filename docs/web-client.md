@@ -128,6 +128,12 @@ void WebClient::set_user_agent(const std::string& user_agent);
 Set the user agent string. This may throw `CurlError`.
 
 ```c++
+void WebClient::set_verbose(bool flag);
+```
+
+Set Libcurl's verbose mode for debugging. Output will go to standard error.
+
+```c++
 Curl_easy* WebClient::native_handle() const noexcept;
 ```
 

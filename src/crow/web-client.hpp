@@ -65,6 +65,7 @@ namespace Crow {
         template <typename R, typename P> void set_request_timeout(std::chrono::duration<R, P> t);
         void set_redirect_limit(int n);
         void set_user_agent(const std::string& user_agent);
+        void set_verbose(bool flag);
 
         Curl_easy* native_handle() const noexcept { return curl_; }
 

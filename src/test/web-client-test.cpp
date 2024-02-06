@@ -15,7 +15,7 @@ void test_crow_web_client_http_head() {
     WebHeaders::const_iterator it;
     std::string key;
 
-    TRY(uri =Uri("https://en.wikipedia.org/wiki/Main_Page"));
+    TRY(uri = Uri("https://en.wikipedia.org/wiki/Main_Page"));
     TRY(status = client.request(uri, response, WebMethod::head));
     TEST_EQUAL(status, HttpStatus::ok);
     TEST_EQUAL(int(status), 200);
@@ -55,7 +55,7 @@ void test_crow_web_client_http_get() {
     std::string key;
 
     TEST(client.native_handle() != nullptr);
-    TRY(uri =Uri("https://en.wikipedia.org/wiki/Main_Page"));
+    TRY(uri = Uri("https://en.wikipedia.org/wiki/Main_Page"));
     TRY(status = client.request(uri, response));
     TEST_EQUAL(status, HttpStatus::ok);
     TEST_EQUAL(int(status), 200);

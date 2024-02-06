@@ -89,11 +89,12 @@ namespace Crow {
         response_ = &response;
         Detail::set_curl_option<CURLOPT_URL>(*this, uri.str());
         std::vector<std::string> send_headers;
+        SlistPtr slist_ptr;
 
         if (! params.head.empty()) {
             for (auto& [key,value]: params.head)
                 send_headers.push_back(key + ": " + value);
-            auto slist_ptr = make_slist(send_headers);
+            slist_ptr = make_slist(send_headers);
             Detail::set_curl_option<CURLOPT_HTTPHEADER>(*this, slist_ptr.get());
         }
 
@@ -123,6 +124,10 @@ namespace Crow {
 
     void WebClient::set_user_agent(const std::string& user_agent) {
         Detail::set_curl_option<CURLOPT_USERAGENT>(*this, user_agent);
+    }
+
+    void WebClient::set_verbose(bool flag) {
+        Detail::set_curl_option<CURLOPT_VERBOSE>(*this, flag);
     }
 
     void WebClient::close() noexcept {
