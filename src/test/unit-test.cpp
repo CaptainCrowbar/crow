@@ -1117,8 +1117,8 @@ void vector_test_group() {
 }
 
 void web_client_test_group() {
-    UNIT_TEST(crow_web_client_http_get)
     UNIT_TEST(crow_web_client_http_head)
+    UNIT_TEST(crow_web_client_http_get)
 }
 
 void xml_construction_test_group() {

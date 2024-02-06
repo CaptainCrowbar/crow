@@ -1,6 +1,7 @@
 #include "crow/curl-api.hpp"
+#include <algorithm>
+#include <array>
 #include <mutex>
-#include <unordered_map>
 #include <vector>
 
 namespace Crow {
@@ -32,85 +33,96 @@ namespace Crow {
             }
         }
 
-        #define INFO_NAME(ci) { ci, # ci },
+        #define MAKE_INFO(ci) std::make_pair(ci, # ci)
 
         const char* get_curl_info_name(CURLINFO ci) noexcept {
 
-            static const std::unordered_map<CURLINFO, const char*> map = {
+            static const auto map = std::array{
 
-                INFO_NAME(CURLINFO_NONE)
-                INFO_NAME(CURLINFO_EFFECTIVE_URL)
-                INFO_NAME(CURLINFO_RESPONSE_CODE)
-                INFO_NAME(CURLINFO_TOTAL_TIME)
-                INFO_NAME(CURLINFO_NAMELOOKUP_TIME)
-                INFO_NAME(CURLINFO_CONNECT_TIME)
-                INFO_NAME(CURLINFO_PRETRANSFER_TIME)
-                INFO_NAME(CURLINFO_SIZE_UPLOAD)
-                INFO_NAME(CURLINFO_SIZE_UPLOAD_T)
-                INFO_NAME(CURLINFO_SIZE_DOWNLOAD)
-                INFO_NAME(CURLINFO_SIZE_DOWNLOAD_T)
-                INFO_NAME(CURLINFO_SPEED_DOWNLOAD)
-                INFO_NAME(CURLINFO_SPEED_DOWNLOAD_T)
-                INFO_NAME(CURLINFO_SPEED_UPLOAD)
-                INFO_NAME(CURLINFO_SPEED_UPLOAD_T)
-                INFO_NAME(CURLINFO_HEADER_SIZE)
-                INFO_NAME(CURLINFO_REQUEST_SIZE)
-                INFO_NAME(CURLINFO_SSL_VERIFYRESULT)
-                INFO_NAME(CURLINFO_FILETIME)
-                INFO_NAME(CURLINFO_FILETIME_T)
-                INFO_NAME(CURLINFO_CONTENT_LENGTH_DOWNLOAD)
-                INFO_NAME(CURLINFO_CONTENT_LENGTH_DOWNLOAD_T)
-                INFO_NAME(CURLINFO_CONTENT_LENGTH_UPLOAD)
-                INFO_NAME(CURLINFO_CONTENT_LENGTH_UPLOAD_T)
-                INFO_NAME(CURLINFO_STARTTRANSFER_TIME)
-                INFO_NAME(CURLINFO_CONTENT_TYPE)
-                INFO_NAME(CURLINFO_REDIRECT_TIME)
-                INFO_NAME(CURLINFO_REDIRECT_COUNT)
-                INFO_NAME(CURLINFO_PRIVATE)
-                INFO_NAME(CURLINFO_HTTP_CONNECTCODE)
-                INFO_NAME(CURLINFO_HTTPAUTH_AVAIL)
-                INFO_NAME(CURLINFO_PROXYAUTH_AVAIL)
-                INFO_NAME(CURLINFO_OS_ERRNO)
-                INFO_NAME(CURLINFO_NUM_CONNECTS)
-                INFO_NAME(CURLINFO_SSL_ENGINES)
-                INFO_NAME(CURLINFO_COOKIELIST)
-                INFO_NAME(CURLINFO_LASTSOCKET)
-                INFO_NAME(CURLINFO_FTP_ENTRY_PATH)
-                INFO_NAME(CURLINFO_REDIRECT_URL)
-                INFO_NAME(CURLINFO_PRIMARY_IP)
-                INFO_NAME(CURLINFO_APPCONNECT_TIME)
-                INFO_NAME(CURLINFO_CERTINFO)
-                INFO_NAME(CURLINFO_CONDITION_UNMET)
-                INFO_NAME(CURLINFO_RTSP_SESSION_ID)
-                INFO_NAME(CURLINFO_RTSP_CLIENT_CSEQ)
-                INFO_NAME(CURLINFO_RTSP_SERVER_CSEQ)
-                INFO_NAME(CURLINFO_RTSP_CSEQ_RECV)
-                INFO_NAME(CURLINFO_PRIMARY_PORT)
-                INFO_NAME(CURLINFO_LOCAL_IP)
-                INFO_NAME(CURLINFO_LOCAL_PORT)
-                INFO_NAME(CURLINFO_TLS_SESSION)
-                INFO_NAME(CURLINFO_ACTIVESOCKET)
-                INFO_NAME(CURLINFO_TLS_SSL_PTR)
-                INFO_NAME(CURLINFO_HTTP_VERSION)
-                INFO_NAME(CURLINFO_PROXY_SSL_VERIFYRESULT)
-                INFO_NAME(CURLINFO_PROTOCOL)
-                INFO_NAME(CURLINFO_SCHEME)
-                INFO_NAME(CURLINFO_TOTAL_TIME_T)
-                INFO_NAME(CURLINFO_NAMELOOKUP_TIME_T)
-                INFO_NAME(CURLINFO_CONNECT_TIME_T)
-                INFO_NAME(CURLINFO_PRETRANSFER_TIME_T)
-                INFO_NAME(CURLINFO_STARTTRANSFER_TIME_T)
-                INFO_NAME(CURLINFO_REDIRECT_TIME_T)
-                INFO_NAME(CURLINFO_APPCONNECT_TIME_T)
-                INFO_NAME(CURLINFO_RETRY_AFTER)
-                INFO_NAME(CURLINFO_EFFECTIVE_METHOD)
-                INFO_NAME(CURLINFO_PROXY_ERROR)
-                INFO_NAME(CURLINFO_REFERER)
+                MAKE_INFO(CURLINFO_NONE),
+                MAKE_INFO(CURLINFO_EFFECTIVE_URL),
+                MAKE_INFO(CURLINFO_RESPONSE_CODE),
+                MAKE_INFO(CURLINFO_TOTAL_TIME),
+                MAKE_INFO(CURLINFO_NAMELOOKUP_TIME),
+                MAKE_INFO(CURLINFO_CONNECT_TIME),
+                MAKE_INFO(CURLINFO_PRETRANSFER_TIME),
+                MAKE_INFO(CURLINFO_SIZE_UPLOAD),
+                MAKE_INFO(CURLINFO_SIZE_UPLOAD_T),
+                MAKE_INFO(CURLINFO_SIZE_DOWNLOAD),
+                MAKE_INFO(CURLINFO_SIZE_DOWNLOAD_T),
+                MAKE_INFO(CURLINFO_SPEED_DOWNLOAD),
+                MAKE_INFO(CURLINFO_SPEED_DOWNLOAD_T),
+                MAKE_INFO(CURLINFO_SPEED_UPLOAD),
+                MAKE_INFO(CURLINFO_SPEED_UPLOAD_T),
+                MAKE_INFO(CURLINFO_HEADER_SIZE),
+                MAKE_INFO(CURLINFO_REQUEST_SIZE),
+                MAKE_INFO(CURLINFO_SSL_VERIFYRESULT),
+                MAKE_INFO(CURLINFO_FILETIME),
+                MAKE_INFO(CURLINFO_FILETIME_T),
+                MAKE_INFO(CURLINFO_CONTENT_LENGTH_DOWNLOAD),
+                MAKE_INFO(CURLINFO_CONTENT_LENGTH_DOWNLOAD_T),
+                MAKE_INFO(CURLINFO_CONTENT_LENGTH_UPLOAD),
+                MAKE_INFO(CURLINFO_CONTENT_LENGTH_UPLOAD_T),
+                MAKE_INFO(CURLINFO_STARTTRANSFER_TIME),
+                MAKE_INFO(CURLINFO_CONTENT_TYPE),
+                MAKE_INFO(CURLINFO_REDIRECT_TIME),
+                MAKE_INFO(CURLINFO_REDIRECT_COUNT),
+                MAKE_INFO(CURLINFO_PRIVATE),
+                MAKE_INFO(CURLINFO_HTTP_CONNECTCODE),
+                MAKE_INFO(CURLINFO_HTTPAUTH_AVAIL),
+                MAKE_INFO(CURLINFO_PROXYAUTH_AVAIL),
+                MAKE_INFO(CURLINFO_OS_ERRNO),
+                MAKE_INFO(CURLINFO_NUM_CONNECTS),
+                MAKE_INFO(CURLINFO_SSL_ENGINES),
+                MAKE_INFO(CURLINFO_COOKIELIST),
+                MAKE_INFO(CURLINFO_LASTSOCKET),
+                MAKE_INFO(CURLINFO_FTP_ENTRY_PATH),
+                MAKE_INFO(CURLINFO_REDIRECT_URL),
+                MAKE_INFO(CURLINFO_PRIMARY_IP),
+                MAKE_INFO(CURLINFO_APPCONNECT_TIME),
+                MAKE_INFO(CURLINFO_CERTINFO),
+                MAKE_INFO(CURLINFO_CONDITION_UNMET),
+                MAKE_INFO(CURLINFO_RTSP_SESSION_ID),
+                MAKE_INFO(CURLINFO_RTSP_CLIENT_CSEQ),
+                MAKE_INFO(CURLINFO_RTSP_SERVER_CSEQ),
+                MAKE_INFO(CURLINFO_RTSP_CSEQ_RECV),
+                MAKE_INFO(CURLINFO_PRIMARY_PORT),
+                MAKE_INFO(CURLINFO_LOCAL_IP),
+                MAKE_INFO(CURLINFO_LOCAL_PORT),
+                MAKE_INFO(CURLINFO_TLS_SESSION),
+                MAKE_INFO(CURLINFO_ACTIVESOCKET),
+                MAKE_INFO(CURLINFO_TLS_SSL_PTR),
+                MAKE_INFO(CURLINFO_HTTP_VERSION),
+                MAKE_INFO(CURLINFO_PROXY_SSL_VERIFYRESULT),
+                MAKE_INFO(CURLINFO_PROTOCOL),
+                MAKE_INFO(CURLINFO_SCHEME),
+                MAKE_INFO(CURLINFO_TOTAL_TIME_T),
+                MAKE_INFO(CURLINFO_NAMELOOKUP_TIME_T),
+                MAKE_INFO(CURLINFO_CONNECT_TIME_T),
+                MAKE_INFO(CURLINFO_PRETRANSFER_TIME_T),
+                MAKE_INFO(CURLINFO_STARTTRANSFER_TIME_T),
+                MAKE_INFO(CURLINFO_REDIRECT_TIME_T),
+                MAKE_INFO(CURLINFO_APPCONNECT_TIME_T),
+                MAKE_INFO(CURLINFO_RETRY_AFTER),
+                MAKE_INFO(CURLINFO_EFFECTIVE_METHOD),
+                MAKE_INFO(CURLINFO_PROXY_ERROR),
+                MAKE_INFO(CURLINFO_REFERER),
 
             };
 
-            auto it = map.find(ci);
-            return it == map.end() ? nullptr : it->second;
+            static constexpr const char* null = nullptr;
+            auto key = std::make_pair(ci, null);
+            auto it = std::upper_bound(map.begin(), map.end(), key);
+
+            if (it == map.begin())
+                return nullptr;
+
+            --it;
+
+            if (it->first == ci)
+                return it->second;
+            else
+                return nullptr;
 
         }
 

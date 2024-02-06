@@ -3,8 +3,36 @@
 #include "crow/string.hpp"
 #include <algorithm>
 #include <cstring>
+#include <memory>
+#include <vector>
 
 namespace Crow {
+
+    namespace {
+
+        struct SlistDeleter {
+            void operator()(curl_slist* ptr) const noexcept {
+                if (ptr != nullptr)
+                    curl_slist_free_all(ptr);
+            }
+        };
+
+        using SlistPtr = std::unique_ptr<curl_slist, SlistDeleter>;
+
+        SlistPtr make_slist(const std::vector<std::string>& headers) {
+            curl_slist* cs = nullptr;
+            for (auto& h: headers) {
+                auto next = curl_slist_append(cs, h.data());
+                if (next == nullptr) {
+                    curl_slist_free_all(cs);
+                    throw CurlError(CURLE_OUT_OF_MEMORY, "curl_slist_append()");
+                }
+                cs = next;
+            }
+            return {cs, {}};
+        }
+
+    }
 
     namespace Detail {
 
@@ -22,11 +50,13 @@ namespace Crow {
     WebClient::WebClient() {
 
         auto curl = curl_easy_init();
+
         if (curl == nullptr)
             throw CurlError(0, "curl_easy_init()");
-        curl_ = curl;
 
+        curl_ = curl;
         error_buffer_.resize(CURL_ERROR_SIZE, '\0');
+
         Detail::set_curl_option<CURLOPT_ERRORBUFFER>(*this, error_buffer_.data());
         Detail::set_curl_option<CURLOPT_NOPROGRESS>(*this, true);
         Detail::set_curl_option<CURLOPT_NOSIGNAL>(*this, true);
@@ -35,6 +65,7 @@ namespace Crow {
         Detail::set_curl_option<CURLOPT_WRITEFUNCTION>(*this, write_callback);
         Detail::set_curl_option<CURLOPT_WRITEDATA>(*this, this);
         Detail::set_curl_option<CURLOPT_ACCEPT_ENCODING>(*this, "");
+
         set_connect_timeout(default_connect_timeout);
         set_request_timeout(default_request_timeout);
         set_redirect_limit(default_redirect_limit);
@@ -47,6 +78,42 @@ namespace Crow {
             curl_ = std::exchange(c.curl_, nullptr);
         }
         return *this;
+    }
+
+    HttpStatus WebClient::request(const Uri& uri, WebParameters& response,
+            WebMethod method, const WebParameters& params) {
+
+        // TODO - handle DELETE, POST, PUT
+
+        response.clear();
+        response_ = &response;
+        Detail::set_curl_option<CURLOPT_URL>(*this, uri.str());
+        std::vector<std::string> send_headers;
+
+        if (! params.head.empty()) {
+            for (auto& [key,value]: params.head)
+                send_headers.push_back(key + ": " + value);
+            auto slist_ptr = make_slist(send_headers);
+            Detail::set_curl_option<CURLOPT_HTTPHEADER>(*this, slist_ptr.get());
+        }
+
+        if (method == WebMethod::head)
+            Detail::set_curl_option<CURLOPT_NOBODY>(*this, true);
+        else
+            Detail::set_curl_option<CURLOPT_HTTPGET>(*this, true);
+
+        Detail::check_curl_api(*this, curl_easy_perform(curl_), "curl_easy_perform()", uri.str());
+        response_ = nullptr;
+        int rc = 0;
+        Detail::get_curl_info<CURLINFO_RESPONSE_CODE>(*this, rc);
+
+        return HttpStatus(rc);
+
+    }
+
+    HttpStatus WebClient::operator()(const Uri& uri, WebParameters& response,
+            WebMethod method, const WebParameters& params) {
+        return request(uri, response, method, params);
     }
 
     void WebClient::set_redirect_limit(int n) {
@@ -63,26 +130,6 @@ namespace Crow {
             curl_easy_cleanup(curl_);
     }
 
-    HttpStatus WebClient::perform_get(const Uri& uri, WebHeaders* head, std::string* body) {
-        head_ = head;
-        body_ = body;
-        if (head != nullptr)
-            head->clear();
-        if (body != nullptr)
-            body->clear();
-        Detail::set_curl_option<CURLOPT_URL>(*this, uri.str());
-        if (body == nullptr)
-            Detail::set_curl_option<CURLOPT_NOBODY>(*this, true);
-        else
-            Detail::set_curl_option<CURLOPT_HTTPGET>(*this, true);
-        Detail::check_curl_api(*this, curl_easy_perform(curl_), "curl_easy_perform()", uri.str());
-        body_ = nullptr;
-        head_ = nullptr;
-        int rc = 0;
-        Detail::get_curl_info<CURLINFO_RESPONSE_CODE>(*this, rc);
-        return HttpStatus(rc);
-    }
-
     void WebClient::set_connect_timeout_ms(std::chrono::milliseconds ms) {
         Detail::set_curl_option<CURLOPT_CONNECTTIMEOUT_MS>(*this, ms.count());
     }
@@ -92,30 +139,42 @@ namespace Crow {
     }
 
     size_t WebClient::header_callback(char* buffer, size_t /*size*/, size_t n_items, WebClient* client_ptr) {
-        if (n_items == 0 || client_ptr->head_ == nullptr)
+
+        if (n_items == 0 || client_ptr->response_ == nullptr)
             return n_items;
+
         std::string line(buffer, n_items);
+
         if (line == "\r\n")
             return n_items;
-        auto& headers = *client_ptr->head_;
+
+        auto& headers = client_ptr->response_->head;
         auto& prev = client_ptr->prev_header_;
+
         if (! headers.empty() && ascii_isspace(line[0])) {
             prev->second += " " + trim(line);
             return n_items;
         }
+
         auto [key,value] = partition(line, ":");
         prev = headers.insert({trim(key), trim(value)});
+
         return n_items;
+
     }
 
     size_t WebClient::write_callback(char* ptr, size_t /*size*/, size_t n_members, WebClient* client_ptr) {
-        if (client_ptr->body_ == nullptr)
+
+        if (client_ptr->response_ == nullptr)
             return n_members;
-        auto& to = *client_ptr->body_;
-        size_t offset = to.size();
-        to.resize(offset + n_members);
-        std::memcpy(to.data() + offset, ptr, n_members);
+
+        auto& body = client_ptr->response_->body;
+        size_t offset = body.size();
+        body.resize(offset + n_members);
+        std::memcpy(body.data() + offset, ptr, n_members);
+
         return n_members;
+
     }
 
     // WebProgress class
