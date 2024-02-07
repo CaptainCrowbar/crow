@@ -14,8 +14,9 @@ equivalent.
 Other libraries required:
 
 * All operating systems
-    * [PCRE2](http://www.pcre.org/) - Required by the Regex module and anything that uses it
-    * [Libcurl](https://curl.se) - Required by the Web Client module
+    * [PCRE2](http://www.pcre.org/) - Required by the regex module and anything that uses it
+    * [Libcurl](https://curl.se) - Required by the web client modules
+    * [Nlohmann-Json](https://json.nlohmann.me) - Required by the web client modules
     * [Sqlite3](https://www.sqlite.org/index.html) - Required by the Sqlite module
 * Operating system specific
     * Linux
@@ -79,6 +80,7 @@ Other libraries required:
     * [crow/thread-pool](thread-pool.html) - Thread pool
 * Networking
     * [crow/http](http.html) - HTTP status codes
+    * [crow/rest-client](rest-client.html) - REST client
     * [crow/uri](uri.html) - URI
     * [crow/web-client](web-client.html) - Web client
 * Numerics

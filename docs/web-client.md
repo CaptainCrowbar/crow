@@ -4,7 +4,7 @@ _[Crow Library by Ross Smith](index.html)_
 
 ```c++
 #include "crow/web-client.hpp"
-namespace Crow::WebClient;
+namespace Crow;
 ```
 
 ## Contents
