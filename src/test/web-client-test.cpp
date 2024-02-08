@@ -11,12 +11,12 @@ void test_crow_web_client_http_head() {
     HttpStatus status = {};
     Uri uri;
     WebClient client;
-    WebParameters response;
-    WebHeaders::const_iterator it;
+    WebClient::parameters response;
+    WebClient::headers::const_iterator it;
     std::string key;
 
     TRY(uri = Uri("https://en.wikipedia.org/wiki/Main_Page"));
-    TRY(status = client.request(uri, response, WebMethod::head));
+    TRY(status = client.request(uri, response, WebClient::method::head));
     TEST_EQUAL(status, HttpStatus::ok);
     TEST_EQUAL(int(status), 200);
     TEST_EQUAL(to_string(status), "200 OK");
@@ -50,8 +50,8 @@ void test_crow_web_client_http_get() {
     HttpStatus status = {};
     Uri uri;
     WebClient client;
-    WebParameters response;
-    WebHeaders::const_iterator it;
+    WebClient::parameters response;
+    WebClient::headers::const_iterator it;
     std::string key;
 
     TEST(client.native_handle() != nullptr);

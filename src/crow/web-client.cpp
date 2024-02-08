@@ -19,9 +19,9 @@ namespace Crow {
 
         using SlistPtr = std::unique_ptr<curl_slist, SlistDeleter>;
 
-        SlistPtr make_slist(const std::vector<std::string>& headers) {
+        SlistPtr make_slist(const std::vector<std::string>& head) {
             curl_slist* cs = nullptr;
-            for (auto& h: headers) {
+            for (auto& h: head) {
                 auto next = curl_slist_append(cs, h.data());
                 if (next == nullptr) {
                     curl_slist_free_all(cs);
@@ -30,17 +30,6 @@ namespace Crow {
                 cs = next;
             }
             return {cs, {}};
-        }
-
-    }
-
-    namespace Detail {
-
-        const std::string* web_client_error_buffer(const WebClient& c) noexcept {
-            if (c.error_buffer_.empty())
-                return nullptr;
-            else
-                return &c.error_buffer_;
         }
 
     }
@@ -80,8 +69,8 @@ namespace Crow {
         return *this;
     }
 
-    HttpStatus WebClient::request(const Uri& uri, WebParameters& response,
-            WebMethod method, const WebParameters& params) {
+    HttpStatus WebClient::request(const Uri& uri, parameters& response,
+            method m, const parameters& params) {
 
         // TODO - handle DELETE, POST, PUT
 
@@ -98,7 +87,7 @@ namespace Crow {
             Detail::set_curl_option<CURLOPT_HTTPHEADER>(*this, slist_ptr.get());
         }
 
-        if (method == WebMethod::head)
+        if (m == method::head)
             Detail::set_curl_option<CURLOPT_NOBODY>(*this, true);
         else
             Detail::set_curl_option<CURLOPT_HTTPGET>(*this, true);
@@ -112,9 +101,9 @@ namespace Crow {
 
     }
 
-    HttpStatus WebClient::operator()(const Uri& uri, WebParameters& response,
-            WebMethod method, const WebParameters& params) {
-        return request(uri, response, method, params);
+    HttpStatus WebClient::operator()(const Uri& uri, parameters& response,
+            method m, const parameters& params) {
+        return request(uri, response, m, params);
     }
 
     void WebClient::set_redirect_limit(int n) {
@@ -145,57 +134,47 @@ namespace Crow {
 
     size_t WebClient::header_callback(char* buffer, size_t /*size*/, size_t n_items, WebClient* client_ptr) {
 
-        if (n_items == 0 || client_ptr->response_ == nullptr)
+        auto line = trim_right(std::string(buffer, n_items));
+
+        if (line.empty())
             return n_items;
 
-        std::string line(buffer, n_items);
-
-        if (line == "\r\n")
-            return n_items;
-
-        auto& headers = client_ptr->response_->head;
+        auto& head = client_ptr->response_->head;
         auto& prev = client_ptr->prev_header_;
 
-        if (! headers.empty() && ascii_isspace(line[0])) {
-            prev->second += " " + trim(line);
-            return n_items;
+        if (! head.empty() && ascii_isspace(line[0])) {
+            prev->second += ' ' + trim_left(line);
+        } else {
+            auto [key,value] = partition(line, ":");
+            prev = head.insert({trim(key), trim_left(value)});
         }
-
-        auto [key,value] = partition(line, ":");
-        prev = headers.insert({trim(key), trim(value)});
 
         return n_items;
 
     }
 
     size_t WebClient::write_callback(char* ptr, size_t /*size*/, size_t n_members, WebClient* client_ptr) {
-
-        if (client_ptr->response_ == nullptr)
-            return n_members;
-
         auto& body = client_ptr->response_->body;
         size_t offset = body.size();
         body.resize(offset + n_members);
         std::memcpy(body.data() + offset, ptr, n_members);
-
         return n_members;
-
     }
 
-    // WebProgress class
+    // WebClient::progress class
 
-    WebProgress::WebProgress(WebClient& c, callback on_download):
+    WebClient::progress::progress(WebClient& c, callback on_download):
     client_(c), on_download_(on_download) {
         Detail::set_curl_option<CURLOPT_XFERINFOFUNCTION>(c, progress_callback);
         Detail::set_curl_option<CURLOPT_XFERINFODATA>(c, this);
         Detail::set_curl_option<CURLOPT_NOPROGRESS>(c, false);
     }
 
-    WebProgress::~WebProgress() noexcept {
+    WebClient::progress::~progress() noexcept {
         curl_easy_setopt(client_.native_handle(), CURLOPT_NOPROGRESS, 0L);
     }
 
-    int WebProgress::progress_callback(WebProgress* ptr, int64_t dl_total, int64_t dl_now,
+    int WebClient::progress::progress_callback(progress* ptr, int64_t dl_total, int64_t dl_now,
             int64_t /*ul_total*/, int64_t /*ul_now*/) noexcept {
         bool dl_ok = ! ptr->on_download_ || ptr->on_download_(dl_total, dl_now);
         if (dl_ok)

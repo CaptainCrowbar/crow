@@ -62,17 +62,17 @@ namespace Crow {
 
         template <typename T> using CurlLookupFunction = const char* (*)(T);
 
-        template <typename C, typename... Args>
-        inline CURLcode check_curl_api(const C& client, CURLcode rc, const char* function, Args&&... args) {
+        template <typename Client, typename... Args>
+        inline CURLcode check_curl_api(const Client& client, CURLcode rc, const char* function, Args&&... args) {
             if (rc != CURLE_OK)
-                throw CurlError(int(rc), function, web_client_error_buffer(client), std::forward<Args>(args)...);
+                throw CurlError(int(rc), function, client.native_error().data(), std::forward<Args>(args)...);
             return rc;
         }
 
-        template <typename C, typename T, typename... Args>
-        inline CURLcode check_curl_lookup(const C& client, CURLcode rc, const char* function, T t, CurlLookupFunction<T> f, Args&&... args) {
+        template <typename Client, typename T, typename... Args>
+        inline CURLcode check_curl_lookup(const Client& client, CURLcode rc, const char* function, T t, CurlLookupFunction<T> f, Args&&... args) {
             if (rc != CURLE_OK)
-                throw CurlError(int(rc), function, web_client_error_buffer(client), f(t), std::forward<Args>(args)...);
+                throw CurlError(int(rc), function, client.native_error().data(), f(t), std::forward<Args>(args)...);
             return rc;
         }
 

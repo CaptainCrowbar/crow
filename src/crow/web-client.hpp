@@ -12,38 +12,46 @@
 
 namespace Crow {
 
-    class WebClient;
-
-    namespace Detail {
-
-        const std::string* web_client_error_buffer(const WebClient& c) noexcept;
-
-    }
-
-    using WebHeaders = std::multimap<std::string, std::string>;
-
-    enum class WebMethod: int {
-        del,
-        get,
-        head,
-        post,
-        put,
-    };
-
-    struct WebParameters {
-        WebHeaders head;
-        std::string body;
-        WebParameters() = default;
-        WebParameters(const WebHeaders& h): head(h), body() {}
-        WebParameters(const std::string& b): head(), body(b) {}
-        WebParameters(const WebHeaders& h, const std::string& b): head(h), body(b) {}
-        void clear() noexcept { head.clear(); body.clear(); }
-    };
-
     class WebClient:
     private Detail::CurlInit {
 
     public:
+
+        using headers = std::multimap<std::string, std::string>;
+
+        enum class method: int {
+            del,
+            get,
+            head,
+            post,
+            put,
+        };
+
+        struct parameters {
+            headers head;
+            std::string body;
+            parameters() = default;
+            parameters(const headers& h): head(h), body() {}
+            parameters(const std::string& b): head(), body(b) {}
+            parameters(const headers& h, const std::string& b): head(h), body(b) {}
+            void clear() noexcept { head.clear(); body.clear(); }
+        };
+
+        class progress {
+        public:
+            using callback = std::function<bool(int64_t dltotal, int64_t dlnow)>;
+            progress(WebClient& c, callback on_download);
+            ~progress() noexcept;
+            progress(const progress&) = delete;
+            progress(progress&&) = delete;
+            progress& operator=(const progress&) = delete;
+            progress& operator=(progress&&) = delete;
+        private:
+            WebClient& client_;
+            callback on_download_;
+            static int progress_callback(progress* ptr, int64_t dl_total, int64_t dl_now,
+                int64_t ul_total, int64_t ul_now) noexcept;
+        };
 
         static constexpr auto default_connect_timeout = std::chrono::seconds(15);
         static constexpr auto default_request_timeout = std::chrono::seconds(60);
@@ -56,10 +64,10 @@ namespace Crow {
         WebClient& operator=(const WebClient& c) = delete;
         WebClient& operator=(WebClient&& c) noexcept;
 
-        HttpStatus request(const Uri& uri, WebParameters& response,
-            WebMethod method = WebMethod::get, const WebParameters& params = {});
-        HttpStatus operator()(const Uri& uri, WebParameters& response,
-            WebMethod method = WebMethod::get, const WebParameters& params = {});
+        HttpStatus request(const Uri& uri, parameters& response,
+            method m = method::get, const parameters& params = {});
+        HttpStatus operator()(const Uri& uri, parameters& response,
+            method m = method::get, const parameters& params = {});
 
         template <typename R, typename P> void set_connect_timeout(std::chrono::duration<R, P> t);
         template <typename R, typename P> void set_request_timeout(std::chrono::duration<R, P> t);
@@ -67,17 +75,15 @@ namespace Crow {
         void set_user_agent(const std::string& user_agent);
         void set_verbose(bool flag);
 
+        const std::string& native_error() const noexcept { return error_buffer_; }
         Curl_easy* native_handle() const noexcept { return curl_; }
 
     private:
 
-        friend class WebProgress;
-        friend const std::string* Detail::web_client_error_buffer(const WebClient& c) noexcept;
-
         Curl_easy* curl_ = nullptr;
-        WebParameters* response_ = nullptr;
+        parameters* response_ = nullptr;
         std::string error_buffer_;
-        WebHeaders::iterator prev_header_;
+        headers::iterator prev_header_;
 
         void close() noexcept;
         void set_connect_timeout_ms(std::chrono::milliseconds ms);
@@ -99,29 +105,5 @@ namespace Crow {
             using namespace std::chrono;
             set_connect_timeout_ms(duration_cast<milliseconds>(t));
         }
-
-    class WebProgress {
-
-    public:
-
-        using callback = std::function<bool(int64_t dltotal, int64_t dlnow)>;
-
-        WebProgress(WebClient& c, callback on_download);
-        ~WebProgress() noexcept;
-
-        WebProgress(const WebProgress&) = delete;
-        WebProgress(WebProgress&&) = delete;
-        WebProgress& operator=(const WebProgress&) = delete;
-        WebProgress& operator=(WebProgress&&) = delete;
-
-    private:
-
-        WebClient& client_;
-        callback on_download_;
-
-        static int progress_callback(WebProgress* ptr, int64_t dl_total, int64_t dl_now,
-            int64_t ul_total, int64_t ul_now) noexcept;
-
-    };
 
 }

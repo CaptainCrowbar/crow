@@ -8,7 +8,8 @@ namespace Crow {
 
     enum class HttpStatus: int {
 
-        continue_                        = 100, // Informational (100–199)
+        none                             = 0,
+        continued                        = 100, // Informational (100–199)
         switching_protocols              = 101,
         processing                       = 102,
         early_hints                      = 103,

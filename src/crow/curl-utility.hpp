@@ -45,7 +45,8 @@ namespace Crow {
     public:
         template <typename... Args>
             CurlError(int error, const std::string& function, Args&&... extra):
-            std::runtime_error(message(error, function, {Detail::curl_error_string(std::forward<Args>(extra))...})), error_(error) {}
+                std::runtime_error(message(error, function, {Detail::curl_error_string(std::forward<Args>(extra))...})),
+                error_(error) {}
         int error() const noexcept { return error_; }
     private:
         int error_;
