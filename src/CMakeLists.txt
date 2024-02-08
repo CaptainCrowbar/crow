@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.26)
 # and propagate the new version to version.hpp.
 
 project(Crow
-    VERSION 2.0.244
+    VERSION 2.0.245
     LANGUAGES CXX
 )
 
@@ -76,7 +76,6 @@ add_library(${library} STATIC
     ${library}/progress.cpp
     ${library}/rational.cpp
     ${library}/regex.cpp
-    ${library}/rest-client.cpp
     ${library}/spectrum.cpp
     ${library}/sqlite.cpp
     ${library}/stdio.cpp
@@ -247,7 +246,6 @@ add_executable(${unittest}
     test/regex-replace-test.cpp
     test/regex-runtime-flags-test.cpp
     test/resource-test.cpp
-    test/rest-client-test.cpp
     test/root-finding-test.cpp
     test/spatial-index-test.cpp
     test/spectrum-formatting-test.cpp

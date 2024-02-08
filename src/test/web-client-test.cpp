@@ -2,9 +2,12 @@
 #include "crow/http-status.hpp"
 #include "crow/unit-test.hpp"
 #include "crow/uri.hpp"
+#include <nlohmann/json.hpp>
 #include <string>
 
 using namespace Crow;
+
+using nlohmann::json;
 
 void test_crow_web_client_http_head() {
 
@@ -85,5 +88,29 @@ void test_crow_web_client_http_get() {
     TEST(it != response.head.end());
     if (it != response.head.end())
         TEST_MATCH(it->second, R"(^[A-Z][a-z]{2}, \d\d [A-Z][a-z]{2} 20\d\d \d\d:\d\d:\d\d GMT$)");
+
+}
+
+void test_crow_web_client_rest_api() {
+
+    const Uri server("https://api.guildwars2.com/v2/");
+
+    HttpStatus status = {};
+    Uri uri;
+    WebClient client;
+    WebClient::parameters response;
+    nlohmann::json json;
+    std::string value;
+
+    TRY(uri = server / "mounts/types/skyscale");
+    TRY(status = client.request(uri, response));
+    TEST_EQUAL(status, HttpStatus::ok);
+
+    TRY(json = nlohmann::json::parse(response.body));
+    TEST(! json.empty());
+    TEST(! json.is_discarded());
+
+    TRY(value = json["id"]);    TEST_EQUAL(value, "skyscale");
+    TRY(value = json["name"]);  TEST_EQUAL(value, "Skyscale");
 
 }

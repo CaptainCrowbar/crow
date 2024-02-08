@@ -872,10 +872,6 @@ void resource_test_group() {
     UNIT_TEST(crow_resource_handle)
 }
 
-void rest_client_test_group() {
-    UNIT_TEST(crow_rest_client)
-}
-
 void root_finding_test_group() {
     UNIT_TEST(crow_root_finding_bisection)
     UNIT_TEST(crow_root_finding_false_position)
@@ -1123,6 +1119,7 @@ void vector_test_group() {
 void web_client_test_group() {
     UNIT_TEST(crow_web_client_http_head)
     UNIT_TEST(crow_web_client_http_get)
+    UNIT_TEST(crow_web_client_rest_api)
 }
 
 void xml_construction_test_group() {
@@ -1304,7 +1301,6 @@ int main(int argc, char** argv) {
     regex_replace_test_group();
     regex_runtime_flags_test_group();
     resource_test_group();
-    rest_client_test_group();
     root_finding_test_group();
     spatial_index_test_group();
     spectrum_formatting_test_group();
