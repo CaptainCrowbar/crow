@@ -905,6 +905,11 @@ void sqlite_test_group() {
     UNIT_TEST(crow_sqlite_connection)
 }
 
+void stable_map_test_group() {
+    UNIT_TEST(crow_stable_map_unique)
+    UNIT_TEST(crow_stable_map_multimap)
+}
+
 void stack_test_group() {
     UNIT_TEST(crow_stack)
 }
@@ -1307,6 +1312,7 @@ int main(int argc, char** argv) {
     spectrum_parsing_test_group();
     spectrum_property_test_group();
     sqlite_test_group();
+    stable_map_test_group();
     stack_test_group();
     statistics_test_group();
     stdio_test_group();
