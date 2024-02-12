@@ -200,7 +200,7 @@ namespace Crow {
         void IndexTable<T>::insert(const T& t) {
             list_.push_back(t);
             iterator i = std::prev(end());
-            auto guard = on_scope_fail([this,i] {
+            auto guard = on_scope_failure([this,i] {
                 list_.pop_back();
                 for (auto& [k,v]: indices_)
                     v->erase(i);

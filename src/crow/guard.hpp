@@ -1,26 +1,28 @@
 #pragma once
 
+#include "crow/enum.hpp"
 #include "crow/types.hpp"
 #include <concepts>
 #include <exception>
-#include <utility>
 
 namespace Crow {
 
-    enum class ScopeState: int {
-        exit,    // Invoke callback unconditionally in destructor
-        fail,    // Invoke callback when unwinding due to exception, but not on normal exit
-        success  // Invoke callback on normal exit, but not when unwinding due to exception
+    enum class ScopeState: uint8_t {
+        success  = 1,  // Invoke callback on normal exit, but not when unwinding due to exception
+        failure  = 2,  // Invoke callback when unwinding due to exception, but not on normal exit
+        exit     = 3,  // Invoke callback unconditionally in destructor
     };
+
+    CROW_BITMASK_OPERATORS(ScopeState)
 
     template <std::invocable F, ScopeState S>
     class BasicScopeGuard {
 
     public:
 
-        BasicScopeGuard(F&& f)
+        BasicScopeGuard(F f)
             try:
-                callback_(std::forward<F>(f)),
+                callback_(f),
                 inflight_(std::uncaught_exceptions()) {}
             catch (...) {
                 if constexpr (S != ScopeState::success) {
@@ -33,7 +35,7 @@ namespace Crow {
         ~BasicScopeGuard() noexcept {
             if (inflight_ < 0)
                 return;
-            if constexpr (S == ScopeState::fail)
+            if constexpr (S == ScopeState::failure)
                 if (std::uncaught_exceptions() <= inflight_)
                     return;
             if constexpr (S == ScopeState::success)
@@ -49,9 +51,7 @@ namespace Crow {
         BasicScopeGuard& operator=(const BasicScopeGuard&) = delete;
         BasicScopeGuard& operator=(BasicScopeGuard&&) = delete;
 
-        void release() noexcept {
-            inflight_ = -1;
-        }
+        void release() noexcept { inflight_ = -1; }
 
     private:
 
@@ -59,10 +59,6 @@ namespace Crow {
         int inflight_ = -1;
 
     };
-
-    template <std::invocable F> inline auto on_scope_exit(F&& f) { return BasicScopeGuard<F, ScopeState::exit>(std::forward<F>(f)); }
-    template <std::invocable F> inline auto on_scope_fail(F&& f) { return BasicScopeGuard<F, ScopeState::fail>(std::forward<F>(f)); }
-    template <std::invocable F> inline auto on_scope_success(F&& f) { return BasicScopeGuard<F, ScopeState::success>(std::forward<F>(f)); }
 
     template <ScopeState S>
     class BasicScopeGuard<Callback, S> {
@@ -80,7 +76,7 @@ namespace Crow {
         ~BasicScopeGuard() noexcept {
             if (inflight_ < 0)
                 return;
-            if constexpr (S == ScopeState::fail)
+            if constexpr (S == ScopeState::failure)
                 if (std::uncaught_exceptions() <= inflight_)
                     return;
             if constexpr (S == ScopeState::success)
@@ -112,9 +108,7 @@ namespace Crow {
             }
         }
 
-        void release() noexcept {
-            inflight_ = -1;
-        }
+        void release() noexcept { inflight_ = -1; }
 
     private:
 
@@ -123,8 +117,37 @@ namespace Crow {
 
     };
 
-    using ScopeExit = BasicScopeGuard<Callback, ScopeState::exit>;
-    using ScopeFail = BasicScopeGuard<Callback, ScopeState::fail>;
     using ScopeSuccess = BasicScopeGuard<Callback, ScopeState::success>;
+    using ScopeFailure = BasicScopeGuard<Callback, ScopeState::failure>;
+    using ScopeExit = BasicScopeGuard<Callback, ScopeState::exit>;
+
+    template <std::invocable F>
+    inline auto on_scope_success(F f) {
+        return BasicScopeGuard<F, ScopeState::success>(f);
+    }
+
+    template <std::invocable F>
+    inline auto on_scope_failure(F f) {
+        return BasicScopeGuard<F, ScopeState::failure>(f);
+    }
+
+    template <std::invocable F>
+    inline auto on_scope_exit(F f) {
+        return BasicScopeGuard<F, ScopeState::exit>(f);
+    }
+
+    template <typename T>
+    requires requires (T& t, size_t n) {
+        t.resize(n);
+        { t.size() } -> std::convertible_to<size_t>;
+    }
+    inline auto guard_size(T& t) {
+        return on_scope_failure([&t,n=t.size()] { t.resize(n); });
+    }
+
+    template <std::copyable T>
+    inline auto guard_value(T& t) {
+        return on_scope_failure([&t,save=t] { t = save; });
+    }
 
 }

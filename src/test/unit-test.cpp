@@ -321,6 +321,8 @@ void geometry_test_group() {
 void guard_test_group() {
     UNIT_TEST(crow_scope_guard)
     UNIT_TEST(crow_scope_guard_multiple_action)
+    UNIT_TEST(crow_scope_guard_saved_container_size)
+    UNIT_TEST(crow_scope_guard_saved_value)
 }
 
 void hash_test_group() {
