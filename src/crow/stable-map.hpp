@@ -3,6 +3,7 @@
 #include "crow/guard.hpp"
 #include "crow/iterator.hpp"
 #include "crow/types.hpp"
+#include <algorithm>
 #include <functional>
 #include <optional>
 #include <type_traits>
@@ -175,47 +176,39 @@ namespace Crow {
         template <typename Key, typename T, bool Dup, typename Hash, typename KeyEqual>
         typename StableMap<Key, T, Dup, Hash, KeyEqual>::iterator
         StableMap<Key, T, Dup, Hash, KeyEqual>::find(const Key& k) {
+            size_t index = 0;
             if constexpr (Dup) {
                 auto range = map_.equal_range(k);
                 if (range.first == range.second)
                     return end();
-                auto mi = range.first;
-                for (;;) {
-                    auto next = std::next(mi);
-                    if (next == range.second)
-                        return mi;
-                    mi = next;
-                }
+                for (auto mi = range.first; mi != range.second; ++mi)
+                    index = std::max(index, mi->second);
             } else {
                 auto mi = map_.find(k);
                 if (mi == map_.end())
                     return end();
-                else
-                    return iterator(seq_, mi->second);
+                index = mi->second;
             }
+            return iterator(seq_, seq_.begin() + index);
         }
 
         template <typename Key, typename T, bool Dup, typename Hash, typename KeyEqual>
         typename StableMap<Key, T, Dup, Hash, KeyEqual>::const_iterator
         StableMap<Key, T, Dup, Hash, KeyEqual>::find(const Key& k) const {
+            size_t index = 0;
             if constexpr (Dup) {
                 auto range = map_.equal_range(k);
                 if (range.first == range.second)
                     return end();
-                auto mi = range.first;
-                for (;;) {
-                    auto next = std::next(mi);
-                    if (next == range.second)
-                        return mi;
-                    mi = next;
-                }
+                for (auto mi = range.first; mi != range.second; ++mi)
+                    index = std::max(index, mi->second);
             } else {
                 auto mi = map_.find(k);
                 if (mi == map_.end())
                     return end();
-                else
-                    return const_iterator(seq_, mi->second);
+                index = mi->second;
             }
+            return const_iterator(seq_, seq_.begin() + index);
         }
 
         template <typename Key, typename T, bool Dup, typename Hash, typename KeyEqual>
