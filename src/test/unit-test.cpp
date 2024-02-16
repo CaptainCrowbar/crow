@@ -907,9 +907,20 @@ void sqlite_test_group() {
     UNIT_TEST(crow_sqlite_connection)
 }
 
-void stable_map_test_group() {
-    UNIT_TEST(crow_stable_map_unique)
-    UNIT_TEST(crow_stable_map_multimap)
+void stable_map_multimap_test_group() {
+    UNIT_TEST(crow_stable_map_multimap_insert)
+    UNIT_TEST(crow_stable_map_multimap_copy)
+    UNIT_TEST(crow_stable_map_multimap_erase)
+    UNIT_TEST(crow_stable_map_multimap_lookup)
+    UNIT_TEST(crow_stable_map_multimap_rehash)
+}
+
+void stable_map_unique_test_group() {
+    UNIT_TEST(crow_stable_map_unique_insert)
+    UNIT_TEST(crow_stable_map_unique_copy)
+    UNIT_TEST(crow_stable_map_unique_erase)
+    UNIT_TEST(crow_stable_map_unique_lookup)
+    UNIT_TEST(crow_stable_map_unique_rehash)
 }
 
 void stack_test_group() {
@@ -1314,7 +1325,8 @@ int main(int argc, char** argv) {
     spectrum_parsing_test_group();
     spectrum_property_test_group();
     sqlite_test_group();
-    stable_map_test_group();
+    stable_map_multimap_test_group();
+    stable_map_unique_test_group();
     stack_test_group();
     statistics_test_group();
     stdio_test_group();
