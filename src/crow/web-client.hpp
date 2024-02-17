@@ -2,6 +2,7 @@
 
 #include "crow/curl-utility.hpp"
 #include "crow/http-status.hpp"
+#include "crow/stable-map.hpp"
 #include "crow/types.hpp"
 #include "crow/uri.hpp"
 #include <chrono>
@@ -17,7 +18,7 @@ namespace Crow {
 
     public:
 
-        using headers = std::multimap<std::string, std::string>;
+        using headers = StableMap<std::string, std::string>;
 
         enum class method: int {
             del,

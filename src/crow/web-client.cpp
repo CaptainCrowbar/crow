@@ -146,7 +146,7 @@ namespace Crow {
             prev->second += ' ' + trim_left(line);
         } else {
             auto [key,value] = partition(line, ":");
-            prev = head.insert({trim(key), trim_left(value)});
+            prev = head.insert(trim(key), trim_left(value)).first;
         }
 
         return n_items;

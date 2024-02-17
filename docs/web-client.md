@@ -36,7 +36,7 @@ The main web client class. This class is a C++ wrapper around Libcurl's API.
 ### Member types
 
 ```c++
-using WebClient::headers = std::multimap<std::string, std::string>;
+using WebClient::headers = StableMap<std::string, std::string>;
 ```
 
 A map used to record HTTP headers.
