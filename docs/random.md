@@ -433,7 +433,7 @@ distribution is empty.
 
 ```c++
 template <typename Base>
-requires (SemiregularHashable<typename Base::result_type>)
+requires (RegularHashable<typename Base::result_type>)
 class UniqueDistribution:
 public Base {
     explicit UniqueDistribution(const Base& dist);

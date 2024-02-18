@@ -18,8 +18,6 @@ namespace Crow;
 template <typename T> concept Hashable;
 template <typename T> concept RegularHashable
     = Hashable<T> && std::regular<T>;
-template <typename T> concept SemiregularHashable
-    = Hashable<T> && std::semiregular<T>;
 ```
 
 These match types with a valid specialization of `std::hash` (after stripping CV
