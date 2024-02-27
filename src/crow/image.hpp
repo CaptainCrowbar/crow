@@ -28,21 +28,17 @@ namespace Crow {
 
     using Point = Int2;
 
-    enum class ImageFlags: int {
+    CROW_ENUM_BITMASK(ImageFlags, int,
         none    = 0,
         invert  = 1,
         pma     = 2,
-    };
+    )
 
-    CROW_BITMASK_OPERATORS(ImageFlags)
-
-    enum class ImageResize: int {
+    CROW_ENUM_BITMASK(ImageResize, int,
         none    = 0,
         unlock  = 1,
         wrap    = 2,
-    };
-
-    CROW_BITMASK_OPERATORS(ImageResize)
+    )
 
     class ImageIoError:
     public std::runtime_error {

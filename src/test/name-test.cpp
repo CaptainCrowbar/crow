@@ -7,7 +7,7 @@ using namespace Crow;
 
 namespace {
 
-    CROW_ENUM_CLASS(Foo, int, 1, SomeSuchThing, AnotherThing)
+    CROW_ENUM_SCOPED(Foo, int, SomeSuchThing = 1, AnotherThing)
 
 }
 

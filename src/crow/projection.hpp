@@ -18,7 +18,6 @@
 #include <map>
 #include <memory>
 #include <numbers>
-#include <ostream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -51,7 +50,7 @@ namespace Crow {
 
     // Constants
 
-    enum class Maps: uint32_t {
+    CROW_ENUM_BITMASK(Maps, uint32_t,
         none               = 0,
         // Projection family
         azimuthal          = 1ul << 0,   // Azimuthal projections
@@ -84,13 +83,9 @@ namespace Crow {
         cover_mask         = 0xff00,
         shape_mask         = 0xff0000,
         other_mask         = 0xff000000,
-    };
+    )
 
-    CROW_BITMASK_OPERATORS(Maps)
-
-    std::string to_string(Maps m);
-
-    inline std::string to_string(Maps m) {
+    inline std::string expand(Maps m) {
 
         static const std::vector<std::pair<Maps, std::string>> all_flags = {
 
@@ -130,10 +125,6 @@ namespace Crow {
 
         return list;
 
-    }
-
-    inline std::ostream& operator<<(std::ostream& out, Maps m) {
-        return out << to_string(m);
     }
 
     namespace Detail {

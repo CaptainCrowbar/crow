@@ -30,14 +30,12 @@ namespace Crow {
 
     }
 
-    enum class FontStyle: int {
+    CROW_ENUM_BITMASK(FontStyle, int,
         regular   = 0,
         bold      = 1,
         italic    = 2,
         fallback  = 4,
-    };
-
-    CROW_BITMASK_OPERATORS(FontStyle)
+    )
 
     class Font {
 

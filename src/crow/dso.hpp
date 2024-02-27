@@ -118,6 +118,6 @@ namespace Crow {
             return do_search(names, args...);
         }
 
-    CROW_BITMASK_OPERATORS(Dso::flag_type)
+    CROW_ENUM_BITMASK_OPERATORS(Dso::flag_type)
 
 }

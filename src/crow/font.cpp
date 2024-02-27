@@ -65,7 +65,7 @@ namespace Crow {
             int language;
         };
 
-        CROW_ENUM_CLASS(FontNameId, int, 0,
+        CROW_ENUM_SCOPED(FontNameId, int,
             copyright,
             family,
             subfamily,

@@ -318,7 +318,7 @@ namespace Crow {
             return p;
         }
 
-    CROW_BITMASK_OPERATORS(Path::flag_type);
+    CROW_ENUM_BITMASK_OPERATORS(Path::flag_type);
 
 }
 

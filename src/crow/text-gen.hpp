@@ -81,7 +81,7 @@ namespace Crow {
 
     };
 
-    CROW_BITMASK_OPERATORS(TextGen::option)
+    CROW_ENUM_BITMASK_OPERATORS(TextGen::option)
 
     namespace Detail {
 

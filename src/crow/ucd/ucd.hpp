@@ -6,7 +6,7 @@
 
 namespace Crow {
 
-    CROW_ENUM_CLASS(GC, int, 1,
+    CROW_ENUM_SCOPED(GC, int,
         Cc,  // Control
         Cf,  // Format
         Cn,  // Unassigned
@@ -36,12 +36,12 @@ namespace Crow {
         So,  // Other_Symbol
         Zl,  // Line_Separator
         Zp,  // Paragraph_Separator
-        Zs   // Space_Separator
+        Zs,  // Space_Separator
     )
 
     namespace Detail {
 
-        CROW_ENUM_CLASS(East_Asian_Width, int, 1,
+        CROW_ENUM_SCOPED(East_Asian_Width, int,
             A,   // Ambiguous
             F,   // Fullwidth
             H,   // Halfwidth
@@ -50,7 +50,7 @@ namespace Crow {
             W    // Wide
         )
 
-        CROW_ENUM_CLASS(Grapheme_Cluster_Break, int, 1,
+        CROW_ENUM_SCOPED(Grapheme_Cluster_Break, int,
             Control,
             CR,
             Extend,
@@ -67,7 +67,7 @@ namespace Crow {
             ZWJ
         )
 
-        CROW_ENUM_CLASS(Hangul_Syllable_Type, int, 1,
+        CROW_ENUM_SCOPED(Hangul_Syllable_Type, int,
             L,
             LV,
             LVT,

@@ -8,7 +8,11 @@
 using namespace Crow;
 using namespace Crow::Detail;
 
-CROW_ENUM_CLASS(MyEnum, int, 0, alpha, bravo, charlie)
+namespace {
+
+    CROW_ENUM_SCOPED(MyEnum, int, alpha, bravo, charlie)
+
+}
 
 void test_crow_options_traits_concepts() {
 

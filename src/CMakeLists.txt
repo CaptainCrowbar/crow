@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.26)
 # and propagate the new version to version.hpp.
 
 project(Crow
-    VERSION 2.0.251
+    VERSION 2.0.252
     LANGUAGES CXX
 )
 
@@ -140,7 +140,11 @@ add_executable(${unittest}
     test/dso-test.cpp
     test/encoding-test.cpp
     test/english-test.cpp
-    test/enum-test.cpp
+    test/enum-arithmetic-test.cpp
+    test/enum-bitmask-test.cpp
+    test/enum-concepts-test.cpp
+    test/enum-definition-test.cpp
+    test/enum-internals-test.cpp
     test/fixed-binary-large-binary-100-test.cpp
     test/fixed-binary-large-binary-35-test.cpp
     test/fixed-binary-misc-test.cpp

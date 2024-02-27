@@ -33,14 +33,12 @@ namespace Crow {
 
     template <int N> using Ntag = std::integral_constant<int, N>;
 
-    enum class Ntype: uint8_t {
+    CROW_ENUM_BITMASK(Ntype, uint8_t,
         none       = 0,
         compare    = 1,
         construct  = 2,
         convert    = 4,
-    };
-
-    CROW_BITMASK_OPERATORS(Ntype)
+    )
 
     template <typename T, typename Tag = void, Ntype Flags = Ntype::none>
     class Newtype {

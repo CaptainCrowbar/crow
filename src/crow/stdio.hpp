@@ -18,8 +18,8 @@ namespace Crow {
 
     class IoBase;
 
-    CROW_ENUM_CLASS(IoMode, int, 1,
-        read,
+    CROW_ENUM_SCOPED(IoMode, int,
+        read = 1,
         write,
         append,
         create_always,

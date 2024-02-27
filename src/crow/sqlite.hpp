@@ -28,7 +28,7 @@ namespace Crow::Sqlite {
     std::array<int, 3> compile_version() noexcept;
     std::array<int, 3> runtime_version() noexcept;
 
-    enum class Mode: uint32_t {
+    CROW_ENUM_BITMASK(Mode, uint32_t,
         none        = 0,
         // Open mode flags
         read        = 1u << 0,  // Open database in read only mode; fail if it does not exist (default)
@@ -42,9 +42,7 @@ namespace Crow::Sqlite {
         uri         = 1u << 7,  // Enable URI file names
         // Query usage hints
         persistent  = 1u << 8,  // Hint that a query should be persistent
-    };
-
-    CROW_BITMASK_OPERATORS(Mode)
+    )
 
     class Exception:
     public std::runtime_error {

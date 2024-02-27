@@ -76,7 +76,7 @@ namespace Crow {
 
     }
 
-    CROW_ENUM_CLASS(Usize, int, 1,
+    CROW_ENUM_SCOPED(Usize, int,
         units,      // Code units
         scalars,    // Scalar values
         graphemes,  // Grapheme clusters

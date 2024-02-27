@@ -74,7 +74,7 @@ namespace Crow {
             return Name(format_object(t, spec), pf);
         }
 
-    CROW_BITMASK_OPERATORS(Name::parse_flags)
-    CROW_BITMASK_OPERATORS(Name::format_flags)
+    CROW_ENUM_BITMASK_OPERATORS(Name::parse_flags)
+    CROW_ENUM_BITMASK_OPERATORS(Name::format_flags)
 
 }

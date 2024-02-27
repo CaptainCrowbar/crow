@@ -15,18 +15,16 @@ types.
 * TOC
 {:toc}
 
-## Enumeration definition
+## Enumeration definitions
 
 ```c++
-#define CROW_ENUM(EnumType, IntType,
-    first_value, first_name, ...)
-#define CROW_ENUM_CLASS(EnumType, IntType,
-    first_value, first_name, ...)
+#define CROW_ENUM_UNSCOPED(EnumName, IntType, ...)
+#define CROW_ENUM_SCOPED(EnumName, IntType, ...)
 ```
 
 These define an `enum` or `enum class` type. The macro arguments are the type
-name, the underlying integer type, the integer value at which to start, and a
-list of enumeration constant names.
+name, the underlying integer type, and a list of enumeration constants in the
+usual format.
 
 This works only at namespace scope; it can't be used to define class member
 types.
@@ -34,7 +32,7 @@ types.
 Example:
 
 ```c++
-CROW_ENUM_CLASS(MyEnumClass, int, 1, alpha, bravo, charlie)
+CROW_ENUM_CLASS(MyEnumClass, int, alpha = 1, bravo, charlie)
 ```
 
 This is equivalent to:
@@ -50,37 +48,47 @@ enum class MyEnumClass: int {
 In addition to defining the enumeration itself, the macros also define the
 following functions:
 
-* `constexpr IntType count_enum_values(EnumType) noexcept`
-    * Returns the number of values in the enumeration. (The argument's value
-      is ignored; a function argument is used to specify the type, instead of
-      a template argument, so these functions can be found by argument
-      dependent lookup.)
-* `constexpr EnumType min_enum_value(EnumType) noexcept`
-* `constexpr EnumType max_enum_value(EnumType) noexcept`
-    * Return the minimum and maximum values of the enumeration.
-* `std::vector<std::string> list_enum_names(EnumType)`
-* `std::vector<EnumType> list_enum_values(EnumType)`
-    * Return a list of the enumeration constants or their names.
-* `bool parse_enum(const std::string& str, EnumType& t)`
-    * If the string matches one of the enumeration names, this sets `t` to the
-      corresponding value and returns true; otherwise, it leaves `t`
-      unchanged and returns false.
-* `std::string to_string(EnumType t)`
-* `std::ostream& operator<<(std::ostream& out, EnumType t)`
-    * These convert an enumeration value to a string containing its
-      unqualified name. If an argument is supplied that does not correspond
-      to a named enumeration constant, they will call `std::to_string()` on
-      its integer value.
-
-## Bitmask operators
-
 ```c++
-#define CROW_BITMASK_OPERATORS(EnumClass)
+std::vector<std::pair<EnumName, std::string>> enum_value_name_vector(EnumName);
+std::unordered_map<EnumName, std::string> enum_value_name_map(EnumName);
+std::unordered_map<std::string, EnumName> enum_name_value_map(EnumName);
 ```
 
-This defines the standard bitwise operators on an enumeration type, allowing
-an `enum class` to be used as a set of bitmask values. The following
-operators are defined:
+These return a collection of paired enumeration values and their unqualified
+names as strings, in various forms. For all of these functions, the argument
+is ignored and only exists to allow the correct function to be resolved via
+argument dependent lookup. If an enumeration contains duplicate values, the
+name associated with an ambiguous value in `enum_value_name_map()` is the
+first name associated with that value in the original definition.
+
+```c++
+std::string to_string(EnumName value);
+std::ostream& operator<<(std::ostream& out, EnumName x);
+```
+
+Convert an enumeration value to a string containing the unqualified name. If
+the argument is not a named enumeration value, the decimal integer value will
+be returned.
+
+```c++
+bool enum_value(const std::string& name, EnumName& value);
+```
+
+Convert an unqualified name to an enumeration value. If the name is not one of
+the enumeration names, this will leave the second argument unchanged and
+return false.
+
+
+## Bitmask enumerations
+
+```c++
+#define CROW_ENUM_BITMASK(EnumName, IntType, ...)
+```
+
+This defines a scoped enumeration in the same way as `CROW_ENUM_SCOPED()`, and
+also defines the standard bitwise operators on the type, allowing an
+enumeration to be used as a set of bitmask values. The following operators
+are defined:
 
 * Unary operators: `! ~`
 * Binary operators: `& | ^ &= |= ^=`
@@ -88,6 +96,10 @@ operators are defined:
 These all have their natural meaning in terms of the corresponding operations
 on the underlying integer type.
 
-This can be used on enumeration classes that are defined either in namespace
-scope or as class members; in the latter case the macro must be used in
-namespace scope outside the class.
+```c++
+#define CROW_ENUM_BITMASK_OPERATORS(EnumName)
+```
+
+This defines the same operators on an existing enumeration type. If the
+enumeration is a class member type, the macro must be used in namespace scope
+outside the class.

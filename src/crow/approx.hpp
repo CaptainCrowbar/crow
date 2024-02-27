@@ -26,7 +26,7 @@ namespace Crow {
 
     }
 
-    CROW_ENUM_CLASS(Error, unsigned char, 0, abs, rel)
+    CROW_ENUM_SCOPED(Error, unsigned char, abs, rel)
 
     template <std::floating_point T>
     class Approx {

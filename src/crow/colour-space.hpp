@@ -41,15 +41,13 @@ namespace Crow {
 
     // Colour space properties
 
-    enum class Csp: int {
+    CROW_ENUM_BITMASK(Csp, int,
         none    = 0,
         linear  = 1,  // Linear colour space
         polar   = 2,  // First channel is polar, not Cartesian
         rgb     = 4,  // Cartesian RGB-based colour space
         unit    = 8,  // Valid colours are restricted to the unit cube
-    };
-
-    CROW_BITMASK_OPERATORS(Csp)
+    )
 
     // Colour space concepts
 

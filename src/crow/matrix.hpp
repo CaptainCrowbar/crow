@@ -14,7 +14,7 @@
 
 namespace Crow {
 
-    CROW_ENUM_CLASS(MatrixLayout, int, 0, row, column)
+    CROW_ENUM_SCOPED(MatrixLayout, int, row, column)
 
     namespace Detail {
 

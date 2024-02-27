@@ -18,7 +18,7 @@
 
 namespace Crow {
 
-    CROW_ENUM_CLASS(FlexImpl, int, 0,
+    CROW_ENUM_SCOPED(FlexImpl, int,
         none,
         ordered,
         hash,

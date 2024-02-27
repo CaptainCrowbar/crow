@@ -27,7 +27,7 @@ namespace Crow {
     using Days          = std::chrono::duration<double, std::ratio<86'400>>;
     using Years         = std::chrono::duration<double, std::ratio<31'557'600>>; // Julian year
 
-    enum class DT: int {
+    CROW_ENUM_BITMASK(DT, int,
         none       = 0,
         ymd_order  = 1 << 0,
         dmy_order  = 1 << 1,
@@ -37,9 +37,7 @@ namespace Crow {
         dst        = 1 << 5,
         utc        = 1 << 6,
         local      = 1 << 7,
-    };
-
-    CROW_BITMASK_OPERATORS(DT)
+    )
 
     // Utility functions
 

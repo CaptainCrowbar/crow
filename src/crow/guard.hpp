@@ -7,13 +7,11 @@
 
 namespace Crow {
 
-    enum class ScopeState: uint8_t {
+    CROW_ENUM_BITMASK(ScopeState, uint8_t,
         success  = 1,  // Invoke callback on normal exit, but not when unwinding due to exception
         failure  = 2,  // Invoke callback when unwinding due to exception, but not on normal exit
         exit     = 3,  // Invoke callback unconditionally in destructor
-    };
-
-    CROW_BITMASK_OPERATORS(ScopeState)
+    )
 
     template <std::invocable F, ScopeState S>
     class BasicScopeGuard {

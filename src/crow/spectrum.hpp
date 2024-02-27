@@ -10,7 +10,7 @@
 
 namespace Crow {
 
-    CROW_ENUM_CLASS(LC, uint8_t, 0,
+    CROW_ENUM_SCOPED(LC, uint8_t,
         none,
         Ia,   // Bright supergiants
         Ib,   // Supergiants
@@ -23,7 +23,7 @@ namespace Crow {
         other
     )
 
-    CROW_ENUM_CLASS(Sp, uint8_t, 0,
+    CROW_ENUM_SCOPED(Sp, uint8_t,
         none,
         O, B, A, F, G, K, M,         // Main sequence and giants (HR diagram types)
         L, T, Y,                     // Brown dwarfs

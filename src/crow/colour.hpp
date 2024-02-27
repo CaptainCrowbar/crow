@@ -16,7 +16,7 @@
 
 namespace Crow {
 
-    CROW_ENUM_CLASS(ColourLayout, int, 0,
+    CROW_ENUM_SCOPED(ColourLayout, int,
         forward,
         forward_alpha,
         alpha_forward,
@@ -25,15 +25,13 @@ namespace Crow {
         alpha_reverse
     )
 
-    enum class Pma: int {
+    CROW_ENUM_BITMASK(Pma, int,
         none    = 0,
         first   = 1,
         second  = 2,
         result  = 4,
         all     = first | second | result,
-    };
-
-    CROW_BITMASK_OPERATORS(Pma)
+    )
 
     template <ArithmeticType VT, ColourSpace CS, ColourLayout CL> class Colour;
 

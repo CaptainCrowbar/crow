@@ -16,8 +16,7 @@ namespace Crow;
 
 ```c++
 enum class Maps: uint32_t;
-std::string to_string(Maps m);
-std::ostream& operator<<(std::ostream& out, Maps m);
+std::string expand(Maps m);
 ```
 
 Type used for bitmask flags.
@@ -63,6 +62,9 @@ a combination of these values, indicating the properties of a specific
 projection. The properties bitmask of any given projection will contain
 exactly one bit from each of the first three groups, and any number of bits
 from the other properties group.
+
+The `expand()` function breaks a bitmask down into its component values, e.g.
+`"azimuthal|sphere|circle|hemisphere_circle"`.
 
 Properties marked with a star are not actually used by any projection
 currently supported.

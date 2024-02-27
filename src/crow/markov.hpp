@@ -23,12 +23,10 @@ namespace Crow {
 
     }
 
-    enum class MarkovFlags: int {
+    CROW_ENUM_BITMASK(MarkovFlags, int,
         none       = 0,
         exclusive  = 1,
-    };
-
-    CROW_BITMASK_OPERATORS(MarkovFlags)
+    )
 
     template <typename T, typename S = typename Detail::DefaultSequence<T>::type>
     class Markov {

@@ -19,14 +19,12 @@ namespace Crow {
 
     // Supporting types
 
-    enum class Logs: uint8_t {
+    CROW_ENUM_BITMASK(Logs, uint8_t,
         none  = 0,
         X     = 1,
         Y     = 2,
         XY    = 3,
-    };
-
-    CROW_BITMASK_OPERATORS(Logs)
+    )
 
     namespace Detail {
 

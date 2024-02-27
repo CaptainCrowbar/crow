@@ -82,7 +82,7 @@ namespace Crow::Xml {
         std::string error_text_;
     };
 
-    enum class Options: int {
+    CROW_ENUM_BITMASK(Options, int,
         none       = 0,
         autoclose  = 1 << 0,  // Implicit closing
         comments   = 1 << 1,  // Keep comments
@@ -95,11 +95,9 @@ namespace Crow::Xml {
         xentity    = 1 << 8,  // HTML character entities
         xml        = none,
         html       = autoclose | foldws | icase | keyonly | noxmldecl | selfclose | xentity,
-    };
+    )
 
-    CROW_BITMASK_OPERATORS(Options)
-
-    CROW_ENUM_CLASS(NodeType, int, 0,
+    CROW_ENUM_SCOPED(NodeType, int,
         null,
         xmldecl,
         dtd,

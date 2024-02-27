@@ -15,7 +15,7 @@
 
 namespace Crow {
 
-    CROW_ENUM_CLASS(LogMode, int, 0,
+    CROW_ENUM_SCOPED(LogMode, int,
         natural,  // Use base e logs
         common    // Use base 10 logs
     )

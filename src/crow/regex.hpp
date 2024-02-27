@@ -232,6 +232,6 @@ namespace Crow {
 
     };
 
-    CROW_BITMASK_OPERATORS(Regex::flag_type)
+    CROW_ENUM_BITMASK_OPERATORS(Regex::flag_type)
 
 }

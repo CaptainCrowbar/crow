@@ -191,9 +191,32 @@ void english_test_group() {
     UNIT_TEST(crow_english_lorem_ipsum)
 }
 
-void enum_test_group() {
-    UNIT_TEST(crow_format_enum_definition)
-    UNIT_TEST(crow_format_enum_bitmask_operators)
+void enum_arithmetic_test_group() {
+    UNIT_TEST(crow_enum_arithmetic_values)
+    UNIT_TEST(crow_enum_arithmetic_functions)
+}
+
+void enum_bitmask_test_group() {
+    UNIT_TEST(crow_enum_bitmask)
+}
+
+void enum_concepts_test_group() {
+    UNIT_TEST(crow_enum_concepts)
+}
+
+void enum_definition_test_group() {
+    UNIT_TEST(crow_enum_definitions)
+    UNIT_TEST(crow_enum_value_name_vector)
+    UNIT_TEST(crow_enum_value_name_map)
+    UNIT_TEST(crow_enum_name_value_map)
+    UNIT_TEST(crow_enum_name_to_value)
+    UNIT_TEST(crow_enum_value_to_name)
+}
+
+void enum_internals_test_group() {
+    UNIT_TEST(crow_enum_trim)
+    UNIT_TEST(crow_enum_split)
+    UNIT_TEST(crow_enum_parse_integer)
 }
 
 void fixed_binary_large_binary_100_test_group() {
@@ -1213,7 +1236,11 @@ int main(int argc, char** argv) {
     dso_test_group();
     encoding_test_group();
     english_test_group();
-    enum_test_group();
+    enum_arithmetic_test_group();
+    enum_bitmask_test_group();
+    enum_concepts_test_group();
+    enum_definition_test_group();
+    enum_internals_test_group();
     fixed_binary_large_binary_100_test_group();
     fixed_binary_large_binary_35_test_group();
     fixed_binary_misc_test_group();

@@ -147,7 +147,7 @@ namespace Crow {
 
     };
 
-        CROW_BITMASK_OPERATORS(Options::flag_type)
+        CROW_ENUM_BITMASK_OPERATORS(Options::flag_type)
 
         template <Detail::OptionArgumentType T>
         Options& Options::add(T& var, const std::string& name, char abbrev, const std::string& description,
@@ -246,7 +246,7 @@ namespace Crow {
         T Options::parse_enum_unchecked(const std::string& arg) {
             // The string and type have already been validated
             T t = {};
-            parse_enum(arg, t);
+            enum_value(arg, t);
             return t;
         }
 
@@ -255,8 +255,7 @@ namespace Crow {
 
             if constexpr (std::is_enum_v<T>) {
                 return [] (const std::string& str) {
-                    auto& names = list_enum_names(T());
-                    return std::find(names.begin(), names.end(), str) != names.end();
+                    return enum_name_value_map(T()).contains(str);
                 };
             }
 
