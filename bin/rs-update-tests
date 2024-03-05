@@ -38,7 +38,7 @@ testfiles=$(grep -E '[-]test\.cpp$' "$cmake" \
 
 testinc=$(grep -Eh '#include ".*unit-test\.hpp"' $testfiles | head -n 1)
 
-if [[ "#testinc" =~ crow/ ]]; then
+if [[ "$testinc" =~ crow/ ]]; then
     nsprefix=Crow::
 else
     nsprefix=
