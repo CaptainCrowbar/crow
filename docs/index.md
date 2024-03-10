@@ -81,7 +81,6 @@ Other libraries required:
     * [crow/thread-pool](thread-pool.html) - Thread pool
 * Networking
     * [crow/http](http.html) - HTTP status codes
-    * [crow/rest-client](rest-client.html) - REST client
     * [crow/uri](uri.html) - URI
     * [crow/web-client](web-client.html) - Web client
 * Numerics
