@@ -66,9 +66,11 @@ namespace Crow {
         WebClient& operator=(WebClient&& c) noexcept;
 
         HttpStatus request(const Uri& uri, parameters& response,
-            method m = method::get, const parameters& params = {});
+            const parameters& params = {}, method m = method::get);
         HttpStatus operator()(const Uri& uri, parameters& response,
-            method m = method::get, const parameters& params = {});
+            const parameters& params = {}, method m = method::get) {
+                return request(uri, response, params, m);
+            }
 
         template <typename R, typename P> void set_connect_timeout(std::chrono::duration<R, P> t);
         template <typename R, typename P> void set_request_timeout(std::chrono::duration<R, P> t);

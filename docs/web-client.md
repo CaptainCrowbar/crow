@@ -118,9 +118,9 @@ Other life cycle functions. `WebClient` objects are not copyable.
 
 ```c++
 HttpStatus WebClient::request(const Uri& uri, parameters& response,
-    method m = method::get, const parameters& params = {});
+    const parameters& params = {}, method m = method::get);
 HttpStatus WebClient::operator()(const Uri& uri, parameters& response,
-    method m = method::get, const parameters& params = {});
+    const parameters& params = {}, method m = method::get);
 ```
 
 Perform an HTTP[S] request. The `response` fields will be filled with the

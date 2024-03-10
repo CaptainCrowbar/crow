@@ -70,7 +70,7 @@ namespace Crow {
     }
 
     HttpStatus WebClient::request(const Uri& uri, parameters& response,
-            method m, const parameters& params) {
+            const parameters& params, method m) {
 
         // TODO - handle DELETE, POST, PUT
 
@@ -99,11 +99,6 @@ namespace Crow {
 
         return HttpStatus(rc);
 
-    }
-
-    HttpStatus WebClient::operator()(const Uri& uri, parameters& response,
-            method m, const parameters& params) {
-        return request(uri, response, m, params);
     }
 
     void WebClient::set_redirect_limit(int n) {

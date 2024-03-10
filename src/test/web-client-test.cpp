@@ -19,7 +19,7 @@ void test_crow_web_client_http_head() {
     std::string key;
 
     TRY(uri = Uri("https://en.wikipedia.org/wiki/Main_Page"));
-    TRY(status = client.request(uri, response, WebClient::method::head));
+    TRY(status = client.request(uri, response, {}, WebClient::method::head));
     TEST_EQUAL(status, HttpStatus::ok);
     TEST_EQUAL(int(status), 200);
     TEST_EQUAL(to_string(status), "200 OK");
