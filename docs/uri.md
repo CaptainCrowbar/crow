@@ -221,8 +221,11 @@ ASCII alphanumerics plus `[-._~]`; all other bytes are encoded unless they
 appear in the exempt string.
 
 ```c++
-template <typename R> static std::string Uri::make_query(const R& range, char delimiter = '&', int flags = 0);
-static std::vector<std::pair<std::string, std::string>> Uri::parse_query(std::string_view query, char delimiter = 0);
+template <std::ranges::range R>
+    static std::string Uri::make_query(const R& range, char delimiter = '&',
+        int flags = 0);
+static std::vector<std::pair<std::string, std::string>>
+    Uri::parse_query(std::string_view query, char delimiter = 0);
 ```
 
 Construct or deconstruct a query string. The range argument to `make_query()`

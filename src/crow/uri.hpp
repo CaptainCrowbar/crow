@@ -6,6 +6,7 @@
 #include <compare>
 #include <cstdlib>
 #include <ostream>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -78,7 +79,7 @@ namespace Crow {
 
         static std::string encode(std::string_view s, std::string_view exempt = {});
         static std::string decode(std::string_view s);
-        template <typename R> static std::string make_query(const R& range, char delimiter = '&', int flags = 0);
+        template <std::ranges::range R> static std::string make_query(const R& range, char delimiter = '&', int flags = 0);
         static std::vector<std::pair<std::string, std::string>> parse_query(std::string_view query, char delimiter = '\0');
 
         friend Uri operator/(const Uri& u, std::string_view s) { Uri v = u; v.append_path(s); return v; }
@@ -104,7 +105,7 @@ namespace Crow {
 
     };
 
-        template <typename R>
+        template <std::ranges::range R>
         std::string Uri::make_query(const R& range, char delimiter, int flags) {
             std::string q;
             for (auto& [k,v]: range) {
