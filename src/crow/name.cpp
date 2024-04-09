@@ -108,7 +108,7 @@ namespace Crow {
             casing = tail_case;
         }
 
-        if (delimiter != 0)
+        if (delimiter != 0 && ! result.empty())
             result.pop_back();
 
         return result;
