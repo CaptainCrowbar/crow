@@ -18,46 +18,6 @@
 #include <utility>
 #include <vector>
 
-#if __apple_build_version__ / 1'000'000 == 14
-
-    // Missing comparison operators in Xcode 14
-
-    namespace std {
-
-        template <typename C, typename T>
-        constexpr std::strong_ordering operator<=>
-        (std::basic_string_view<C, T> s, std::basic_string_view<C, T> t) noexcept {
-            size_t n = std::min(s.size(), t.size());
-            int c = std::memcmp(s.data(), t.data(), n);
-            return c == 0 ? s.size() <=> t.size() : Crow::to_order(c);
-        }
-
-        template <typename C, typename T, typename A>
-        constexpr std::strong_ordering operator<=>
-        (const std::basic_string<C, T, A>& s, const std::basic_string<C, T, A>& t) noexcept {
-            std::basic_string_view<C, T> v(s);
-            std::basic_string_view<C, T> w(t);
-            return v <=> w;
-        }
-
-        template <typename C, typename T, typename A>
-        constexpr std::strong_ordering operator<=>
-        (const std::basic_string<C, T, A>& s, const std::basic_string_view<C, T>& t) noexcept {
-            std::basic_string_view<C, T> v(s);
-            return v <=> t;
-        }
-
-        template <typename C, typename T, typename A>
-        constexpr std::strong_ordering operator<=>
-        (const std::basic_string_view<C, T>& s, const std::basic_string<C, T, A>& t) noexcept {
-            std::basic_string_view<C, T> w(t);
-            return s <=> w;
-        }
-
-    }
-
-#endif
-
 namespace Crow {
 
     // Character functions
