@@ -31,6 +31,120 @@ namespace Crow {
 
     namespace Detail {
 
+        std::string escape_helper(std::string_view str, int quote_char) {
+
+            bool quoted = quote_char >= 0;
+            auto c_quote = quoted ? char(quote_char) : '\0';
+            auto u_quote = quoted ? char32_t(quote_char) : char32_t(0);
+            std::string result;
+
+            if (quoted)
+                result += c_quote;
+
+            size_t pos = 0;
+
+            while (pos < str.size()) {
+
+                auto start = pos;
+                auto c = decode_char(str, pos);
+
+                switch (c) {
+
+                    case 0:      result += "\\0"; break;
+                    case U'\t':  result += "\\t"; break;
+                    case U'\n':  result += "\\n"; break;
+                    case U'\f':  result += "\\f"; break;
+                    case U'\r':  result += "\\r"; break;
+                    case U'\\':  result += "\\\\"; break;
+
+                    case not_unicode:
+                        for (auto p = start; p < pos; ++p) {
+                            result += "\\x";
+                            Detail::append_hex(char(c), result);
+                        }
+                        break;
+
+                    default:
+                        if (quoted && c == u_quote) {
+                            result += '\\';
+                            result += c_quote;
+                        } else if (c <= 31 || c == 127) {
+                            result += "\\x";
+                            Detail::append_hex(char(c), result);
+                        } else {
+                            result.append(str, start, pos - start);
+                        }
+                        break;
+
+                }
+
+            }
+
+            if (quoted)
+                result += c_quote;
+
+            return result;
+
+        }
+
+        std::string unescape_helper(std::string_view str, int quote_char) {
+
+            if (str.empty())
+                return {};
+
+            bool quoted = quote_char >= 0;
+            auto c_quote = quoted ? char(quote_char) : '\0';
+            std::string_view content;
+
+            if (quoted) {
+                if (str.size() < 2 || str[0] != c_quote || str.back() != c_quote)
+                    throw std::invalid_argument("Invalid quoted string: " + quote(str));
+                content = str.substr(1, str.size() - 2);
+            } else {
+                content = str;
+            }
+
+            std::string result;
+            std::size_t i = 0;
+
+            while (i < content.size()) {
+
+                auto j = content.find('\\', i);
+
+                if (j >= content.size() - 1) {
+                    result.append(content, i, npos);
+                    break;
+                }
+
+                result.append(content, i, j - i);
+                std::size_t skip = 2;
+
+                switch (content[j + 1]) {
+
+                    case 'x':
+                        if (content.size() - j == 2 || ! ascii_isxdigit(content[j + 2]) || ! ascii_isxdigit(content[j + 3]))
+                            throw std::invalid_argument("Invalid escape code: " + quote(str));
+                        result += char(to_uint8(content.substr(j + 2, 2), 16));
+                        skip = 4;
+                        break;
+
+                    case '0':  result += '\0'; break;
+                    case 'f':  result += '\f'; break;
+                    case 'n':  result += '\n'; break;
+                    case 'r':  result += '\r'; break;
+                    case 't':  result += '\t'; break;
+                    default:   result += content[j + 1]; break;
+
+                }
+
+                i = j + skip;
+
+            }
+
+            return result;
+
+        }
+
         std::string roman_helper(uint32_t n, bool lcase) {
             static constexpr std::pair<uint32_t, const char*> table[] = {
                 { 900, "CM" }, { 500, "D" }, { 400, "CD" }, { 100, "C" },
@@ -145,40 +259,6 @@ namespace Crow {
             return {str, {}};
         else
             return {str.substr(0, i), str.substr(i + delimiter.size())};
-    }
-
-    std::string quote(std::string_view str) {
-        std::string result = "\"";
-        size_t pos = 0;
-        while (pos < str.size()) {
-            auto start = pos;
-            auto c = decode_char(str, pos);
-            switch (c) {
-                case 0:      result += "\\0"; break;
-                case U'\t':  result += "\\t"; break;
-                case U'\n':  result += "\\n"; break;
-                case U'\f':  result += "\\f"; break;
-                case U'\r':  result += "\\r"; break;
-                case U'\"':  result += "\\\""; break;
-                case U'\\':  result += "\\\\"; break;
-                case not_unicode:
-                    for (auto p = start; p < pos; ++p) {
-                        result += "\\x";
-                        Detail::append_hex(char(c), result);
-                    }
-                    break;
-                default:
-                    if (c <= 31 || c == 127) {
-                        result += "\\x";
-                        Detail::append_hex(char(c), result);
-                    } else {
-                        result.append(str, start, pos - start);
-                    }
-                    break;
-            }
-        }
-        result += '\"';
-        return result;
     }
 
     std::string repeat(std::string_view str, size_t n) {

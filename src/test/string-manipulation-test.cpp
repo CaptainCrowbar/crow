@@ -113,6 +113,49 @@ void test_crow_string_concatenation() {
 
 }
 
+void test_crow_string_escape_and_quote() {
+
+    // MSVC 2022 has a bug with backslashes in raw strings
+
+    TEST_EQUAL(escape(""),                             "");
+    TEST_EQUAL(escape("Hello world"),                  "Hello world");
+    TEST_EQUAL(escape("Hello world\r\n"),              "Hello world\\r\\n");
+    TEST_EQUAL(escape("\"Hello\\world\""),             "\"Hello\\\\world\"");
+    TEST_EQUAL(escape("αβγδε"),                        "αβγδε");
+    TEST_EQUAL(escape("Hello\xffworld"),               "Hello\\xffworld");
+    TEST_EQUAL(unescape(""),                           "");
+    TEST_EQUAL(unescape("Hello world"),                "Hello world");
+    TEST_EQUAL(unescape("Hello world\\r\\n"),          "Hello world\r\n");
+    TEST_EQUAL(unescape("\"Hello\\\\world\""),         "\"Hello\\world\"");
+    TEST_EQUAL(unescape("αβγδε"),                      "αβγδε");
+    TEST_EQUAL(unescape("Hello\\xffworld"),            "Hello\xffworld");
+    TEST_EQUAL(quote(""),                              "\"\"");
+    TEST_EQUAL(quote("Hello world"),                   "\"Hello world\"");
+    TEST_EQUAL(quote("Hello world\r\n"),               "\"Hello world\\r\\n\"");
+    TEST_EQUAL(quote("\"Hello\\world\""),              "\"\\\"Hello\\\\world\\\"\"");
+    TEST_EQUAL(quote("αβγδε"),                         "\"αβγδε\"");
+    TEST_EQUAL(quote("Hello\xffworld"),                "\"Hello\\xffworld\"");
+    TEST_EQUAL(quote("", '\''),                        "''");
+    TEST_EQUAL(quote("Hello world", '\''),             "'Hello world'");
+    TEST_EQUAL(quote("Hello world\r\n", '\''),         "'Hello world\\r\\n'");
+    TEST_EQUAL(quote("\"Hello\\world\"", '\''),        "'\"Hello\\\\world\"'");
+    TEST_EQUAL(quote("αβγδε", '\''),                   "'αβγδε'");
+    TEST_EQUAL(quote("Hello\xffworld", '\''),          "'Hello\\xffworld'");
+    TEST_EQUAL(unquote("\"\""),                        "");
+    TEST_EQUAL(unquote("\"Hello world\""),             "Hello world");
+    TEST_EQUAL(unquote("\"Hello world\\r\\n\""),       "Hello world\r\n");
+    TEST_EQUAL(unquote("\"\\\"Hello\\\\world\\\"\""),  "\"Hello\\world\"");
+    TEST_EQUAL(unquote("\"αβγδε\""),                   "αβγδε");
+    TEST_EQUAL(unquote("\"Hello\\xffworld\""),         "Hello\xffworld");
+    TEST_EQUAL(unquote("''", '\''),                    "");
+    TEST_EQUAL(unquote("'Hello world'", '\''),         "Hello world");
+    TEST_EQUAL(unquote("'Hello world\\r\\n'", '\''),   "Hello world\r\n");
+    TEST_EQUAL(unquote("'\"Hello\\\\world\"'", '\''),  "\"Hello\\world\"");
+    TEST_EQUAL(unquote("'αβγδε'", '\''),               "αβγδε");
+    TEST_EQUAL(unquote("'Hello\\xffworld'", '\''),     "Hello\xffworld");
+
+}
+
 void test_crow_string_indentation() {
 
     std::string s;

@@ -123,6 +123,16 @@ Returns a string of `4*size` spaces, for convenience when generating indented
 text.
 
 ```c++
+std::string escape(std::string_view str);
+std::string unescape(std::string_view str);
+```
+
+The `escape()` function converts backslashes, control characters, and invalid
+UTF-8 bytes to escape codes. The `unescape()` function reverses this
+transformation; it will throw `std::invalid_argument` if an invalid hex
+escape code is encountered.
+
+```c++
 std::string indent_lines(std::string_view str, size_t spaces = 4);
 ```
 
@@ -159,11 +169,16 @@ matching substring is found, or if `chars` or `delimiter` is empty, they will
 return the original string and an empty string.
 
 ```c++
-std::string quote(std::string_view str);
+std::string quote(std::string_view str, char quote_char = '\"');
+std::string unquote(std::string_view str, char quote_char = '\"');
 ```
 
-Encloses the string in quotes. Within the string, backslash escape codes will
-be used for quotes, backslashes, control characters, and invalid UTF-8 bytes.
+The `quote()` function encloses the string in quotes. Within the string,
+backslash escape codes will be used for quotes, backslashes, control
+characters, and invalid UTF-8 bytes. The `unquote()` function reverses this
+transformation; it will throw `std::invalid_argument` if the string does not
+start and end with a quote character (unless the string is empty), or if it
+contains an invalid hex escape code.
 
 ```c++
 std::string repeat(std::string_view str, size_t n);

@@ -978,7 +978,6 @@ void string_formatting_test_group() {
     UNIT_TEST(crow_string_formatting_bin)
     UNIT_TEST(crow_string_formatting_dec)
     UNIT_TEST(crow_string_formatting_hex)
-    UNIT_TEST(crow_string_formatting_quote)
     UNIT_TEST(crow_string_formatting_roman)
 }
 
@@ -990,6 +989,7 @@ void string_manipulation_test_group() {
     UNIT_TEST(crow_string_comparison)
     UNIT_TEST(crow_string_common_prefix)
     UNIT_TEST(crow_string_concatenation)
+    UNIT_TEST(crow_string_escape_and_quote)
     UNIT_TEST(crow_string_indentation)
     UNIT_TEST(crow_string_join)
     UNIT_TEST(crow_string_padding)

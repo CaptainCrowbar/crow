@@ -83,6 +83,8 @@ namespace Crow {
 
     namespace Detail {
 
+        std::string escape_helper(std::string_view str, int quote_char = -1);
+        std::string unescape_helper(std::string_view str, int quote_char = -1);
         std::string roman_helper(uint32_t n, bool lcase);
 
     }
@@ -154,11 +156,14 @@ namespace Crow {
     std::string ascii_titlecase(std::string_view str);
     size_t common_prefix_length(std::string_view str1, std::string_view str2) noexcept;
     inline std::string dent(size_t level) { return std::string(4 * level, ' '); }
+    inline std::string escape(std::string_view str) { return Detail::escape_helper(str); }
+    inline std::string unescape(std::string_view str) { return Detail::unescape_helper(str); }
     std::string pad_left(std::string str, size_t len, char c = ' ');
     std::string pad_right(std::string str, size_t len, char c = ' ');
     std::pair<std::string_view, std::string_view> partition(std::string_view str, std::string_view chars = ascii_whitespace);
     std::pair<std::string_view, std::string_view> partition_at(std::string_view str, std::string_view delimiter);
-    std::string quote(std::string_view str);
+    inline std::string quote(std::string_view str, char quote_char = '\"') { return Detail::escape_helper(str, int(std::uint8_t(quote_char))); }
+    inline std::string unquote(std::string_view str, char quote_char = '\"') { return Detail::unescape_helper(str, int(std::uint8_t(quote_char))); }
     std::string repeat(std::string_view str, size_t n);
     std::string replace(std::string_view str, std::string_view target, std::string_view replacement);
     std::string remove(std::string_view str, std::string_view target);

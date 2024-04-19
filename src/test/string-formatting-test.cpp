@@ -118,19 +118,6 @@ void test_crow_string_formatting_hex() {
 
 }
 
-void test_crow_string_formatting_quote() {
-
-    // MSVC 2022 has a bug with backslashes in raw strings
-
-    TEST_EQUAL(quote(""),                  "\"\"");
-    TEST_EQUAL(quote("Hello world"),       "\"Hello world\"");
-    TEST_EQUAL(quote("Hello world\r\n"),   "\"Hello world\\r\\n\"");
-    TEST_EQUAL(quote("\"Hello\\world\""),  "\"\\\"Hello\\\\world\\\"\"");
-    TEST_EQUAL(quote("αβγδε"),             "\"αβγδε\"");
-    TEST_EQUAL(quote("Hello\xffworld"),    "\"Hello\\xffworld\"");
-
-}
-
 void test_crow_string_formatting_roman() {
 
     TEST_EQUAL(roman(1),         "I");
