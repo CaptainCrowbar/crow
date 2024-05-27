@@ -7,7 +7,7 @@
 #include "crow/vector.hpp"
 #include <algorithm>
 #include <array>
-#include <concepts>
+#include <compare>
 #include <ostream>
 #include <string>
 #include <type_traits>
@@ -113,7 +113,6 @@ namespace Crow {
         constexpr friend Matrix operator/(const Matrix& a, T b) noexcept { auto m = a; m /= b; return m; }
         constexpr friend bool operator==(const Matrix& a, const Matrix& b) noexcept
             { for (int i = 0; i < cells; ++i) if (a.array_[i] != b.array_[i]) return false; return true; }
-        constexpr friend bool operator!=(const Matrix& a, const Matrix& b) noexcept { return ! (a == b); }
 
         constexpr T& operator()(int r, int c) noexcept { return layout_traits::get_ref(begin(), r, c); }
         constexpr const T& operator()(int r, int c) const noexcept { return layout_traits::get_ref(begin(), r, c); }

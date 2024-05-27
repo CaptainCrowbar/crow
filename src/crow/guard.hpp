@@ -4,6 +4,7 @@
 #include "crow/types.hpp"
 #include <concepts>
 #include <exception>
+#include <vector>
 
 namespace Crow {
 

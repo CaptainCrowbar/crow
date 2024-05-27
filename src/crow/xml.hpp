@@ -3,6 +3,7 @@
 #include "crow/enum.hpp"
 #include "crow/iterator.hpp"
 #include "crow/types.hpp"
+#include <compare>
 #include <concepts>
 #include <functional>
 #include <iterator>

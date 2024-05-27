@@ -12,7 +12,7 @@
 #include "crow/vector.hpp"
 #include <algorithm>
 #include <cmath>
-#include <concepts>
+#include <compare>
 #include <cstdlib>
 #include <cstring>
 #include <iterator>

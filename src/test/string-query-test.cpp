@@ -1,7 +1,6 @@
 #include "crow/string.hpp"
 #include "crow/unicode.hpp"
 #include "crow/unit-test.hpp"
-#include <stdexcept>
 #include <string>
 #include <utility>
 

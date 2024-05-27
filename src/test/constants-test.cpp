@@ -1,6 +1,5 @@
 #include "crow/constants.hpp"
 #include "crow/unit-test.hpp"
-#include <type_traits>
 
 using namespace Crow;
 

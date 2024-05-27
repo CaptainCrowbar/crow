@@ -8,7 +8,6 @@
 #include <cstdlib>
 #include <memory>
 #include <stdexcept>
-#include <type_traits>
 
 namespace Crow {
 

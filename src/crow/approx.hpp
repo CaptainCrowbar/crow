@@ -158,4 +158,9 @@ namespace Crow {
         return {};
     }
 
+    // TODO
+    // std::abs
+    // std::exp
+    // etc
+
 }

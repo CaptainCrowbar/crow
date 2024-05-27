@@ -18,7 +18,6 @@
 #include <map>
 #include <numeric>
 #include <stdexcept>
-#include <type_traits>
 #include <unordered_set>
 #include <utility>
 #include <vector>

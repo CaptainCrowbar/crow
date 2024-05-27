@@ -3,6 +3,7 @@
 #include "crow/iterator.hpp"
 #include "crow/types.hpp"
 #include <algorithm>
+#include <compare>
 #include <concepts>
 #include <functional>
 #include <initializer_list>

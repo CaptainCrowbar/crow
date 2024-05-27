@@ -1,6 +1,8 @@
 #include "crow/unicode.hpp"
 #include "crow/unicode-data.hpp"
 #include <algorithm>
+#include <string>
+#include <string_view>
 
 namespace Crow {
 

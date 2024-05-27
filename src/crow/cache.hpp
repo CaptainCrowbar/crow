@@ -4,12 +4,14 @@
 #include "crow/hash.hpp"
 #include "crow/types.hpp"
 #include <concepts>
+#include <functional>
 #include <iterator>
 #include <list>
 #include <map>
 #include <optional>
 #include <type_traits>
 #include <unordered_map>
+#include <utility>
 
 namespace Crow {
 

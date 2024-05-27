@@ -7,6 +7,7 @@
 #include "crow/resource.hpp"
 #include "crow/string.hpp"
 #include "crow/types.hpp"
+#include <compare>
 #include <cstdio>
 #include <string>
 #include <system_error>

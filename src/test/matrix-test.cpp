@@ -2,6 +2,7 @@
 #include "crow/format.hpp"
 #include "crow/unit-test.hpp"
 #include "crow/vector.hpp"
+#include <cmath>
 #include <cstdlib>
 #include <string>
 #include <vector>

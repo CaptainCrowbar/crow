@@ -4,7 +4,6 @@
 #include "crow/regex.hpp"
 #include "crow/string.hpp"
 #include "crow/unicode.hpp"
-#include <algorithm>
 #include <stdexcept>
 
 using namespace Crow::Literals;

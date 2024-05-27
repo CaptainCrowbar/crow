@@ -1,7 +1,6 @@
 #include "crow/root-finding.hpp"
 #include "crow/unit-test.hpp"
 #include <cmath>
-#include <iostream>
 #include <stdexcept>
 
 using namespace Crow;

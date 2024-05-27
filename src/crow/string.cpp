@@ -1,5 +1,6 @@
 #include "crow/string.hpp"
-#include <cerrno>
+#include <cstddef>
+#include <cstring>
 #include <iterator>
 #include <memory>
 #include <new>

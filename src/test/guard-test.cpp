@@ -1,6 +1,7 @@
 #include "crow/guard.hpp"
 #include "crow/unit-test.hpp"
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 using namespace Crow;

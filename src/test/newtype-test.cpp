@@ -1,6 +1,7 @@
 #include "crow/newtype.hpp"
 #include "crow/format.hpp"
 #include "crow/unit-test.hpp"
+#include <algorithm>
 #include <compare>
 #include <concepts>
 #include <functional>

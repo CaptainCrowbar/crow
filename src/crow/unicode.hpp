@@ -3,6 +3,7 @@
 #include "crow/iterator.hpp"
 #include "crow/types.hpp"
 #include "crow/ucd/ucd.hpp"
+#include <compare>
 #include <concepts>
 #include <functional>
 #include <stdexcept>

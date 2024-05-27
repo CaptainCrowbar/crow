@@ -1,6 +1,5 @@
 #include "crow/table.hpp"
 #include <cstring>
-#include <map>
 #include <stdexcept>
 #include <string_view>
 #include <utility>

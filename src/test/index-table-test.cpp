@@ -1,5 +1,6 @@
 #include "crow/index-table.hpp"
 #include "crow/unit-test.hpp"
+#include <compare>
 #include <iterator>
 #include <memory>
 #include <ostream>
@@ -17,7 +18,6 @@ namespace {
         int number() const { return num_; }
         std::string name() const { return str_; }
         bool operator==(const Neddie& rhs) const { return num_ == rhs.num_ && str_ == rhs.str_; }
-        bool operator!=(const Neddie& rhs) const { return ! (*this == rhs); }
     private:
         int num_;
         std::string str_;

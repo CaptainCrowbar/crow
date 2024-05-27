@@ -3,7 +3,6 @@
 #include "crow/string.hpp"
 #include "crow/unit-test.hpp"
 #include <array>
-#include <concepts>
 #include <numeric>
 #include <string>
 #include <tuple>

@@ -4,7 +4,6 @@
 #include "crow/types.hpp"
 #include <algorithm>
 #include <compare>
-#include <concepts>
 #include <cstddef>
 #include <functional>
 #include <initializer_list>

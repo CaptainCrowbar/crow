@@ -2,6 +2,7 @@
 
 #include "crow/types.hpp"
 #include <array>
+#include <cstdio>
 #include <string>
 
 namespace Crow {

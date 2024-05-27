@@ -7,7 +7,6 @@
 #include <cmath>
 #include <map>
 #include <numbers>
-#include <vector>
 
 using namespace Crow;
 using namespace Crow::Test;

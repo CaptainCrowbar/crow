@@ -7,7 +7,6 @@
 #include "crow/vector.hpp"
 #include <cmath>
 #include <concepts>
-#include <type_traits>
 
 namespace Crow {
 

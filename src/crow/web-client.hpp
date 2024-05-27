@@ -7,7 +7,6 @@
 #include "crow/uri.hpp"
 #include <chrono>
 #include <functional>
-#include <map>
 #include <string>
 #include <utility>
 

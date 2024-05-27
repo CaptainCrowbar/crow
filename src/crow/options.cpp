@@ -1,5 +1,6 @@
 #include "crow/options.hpp"
 #include "crow/terminal.hpp"
+#include <algorithm>
 #include <set>
 
 using namespace std::literals;

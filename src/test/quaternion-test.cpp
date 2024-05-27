@@ -1,7 +1,6 @@
 #include "crow/quaternion.hpp"
 #include "crow/unit-test.hpp"
 #include "crow/vector.hpp"
-#include <cmath>
 #include <cstdlib>
 
 using namespace Crow;

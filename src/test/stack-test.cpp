@@ -2,7 +2,6 @@
 #include "crow/unit-test.hpp"
 #include <ostream>
 #include <string>
-#include <vector>
 
 using namespace Crow;
 using namespace Crow::UnitTest;

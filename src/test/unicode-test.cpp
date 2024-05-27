@@ -1,8 +1,10 @@
 #include "crow/unicode.hpp"
 #include "crow/unit-test.hpp"
+#include <algorithm>
 #include <iterator>
 #include <stdexcept>
 #include <string>
+#include <utility>
 
 using namespace Crow;
 using namespace std::literals;

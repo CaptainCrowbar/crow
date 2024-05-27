@@ -2,6 +2,7 @@
 #include "crow/random-other-distributions.hpp"
 #include "crow/unit-test.hpp"
 #include <algorithm>
+#include <string>
 
 using namespace Crow;
 

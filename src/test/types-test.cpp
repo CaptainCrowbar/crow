@@ -3,10 +3,13 @@
 #include <array>
 #include <compare>
 #include <complex>
+#include <cstddef>
+#include <cstdint>
 #include <forward_list>
 #include <iterator>
 #include <list>
 #include <map>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -97,7 +100,7 @@ void test_crow_types_assertions() {
         TEST_MATCH(ex.expression(), "n == 99");
         TEST_MATCH(ex.file(), R"(^(.+[/\\])?types-test\.cpp$)");
         TEST_EQUAL(ex.function(), "test_crow_types_assertions");
-        TEST_EQUAL(ex.line(), 89);
+        TEST_EQUAL(ex.line(), 92);
     }
 
 }

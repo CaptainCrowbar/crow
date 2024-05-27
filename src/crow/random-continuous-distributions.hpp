@@ -10,7 +10,6 @@
 #include "crow/types.hpp"
 #include <cmath>
 #include <concepts>
-#include <cstdlib>
 #include <numbers>
 
 namespace Crow {

@@ -1,8 +1,10 @@
 #pragma once
 
 #include "crow/log.hpp"
+#include <algorithm>
 #include <compare>
 #include <concepts>
+#include <cstddef>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>

@@ -3,6 +3,7 @@
 #include "crow/iterator.hpp"
 #include "crow/types.hpp"
 #include <algorithm>
+#include <compare>
 #include <map>
 #include <memory>
 #include <unordered_map>

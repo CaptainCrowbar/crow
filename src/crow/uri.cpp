@@ -1,7 +1,8 @@
 #include "crow/uri.hpp"
 #include "crow/format.hpp"
 #include "crow/regex.hpp"
-#include <algorithm>
+#include <cstdlib>
+#include <functional>
 #include <stdexcept>
 #include <stdexcept>
 

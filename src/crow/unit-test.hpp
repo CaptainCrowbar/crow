@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <atomic>
 #include <chrono>
+#include <cmath>
+#include <compare>
 #include <cstddef>
 #include <cstdlib>
 #include <exception>

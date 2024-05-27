@@ -3,6 +3,7 @@
 #include "crow/unit-test.hpp"
 #include <cmath>
 #include <cstdlib>
+#include <exception>
 
 // Check that every element of two vectors matches within epsilon
 

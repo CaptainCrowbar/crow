@@ -2,6 +2,7 @@
 #include "crow/unit-test.hpp"
 #include <iostream>
 #include <string>
+#include <vector>
 
 using namespace Crow;
 using namespace std::literals;

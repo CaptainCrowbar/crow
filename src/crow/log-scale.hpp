@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <cmath>
 #include <compare>
-#include <concepts>
 #include <cstdlib>
 #include <limits>
 #include <ostream>

@@ -3,8 +3,8 @@
 #include "crow/binary.hpp"
 #include "crow/string.hpp"
 #include "crow/types.hpp"
+#include <algorithm>
 #include <compare>
-#include <cstdlib>
 #include <ostream>
 #include <ranges>
 #include <string>

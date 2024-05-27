@@ -9,6 +9,7 @@
 #include "crow/types.hpp"
 #include <array>
 #include <bit>
+#include <compare>
 #include <concepts>
 #include <functional>
 #include <random>

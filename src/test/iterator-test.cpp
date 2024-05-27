@@ -1,10 +1,10 @@
 #include "crow/iterator.hpp"
 #include "crow/unit-test.hpp"
 #include <algorithm>
+#include <compare>
 #include <iterator>
 #include <memory>
 #include <set>
-#include <string>
 #include <vector>
 
 using namespace Crow;

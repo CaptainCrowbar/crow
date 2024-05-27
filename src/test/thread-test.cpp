@@ -1,6 +1,7 @@
 #include "crow/thread.hpp"
 #include "crow/unit-test.hpp"
 #include <algorithm>
+#include <chrono>
 #include <mutex>
 #include <string>
 #include <thread>

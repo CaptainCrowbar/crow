@@ -4,6 +4,7 @@
 #include "crow/iterator.hpp"
 #include "crow/types.hpp"
 #include <algorithm>
+#include <compare>
 #include <functional>
 #include <optional>
 #include <type_traits>

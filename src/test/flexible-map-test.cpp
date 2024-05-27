@@ -3,6 +3,7 @@
 #include "crow/iterator.hpp"
 #include "crow/unit-test.hpp"
 #include <algorithm>
+#include <compare>
 #include <functional>
 #include <string>
 #include <utility>

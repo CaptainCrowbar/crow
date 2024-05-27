@@ -7,7 +7,6 @@
 #include <cmath>
 #include <concepts>
 #include <numbers>
-#include <type_traits>
 
 namespace Crow {
 

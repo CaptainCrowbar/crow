@@ -7,6 +7,7 @@
 #include "crow/types.hpp"
 #include <array>
 #include <chrono>
+#include <compare>
 #include <cstddef>
 #include <memory>
 #include <stdexcept>

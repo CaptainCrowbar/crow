@@ -5,6 +5,7 @@
 #include "crow/string.hpp"
 #include "crow/types.hpp"
 #include <algorithm>
+#include <cmath>
 #include <complex>
 #include <concepts>
 #include <cstdio>

@@ -6,11 +6,11 @@
 #include "crow/time.hpp"
 #include <algorithm>
 #include <cerrno>
+#include <cstdio>
 #include <cstring>
 #include <stdexcept>
 #include <stdio.h>
 #include <system_error>
-#include <type_traits>
 
 #ifdef __APPLE__
     #include <Availability.h>

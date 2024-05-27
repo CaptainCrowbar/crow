@@ -5,6 +5,7 @@
 #include "crow/types.hpp"
 #include "crow/vector.hpp"
 #include <cmath>
+#include <compare>
 #include <concepts>
 #include <numbers>
 #include <ostream>
@@ -41,7 +42,6 @@ namespace Crow {
         constexpr friend Box operator+(const vector_type& a, const Box& b) noexcept { Box c = b; c += a; return c; }
         constexpr friend Box operator-(const Box& a, const vector_type& b) noexcept { Box c = a; c -= b; return c; }
         constexpr friend bool operator==(const Box& a, const Box& b) noexcept { return a.corner_ == b.corner_ && a.extent_ == b.extent_; }
-        constexpr friend bool operator!=(const Box& a, const Box& b) noexcept { return ! (a == b); }
 
         std::string str(const FormatSpec& spec = {}) const;
         friend std::ostream& operator<<(std::ostream& out, const Box& b) { return out << b.str(); }
@@ -134,7 +134,6 @@ namespace Crow {
         constexpr friend Sphere operator*(T a, const Sphere& b) noexcept { Sphere c = b; c *= a; return c; }
         constexpr friend Sphere operator/(const Sphere& a, T b) noexcept { Sphere c = a; c /= b; return c; }
         constexpr friend bool operator==(const Sphere& a, const Sphere& b) noexcept { return a.corner_ == b.corner_ && a.extent_ == b.extent_; }
-        constexpr friend bool operator!=(const Sphere& a, const Sphere& b) noexcept { return ! (a == b); }
 
         std::string str(const FormatSpec& spec = {}) const;
         friend std::ostream& operator<<(std::ostream& out, const Sphere& s) { return out << s.str(); }

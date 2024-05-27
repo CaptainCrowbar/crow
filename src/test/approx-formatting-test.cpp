@@ -1,6 +1,5 @@
 #include "crow/approx.hpp"
 #include "crow/unit-test.hpp"
-#include <string>
 
 using namespace Crow;
 

@@ -5,8 +5,8 @@
 #include "crow/iterator.hpp"
 #include "crow/types.hpp"
 #include "crow/vector.hpp"
-#include <algorithm>
 #include <cmath>
+#include <compare>
 #include <concepts>
 #include <limits>
 #include <numeric>

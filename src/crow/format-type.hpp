@@ -15,7 +15,6 @@
 #include <concepts>
 #include <cstddef>
 #include <exception>
-#include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <string>

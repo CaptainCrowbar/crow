@@ -3,6 +3,7 @@
 #include "crow/guard.hpp"
 #include "crow/iterator.hpp"
 #include "crow/types.hpp"
+#include <compare>
 #include <functional>
 #include <iterator>
 #include <list>

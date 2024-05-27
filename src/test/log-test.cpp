@@ -1,7 +1,9 @@
 #include "crow/log.hpp"
 #include "crow/unit-test.hpp"
+#include <algorithm>
 #include <chrono>
 #include <cstdio>
+#include <stdexcept>
 #include <string>
 #include <thread>
 #include <vector>

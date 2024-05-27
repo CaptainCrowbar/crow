@@ -7,7 +7,6 @@
 #include "crow/vector.hpp"
 #include <algorithm>
 #include <cmath>
-#include <cstdlib>
 #include <iostream>
 #include <memory>
 #include <numbers>

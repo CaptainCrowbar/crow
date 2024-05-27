@@ -1,7 +1,6 @@
 #include "crow/log-scale.hpp"
 #include "crow/unit-test.hpp"
 #include "crow/types.hpp"
-#include <concepts>
 #include <limits>
 #include <unordered_set>
 

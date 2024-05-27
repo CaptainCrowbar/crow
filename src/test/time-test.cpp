@@ -1,8 +1,8 @@
 #include "crow/time.hpp"
 #include "crow/unit-test.hpp"
 #include <chrono>
+#include <cmath>
 #include <cstdlib>
-#include <ctime>
 #include <ratio>
 #include <stdexcept>
 #include <string>

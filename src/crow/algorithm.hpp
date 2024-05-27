@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <compare>
 #include <concepts>
 #include <cstdlib>
 #include <deque>

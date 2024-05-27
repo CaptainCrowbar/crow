@@ -3,10 +3,14 @@
 #include "crow/iterator.hpp"
 #include "crow/unit-test.hpp"
 #include <algorithm>
+#include <compare>
 #include <functional>
+#include <map>
 #include <ostream>
+#include <set>
 #include <string>
-#include <type_traits>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 using namespace Crow;

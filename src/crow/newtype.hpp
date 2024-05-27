@@ -4,9 +4,9 @@
 #include "crow/format.hpp"
 #include "crow/hash.hpp"
 #include "crow/types.hpp"
+#include <algorithm>
 #include <compare>
 #include <concepts>
-#include <cstddef>
 #include <functional>
 #include <istream>
 #include <ostream>

@@ -2,6 +2,7 @@
 #include "crow/colour.hpp"
 #include "crow/vector.hpp"
 #include "crow/unit-test.hpp"
+#include <compare>
 #include <string>
 
 using namespace Crow;

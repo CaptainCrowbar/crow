@@ -5,10 +5,10 @@
 #include "crow/types.hpp"
 #include "crow/unicode.hpp"
 #include <algorithm>
-#include <compare>
+#include <cerrno>
 #include <concepts>
+#include <cstdint>
 #include <cstdlib>
-#include <cstring>
 #include <limits>
 #include <stdexcept>
 #include <string>
