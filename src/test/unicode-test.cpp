@@ -27,7 +27,7 @@ void test_crow_unicode_implementation_details() {
 
 }
 
-void test_crow_unicode_properties() {
+void test_crow_unicode_general_category() {
 
     TEST_EQUAL(general_category(0),         GC::Cc);  // null
     TEST_EQUAL(general_category(U'\n'),     GC::Cc);  // line feed
@@ -87,6 +87,69 @@ void test_crow_unicode_properties() {
     TEST_EQUAL(general_category(0xff3f),    GC::Pc);  // fullwidth low line
     TEST_EQUAL(general_category(0x10fffd),  GC::Co);  // plane 16 private use
     TEST_EQUAL(general_category(0x110000),  GC::Cn);  // not unicode
+
+}
+
+void test_crow_unicode_primary_category() {
+
+    TEST_EQUAL(primary_category(0),         'C');  // null
+    TEST_EQUAL(primary_category(U'\n'),     'C');  // line feed
+    TEST_EQUAL(primary_category(U' '),      'Z');  // space
+    TEST_EQUAL(primary_category(U'!'),      'P');  // exclamation mark
+    TEST_EQUAL(primary_category(U'$'),      'S');  // dollar sign
+    TEST_EQUAL(primary_category(U'('),      'P');  // left parenthesis
+    TEST_EQUAL(primary_category(U')'),      'P');  // right parenthesis
+    TEST_EQUAL(primary_category(U'+'),      'S');  // plus sign
+    TEST_EQUAL(primary_category(U'-'),      'P');  // hyphen-minus
+    TEST_EQUAL(primary_category(U'/'),      'P');  // solidus
+    TEST_EQUAL(primary_category(U'0'),      'N');  // digit zero
+    TEST_EQUAL(primary_category(U'9'),      'N');  // digit nine
+    TEST_EQUAL(primary_category(U'A'),      'L');  // latin capital letter a
+    TEST_EQUAL(primary_category(U'Z'),      'L');  // latin capital letter z
+    TEST_EQUAL(primary_category(U'^'),      'S');  // circumflex accent
+    TEST_EQUAL(primary_category(U'_'),      'P');  // low line
+    TEST_EQUAL(primary_category(U'a'),      'L');  // latin small letter a
+    TEST_EQUAL(primary_category(U'z'),      'L');  // latin small letter z
+    TEST_EQUAL(primary_category(0xa6),      'S');  // broken bar
+    TEST_EQUAL(primary_category(0xaa),      'L');  // feminine ordinal indicator
+    TEST_EQUAL(primary_category(0xab),      'P');  // left-pointing double angle quotation mark
+    TEST_EQUAL(primary_category(0xad),      'C');  // soft hyphen
+    TEST_EQUAL(primary_category(0xb2),      'N');  // superscript two
+    TEST_EQUAL(primary_category(0xbb),      'P');  // right-pointing double angle quotation mark
+    TEST_EQUAL(primary_category(0xf7),      'S');  // division sign
+    TEST_EQUAL(primary_category(0x1c5),     'L');  // latin capital letter d with small letter z with caron
+    TEST_EQUAL(primary_category(0x2b0),     'L');  // modifier letter small h
+    TEST_EQUAL(primary_category(0x2b9),     'L');  // modifier letter prime
+    TEST_EQUAL(primary_category(0x2c5),     'S');  // modifier letter down arrowhead
+    TEST_EQUAL(primary_category(0x300),     'M');  // combining grave accent
+    TEST_EQUAL(primary_category(0x309),     'M');  // combining hook above
+    TEST_EQUAL(primary_category(0x378),     'C');  // unassigned
+    TEST_EQUAL(primary_category(0x488),     'M');  // combining cyrillic hundred thousands sign
+    TEST_EQUAL(primary_category(0x5d1),     'L');  // hebrew letter bet
+    TEST_EQUAL(primary_category(0x6fd),     'S');  // arabic sign sindhi ampersand
+    TEST_EQUAL(primary_category(0x903),     'M');  // devanagari sign visarga
+    TEST_EQUAL(primary_category(0x94e),     'M');  // devanagari vowel sign prishthamatra e
+    TEST_EQUAL(primary_category(0x9f7),     'N');  // bengali currency numerator four
+    TEST_EQUAL(primary_category(0x9fb),     'S');  // bengali ganda mark
+    TEST_EQUAL(primary_category(0x16ee),    'N');  // runic arlaug symbol
+    TEST_EQUAL(primary_category(0x180e),    'C');  // mongolian vowel separator
+    TEST_EQUAL(primary_category(0x1f8d),    'L');  // greek capital letter alpha with dasia and oxia and prosgegrammeni
+    TEST_EQUAL(primary_category(0x2006),    'Z');  // six-per-em space
+    TEST_EQUAL(primary_category(0x2014),    'P');  // em dash
+    TEST_EQUAL(primary_category(0x2028),    'Z');  // line separator
+    TEST_EQUAL(primary_category(0x2029),    'Z');  // paragraph separator
+    TEST_EQUAL(primary_category(0x207d),    'P');  // superscript left parenthesis
+    TEST_EQUAL(primary_category(0x2166),    'N');  // roman numeral seven
+    TEST_EQUAL(primary_category(0x2309),    'P');  // right ceiling
+    TEST_EQUAL(primary_category(0x2e0c),    'P');  // left raised omission bracket
+    TEST_EQUAL(primary_category(0x2e21),    'P');  // right vertical bar with quill
+    TEST_EQUAL(primary_category(0xa670),    'M');  // combining cyrillic ten millions sign
+    TEST_EQUAL(primary_category(0xd800),    'C');  // non private use high surrogate
+    TEST_EQUAL(primary_category(0xdfff),    'C');  // low surrogate
+    TEST_EQUAL(primary_category(0xe000),    'C');  // private use
+    TEST_EQUAL(primary_category(0xff3f),    'P');  // fullwidth low line
+    TEST_EQUAL(primary_category(0x10fffd),  'C');  // plane 16 private use
+    TEST_EQUAL(primary_category(0x110000),  'C');  // not unicode
 
 }
 

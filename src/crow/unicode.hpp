@@ -249,6 +249,7 @@ namespace Crow {
     }
 
     GC general_category(char32_t c);
+    char primary_category(char32_t c);
     bool is_pattern_syntax(char32_t c);
     bool is_xid_continue(char32_t c);
     bool is_xid_start(char32_t c);

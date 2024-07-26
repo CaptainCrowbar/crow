@@ -151,9 +151,10 @@ enum class GC {
     Zs   // Space separator
 };
 GC general_category(char32_t c);
+char primary_category(char32_t c);
 ```
 
-Unicode general category property.
+Unicode general category properties.
 
 ```c++
 constexpr bool is_noncharacter(char32_t c) noexcept;

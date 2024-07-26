@@ -616,6 +616,10 @@ namespace Crow {
         return find_in_ucd_table(c, Detail::general_category_table());
     }
 
+    char primary_category(char32_t c) {
+        return char(int(general_category(c)) / 16);
+    }
+
     bool is_pattern_syntax(char32_t c) {
         return find_in_ucd_table(c, Detail::pattern_syntax_table());
     }

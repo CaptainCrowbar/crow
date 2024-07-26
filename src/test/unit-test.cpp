@@ -1110,7 +1110,8 @@ void unicode_normalization_test_group() {
 
 void unicode_test_group() {
     UNIT_TEST(crow_unicode_implementation_details)
-    UNIT_TEST(crow_unicode_properties)
+    UNIT_TEST(crow_unicode_general_category)
+    UNIT_TEST(crow_unicode_primary_category)
     UNIT_TEST(crow_unicode_character_encoding)
     UNIT_TEST(crow_unicode_string_encoding)
     UNIT_TEST(crow_unicode_utf_iterators)

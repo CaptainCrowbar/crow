@@ -7,36 +7,36 @@
 namespace Crow {
 
     CROW_ENUM_SCOPED(GC, int,
-        Cc,  // Control
-        Cf,  // Format
-        Cn,  // Unassigned
-        Co,  // Private_Use
-        Cs,  // Surrogate
-        Ll,  // Lowercase_Letter
-        Lm,  // Modifier_Letter
-        Lo,  // Other_Letter
-        Lt,  // Titlecase_Letter
-        Lu,  // Uppercase_Letter
-        Mc,  // Spacing_Mark
-        Me,  // Enclosing_Mark
-        Mn,  // Nonspacing_Mark
-        Nd,  // Decimal_Number
-        Nl,  // Letter_Number
-        No,  // Other_Number
-        Pc,  // Connector_Punctuation
-        Pd,  // Dash_Punctuation
-        Pe,  // Close_Punctuation
-        Pf,  // Final_Punctuation
-        Pi,  // Initial_Punctuation
-        Po,  // Other_Punctuation
-        Ps,  // Open_Punctuation
-        Sc,  // Currency_Symbol
-        Sk,  // Modifier_Symbol
-        Sm,  // Math_Symbol
-        So,  // Other_Symbol
-        Zl,  // Line_Separator
-        Zp,  // Paragraph_Separator
-        Zs,  // Space_Separator
+        Cc = 16 * 'C',  // Control
+        Cf,             // Format
+        Cn,             // Unassigned
+        Co,             // Private_Use
+        Cs,             // Surrogate
+        Ll = 16 * 'L',  // Lowercase_Letter
+        Lm,             // Modifier_Letter
+        Lo,             // Other_Letter
+        Lt,             // Titlecase_Letter
+        Lu,             // Uppercase_Letter
+        Mc = 16 * 'M',  // Spacing_Mark
+        Me,             // Enclosing_Mark
+        Mn,             // Nonspacing_Mark
+        Nd = 16 * 'N',  // Decimal_Number
+        Nl,             // Letter_Number
+        No,             // Other_Number
+        Pc = 16 * 'P',  // Connector_Punctuation
+        Pd,             // Dash_Punctuation
+        Pe,             // Close_Punctuation
+        Pf,             // Final_Punctuation
+        Pi,             // Initial_Punctuation
+        Po,             // Other_Punctuation
+        Ps,             // Open_Punctuation
+        Sc = 16 * 'S',  // Currency_Symbol
+        Sk,             // Modifier_Symbol
+        Sm,             // Math_Symbol
+        So,             // Other_Symbol
+        Zl = 16 * 'Z',  // Line_Separator
+        Zp,             // Paragraph_Separator
+        Zs,             // Space_Separator
     )
 
     namespace Detail {
