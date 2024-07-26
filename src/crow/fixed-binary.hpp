@@ -663,7 +663,6 @@ namespace std {
         constexpr B quiet_NaN() noexcept { return {}; }                  // Quiet NaN
         constexpr B round_error() noexcept { return {}; }                // Max rounding error
         constexpr B signaling_NaN() noexcept { return {}; }              // Signaling NaN
-        static constexpr float_denorm_style has_denorm = {};             // Has denormalized values
         static constexpr float_round_style round_style = {};             // Rounding style
 
     };
@@ -707,7 +706,6 @@ namespace std {
         constexpr B quiet_NaN() noexcept { return {}; }                  // Quiet NaN
         constexpr B round_error() noexcept { return {}; }                // Max rounding error
         constexpr B signaling_NaN() noexcept { return {}; }              // Signaling NaN
-        static constexpr float_denorm_style has_denorm = {};             // Has denormalized values
         static constexpr float_round_style round_style = {};             // Rounding style
 
     };

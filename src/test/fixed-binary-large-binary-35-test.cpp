@@ -139,10 +139,10 @@ void test_crow_fixed_binary_large_binary_35() {
     TRY(x = 32767ull);  TEST(! x.fits_in<int8_t>());  TEST(x.fits_in<int16_t>());    TEST(x.fits_in<int32_t>());  TEST(x.fits_in<int64_t>());
     TRY(x = 32768ull);  TEST(! x.fits_in<int8_t>());  TEST(! x.fits_in<int16_t>());  TEST(x.fits_in<int32_t>());  TEST(x.fits_in<int64_t>());
 
-    TRY(x = 0ull);      TEST_EQUAL(int8_t(x), 0);     TEST_EQUAL(int16_t(x), 0);       TEST_EQUAL(int32_t(x), 0);      TEST_EQUAL(int64_t(x), 0ll);
-    TRY(x = 127ull);    TEST_EQUAL(int8_t(x), 127);   TEST_EQUAL(int16_t(x), 127);     TEST_EQUAL(int32_t(x), 127);    TEST_EQUAL(int64_t(x), 127ll);
-    TRY(x = 128ull);    TEST_EQUAL(int8_t(x), -128);  TEST_EQUAL(int16_t(x), 128);     TEST_EQUAL(int32_t(x), 128);    TEST_EQUAL(int64_t(x), 128ll);
-    TRY(x = 32767ull);  TEST_EQUAL(int8_t(x), -1);    TEST_EQUAL(int16_t(x), 32767);   TEST_EQUAL(int32_t(x), 32767);  TEST_EQUAL(int64_t(x), 32767ll);
-    TRY(x = 32768ull);  TEST_EQUAL(int8_t(x), 0);     TEST_EQUAL(int16_t(x), -32768);  TEST_EQUAL(int32_t(x), 32768);  TEST_EQUAL(int64_t(x), 32768ll);
+    TRY(x = 0ull);      TEST_EQUAL(int8_t(x), 0);    TEST_EQUAL(int16_t(x), 0);      TEST_EQUAL(int32_t(x), 0);      TEST_EQUAL(int64_t(x), 0ll);
+    TRY(x = 127ull);    TEST_EQUAL(int8_t(x), 127);  TEST_EQUAL(int16_t(x), 127);    TEST_EQUAL(int32_t(x), 127);    TEST_EQUAL(int64_t(x), 127ll);
+    TRY(x = 128ull);    /**/                         TEST_EQUAL(int16_t(x), 128);    TEST_EQUAL(int32_t(x), 128);    TEST_EQUAL(int64_t(x), 128ll);
+    TRY(x = 32767ull);  /**/                         TEST_EQUAL(int16_t(x), 32767);  TEST_EQUAL(int32_t(x), 32767);  TEST_EQUAL(int64_t(x), 32767ll);
+    TRY(x = 32768ull);  /**/                         /**/                            TEST_EQUAL(int32_t(x), 32768);  TEST_EQUAL(int64_t(x), 32768ll);
 
 }

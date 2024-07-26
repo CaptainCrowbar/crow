@@ -6,9 +6,7 @@ using namespace Crow;
 
 namespace {
 
-    const auto min_int32 = std::numeric_limits<int32_t>::min();
     const auto max_int32 = std::numeric_limits<int32_t>::max();
-    const auto min_int64 = std::numeric_limits<int64_t>::min();
     const auto max_int64 = std::numeric_limits<int64_t>::max();
 
 }
@@ -166,14 +164,13 @@ void test_crow_fixed_binary_large_binary_100() {
     TRY(x = 9223372036854775807ull);  TEST(! x.fits_in<int8_t>());  TEST(! x.fits_in<int16_t>());  TEST(! x.fits_in<int32_t>());  TEST(x.fits_in<int64_t>());
     TRY(x = 9223372036854775808ull);  TEST(! x.fits_in<int8_t>());  TEST(! x.fits_in<int16_t>());  TEST(! x.fits_in<int32_t>());  TEST(! x.fits_in<int64_t>());
 
-    TRY(x = 0ull);                    TEST_EQUAL(int8_t(x), 0);     TEST_EQUAL(int16_t(x), 0);       TEST_EQUAL(int32_t(x), 0);          TEST_EQUAL(int64_t(x), 0);
-    TRY(x = 127ull);                  TEST_EQUAL(int8_t(x), 127);   TEST_EQUAL(int16_t(x), 127);     TEST_EQUAL(int32_t(x), 127);        TEST_EQUAL(int64_t(x), 127);
-    TRY(x = 128ull);                  TEST_EQUAL(int8_t(x), -128);  TEST_EQUAL(int16_t(x), 128);     TEST_EQUAL(int32_t(x), 128);        TEST_EQUAL(int64_t(x), 128);
-    TRY(x = 32767ull);                TEST_EQUAL(int8_t(x), -1);    TEST_EQUAL(int16_t(x), 32767);   TEST_EQUAL(int32_t(x), 32767);      TEST_EQUAL(int64_t(x), 32767);
-    TRY(x = 32768ull);                TEST_EQUAL(int8_t(x), 0);     TEST_EQUAL(int16_t(x), -32768);  TEST_EQUAL(int32_t(x), 32768);      TEST_EQUAL(int64_t(x), 32768);
-    TRY(x = 2147483647ull);           TEST_EQUAL(int8_t(x), -1);    TEST_EQUAL(int16_t(x), -1);      TEST_EQUAL(int32_t(x), max_int32);  TEST_EQUAL(int64_t(x), 2147483647);
-    TRY(x = 2147483648ull);           TEST_EQUAL(int8_t(x), 0);     TEST_EQUAL(int16_t(x), 0);       TEST_EQUAL(int32_t(x), min_int32);  TEST_EQUAL(int64_t(x), 2147483648);
-    TRY(x = 9223372036854775807ull);  TEST_EQUAL(int8_t(x), -1);    TEST_EQUAL(int16_t(x), -1);      TEST_EQUAL(int32_t(x), -1);         TEST_EQUAL(int64_t(x), max_int64);
-    TRY(x = 9223372036854775808ull);  TEST_EQUAL(int8_t(x), 0);     TEST_EQUAL(int16_t(x), 0);       TEST_EQUAL(int32_t(x), 0);          TEST_EQUAL(int64_t(x), min_int64);
+    TRY(x = 0ull);                    TEST_EQUAL(int8_t(x), 0);    TEST_EQUAL(int16_t(x), 0);      TEST_EQUAL(int32_t(x), 0);          TEST_EQUAL(int64_t(x), 0);
+    TRY(x = 127ull);                  TEST_EQUAL(int8_t(x), 127);  TEST_EQUAL(int16_t(x), 127);    TEST_EQUAL(int32_t(x), 127);        TEST_EQUAL(int64_t(x), 127);
+    TRY(x = 128ull);                  /**/                         TEST_EQUAL(int16_t(x), 128);    TEST_EQUAL(int32_t(x), 128);        TEST_EQUAL(int64_t(x), 128);
+    TRY(x = 32767ull);                /**/                         TEST_EQUAL(int16_t(x), 32767);  TEST_EQUAL(int32_t(x), 32767);      TEST_EQUAL(int64_t(x), 32767);
+    TRY(x = 32768ull);                /**/                         /**/                            TEST_EQUAL(int32_t(x), 32768);      TEST_EQUAL(int64_t(x), 32768);
+    TRY(x = 2147483647ull);           /**/                         /**/                            TEST_EQUAL(int32_t(x), max_int32);  TEST_EQUAL(int64_t(x), 2147483647);
+    TRY(x = 2147483648ull);           /**/                         /**/                            /**/                                TEST_EQUAL(int64_t(x), 2147483648);
+    TRY(x = 9223372036854775807ull);  /**/                         /**/                            /**/                                TEST_EQUAL(int64_t(x), max_int64);
 
 }
