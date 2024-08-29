@@ -299,15 +299,19 @@ namespace Crow {
     }
 
     bool Cstdio::eof() const noexcept {
-        return std::feof(fp_.get()) != 0;
+        return fp_ && std::feof(fp_.get()) != 0;
     }
 
     bool Cstdio::error() const noexcept {
-        return std::ferror(fp_.get()) != 0;
+        return fp_ && std::ferror(fp_.get()) != 0;
     }
 
     int Cstdio::fd() const {
         return fp_ ? IO_FUNCTION(fileno)(fp_.get()) : -1;
+    }
+
+    bool Cstdio::is_ready() const noexcept {
+        return fp_ && ! error() && ! eof();
     }
 
     void Cstdio::ungetc(char c) {

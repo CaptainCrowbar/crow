@@ -223,10 +223,12 @@ Other life cycle functions. This class is movable but not copyable.
 void Cstdio::clearerr() noexcept;
 bool Cstdio::eof() const noexcept;
 bool Cstdio::error() const noexcept;
+bool Cstdio::is_ready() const noexcept;
 ```
 
 These expose the standard `clearerr(), feof(),` and `ferror()` status
-functions.
+functions. The `is_ready()` function is true if `is_open()` is true and
+neither `eof()` nor `error()` are set.
 
 ```c++
 int Cstdio::fd() const;

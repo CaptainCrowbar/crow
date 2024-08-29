@@ -123,6 +123,7 @@ namespace Crow {
         bool error() const noexcept;
         int fd() const;
         FILE* get() const noexcept { return fp_.get(); }
+        bool is_ready() const noexcept;
         FILE* release() noexcept { return fp_.release(); }
         void ungetc(char c);
 
