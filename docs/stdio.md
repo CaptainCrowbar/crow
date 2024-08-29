@@ -220,6 +220,15 @@ Cstdio& Cstdio::operator=(Cstdio&& obj);
 Other life cycle functions. This class is movable but not copyable.
 
 ```c++
+void Cstdio::clearerr() noexcept;
+bool Cstdio::eof() const noexcept;
+bool Cstdio::error() const noexcept;
+```
+
+These expose the standard `clearerr(), feof(),` and `ferror()` status
+functions.
+
+```c++
 int Cstdio::fd() const;
 ```
 

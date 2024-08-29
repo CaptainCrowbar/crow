@@ -118,6 +118,9 @@ namespace Crow {
         ptrdiff_t tell() override;
         size_t write(const void* ptr, size_t len) override;
 
+        void clearerr() noexcept;
+        bool eof() const noexcept;
+        bool error() const noexcept;
         int fd() const;
         FILE* get() const noexcept { return fp_.get(); }
         FILE* release() noexcept { return fp_.release(); }
